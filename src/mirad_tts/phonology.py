@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """Phonology constants for Mirad TTS, derived from the Mirad Grammar specification.
 
 This module encodes the one-to-one grapheme-to-phoneme correspondences defined
@@ -73,67 +72,11 @@ SIMPLE_VOWELS: frozenset[str] = frozenset("aeiou")
 
 COMPLEX_VOWELS: dict[str, str] = {
     # post-y-glided
-=======
-"""Phonology constants and IPA mappings for Mirad."""
-
-COMPLEX_VOWELS: tuple[str, ...] = (
-    "ay",
-    "ey",
-    "iy",
-    "oy",
-    "uy",
-    "aw",
-    "ew",
-    "iw",
-    "ow",
-    "uw",
-    "yo",
-    "yi",
-)
-
-SIMPLE_VOWELS: tuple[str, ...] = ("a", "e", "i", "o", "u")
-
-CONSONANT_IPA: dict[str, str] = {
-    "b": "b",
-    "c": "t͡ʃ",
-    "d": "d",
-    "f": "f",
-    "g": "g",
-    "h": "h",
-    "j": "ʒ",
-    "k": "k",
-    "l": "l",
-    "m": "m",
-    "n": "n",
-    "p": "p",
-    "q": "k",
-    "r": "ɾ",
-    "s": "s",
-    "t": "t",
-    "v": "v",
-    "w": "w",
-    "x": "ʃ",
-    "y": "j",
-    "z": "z",
-}
-
-SIMPLE_VOWEL_IPA: dict[str, str] = {
-    "a": "a",
-    "e": "e",
-    "i": "i",
-    "o": "o",
-    "u": "u",
-    "y": "ɨ",
-}
-
-COMPLEX_VOWEL_IPA: dict[str, str] = {
->>>>>>> milestone/M001
     "ay": "aɪ",
     "ey": "eɪ",
     "iy": "iɪ",
     "oy": "oɪ",
     "uy": "uɪ",
-<<<<<<< HEAD
     # pre-y-glided
     "ya": "ja",
     "ye": "je",
@@ -170,13 +113,13 @@ COMPLEX_VOWEL_IPA: dict[str, str] = {
 # when to attempt a two- or three-character match before falling back to the
 # single-character simple vowel.
 COMPLEX_VOWEL_STARTS: frozenset[str] = frozenset("aeiouwy")
-=======
-    "aw": "aʊ",
-    "ew": "eʊ",
-    "iw": "iʊ",
-    "ow": "oʊ",
-    "uw": "uʊ",
-    "yo": "jo",
-    "yi": "ji",
+# IPA mappings for vowels (used by ipa.py)
+COMPLEX_VOWEL_IPA: dict[str, str] = dict(COMPLEX_VOWELS)
+
+SIMPLE_VOWEL_IPA: dict[str, str] = {
+    "a": "a",
+    "e": "e",
+    "i": "i",
+    "o": "o",
+    "u": "u",
 }
->>>>>>> milestone/M001

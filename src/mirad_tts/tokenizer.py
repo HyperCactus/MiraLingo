@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """Tokenizer for Mirad text — splits raw strings into typed tokens."""
 
 from __future__ import annotations
@@ -74,48 +73,3 @@ _TOKEN_RE = re.compile(
     r"|(?P<WORD>[A-Za-z]+)"
     r"|(?P<PUNCT>[^A-Za-z\d\s])"
 )
-=======
-"""Tokenizer for Mirad IPA text conversion."""
-
-from __future__ import annotations
-
-import enum
-from dataclasses import dataclass
-
-
-class TokenType(enum.Enum):
-    WORD = "WORD"
-    SPACE = "SPACE"
-    PUNCT = "PUNCT"
-
-
-@dataclass(frozen=True, slots=True)
-class Token:
-    type_: TokenType
-    value: str
-
-
-def tokenize(text: str) -> list[Token]:
-    tokens: list[Token] = []
-    i = 0
-    while i < len(text):
-        ch = text[i]
-        if ch.isspace():
-            start = i
-            while i < len(text) and text[i].isspace():
-                i += 1
-            tokens.append(Token(type_=TokenType.SPACE, value=text[start:i]))
-            continue
-
-        if ch.isalpha() or ch == "'":
-            start = i
-            while i < len(text) and (text[i].isalpha() or text[i] == "'"):
-                i += 1
-            tokens.append(Token(type_=TokenType.WORD, value=text[start:i]))
-            continue
-
-        tokens.append(Token(type_=TokenType.PUNCT, value=ch))
-        i += 1
-
-    return tokens
->>>>>>> milestone/M001

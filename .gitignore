@@ -240,7 +240,4 @@ vendor/
 coverage/
 .cache/
 tmp/
-<<<<<<< HEAD
 .agents
-=======
->>>>>>> milestone/M001

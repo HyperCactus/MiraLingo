@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """mirad_tts — Mirad TTS text-to-speech preparation library.
 
 Public API
@@ -14,32 +13,6 @@ Syllable     : frozen/slots dataclass (text, onset, nucleus, coda)
 
 from __future__ import annotations
 
-from mirad_tts.phonology import (
-    COMPLEX_VOWELS,
-    COMPLEX_VOWEL_STARTS,
-    GLOTTAL,
-    SIMPLE_VOWELS,
-)
-from mirad_tts.syllabify import Syllable, assign_stress, syllabify, syllabify_word
-from mirad_tts.tokenizer import (
-    UnsupportedLegacyOrthographyError,
-    tokenize,
-)
-from mirad_tts.types import Token, TokenType
-
-__all__ = [
-    "Syllable",
-    "Token",
-    "TokenType",
-    "UnsupportedLegacyOrthographyError",
-    "assign_stress",
-    "syllabify",
-    "syllabify_word",
-    "tokenize",
-]
-=======
-"""Public API for Mirad TTS phoneme pipeline."""
-
 from . import cli
 from .espeak_backend import (
     EspeakBinaryNotFoundError,
@@ -52,30 +25,43 @@ from .espeak_backend import (
     word_to_espeak,
 )
 from .ipa import syllable_to_ipa, text_to_ipa, word_to_ipa
-from .phonology import COMPLEX_VOWELS, SIMPLE_VOWELS
-from .syllabify import Syllable, assign_stress, syllabify, syllabify_word
-from .tokenizer import tokenize
+from mirad_tts.phonology import (
+    COMPLEX_VOWEL_STARTS,
+    COMPLEX_VOWELS,
+    GLOTTAL,
+    SIMPLE_VOWELS,
+)
+from mirad_tts.syllabify import Syllable, assign_stress, syllabify, syllabify_word
+from mirad_tts.tokenizer import (
+    UnsupportedLegacyOrthographyError,
+    tokenize,
+)
+from mirad_tts.types import Token, TokenType
 
 __all__ = [
+    "COMPLEX_VOWEL_STARTS",
     "COMPLEX_VOWELS",
-    "cli",
-    "SIMPLE_VOWELS",
-    "Syllable",
-    "syllabify_word",
-    "syllabify",
-    "assign_stress",
-    "syllable_to_ipa",
-    "word_to_ipa",
-    "text_to_ipa",
+    "EspeakBinaryNotFoundError",
     "EspeakConversionError",
     "EspeakSynthesisError",
-    "EspeakBinaryNotFoundError",
     "EspeakSynthesisTimeoutError",
+    "GLOTTAL",
+    "Syllable",
+    "Token",
+    "TokenType",
+    "UnsupportedLegacyOrthographyError",
+    "assign_stress",
+    "cli",
+    "espeak_backend",
+    "ipa",
+    "syllabify",
+    "syllabify_word",
     "syllable_to_espeak",
-    "word_to_espeak",
-    "text_to_espeak_phoneme_input",
+    "syllable_to_ipa",
     "synthesize_to_wav",
+    "text_to_espeak_phoneme_input",
+    "text_to_ipa",
     "tokenize",
+    "word_to_espeak",
+    "word_to_ipa",
 ]
-from .tokenizer import Token, TokenType
->>>>>>> milestone/M001
