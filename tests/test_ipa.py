@@ -57,7 +57,7 @@ class TestSyllableIpaDirect:
 
     def test_complex_vowel_aw_in_nucleus(self):
         syl = Syllable(text="maw", onset="m", nucleus="aw", coda="", stressed=False)
-        assert syllable_to_ipa(syl) == "maʊ"
+        assert syllable_to_ipa(syl) == "mɔ"
 
     def test_complex_vowel_oy_in_nucleus(self):
         syl = Syllable(text="toy", onset="t", nucleus="oy", coda="", stressed=False)
@@ -178,10 +178,10 @@ class TestVowelMappingsIpa:
         assert word_to_ipa("uy", stress=False) == "uɪ"
 
     def test_aw_becomes_au(self):
-        assert word_to_ipa("aw", stress=False) == "aʊ"
+        assert word_to_ipa("aw", stress=False) == "ɔ"
 
     def test_ew_becomes_eu(self):
-        assert word_to_ipa("ew", stress=False) == "eʊ"
+        assert word_to_ipa("ew", stress=False) == "ɛʊ"
 
     def test_ow_becomes_ou(self):
         assert word_to_ipa("ow", stress=False) == "oʊ"

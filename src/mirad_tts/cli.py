@@ -11,6 +11,7 @@ from .espeak_backend import text_to_espeak_phoneme_input, synthesize_to_wav
 from .ipa import text_to_ipa
 from .syllabify import assign_stress, syllabify_word
 from .tokenizer import Token, tokenize
+from .types import TokenType
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,7 +68,7 @@ def _word_to_syllables_stress(word: str) -> str:
 def _text_to_syllables_stress(text: str) -> str:
     output: list[str] = []
     for token in tokenize(text):
-        if token.type_ == "WORD":
+        if token.type_ == TokenType.WORD:
             output.append(_word_to_syllables_stress(token.text))
         else:
             output.append(token.text)

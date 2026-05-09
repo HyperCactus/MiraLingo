@@ -9,6 +9,7 @@ import subprocess
 from .phonology import COMPLEX_VOWELS, SIMPLE_VOWELS
 from .syllabify import Syllable, assign_stress, syllabify_word
 from .tokenizer import tokenize
+from .types import TokenType
 
 _ESPEAK_CONSONANTS: dict[str, str] = {
     "b": "b",
@@ -172,7 +173,7 @@ def text_to_espeak_phoneme_input(text: str) -> str:
 
     converted_tokens: list[str] = []
     for token in tokenize(text):
-        if token.type_ == "WORD":
+        if token.type_ == TokenType.WORD:
             try:
                 converted_tokens.append(word_to_espeak(token.text))
             except EspeakConversionError as exc:
