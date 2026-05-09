@@ -1,0 +1,32 @@
+input,syllable_count,stress_position,expected_ipa,expected_espeak,notes
+ama,2,1,ˈama,'ama,simple vowel nucleus, stress on first syllable
+aymsea,3,2,aɪmˈsea,aim'sea,complex vowel + onglide, stress on second syllable per stress rule
+upayo,3,2,uˈpaɪo,u'paio,coda-less consonant onglide, stress on second syllable per stress rule
+tambwa,2,1,ˈtambwa,'tambwa,bw cluster as onset, stress on first syllable
+booka,3,2,buˈoka,bu'oka,adjacent simple vowels → three syllables (bo-o-ka), stress on middle syllable
+Mirad,2,1,ˈmiɾad,'mirad,stress on first syllable, r in coda becomes ɾ
+igay,2,1,ˈigaɪ,'igai,stress on first syllable
+vay,1,0,vaɪ,vai,single syllable, no stress in espeak
+tejna,2,1,ˈteʒna,'teZna,j→ʒ in coda, n in onset
+akea,3,2,aˈkea,a'kea,stress on second syllable
+byoskyin,2,1,ˈbjoskjin,'bjoskjin,by=consonant+glide onset, skj=complex onset, stress on first syllable
+xati,2,1,ˈʃati,'Sati,x→ʃ in onset
+kopo,2,1,ˈkopo,'kopo,stress on first syllable
+xei,2,1,ˈʃeɪ,'Sei,x→ʃ in onset, ei→eɪ diphthong, stress on first syllable
+zoi,2,1,ˈzoɪ,'zoi,simple vowel + oi diphthong, stress on first syllable
+auwa,3,2,aˈuwa,a'uwa,three syllables (a-u-wa), stress on second syllable (u)
+tei,2,1,ˈteɪ,'tei,ei→eɪ diphthong, stress on first syllable
+jal,1,0,ʒal,Gal,single syllable, r/l coda rule, no stress
+tanra,2,1,ˈtanra,'tanra,r in coda, stress on first syllable
+skeit,2,1,ˈskeɪt,'skeit,complex onset sk, stress on first syllable
+glyn,1,0,glyn,glin,single syllable, complex onset glyn, no stress
+skropo,2,1,ˈskropo,'skropo,complex onset skr, stress on first syllable
+spoli,2,1,ˈspoli,'spoli,complex onset sp, stress on first syllable
+jukita,3,2,d͡ʒuˈkita,d3u'kita,j→d͡ʒ, three syllables, stress on second
+zopra,2,1,ˈzopra,'zopra,r in coda, stress on first syllable
+blasi,2,1,ˈblasi,'blasi,complex onset bl, stress on first syllable
+amra,2,1,ˈamra,'amra,r in coda (ɾ in IPA), stress on first syllable
+xulu,2,1,ˈʃulu,'Sulu,x→ʃ, stress on first syllable
+tebra,2,1,ˈtebɾa,'tebra,r in coda (ɾ in IPA), stress on first syllable
+tixe,2,1,ˈtiʃe,'tiSe,tix→tiʃ (x→ʃ), stress on first syllable
+paktro,2,1,ˈpaktro,'paktro,pk cluster as complex onset, stress on first syllable

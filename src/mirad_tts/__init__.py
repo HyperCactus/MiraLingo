@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """mirad_tts — Mirad TTS text-to-speech preparation library.
 
 Public API
@@ -36,3 +37,45 @@ __all__ = [
     "syllabify_word",
     "tokenize",
 ]
+=======
+"""Public API for Mirad TTS phoneme pipeline."""
+
+from . import cli
+from .espeak_backend import (
+    EspeakBinaryNotFoundError,
+    EspeakConversionError,
+    EspeakSynthesisError,
+    EspeakSynthesisTimeoutError,
+    syllable_to_espeak,
+    synthesize_to_wav,
+    text_to_espeak_phoneme_input,
+    word_to_espeak,
+)
+from .ipa import syllable_to_ipa, text_to_ipa, word_to_ipa
+from .phonology import COMPLEX_VOWELS, SIMPLE_VOWELS
+from .syllabify import Syllable, assign_stress, syllabify, syllabify_word
+from .tokenizer import tokenize
+
+__all__ = [
+    "COMPLEX_VOWELS",
+    "cli",
+    "SIMPLE_VOWELS",
+    "Syllable",
+    "syllabify_word",
+    "syllabify",
+    "assign_stress",
+    "syllable_to_ipa",
+    "word_to_ipa",
+    "text_to_ipa",
+    "EspeakConversionError",
+    "EspeakSynthesisError",
+    "EspeakBinaryNotFoundError",
+    "EspeakSynthesisTimeoutError",
+    "syllable_to_espeak",
+    "word_to_espeak",
+    "text_to_espeak_phoneme_input",
+    "synthesize_to_wav",
+    "tokenize",
+]
+from .tokenizer import Token, TokenType
+>>>>>>> milestone/M001

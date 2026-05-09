@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """Mirad syllabification engine.
 
 Syllabifies a Mirad orthographic word into a list of `Syllable` objects.
@@ -57,10 +58,20 @@ def _find_nuclei(word: str) -> list[tuple[int, int]]:
 
 
 # ── Syllable dataclass ─────────────────────────────────────────────────────────
+=======
+"""Mirad syllabification and stress assignment."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
+
+from .phonology import COMPLEX_VOWELS, SIMPLE_VOWELS
+>>>>>>> milestone/M001
 
 
 @dataclass(frozen=True, slots=True)
 class Syllable:
+<<<<<<< HEAD
     """A single syllabified syllable from a Mirad word."""
 
     text: str     # onset + nucleus + coda
@@ -113,6 +124,34 @@ def syllabify_word(word: str) -> list[Syllable]:
     list[Syllable]
         Ordered list from left to right.
     """
+=======
+    text: str
+    onset: str
+    nucleus: str
+    coda: str
+    stressed: bool = False
+
+
+def _is_complex_vowel_at(word: str, index: int) -> bool:
+    return any(word.startswith(vowel, index) for vowel in COMPLEX_VOWELS)
+
+
+def _find_nuclei(word: str) -> list[tuple[int, int]]:
+    nuclei: list[tuple[int, int]] = []
+    i = 0
+    while i < len(word):
+        if _is_complex_vowel_at(word, i):
+            nuclei.append((i, i + 2))
+            i += 2
+            continue
+        if word[i] in SIMPLE_VOWELS:
+            nuclei.append((i, i + 1))
+        i += 1
+    return nuclei
+
+
+def syllabify_word(word: str) -> list[Syllable]:
+>>>>>>> milestone/M001
     if not word:
         return []
 
@@ -121,6 +160,7 @@ def syllabify_word(word: str) -> list[Syllable]:
         return [Syllable(text=word, onset=word, nucleus="", coda="")]
 
     syllables: list[Syllable] = []
+<<<<<<< HEAD
     pos = 0
 
     for n_start, n_end in nuclei:
@@ -147,10 +187,75 @@ def syllabify_word(word: str) -> list[Syllable]:
             )
         )
         pos = coda_end
+=======
+    previous_end = 0
+    carry_onset = ""  # chars from prior gap's onset to prepend to next syllable
+
+    for index, (n_start, n_end) in enumerate(nuclei):
+        # Onset = characters between previous syllable end and this nucleus start,
+        # plus any carry from the prior gap's multi-char onset
+        onset = carry_onset + word[previous_end:n_start]
+        carry_onset = ""
+
+        # Compute the gap between this nucleus and the next nucleus
+        next_nucleus_start = nuclei[index + 1][0] if index + 1 < len(nuclei) else len(word)
+        gap = word[n_end:next_nucleus_start]
+        coda = ""
+
+        if len(gap) == 0:
+            # Rule 2: adjacent nuclei (e.g. "oo" in booka) — no gap, no coda
+            pass
+
+        elif len(gap) == 1:
+            # Rules 3 & 4: single character — whole gap joins coda of current syllable.
+            # r/l liquids stay coda here; other consonants stay coda unless the gap
+            # is a single r/l followed by a simple vowel, which would have made gap=1
+            # only if r/l is followed by a vowel (impossible in a gap since vowels are
+            # nuclei). So single-char gaps always go to coda.
+            coda = gap
+
+        else:
+            # Rule 5: multi-character gap — maximal onset principle.
+            # Last consonant before the next nucleus joins the onset of the next syllable.
+            # r/l in coda position (not directly before a simple vowel) stay in coda.
+            coda = gap[:-1]           # all chars except the last stay in coda
+            last_char = gap[-1]
+            if last_char in ("r", "l"):
+                # r/l never join onset unless directly followed by a simple vowel,
+                # which would make the gap single-char and handled above.
+                # So whole gap stays in coda.
+                coda = gap
+            else:
+                # Last consonant joins onset of next syllable
+                carry_onset = last_char
+
+        # Text and coda boundary
+        if index == len(nuclei) - 1:
+            # Final syllable: text = onset + nucleus + coda, extends to end of word
+            text_end = len(word)
+            final_coda = word[n_end:text_end]
+        else:
+            text_end = n_end + len(coda)
+            final_coda = coda
+
+        text = word[previous_end:text_end]
+
+        syllables.append(
+            Syllable(
+                text=text,
+                onset=onset,
+                nucleus=word[n_start:n_end],
+                coda=final_coda,
+            )
+        )
+
+        previous_end = text_end
+>>>>>>> milestone/M001
 
     return syllables
 
 
+<<<<<<< HEAD
 def syllabify(word: str) -> list[str]:
     """Syllabify a word, returning a list of orthographic syllable strings.
 
@@ -209,3 +314,18 @@ def assign_stress(syllables: list[Syllable]) -> list[Syllable]:
                      coda=s.coda, stressed=(i == stress_idx))
         )
     return result
+=======
+def syllabify(words: list[str]) -> list[list[Syllable]]:
+    return [syllabify_word(word) for word in words]
+
+
+def assign_stress(syllables: list[Syllable]) -> list[Syllable]:
+    if len(syllables) < 2:
+        return [replace(syllable, stressed=False) for syllable in syllables]
+
+    stress_index = len(syllables) - 2
+    return [
+        replace(syllable, stressed=(index == stress_index))
+        for index, syllable in enumerate(syllables)
+    ]
+>>>>>>> milestone/M001
