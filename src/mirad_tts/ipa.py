@@ -5,6 +5,7 @@ from __future__ import annotations
 from .phonology import COMPLEX_VOWEL_IPA, CONSONANT_IPA, SIMPLE_VOWEL_IPA
 from .syllabify import Syllable, assign_stress, syllabify_word
 from .tokenizer import tokenize
+from .types import TokenType
 
 
 def _consonants_to_ipa(chars: str) -> str:
@@ -43,8 +44,8 @@ def word_to_ipa(word: str, stress: bool = True, dotted: bool = False) -> str:
 def text_to_ipa(text: str) -> str:
     output: list[str] = []
     for token in tokenize(text):
-        if token.type_ == "WORD":
-            output.append(word_to_ipa(token.value))
+        if token.type_ == TokenType.WORD:
+            output.append(word_to_ipa(token.text))
         else:
-            output.append(token.value)
+            output.append(token.text)
     return "".join(output)

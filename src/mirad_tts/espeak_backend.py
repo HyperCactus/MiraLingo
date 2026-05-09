@@ -174,13 +174,13 @@ def text_to_espeak_phoneme_input(text: str) -> str:
     for token in tokenize(text):
         if token.type_ == "WORD":
             try:
-                converted_tokens.append(word_to_espeak(token.value))
+                converted_tokens.append(word_to_espeak(token.text))
             except EspeakConversionError as exc:
                 raise EspeakConversionError(
-                    f"Failed converting token {token.value!r}: {exc}"
+                    f"Failed converting token {token.text!r}: {exc}"
                 ) from exc
         else:
-            converted_tokens.append(token.value)
+            converted_tokens.append(token.text)
 
     return f"[[{''.join(converted_tokens)}]]"
 

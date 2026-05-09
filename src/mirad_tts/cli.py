@@ -43,7 +43,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _tokens_debug(tokens: list[Token]) -> str:
-    return "|".join(f"{token.type_}:{token.value!r}" for token in tokens)
+    return "|".join(f"{token.type_}:{token.text!r}" for token in tokens)
 
 
 def _word_to_syllables_stress(word: str) -> str:
@@ -68,9 +68,9 @@ def _text_to_syllables_stress(text: str) -> str:
     output: list[str] = []
     for token in tokenize(text):
         if token.type_ == "WORD":
-            output.append(_word_to_syllables_stress(token.value))
+            output.append(_word_to_syllables_stress(token.text))
         else:
-            output.append(token.value)
+            output.append(token.text)
     return "".join(output)
 
 
