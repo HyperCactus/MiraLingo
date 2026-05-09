@@ -42,6 +42,7 @@ CONSONANT_IPA: dict[str, str] = {
     "y": "j",
     "x": "ʃ",
     "j": "ʒ",
+    "q": "k",
     "c": "t͡ʃ",
 }
 

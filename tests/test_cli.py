@@ -68,9 +68,8 @@ class TestCliModes:
         code = cli.main(["At", "tixe", "Mirad."])
         captured = capsys.readouterr()
         assert code == 0
-        # text_to_ipa('At tixe Mirad.') → 'Atˈtiʃeˈmiɾad.'
-        # (no space between words since tokenizer consumes spaces)
-        assert "Atˈtiʃeˈmiɾad." in captured.out.strip()
+        # text_to_ipa('At tixe Mirad.') → 'atˈtiʃeˈmiɾad.' (lowercased per IPA convention)
+        assert "atˈtiʃeˈmiɾad." in captured.out.strip()
 
     def test_at_tixe_mirad_syllables(self, capsys):
         code = cli.main(["--syllables", "At", "tixe", "Mirad."])
@@ -246,7 +245,7 @@ class TestRunFunction:
 
     def test_run_returns_selected_output(self):
         selected, debug_lines, wav_path, voice = _run(["At", "tixe", "Mirad."])
-        assert selected == "Atˈtiʃeˈmiɾad."
+        assert selected == "atˈtiʃeˈmiɾad."
 
 
 # ---------------------------------------------------------------------------
@@ -483,7 +482,7 @@ _ANCHOR_WORDS = [
 
 _IDENTITY_WORDS = [
     ("tixe", "ˈtiʃe"),
-    ("auwa", "auwa"),
+    ("auwa", "aˈuwa"),
     ("jal", "ʒal"),
 ]
 
@@ -497,7 +496,6 @@ class TestGrammarAnchorWordsIpa:
         assert expected_ipa in selected
 
     @pytest.mark.parametrize("word,expected_ipa", _IDENTITY_WORDS, ids=[w[0] for w in _IDENTITY_WORDS])
-    @pytest.mark.xfail(reason="auwa crashes espeak stage even in IPA mode; known limitation from T01-SUMMARY")
     def test_identity_word_ipa(self, word, expected_ipa):
         selected, debug_lines, wav_path, voice = _run([word])
         assert expected_ipa in selected
@@ -526,15 +524,13 @@ class TestGrammarAnchorWordsDebug:
         stages = [l.split()[1].split("=")[1] for l in debug_lines]
         assert set(stages) == {"tokenizer", "syllables_stress", "ipa", "espeak"}
 
-    # auwa fails at espeak stage even in IPA mode; test IPA-only words
-    @pytest.mark.parametrize("word", [w[0] for w in _ANCHOR_WORDS + _IDENTITY_WORDS if w[0] != "auwa"])
+    @pytest.mark.parametrize("word", [w[0] for w in _ANCHOR_WORDS + _IDENTITY_WORDS])
     def test_all_anchor_words_produce_nonempty_output(self, word):
         selected, debug_lines, wav_path, voice = _run([word])
         assert selected.strip() != ""
 
-    @pytest.mark.xfail(reason="auwa fails espeak stage in run()")
     def test_auwa_ipa_only(self):
-        # auwa works in IPA mode directly; test via text_to_ipa
+        # auwa works in IPA mode directly
         from mirad_tts.ipa import text_to_ipa
         result = text_to_ipa("auwa")
         assert result.strip() != ""

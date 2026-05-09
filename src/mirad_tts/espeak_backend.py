@@ -44,18 +44,41 @@ _ESPEAK_SIMPLE_VOWELS: dict[str, str] = {
 }
 
 _ESPEAK_COMPLEX_VOWELS: dict[str, str] = {
+    # Post-y-glided (ay, ey, iy, oy, uy)
     "ay": "ai",
     "ey": "ei",
     "iy": "ii",
     "oy": "oi",
     "uy": "ui",
+    # Post-w-glided (aw, ew, iw, ow, uw)
     "aw": "au",
     "ew": "eu",
     "iw": "iu",
     "ow": "ou",
     "uw": "uu",
-    "yo": "jo",
+    # Pre-y-glided (ya, ye, yi, yo, yu)
+    "ya": "ja",
+    "ye": "je",
     "yi": "ji",
+    "yo": "jo",
+    "yu": "ju",
+    # Pre-w-glided (wa, we, wi, wo, wu)
+    "wa": "wa",
+    "we": "we",
+    "wi": "wi",
+    "wo": "wo",
+    "wu": "wu",
+    # Circum-glided (yay, way, etc.)
+    "yay": "jai",
+    "yey": "jei",
+    "yiy": "jii",
+    "yoy": "joi",
+    "yuy": "jui",
+    "way": "wai",
+    "wey": "wei",
+    "wiy": "wii",
+    "woy": "woi",
+    "wuy": "wui",
 }
 
 

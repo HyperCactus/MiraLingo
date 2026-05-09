@@ -30,7 +30,7 @@ def syllable_to_ipa(syllable: Syllable) -> str:
 
 
 def word_to_ipa(word: str, stress: bool = True, dotted: bool = False) -> str:
-    syllables = syllabify_word(word)
+    syllables = syllabify_word(word.lower())
     if not syllables:
         return ""
 

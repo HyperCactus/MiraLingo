@@ -46,7 +46,6 @@ class TestSyllableIpaDirect:
         syl = Syllable(text="ja", onset="j", nucleus="a", coda="", stressed=False)
         assert syllable_to_ipa(syl) == "ʒa"
 
-    @pytest.mark.xfail(reason="q is not in CONSONANT_IPA — phonology.py maps q→k but the lookup is missing")
     def test_q_maps_to_k(self):
         syl = Syllable(text="qa", onset="q", nucleus="a", coda="", stressed=False)
         assert syllable_to_ipa(syl) == "ka"
@@ -102,7 +101,8 @@ class TestConsonantMappingsIpa:
         assert word_to_ipa("pa", stress=False) == "pa"
 
     def test_q(self):
-        assert word_to_ipa("qa", stress=False) == "qa"
+        # q maps to k per Mirad Grammar (q used only for foreign words)
+        assert word_to_ipa("qa", stress=False) == "ka"
 
     def test_s(self):
         assert word_to_ipa("sa", stress=False) == "sa"
@@ -131,10 +131,8 @@ class TestConsonantMappingsIpa:
     def test_r_becomes_flap(self):
         assert word_to_ipa("ra", stress=False) == "ɾa"
 
-    @pytest.mark.xfail(reason="ya syllabifies with y as nucleus (y in COMPLEX_VOWELS) → ɨa; expected ya→ja per grammar but current nucleus detection treats y as vowel")
     def test_y_as_consonant_becomes_j(self):
-        # y in COMPLEX_VOWELS means syllabify sees 'ya' nucleus → SIMPLE_VOWEL_IPA maps y→ɨ
-        # Expected per grammar: ya as onset→ja, but current implementation disagrees
+        # ya syllabifies with y as onset → j in IPA
         assert word_to_ipa("ya", stress=False) == "ja"
 
     def test_all_consonant_keys_mapped(self):
