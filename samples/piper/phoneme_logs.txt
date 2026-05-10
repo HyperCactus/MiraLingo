@@ -1,0 +1,98 @@
+voice.config.phoneme_type: PhonemeType.ESPEAK
+phoneme_id_map size: 154
+
+WORD: Mirad
+phoneme_input: [['mirad]]
+phonemes_parsed: [["'", 'm', 'i', 'r', 'a', 'd']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: akea
+phoneme_input: [[a'kea]]
+phonemes_parsed: [['a', "'", 'k', 'e', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: alayn
+phoneme_input: [['alain]]
+phonemes_parsed: [["'", 'a', 'l', 'a', 'i', 'n']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: ama
+phoneme_input: [['ama]]
+phonemes_parsed: [["'", 'a', 'm', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: auwa
+phoneme_input: [[a'uwa]]
+phonemes_parsed: [['a', "'", 'u', 'w', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: aymsea
+phoneme_input: [[aim'sea]]
+phonemes_parsed: [['a', 'i', 'm', "'", 's', 'e', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: booka
+phoneme_input: [[bo'oka]]
+phonemes_parsed: [['b', 'o', "'", 'o', 'k', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: byoskyin
+phoneme_input: [['bjoskjin]]
+phonemes_parsed: [["'", 'b', 'j', 'o', 's', 'k', 'j', 'i', 'n']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: igay
+phoneme_input: [['igai]]
+phonemes_parsed: [["'", 'i', 'g', 'a', 'i']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: jal
+phoneme_input: [[Zal]]
+phonemes_parsed: [['Z', 'a', 'l']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: oyse
+phoneme_input: [['oise]]
+phonemes_parsed: [["'", 'o', 'i', 's', 'e']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: qatar
+phoneme_input: [['katar]]
+phonemes_parsed: [["'", 'k', 'a', 't', 'a', 'r']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: tejna
+phoneme_input: [['teZna]]
+phonemes_parsed: [["'", 't', 'e', 'Z', 'n', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: tixe
+phoneme_input: [['tiSe]]
+phonemes_parsed: [["'", 't', 'i', 'S', 'e']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: vay
+phoneme_input: [[vai]]
+phonemes_parsed: [['v', 'a', 'i']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: wa
+phoneme_input: [[wa]]
+phonemes_parsed: [['w', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: way
+phoneme_input: [[wai]]
+phonemes_parsed: [['w', 'a', 'i']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: ya
+phoneme_input: [[ja]]
+phonemes_parsed: [['j', 'a']]
+phoneme_ids_error: unhashable type: 'list'
+
+WORD: yay
+phoneme_input: [[jai]]
+phonemes_parsed: [['j', 'a', 'i']]
+phoneme_ids_error: unhashable type: 'list'
+

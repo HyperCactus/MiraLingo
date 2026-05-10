@@ -99,7 +99,7 @@ class TestCliModes:
         code = cli.main(["igay"])
         captured = capsys.readouterr()
         assert code == 0
-        assert "ˈigaɪ" in captured.out.strip()
+        assert "ˈiɡaɪ" in captured.out.strip()
 
     def test_multiple_sentences(self, capsys):
         code = cli.main(["Mirad.", "igay!?"])
@@ -107,7 +107,7 @@ class TestCliModes:
         assert code == 0
         out = captured.out.strip()
         assert "ˈmiɾad." in out
-        assert "ˈigaɪ!?" in out
+        assert "ˈiɡaɪ!?" in out
 
 
 # ---------------------------------------------------------------------------
@@ -364,7 +364,7 @@ class TestWavVoiceFlags:
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
 
-        monkeypatch.setattr(cli, "synthesize_to_wav", _fake_synthesize)
+        monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _fake_synthesize)
         out = tmp_path / "demo.wav"
 
         code = cli.main(["--wav", str(out), "--voice", "en", "Mirad"])
@@ -379,7 +379,7 @@ class TestWavVoiceFlags:
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
 
-        monkeypatch.setattr(cli, "synthesize_to_wav", _fake_synthesize)
+        monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _fake_synthesize)
         out = tmp_path / "out.wav"
 
         code = cli.main(["--wav", str(out), "Mirad"])
@@ -408,7 +408,7 @@ class TestWavVoiceFlags:
             Path(output_path).write_bytes(b"RIFF....new")
             return Path(output_path)
 
-        monkeypatch.setattr(cli, "synthesize_to_wav", _fake_synthesize)
+        monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _fake_synthesize)
 
         code = cli.main(["--wav", str(out), "Mirad"])
 
@@ -428,7 +428,7 @@ class TestWavVoiceFlags:
             def _raise(*_args, **_kwargs):
                 raise exc
 
-            monkeypatch.setattr(cli, "synthesize_to_wav", _raise)
+            monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _raise)
 
             code = cli.main(["--wav", str(tmp_path / "out.wav"), "Mirad"])
             captured = capsys.readouterr()
@@ -439,13 +439,13 @@ class TestWavVoiceFlags:
     def test_voice_without_wav_not_passed_to_synthesize(self, monkeypatch):
         """--voice without --wav should not attempt synthesis."""
         seen = {}
-        original_synthesize = cli.synthesize_to_wav
+        original_synthesize = cli.espeak_synthesize_to_wav
 
         def _track(*args, **kwargs):
             seen["called"] = True
             return original_synthesize(*args, **kwargs)
 
-        monkeypatch.setattr(cli, "synthesize_to_wav", _track)
+        monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _track)
 
         selected, debug_lines, wav_path, voice = _run(["--voice", "en", "Mirad"])
         assert seen.get("called", False) is False  # synthesize not called
@@ -456,7 +456,7 @@ class TestWavVoiceFlags:
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
 
-        monkeypatch.setattr(cli, "synthesize_to_wav", _fake_synthesize)
+        monkeypatch.setattr(cli, "espeak_synthesize_to_wav", _fake_synthesize)
         out = tmp_path / "debug.wav"
 
         code = cli.main(["--debug", "--wav", str(out), "Mirad"])
@@ -474,7 +474,7 @@ class TestWavVoiceFlags:
 _ANCHOR_WORDS = [
     ("ama", "ˈama", "'ama"),
     ("aymsea", "aɪmˈsea", "aim'sea"),
-    ("igay", "ˈigaɪ", "'igai"),
+    ("igay", "ˈiɡaɪ", "'igai"),
     ("vay", "vaɪ", "vai"),
     ("tejna", "ˈteʒna", "'teZna"),
     ("Mirad", "ˈmiɾad", "'mirad"),

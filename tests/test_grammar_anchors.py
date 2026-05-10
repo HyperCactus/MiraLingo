@@ -1,7 +1,7 @@
 """Grammar-anchored pronunciation tests derived from the Mirad Grammar spec.
 
 Every test case is traceable to a specific section, rule, or example table
-in data/mirad-docs/Mirad_grammer.md.  If the grammar says it, we test it.
+in data/mirad-docs/mirad_grammer.md.  If the grammar says it, we test it.
 
 Sections covered:
   - Consonant grapheme → IPA (21 consonants from the spec chart)
@@ -37,8 +37,8 @@ CONSONANT_IPA_TESTS: list[tuple[str, str]] = [
     ("d", "d"),
     # Grapheme f → [f] unvoiced bilabial fricative
     ("f", "f"),
-    # Grapheme g → [g] always hard, even before e and i
-    ("g", "g"),
+    # Grapheme g → [ɡ] always hard, even before e and i (voiced velar plosive)
+    ("g", "ɡ"),
     # Grapheme h → [h] glottal fricative (foreign words)
     ("h", "h"),
     # Grapheme j → [ʒ] voiced palatal fricative (French je, English mirage)
@@ -274,7 +274,7 @@ class TestStressFromGrammar:
 WORD_IPA_TESTS: list[tuple[str, str]] = [
     # Grammar anchor examples
     ("Mirad", "ˈmiɾad"),    # Mi-rad → stress on Mi, r→ɾ
-    ("igay", "ˈigaɪ"),       # i-gay → stress on i, ay→aɪ
+    ("igay", "ˈiɡaɪ"),       # i-gay → stress on i, ay→aɪ, g→ɡ
     ("tejna", "ˈteʒna"),    # te-jna → stress on te, j→ʒ
     ("tixe", "ˈtiʃe"),      # ti-xe → stress on ti, x→ʃ
     ("jal", "ʒal"),          # jal → j→ʒ, no stress (1 syllable)

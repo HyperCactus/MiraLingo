@@ -241,3 +241,7 @@ coverage/
 .cache/
 tmp/
 .agents
+# Generated audio samples
+samples/**/*.wav
+skills-lock.json
+data/pdfs/

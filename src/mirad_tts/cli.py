@@ -7,8 +7,9 @@ from dataclasses import dataclass
 import sys
 from typing import Iterable
 
-from .espeak_backend import text_to_espeak_phoneme_input, synthesize_to_wav
+from .espeak_backend import text_to_espeak_phoneme_input, synthesize_to_wav as espeak_synthesize_to_wav
 from .ipa import text_to_ipa
+from .piper_backend import synthesize_to_wav as piper_synthesize_to_wav
 from .syllabify import assign_stress, syllabify_word
 from .tokenizer import Token, tokenize
 from .types import TokenType
@@ -37,7 +38,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument("--debug", action="store_true", help="Print deterministic stage view")
     parser.add_argument("--wav", type=str, help="Optional output WAV path")
-    parser.add_argument("--voice", type=str, help="Optional eSpeak voice for --wav")
+    parser.add_argument("--backend", type=str, choices=["espeak", "piper"], default="espeak",
+                       help="TTS backend for WAV synthesis (default: espeak)")
+    parser.add_argument("--voice", type=str, help="Optional voice for --wav (backend-specific)")
     parser.add_argument("text", nargs="*", help="Mirad text to convert")
 
     return parser
@@ -128,7 +131,10 @@ def run(argv: list[str] | None = None) -> tuple[str, list[str], str | None, str 
 
     if args.wav:
         try:
-            synthesize_to_wav(text, args.wav, voice=args.voice)
+            if args.backend == "piper":
+                piper_synthesize_to_wav(text, args.wav, model_path=None)
+            else:  # espeak
+                espeak_synthesize_to_wav(text, args.wav, voice=args.voice)
         except Exception as exc:
             raise CliPipelineError("synthesis", exc) from exc
 

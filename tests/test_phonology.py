@@ -39,7 +39,7 @@ class TestCONSONANT_IPA:
 
     def test_velar_plosives(self):
         assert CONSONANT_IPA["k"] == "k"
-        assert CONSONANT_IPA["g"] == "g"
+        assert CONSONANT_IPA["g"] == "ɡ"
 
     def test_glottals(self):
         assert CONSONANT_IPA["h"] == "h"

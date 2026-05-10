@@ -80,7 +80,7 @@ class TestConsonantMappingsIpa:
         assert word_to_ipa("fa", stress=False) == "fa"
 
     def test_g(self):
-        assert word_to_ipa("ga", stress=False) == "ga"
+        assert word_to_ipa("ga", stress=False) == "ɡa"
 
     def test_h(self):
         assert word_to_ipa("ha", stress=False) == "ha"
@@ -195,7 +195,7 @@ class TestStressMarkerIpa:
     """Stress marker (ˈ) is placed before stressed syllables."""
 
     def test_igay_first_syllable_stressed(self):
-        assert word_to_ipa("igay") == "ˈigaɪ"
+        assert word_to_ipa("igay") == "ˈiɡaɪ"
 
     def test_mirad_first_syllable_stressed(self):
         assert word_to_ipa("Mirad") == "ˈmiɾad"
@@ -275,14 +275,14 @@ class TestTextToIpa:
 
     def test_preserves_punctuation_and_spaces(self):
         # PUNCT tokens pass through; SPACE is consumed as separator (no SPACE token)
-        assert "ˈmiɾad,ˈigaɪ!" == text_to_ipa("Mirad, igay!")
+        assert "ˈmiɾad,ˈiɡaɪ!" == text_to_ipa("Mirad, igay!")
 
     def test_single_word(self):
         assert "ˈmiɾad" == text_to_ipa("Mirad")
 
     def test_two_words(self):
         # no SPACE token emitted by tokenizer → adjacent output
-        assert "ˈmiɾadˈigaɪ" == text_to_ipa("Mirad igay")
+        assert "ˈmiɾadˈiɡaɪ" == text_to_ipa("Mirad igay")
 
     def test_punctuation_only(self):
         assert "..." == text_to_ipa("...")
@@ -317,7 +317,7 @@ class TestIpaRegressionFromCsv:
             ("tambwa", "ˈtambwa"),
             ("booka", "boˈoka"),
             ("Mirad", "ˈmiɾad"),
-            ("igay", "ˈigaɪ"),
+            ("igay", "ˈiɡaɪ"),
             ("vay", "vaɪ"),
             ("tejna", "ˈteʒna"),
             ("akea", "aˈkea"),
@@ -331,7 +331,7 @@ class TestIpaRegressionFromCsv:
             ("jal", "ʒal"),
             ("tanra", "ˈtanɾa"),
             ("skeit", "ˈskeit"),
-            ("glyn", "gljn"),
+            ("glyn", "ɡljn"),
             ("skropo", "ˈskɾopo"),
             ("spoli", "ˈspoli"),
             ("jukita", "ʒuˈkita"),

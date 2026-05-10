@@ -25,7 +25,7 @@ CONSONANT_IPA: dict[str, str] = {
     "t": "t",
     "d": "d",
     "k": "k",
-    "g": "g",
+    "g": "ɡ",  # voiced velar plosive (IPA symbol ɡ, not Latin g)
     "f": "f",
     "v": "v",
     "s": "s",
@@ -43,7 +43,7 @@ CONSONANT_IPA: dict[str, str] = {
     "x": "ʃ",
     "j": "ʒ",
     "q": "k",
-    "c": "t͡ʃ",
+    "c": "t͡ʃ",  # unvoiced palato-alveolar affricate (tie bar may not be supported by all TTS engines)
 }
 
 # The glottal-stop character is used as a word-boundary phoneme, e.g. to
