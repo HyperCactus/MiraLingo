@@ -245,3 +245,5 @@ tmp/
 samples/**/*.wav
 skills-lock.json
 data/pdfs/
+
+data/phrases/*
