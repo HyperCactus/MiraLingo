@@ -21,6 +21,14 @@ This engine prepares Mirad text for speech synthesis by:
 - **IPA transcription** — converting to International Phonetic Alphabet notation
 - **TTS backend integration** — generating audio via eSpeak or Piper
 
+## Work in Progress 
+The Piper-TTS implementation has know issues with correct pronunciation.
+
+### Roadmap
+1. Mirad phoneme based TTS engine
+2. English/other languages to Mirad translator
+3. Mirad language learning web-app 
+
 ## Installation
 
 Requires Python 3.10+.
