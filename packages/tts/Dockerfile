@@ -6,12 +6,12 @@ WORKDIR /build
 COPY packages/tts/mirad-tts-0.1.0-py3-none-any.whl .
 
 # Stage 2: Minimal runtime image with espeak-ng
+# Use archive.debian.org + security.debian.org (stable archive)
 FROM python:3.10-slim
 
-# Write a stable mirror directly to avoid geo-DNS slowness on deb.debian.org
-RUN echo 'deb http://archive.debian.org/debian/ debian main' \
-         > /etc/apt/sources.list \
- && echo 'Acquire::Retries 3;' > /etc/apt/apt.conf.d/80docker \
+RUN echo 'Acquire::Retries 3;' > /etc/apt/apt.conf.d/80docker \
+ && echo 'deb http://archive.debian.org/debian bullseye main' > /etc/apt/sources.list \
+ && echo 'deb http://archive.debian.org/debian-security bullseye/updates main' >> /etc/apt/sources.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends espeak-ng \
  && rm -rf /var/lib/apt/lists/* \
@@ -21,9 +21,6 @@ RUN echo 'deb http://archive.debian.org/debian/ debian main' \
 COPY --from=builder /build/*.whl /tmp/
 RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
 
-# PYTHONPATH allows "python -m mirad_tts" from any directory;
-# mirad-tts entry-point script uses sys.executable so works regardless.
-ENV PYTHONPATH=/app/src
 WORKDIR /app
 
 # Default: show CLI help
