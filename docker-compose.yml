@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  tts:
+    image: python:3.10-slim
+    working_dir: /app
+    command: python -c "print('tts service stub')"

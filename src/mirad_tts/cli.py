@@ -9,7 +9,12 @@ from typing import Iterable
 
 from .espeak_backend import text_to_espeak_phoneme_input, synthesize_to_wav as espeak_synthesize_to_wav
 from .ipa import text_to_ipa
-from .piper_backend import synthesize_to_wav as piper_synthesize_to_wav
+from .piper_backend import (
+    PiperPhonemeError,
+    diagnose_text as piper_diagnose_text,
+    synthesize_to_wav as piper_synthesize_to_wav,
+    text_to_piper_phonemes,
+)
 from .syllabify import assign_stress, syllabify_word
 from .tokenizer import Token, tokenize
 from .types import TokenType
@@ -35,12 +40,33 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output dotted syllables with stress marker",
     )
     mode.add_argument("--espeak", action="store_true", help="Output eSpeak phoneme input")
+    mode.add_argument("--piper", action="store_true", help="Output Piper-safe phoneme symbols")
 
     parser.add_argument("--debug", action="store_true", help="Print deterministic stage view")
+    parser.add_argument("--piper-debug", action="store_true",
+                       help="Print per-word Piper phoneme diagnostics (symbols, IDs, missing)")
     parser.add_argument("--wav", type=str, help="Optional output WAV path")
     parser.add_argument("--backend", type=str, choices=["espeak", "piper"], default="espeak",
                        help="TTS backend for WAV synthesis (default: espeak)")
     parser.add_argument("--voice", type=str, help="Optional voice for --wav (backend-specific)")
+    parser.add_argument("--speed", type=int, default=None,
+                       help="eSpeak speed in WPM (default: 120 for natural Mirad)")
+    parser.add_argument("--pitch", type=int, default=None,
+                       help="eSpeak pitch 0-99 (default: 40 for warmer tone)")
+    parser.add_argument("--word-gap", type=int, default=None,
+                       help="eSpeak word gap in 10ms units (default: 4)")
+    parser.add_argument("--amplitude", type=int, default=None,
+                       help="eSpeak amplitude 0-200 (default: 90)")
+    parser.add_argument("--no-final-pause", action="store_true", default=True,
+                       help="Remove trailing sentence pause (default: True)")
+    parser.add_argument("--final-pause", action="store_true",
+                       help="Keep trailing sentence pause (override --no-final-pause)")
+    parser.add_argument("--length-scale", type=float, default=None,
+                       help="Piper length_scale (< 1 faster, > 1 slower; default: 1.25)")
+    parser.add_argument("--noise-scale", type=float, default=None,
+                       help="Piper noise_scale (default: 0.667)")
+    parser.add_argument("--noise-w-scale", type=float, default=None,
+                       help="Piper noise_w_scale (default: 0.4)")
     parser.add_argument("text", nargs="*", help="Mirad text to convert")
 
     return parser
@@ -87,6 +113,27 @@ def _debug_lines(tokens: list[Token], syllables: str, ipa: str, espeak: str) -> 
     ]
 
 
+def _piper_debug_lines(text: str) -> list[str]:
+    """Generate per-word Piper diagnostics showing symbols, IDs, and missing phonemes."""
+    lines: list[str] = []
+    try:
+        diagnostics = piper_diagnose_text(text)
+    except Exception as exc:
+        return [f"piper_diagnose_error: {exc}"]
+
+    for diag in diagnostics:
+        sym_str = " ".join(diag.piper_symbols)
+        lines.append(
+            f"WORD: {diag.word}\n"
+            f"  IPA:            {diag.ipa}\n"
+            f"  PIPER SYMBOLS:  {sym_str}\n"
+            f"  PIPER IDS:      {diag.piper_ids}\n"
+            f"  MISSING:        {sorted(set(diag.missing_symbols)) if diag.missing_symbols else 'none'}"
+        )
+
+    return lines
+
+
 def _resolve_text(parts: Iterable[str]) -> str:
     text = " ".join(parts)
     if not text.strip():
@@ -123,22 +170,52 @@ def run(argv: list[str] | None = None) -> tuple[str, list[str], str | None, str 
     except Exception as exc:
         raise CliPipelineError("espeak", exc) from exc
 
+    try:
+        piper_phonemes = text_to_piper_phonemes(text)
+        piper_str = " ".join(piper_phonemes)
+    except Exception as exc:
+        piper_str = f"<error: {exc}>"
+
     selected = ipa
     if args.syllables:
         selected = syllables
     elif args.espeak:
         selected = espeak
+    elif args.piper:
+        selected = piper_str
 
     if args.wav:
         try:
             if args.backend == "piper":
-                piper_synthesize_to_wav(text, args.wav, model_path=None)
+                piper_synthesize_to_wav(
+                    text,
+                    args.wav,
+                    model_path=None,
+                    length_scale=args.length_scale,
+                    noise_scale=args.noise_scale,
+                    noise_w_scale=args.noise_w_scale,
+                )
             else:  # espeak
-                espeak_synthesize_to_wav(text, args.wav, voice=args.voice)
+                espeak_synthesize_to_wav(
+                    text,
+                    args.wav,
+                    voice=args.voice,
+                    speed=args.speed if args.speed is not None else 120,
+                    pitch=args.pitch if args.pitch is not None else 40,
+                    word_gap=args.word_gap if args.word_gap is not None else 4,
+                    amplitude=args.amplitude if args.amplitude is not None else 90,
+                    no_final_pause=not args.final_pause,
+                )
+        except PiperPhonemeError as exc:
+            raise CliPipelineError("piper_phoneme", exc) from exc
         except Exception as exc:
             raise CliPipelineError("synthesis", exc) from exc
 
     debug_lines = _debug_lines(tokens, syllables, ipa, espeak) if args.debug else []
+
+    if args.piper_debug:
+        debug_lines.extend(_piper_debug_lines(text))
+
     return selected, debug_lines, args.wav, args.voice
 
 

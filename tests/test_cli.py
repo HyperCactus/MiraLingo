@@ -359,7 +359,7 @@ class TestWavVoiceFlags:
     def test_voice_passed_through_mocked(self, tmp_path: Path, monkeypatch, capsys):
         seen = {}
 
-        def _fake_synthesize(text, output_path, *, voice=None, timeout_seconds=10.0):
+        def _fake_synthesize(text, output_path, *, voice=None, speed=120, pitch=40, word_gap=4, amplitude=90, no_final_pause=True, timeout_seconds=10.0):
             seen["voice"] = voice
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
@@ -375,7 +375,7 @@ class TestWavVoiceFlags:
         assert "ˈmiɾad" in captured.out
 
     def test_wav_creates_file_mocked(self, tmp_path: Path, monkeypatch, capsys):
-        def _fake_synthesize(text, output_path, *, voice=None, timeout_seconds=10.0):
+        def _fake_synthesize(text, output_path, *, voice=None, speed=120, pitch=40, word_gap=4, amplitude=90, no_final_pause=True, timeout_seconds=10.0):
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
 
@@ -404,7 +404,7 @@ class TestWavVoiceFlags:
         out = tmp_path / "overwrite.wav"
         out.write_bytes(b"old")
 
-        def _fake_synthesize(text, output_path, *, voice=None, timeout_seconds=10.0):
+        def _fake_synthesize(text, output_path, *, voice=None, speed=120, pitch=40, word_gap=4, amplitude=90, no_final_pause=True, timeout_seconds=10.0):
             Path(output_path).write_bytes(b"RIFF....new")
             return Path(output_path)
 
@@ -452,7 +452,7 @@ class TestWavVoiceFlags:
         assert voice == "en"
 
     def test_wav_and_debug_flags_combined(self, tmp_path: Path, monkeypatch, capsys):
-        def _fake_synthesize(text, output_path, *, voice=None, timeout_seconds=10.0):
+        def _fake_synthesize(text, output_path, *, voice=None, speed=120, pitch=40, word_gap=4, amplitude=90, no_final_pause=True, timeout_seconds=10.0):
             Path(output_path).write_bytes(b"RIFF....WAVE")
             return Path(output_path)
 

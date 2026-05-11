@@ -46,6 +46,91 @@ CONSONANT_IPA: dict[str, str] = {
     "c": "t͡ʃ",  # unvoiced palato-alveolar affricate (tie bar may not be supported by all TTS engines)
 }
 
+# ── Piper-specific phoneme mapping ────────────────────────────────────────────
+#
+# Piper's neural TTS models learn phoneme-to-acoustic mappings from a fixed
+# phoneme_id_map defined in their JSON config.  Each key is a single Unicode
+# codepoint; multi-character IPA like "t͡ʃ" decomposes into codepoints that
+# may not exist in the map (notably the tie bar U+0361), which causes Piper
+# to silently skip those phonemes — the root cause of "missing letters".
+#
+# This mapping emits *only* chars that exist in common Piper voice configs.
+# It keeps pretty IPA (CONSONANT_IPA) separate from Piper-safe phonemes.
+# Affricates are decomposed: c → ["t", "ʃ"] instead of "t͡ʃ".
+
+PIPER_CONSONANTS: dict[str, list[str]] = {
+    "b": ["b"],
+    "d": ["d"],
+    "f": ["f"],
+    "g": ["ɡ"],   # IPA ɡ (U+0261), not ASCII g — both exist but ɡ matches eSpeak training data
+    "h": ["h"],
+    "j": ["ʒ"],
+    "k": ["k"],
+    "l": ["l"],
+    "m": ["m"],
+    "n": ["n"],
+    "p": ["p"],
+    "r": ["ɾ"],   # alveolar flap — present in both tested voice configs
+    "s": ["s"],
+    "t": ["t"],
+    "v": ["v"],
+    "w": ["w"],
+    "x": ["ʃ"],
+    "y": ["j"],    # glide [j] — IPA j, same as eSpeak
+    "z": ["z"],
+    # Mirad c = /t͡ʃ/ decomposed for Piper
+    "c": ["t", "ʃ"],
+    # Mirad q = /k/
+    "q": ["k"],
+}
+
+PIPER_SIMPLE_VOWELS: dict[str, list[str]] = {
+    "a": ["a"],
+    "e": ["e"],
+    "i": ["i"],
+    "o": ["o"],
+    "u": ["u"],
+}
+
+PIPER_COMPLEX_VOWELS: dict[str, list[str]] = {
+    # Post-y-glided (ay, ey, iy, oy, uy)
+    "ay": ["a", "ɪ"],
+    "ey": ["e", "ɪ"],
+    "iy": ["i", "ɪ"],
+    "oy": ["o", "ɪ"],
+    "uy": ["u", "ɪ"],
+    # Post-w-glided (aw, ew, iw, ow, uw)
+    "aw": ["ɔ"],
+    "ew": ["ɛ", "ʊ"],
+    "iw": ["i", "ʊ"],
+    "ow": ["o", "ʊ"],
+    "uw": ["u", "ʊ"],
+    # Pre-y-glided (ya, ye, yi, yo, yu)
+    "ya": ["j", "a"],
+    "ye": ["j", "e"],
+    "yi": ["j", "i"],
+    "yo": ["j", "o"],
+    "yu": ["j", "u"],
+    # Pre-w-glided (wa, we, wi, wo, wu)
+    "wa": ["w", "a"],
+    "we": ["w", "e"],
+    "wi": ["w", "i"],
+    "wo": ["w", "o"],
+    "wu": ["w", "u"],
+    # Circum-y-glided (yay, yey, yiy, yoy, yuy)
+    "yay": ["j", "a", "ɪ"],
+    "yey": ["j", "e", "ɪ"],
+    "yiy": ["j", "i", "ɪ"],
+    "yoy": ["j", "o", "ɪ"],
+    "yuy": ["j", "u", "ɪ"],
+    # Pre-w-post-y-glided (way, wey, wiy, woy, wuy)
+    "way": ["w", "a", "ɪ"],
+    "wey": ["w", "e", "ɪ"],
+    "wiy": ["w", "i", "ɪ"],
+    "woy": ["w", "o", "ɪ"],
+    "wuy": ["w", "u", "ɪ"],
+}
+
 # The glottal-stop character is used as a word-boundary phoneme, e.g. to
 # realise a vowel-initial word after a preceding vowel (the "glottal-stop rule").
 GLOTTAL: str = "'"

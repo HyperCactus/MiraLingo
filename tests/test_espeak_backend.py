@@ -434,7 +434,51 @@ class TestSynthesizeToWav:
 
         result = synthesize_to_wav("At tixe Mirad.", output, voice="en")
         assert result == output
-        assert captured["command"] == ["espeak-ng", "-w", str(output), "-v", "en"]
+        assert captured["command"] == [
+            "espeak-ng", "-w", str(output),
+            "-s", "120", "-p", "40", "-g", "4", "-a", "90",
+            "-v", "en", "-z",
+        ]
+
+    def test_default_command_without_voice(self, tmp_path: Path, monkeypatch):
+        captured: dict[str, object] = {}
+        output = tmp_path / "default.wav"
+
+        def _run(command, **kwargs):
+            captured["command"] = command
+            output.write_bytes(b"RIFF....WAVE")
+            return subprocess.CompletedProcess(args=command, returncode=0, stderr="")
+
+        monkeypatch.setattr(subprocess, "run", _run)
+
+        synthesize_to_wav("At tixe Mirad.", output)
+        assert captured["command"] == [
+            "espeak-ng", "-w", str(output),
+            "-s", "120", "-p", "40", "-g", "4", "-a", "90", "-z",
+        ]
+
+    def test_custom_params_in_command(self, tmp_path: Path, monkeypatch):
+        captured: dict[str, object] = {}
+        output = tmp_path / "custom.wav"
+
+        def _run(command, **kwargs):
+            captured["command"] = command
+            output.write_bytes(b"RIFF....WAVE")
+            return subprocess.CompletedProcess(args=command, returncode=0, stderr="")
+
+        monkeypatch.setattr(subprocess, "run", _run)
+
+        synthesize_to_wav(
+            "At tixe Mirad.", output,
+            voice="en-gb", speed=175, pitch=50, word_gap=0,
+            amplitude=100, no_final_pause=False,
+        )
+        assert captured["command"] == [
+            "espeak-ng", "-w", str(output),
+            "-s", "175", "-p", "50", "-g", "0", "-a", "100",
+            "-v", "en-gb",
+        ]
+        # No -z flag when no_final_pause=False
 
     def test_existing_output_is_overwritten(self, tmp_path: Path, monkeypatch):
         output = tmp_path / "overwrite.wav"

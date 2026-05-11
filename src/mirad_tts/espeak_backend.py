@@ -221,9 +221,23 @@ def synthesize_to_wav(
     output_path: str | Path,
     *,
     voice: str | None = None,
+    speed: int = 120,
+    pitch: int = 40,
+    word_gap: int = 4,
+    amplitude: int = 90,
+    no_final_pause: bool = True,
     timeout_seconds: float = 10.0,
 ) -> Path:
-    """Convert Mirad text to eSpeak phoneme input and synthesize a WAV file."""
+    """Convert Mirad text to eSpeak phoneme input and synthesize a WAV file.
+
+    Defaults are tuned for natural-sounding Mirad output:
+    ``speed=120`` (≈0.7× the default 175 wpm), ``pitch=40``
+    (warmer, less robotic), ``word_gap=4`` (40 ms pauses between
+    words), ``amplitude=90``, and ``no_final_pause=True`` (removes
+    the trailing silence).  Pass ``speed=175``, ``pitch=50``,
+    ``word_gap=0``, ``amplitude=100``, ``no_final_pause=False`` to
+    get the raw espeak-ng defaults.
+    """
 
     if not text.strip():
         raise ValueError("text must not be empty")
@@ -238,9 +252,18 @@ def synthesize_to_wav(
         )
 
     phoneme_input = text_to_espeak_phoneme_input(text)
-    command = ["espeak-ng", "-w", str(output)]
+    command = [
+        "espeak-ng",
+        "-w", str(output),
+        "-s", str(speed),
+        "-p", str(pitch),
+        "-g", str(word_gap),
+        "-a", str(amplitude),
+    ]
     if voice:
         command.extend(["-v", voice])
+    if no_final_pause:
+        command.append("-z")
 
     try:
         completed = subprocess.run(
