@@ -16,6 +16,9 @@ RUN apt-get update \
 COPY --from=builder /build/*.whl /tmp/
 RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
 
+# Install runtime dependencies (not declared in wheel — pyproject.toml has no runtime deps yet)
+RUN pip install --no-cache-dir uvicorn fastapi "dspy-ai>=2.1" ollama
+
 WORKDIR /app
 
 # Default: run API server

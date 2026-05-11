@@ -5,19 +5,21 @@ from mirad_translator.translate import TranslatorModule, EnglishToMiradSignature
 
 def test_translate_signature():
     """Test the DSPy signature structure."""
-    # Test that the signature has the required fields
-    assert hasattr(EnglishToMiradSignature, 'english_text')
-    assert hasattr(EnglishToMiradSignature, 'mirad_text')
-    assert hasattr(EnglishToMiradSignature, 'confidence')
+    # Input fields should contain english_text
+    assert 'english_text' in EnglishToMiradSignature.input_fields
+    # Output fields should contain mirad_text and confidence
+    assert 'mirad_text' in EnglishToMiradSignature.output_fields
+    assert 'confidence' in EnglishToMiradSignature.output_fields
     
-    # Test field types and descriptions
-    assert isinstance(EnglishToMiradSignature.english_text, dspy.InputField)
-    assert isinstance(EnglishToMiradSignature.mirad_text, dspy.OutputField)
-    assert isinstance(EnglishToMiradSignature.confidence, dspy.OutputField)
+    # Verify field types and descriptions via model_fields
+    fields = EnglishToMiradSignature.model_fields
+    assert fields['english_text'].json_schema_extra['__dspy_field_type'] == 'input'
+    assert fields['mirad_text'].json_schema_extra['__dspy_field_type'] == 'output'
+    assert fields['confidence'].json_schema_extra['__dspy_field_type'] == 'output'
     
-    assert EnglishToMiradSignature.english_text.desc == "English text to translate"
-    assert EnglishToMiradSignature.mirad_text.desc == "Translated text in Mirad"
-    assert EnglishToMiradSignature.confidence.desc == "Confidence score between 0 and 1"
+    assert fields['english_text'].json_schema_extra['desc'] == "English text to translate"
+    assert fields['mirad_text'].json_schema_extra['desc'] == "Translated text in Mirad"
+    assert fields['confidence'].json_schema_extra['desc'] == "Confidence score between 0 and 1"
 
 def test_translator_module_forward():
     """Test TranslatorModule forward method."""

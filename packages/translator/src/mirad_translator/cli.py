@@ -33,7 +33,13 @@ def main():
         
         # Translate
         prediction = translator.forward(english_text=args.text)
-        print(f"{prediction.mirad_text} [{prediction.confidence:.2f}]")
+        # Format confidence — may be str or float
+        try:
+            conf_val = float(prediction.confidence)
+            conf_str = f"{conf_val:.2f}"
+        except (ValueError, TypeError):
+            conf_str = str(prediction.confidence)
+        print(f"{prediction.mirad_text} [{conf_str}]")
         
     except Exception as e:
         logging.error(f"Translation failed: {str(e)}")

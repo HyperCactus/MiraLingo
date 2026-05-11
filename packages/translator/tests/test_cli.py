@@ -25,8 +25,14 @@ def test_cli_help():
 
 def test_cli_translation():
     """Test CLI translation command."""
-    with patch('mirad_translator.translate.TranslatorModule') as mock_translator_class:
-        # Setup mock instance
+    with patch('mirad_translator.cli.OllamaLM') as mock_ollama_class, \
+         patch('mirad_translator.cli.TranslatorModule') as mock_translator_class, \
+         patch('mirad_translator.cli.dspy.configure') as mock_configure:
+        # Setup mock OllamaLM instance
+        mock_ollama_instance = Mock()
+        mock_ollama_class.return_value = mock_ollama_instance
+        
+        # Setup mock translator instance
         mock_instance = Mock()
         mock_prediction = Mock()
         mock_prediction.mirad_text = "Helo"
@@ -34,13 +40,10 @@ def test_cli_translation():
         mock_instance.forward.return_value = mock_prediction
         mock_translator_class.return_value = mock_instance
         
-        # Test with arguments
-        test_args = ['python', '-m', 'mirad_translator.cli', 'Hello']
-        
         # Save original sys.argv and replace
         original_argv = sys.argv
         try:
-            sys.argv = test_args
+            sys.argv = ['mirad-translate', 'Hello']
             # Capture stdout
             import io
             from contextlib import redirect_stdout
@@ -65,39 +68,35 @@ def test_cli_translation():
 
 def test_cli_no_text():
     """Test CLI exits with error when no text provided."""
-    with patch('sys.exit') as mock_exit:
-        # Save original sys.argv
-        original_argv = sys.argv
-        try:
-            sys.argv = ['python', '-m', 'mirad_translator.cli']
+    original_argv = sys.argv
+    try:
+        sys.argv = ['mirad-translate']  # No positional text arg
+        with pytest.raises(SystemExit) as exc_info:
             main()
-        except SystemExit:
-            pass
-        finally:
-            sys.argv = original_argv
-        
-        mock_exit.assert_called_once_with(1)
+        assert exc_info.value.code == 1
+    finally:
+        sys.argv = original_argv
 
 
 def test_cli_debug_mode():
     """Test CLI debug mode enables logging."""
-    with patch('logging.basicConfig') as mock_logging:
-        with patch('sys.exit') as mock_exit:
-            # Setup args with debug
-            test_args = ['python', '-m', 'mirad_translator.cli', '--debug', 'Hello']
-            
-            # Save original sys.argv
-            original_argv = sys.argv
-            try:
-                sys.argv = test_args
-                main()
-            except SystemExit:
-                pass
-            finally:
-                sys.argv = original_argv
-            
-            # Verify logging was called with debug level
-            mock_logging.assert_called_with(level=logging.DEBUG)
-            
-            # Verify exit was called (since no Ollama connection)
-            mock_exit.assert_called()
+    with patch('logging.basicConfig') as mock_logging, \
+         patch('mirad_translator.cli.OllamaLM') as mock_ollama, \
+         patch('mirad_translator.cli.dspy.configure'), \
+         patch('mirad_translator.cli.TranslatorModule') as mock_translator:
+        mock_instance = Mock()
+        mock_prediction = Mock()
+        mock_prediction.mirad_text = "Helo"
+        mock_prediction.confidence = 0.95
+        mock_instance.forward.return_value = mock_prediction
+        mock_translator.return_value = mock_instance
+        
+        original_argv = sys.argv
+        try:
+            sys.argv = ['mirad-translate', '--debug', 'Hello']
+            main()
+        finally:
+            sys.argv = original_argv
+        
+        # Verify logging was called with debug level
+        mock_logging.assert_called_with(level=logging.DEBUG)
