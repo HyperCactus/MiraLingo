@@ -1,15 +1,40 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "mirad-translator"
 version = "0.1.0"
-description = "Bidirectional translator between Mirad and other languages."
+description = "Translate English to Mirad using DSPy and Ollama"
 readme = "README.md"
-license = "MIT"
-requires-python = ">=3.10"
+authors = [{name = "Mirad Team"}]
+license = {text = "MIT"}
+keywords = ["mirad", "translation", "dspy", "ollama"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+]
+requires-python = ">=3.9"
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-filterwarnings = ["error"]
+[project.urls]
+Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
+
+[project.optional-dependencies]
+develop = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.scripts]
+mirad-translate = "mirad_translator.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"mirad_translator" = [
+    "data/*.json"
+]

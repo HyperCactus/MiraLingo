@@ -5,7 +5,16 @@ Mirad language learning web-app
 
 To archive this I would like to containerise the project with docker. and seperate the repo into 3 sections with their own documentation and everything (the current readme can go in the TTS engine section and there will be a new one later for the whole project).
 
-For the translator component, I would like to start off by using a retrieval based system that takes a string of english text as input and searches based on indexed chunks from @data/mirad-docs/mirad_thesaurus.md and @data/mirad-docs/mirad_lexicon.md, and passes it to an LLM along with the relevant grammer rules from @data/mirad-docs/mirad_grammer.md, as well as some few shot example sentences. To evaluate it, a larger dataset of Mirad-English sentences will be generated with a larger teacher model, and a smaller LLM will be tested on it. I want the dataset to be uploaded to HuggingFace. For the retrieval, I want something local and offline, and relatively lightweight for both the indexing model and the database.
+For the translator component, I would like to start off with a retrieval-augmented system that:
+- Takes a string of English text as input
+- Uses simple keyword/exact-match retrieval (no sentence-transformers — Mirad terms may retrieve poorly in English embedding space) against indexed chunks from `data/mirad-docs/mirad_thesaurus.md` and `data/mirad-docs/mirad_lexicon.md`, which contain English→Mirad pairs with Mirad translations embedded in each chunk
+- Retrieves at the **word/token level** first, then assembles context — word order and grammar in Mirad differ from English, so individual word lookups followed by assembly are more reliable than whole-sentence retrieval
+- Passes the retrieved word translations plus the relevant grammar rules from `data/mirad-docs/mirad_grammer.md` (especially: vowel-contrast derivation, consonant domains, pluralization with **-i**, article **ha**, noun-modifier order, verb tenses/aspects) to an LLM along with few-shot example sentences
+- All retrieval logic lives locally and offline — no external API calls for indexing or search
+- **Evaluation plan (phased)**:
+  1. Phase 1 — eval on Ollama only using the **44 samples** in `data/pronunciation_tests.csv` (English sentences/words → Mirad translations, with syllable count as a sanity check)
+  2. Phase 2 — once the Ollama baseline is stable, use the teacher model (DeepInfra: `Qwen/Qwen3-235B-A22B-Instruct-2507`, from `.env`) for prompt optimization and dataset expansion
+- The evaluation dataset will be uploaded to HuggingFace once refined
 
 For the web app, I want a simple MVP, for the front end I want a simple, modern, user friendly UI. It should have secure Authentication and users, use relevant open-source libraries rather then doing everything from scratch, keep the stack very simple. 
 It will have a few different modes:
