@@ -1,1 +1,29 @@
-[]
+{
+  "few_shot_examples": [
+    {
+      "english_text": "Hello",
+      "mirad_text": "Helo",
+      "confidence": 0.95
+    },
+    {
+      "english_text": "How are you?",
+      "mirad_text": "Kum es tu?",
+      "confidence": 0.93
+    },
+    {
+      "english_text": "Good morning",
+      "mirad_text": "Bon matin",
+      "confidence": 0.94
+    },
+    {
+      "english_text": "Thank you",
+      "mirad_text": "Tanskju",
+      "confidence": 0.92
+    },
+    {
+      "english_text": "What is your name?",
+      "mirad_text": "Ku es noma de tu?",
+      "confidence": 0.91
+    }
+  ]
+}
