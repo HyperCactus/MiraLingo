@@ -22,7 +22,7 @@ This engine prepares Mirad text for speech synthesis by:
 - **TTS backend integration** — generating audio via eSpeak or Piper
 
 ## Work in Progress 
-The Piper-TTS implementation has know issues with correct pronunciation.
+The Piper-TTS implementation has known issues with correct pronunciation.
 
 ### Roadmap
 1. Mirad phoneme based TTS engine
