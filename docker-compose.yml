@@ -2,6 +2,8 @@ version: "3.9"
 
 services:
   tts:
-    image: python:3.10-slim
+    build:
+      context: .
+      dockerfile: packages/tts/Dockerfile
     working_dir: /app
-    command: python -c "print('tts service stub')"
+    command: ["mirad-tts", "--help"]
