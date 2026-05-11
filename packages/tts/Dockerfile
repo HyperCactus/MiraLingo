@@ -8,8 +8,9 @@ COPY packages/tts/mirad-tts-0.1.0-py3-none-any.whl .
 # Stage 2: Minimal runtime image with espeak-ng
 FROM python:3.10-slim
 
-# Use a fast, geographically-distributed Debian mirror
-RUN sed -i 's/deb.debian.org/ftp.us.debian.org/g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true \
+# Write a stable mirror directly to avoid geo-DNS slowness on deb.debian.org
+RUN echo 'deb http://archive.debian.org/debian/ debian main' \
+         > /etc/apt/sources.list \
  && echo 'Acquire::Retries 3;' > /etc/apt/apt.conf.d/80docker \
  && apt-get update \
  && apt-get install -y --no-install-recommends espeak-ng \
