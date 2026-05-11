@@ -11,6 +11,10 @@ license = "MIT"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+piper = ["numpy", "piper-tts>=1.4.0"]
+all = ["mirad-tts[piper]"]
+
 [project.scripts]
 mirad-tts = "mirad_tts.cli:main"
 
