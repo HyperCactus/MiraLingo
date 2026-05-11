@@ -9,6 +9,13 @@ description = "Mirad text-to-speech preparation: tokenisation, syllabification, 
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+mirad-tts = "mirad_tts.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mirad_tts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
