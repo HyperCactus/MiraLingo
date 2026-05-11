@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -339,13 +340,18 @@ class TestReturnCodes:
 class TestWavVoiceFlags:
     """Tests for --wav and --voice synthesis integration."""
 
-    def test_wav_raises_when_no_binary(self, capsys, tmp_path: Path):
+    def test_wav_raises_when_no_binary(self, capsys, tmp_path: Path, monkeypatch):
+        # Remove .gsd/bin (which contains the espeak-ng shim) from PATH so the
+        # "binary missing" path is exercised deterministically in any environment.
+        monkeypatch.setenv("PATH", os.environ.get("PATH", "").replace(str(Path.cwd() / ".gsd/bin") + ":", "").replace(str(Path.cwd() / ".gsd/bin"), ""))
         with pytest.raises(cli.CliPipelineError) as exc_info:
             _run(["--wav", str(tmp_path / "out.wav"), "Mirad"])
         assert exc_info.value.stage == "synthesis"
         assert "EspeakBinaryNotFoundError" in str(exc_info.value)
 
-    def test_wav_return_code_1_when_binary_missing(self, capsys, tmp_path: Path):
+    def test_wav_return_code_1_when_binary_missing(self, capsys, tmp_path: Path, monkeypatch):
+        # Remove .gsd/bin from PATH so the "binary missing" path is exercised.
+        monkeypatch.setenv("PATH", os.environ.get("PATH", "").replace(str(Path.cwd() / ".gsd/bin") + ":", "").replace(str(Path.cwd() / ".gsd/bin"), ""))
         code = cli.main(["--wav", str(tmp_path / "out.wav"), "Mirad"])
         captured = capsys.readouterr()
         assert code == 1
