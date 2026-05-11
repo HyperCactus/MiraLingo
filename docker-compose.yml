@@ -7,3 +7,14 @@ services:
       dockerfile: packages/tts/Dockerfile
     working_dir: /app
     command: ["mirad-tts", "--help"]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
