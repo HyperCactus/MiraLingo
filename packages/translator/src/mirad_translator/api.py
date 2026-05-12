@@ -8,26 +8,28 @@ from mirad_translator.translate import TranslatorModule
 from mirad_translator.ollama_lm import OllamaLM
 import dspy
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI()
 
-# Global translator instance
+# Global translator instance — initialized lazily
 translator = None
+
 
 @app.on_event("startup")
 async def startup_event():
     global translator
     try:
-        # Initialize Ollama LM
         lm = OllamaLM()
         dspy.configure(lm=lm)
-        
-        # Initialize translator
         translator = TranslatorModule()
-        logging.info("Translator initialized successfully")
+        logger.info("Translator initialized successfully")
     except Exception as e:
-        logging.error(f"Failed to initialize translator: {str(e)}")
-        logging.error(traceback.format_exc())
-        raise
+        logger.warning(
+            "Translator initialization deferred: %s. "
+            "Health endpoint will report unhealthy until Ollama is available.",
+            e,
+        )
 
 @app.get("/")
 async def root():

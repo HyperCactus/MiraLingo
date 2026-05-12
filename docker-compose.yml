@@ -3,22 +3,14 @@ services:
     build:
       context: .
       dockerfile: packages/tts/Dockerfile
-      network: host
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    working_dir: /app
+    network_mode: host
     command: ["mirad-tts", "--help"]
 
   ollama:
     image: ollama/ollama:latest
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    ports:
-      - "11434:11434"
+    network_mode: host
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/11434'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,10 +21,7 @@ services:
       context: .
       dockerfile: packages/translator/Dockerfile
       network: host
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    working_dir: /app
+    network_mode: host
     depends_on:
       ollama:
         condition: service_healthy

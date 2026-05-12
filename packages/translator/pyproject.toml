@@ -18,6 +18,13 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 requires-python = ">=3.9"
+dependencies = [
+    "dspy-ai>=2.1",
+    "ollama",
+    "fastapi",
+    "uvicorn[standard]",
+    "requests",
+]
 
 [project.urls]
 Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
