@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import Optional
 import logging
 import traceback
 
-from mirad_translator.translate import TranslatorModule
+from mirad_translator.translate import DefaultTranslator
 from mirad_translator.ollama_lm import OllamaLM
 import dspy
 
@@ -22,7 +23,7 @@ async def startup_event():
     try:
         lm = OllamaLM()
         dspy.configure(lm=lm)
-        translator = TranslatorModule()
+        translator = DefaultTranslator()
         logger.info("Translator initialized successfully")
     except Exception as e:
         logger.warning(
@@ -31,9 +32,11 @@ async def startup_event():
             e,
         )
 
+
 @app.get("/")
 async def root():
     return {"message": "Mirad Translator API"}
+
 
 @app.get("/health")
 async def health():
@@ -56,24 +59,42 @@ async def health():
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={"status": "unhealthy", "reason": "Translator health check failed"}
         )
-    
+
     return {"status": "healthy"}
+
 
 class TranslateRequest(BaseModel):
     text: str
+    retrieve: bool = False
 
-@app.post("/translate")
+
+class TranslateResponse(BaseModel):
+    text: str
+    translation: str
+    confidence: Optional[str] = None
+    word_equivalents: Optional[dict] = None
+    context: Optional[list] = None
+
+
+@app.post("/translate", response_model=TranslateResponse)
 async def translate(request: TranslateRequest):
     if translator is None:
         raise HTTPException(status_code=503, detail="Translator not initialized")
-    
+
     try:
         prediction = translator.forward(english_text=request.text)
-        return {
-            "text": request.text,
-            "translation": prediction.mirad_text,
-            "confidence": prediction.confidence
-        }
+        response = TranslateResponse(
+            text=request.text,
+            translation=prediction.mirad_text,
+            confidence=str(prediction.confidence),
+        )
+
+        # Include retrieval details when requested
+        if request.retrieve:
+            response.word_equivalents = getattr(prediction, 'word_equivalents', None)
+            response.context = getattr(prediction, 'context', None)
+
+        return response
     except Exception as e:
         logging.error(f"Translation failed: {str(e)}")
         logging.error(traceback.format_exc())

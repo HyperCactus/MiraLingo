@@ -11,7 +11,7 @@ authors = [{name = "Mirad Team"}]
 license = {text = "MIT"}
 keywords = ["mirad", "translation", "dspy", "ollama"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -24,15 +24,34 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "requests",
+    "wordfreq>=2.10.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
 
-[project.optional-dependencies]
+[project.optional-dependencies.rag]
+rag = [
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+]
+
+[project.optional-dependencies.eval]
+eval = [
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "wordfreq>=2.10.0",
+    "tiktoken>=0.5.0",
+]
+
+[project.optional-dependencies.develop]
 develop = [
     "pytest",
     "pytest-cov",
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "wordfreq>=2.10.0",
+    "tiktoken>=0.5.0",
 ]
 
 [project.scripts]

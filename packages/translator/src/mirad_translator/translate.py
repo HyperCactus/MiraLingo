@@ -96,50 +96,141 @@ class EnglishToMiradSignature(dspy.Signature):
     {grammar_rules}
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
     english_text = dspy.InputField(desc="English text to translate")
-    word_equivalents = dspy.InputField(desc="Dict of English word → Mirad translation from lexicon")
-    context = dspy.InputField(desc="Retrieved grammar and thesaurus chunks relevant to the input")
     mirad_text = dspy.OutputField(desc="Translated text in Mirad")
     confidence = dspy.OutputField(desc="Confidence score between 0 and 1")
 
 
+class MiradLexiconLookup(dspy.Module):
+    """DSPy-traceable lexicon lookup module.
+
+    Looks up each word in the English input against the SQLite/FTS5
+    lexicon DB and returns a dict of {english_word: mirad_translation}.
+    """
+
+    def __init__(self, db_path=None):
+        super().__init__()
+        self._db_path = db_path
+
+    def forward(self, english_text: str) -> dspy.Prediction:
+        from mirad_translator.lexicon_db import lookup_word
+        words = english_text.split()
+        word_equivalents = {}
+        for w in words:
+            w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}')
+            if w_clean:
+                mirad = lookup_word(db_path=self._db_path, english_word=w_clean)
+                if mirad:
+                    word_equivalents[w_clean.lower()] = mirad
+        return dspy.Prediction(word_equivalents=word_equivalents)
+
+
+class MiradContextRetrieve(dspy.Retrieve):
+    """DSPy-traceable retrieval module for Mirad grammar and thesaurus context.
+
+    Subclasses dspy.Retrieve so it participates in optimizer tracing.
+    Wraps ChromaDB grammar + thesaurus retrieval into the standard
+    Retrieve interface: input=query string, output=list of passage strings.
+    """
+
+    def __init__(self, k: int = 5):
+        # Don't call super().__init__ with a rm since we use custom ChromaDB
+        self._k = k
+
+    def forward(self, query: str) -> dspy.Prediction:
+        """Retrieve grammar and thesaurus chunks for the given query.
+
+        Returns a dspy.Prediction with a `passages` attribute (list of strings).
+        """
+        from mirad_translator.retrieval import retrieve_all
+        try:
+            result = retrieve_all(query, top_k=self._k)
+            passages = []
+            for section in ("grammar", "thesaurus"):
+                for item in result.get(section, []):
+                    src = item.get("metadata", {}).get("source_section", section)
+                    passages.append(f"[{src}] {item['text']}")
+        except Exception:
+            passages = []
+        return dspy.Prediction(passages=passages)
+
+
 class TranslatorModule(dspy.Module):
-    def __init__(self, lexicon_db_path=None, chroma_retriever=None):
+    """DSPy Module for English→Mirad translation with RAG retrieval.
+
+    The module takes only ``english_text`` as input and internally:
+    1. Looks up word equivalents via the lexicon DB
+    2. Retrieves grammar/thesaurus context via ChromaDB
+    3. Formats a rich prompt with retrieved context + grammar rules
+    4. Generates Mirad translation via ChainOfThought
+
+    The signature (EnglishToMiradSignature) only has ``english_text`` as
+    input — retrieval is an internal module concern, not a signature field.
+    This makes BootstrapFewShot work correctly: eval Examples only need
+    ``english_text`` and ``mirad_text``, and the optimizer traces the full
+    retrieval→generate pipeline to produce bootstrapped demos.
+    """
+
+    def __init__(self, db_path=None, num_context_passages: int = 5):
         super().__init__()
         self.generate = dspy.ChainOfThought(EnglishToMiradSignature)
-        self._lexicon_db_path = lexicon_db_path
-        self._chroma_retriever = chroma_retriever
+        self.lexicon_lookup = MiradLexiconLookup(db_path=db_path)
+        self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
+        self._db_path = db_path
 
-    def forward(self, english_text: str, word_equivalents: dict = None, context: list = None) -> dspy.Prediction:
-        """Translate English text to Mirad with lexicon lookup and RAG context."""
-        prediction = self.generate(
-            english_text=english_text,
-            word_equivalents=word_equivalents or {},
-            context=context or []
-        )
+    def forward(self, english_text: str) -> dspy.Prediction:
+        """Translate English text to Mirad.
+
+        Retrieval (lexicon lookup + RAG context) happens internally;
+        the caller only needs to provide ``english_text``.
+        """
+        # Step 1: lexicon lookup
+        word_eq_pred = self.lexicon_lookup(english_text=english_text)
+        word_equivalents = word_eq_pred.word_equivalents
+
+        # Step 2: RAG context retrieval
+        ctx_pred = self.context_retrieve(query=english_text)
+        context_passages = ctx_pred.passages
+
+        # Step 3: build enriched prompt for the LLM
+        # Inject word equivalents and context directly into the english_text
+        # so the ChainOfThought sees everything in one input field.
+        parts = [english_text]
+        if word_equivalents:
+            eq_lines = [f"  {en} → {mi}" for en, mi in sorted(word_equivalents.items())]
+            parts.append("\nWord equivalents (use these Mirad words when possible):")
+            parts.append("\n".join(eq_lines))
+        if context_passages:
+            parts.append("\nRelevant grammar and thesaurus context:")
+            parts.append("\n\n".join(context_passages))
+        enriched_text = "\n".join(parts)
+
+        # Step 4: generate translation
+        prediction = self.generate(english_text=enriched_text)
         return dspy.Prediction(
             mirad_text=prediction.mirad_text,
-            confidence=prediction.confidence
+            confidence=prediction.confidence,
+            word_equivalents=word_equivalents,
+            context=context_passages,
         )
 
 
-def DefaultTranslator(lexicon_db_path=None, chroma_retriever=None):
+def DefaultTranslator(db_path=None, num_context_passages: int = 5):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return TranslatorModule."""
-    # Import here to avoid hard dependency when module is loaded without DB
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
     from mirad_translator.retrieval import build_indexes as _build_chroma
 
-    db_path = lexicon_db_path or _default_db
-    build_lexicon_db(db_path=db_path)
+    effective_db_path = db_path or _default_db
+    build_lexicon_db(db_path=effective_db_path)
 
-    if chroma_retriever is None:
+    if num_context_passages > 0:
         try:
             _build_chroma()
         except Exception:
             pass  # ChromaDB not available; retrieval will be empty
 
     return TranslatorModule(
-        lexicon_db_path=db_path,
-        chroma_retriever=chroma_retriever
+        db_path=effective_db_path,
+        num_context_passages=num_context_passages,
     )
 
 
@@ -148,40 +239,11 @@ def translate_with_lookup(english_text: str, db_path=None, top_k: int = 5):
 
     Returns (mirad_text, confidence, word_equivalents, context_chunks).
     """
-    from mirad_translator.lexicon_db import lookup_word
-    from mirad_translator.retrieval import retrieve_all
-
-    # Build word_equivalents dict
-    words = english_text.split()
-    word_equivalents = {}
-    for w in words:
-        w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}')
-        if w_clean:
-            mirad = lookup_word(db_path=db_path, english_word=w_clean)
-            if mirad:
-                word_equivalents[w_clean.lower()] = mirad
-
-    # Retrieve context chunks
-    try:
-        retrieval_result = retrieve_all(english_text, top_k=top_k)
-        context_chunks = []
-        for section in ("grammar", "thesaurus"):
-            for item in retrieval_result.get(section, []):
-                src = item.get("metadata", {}).get("source_section", section)
-                context_chunks.append(f"[{src}] {item['text']}")
-    except Exception:
-        context_chunks = []
-
-    # Translate
-    translator = DefaultTranslator(lexicon_db_path=db_path)
-    prediction = translator.forward(
-        english_text=english_text,
-        word_equivalents=word_equivalents,
-        context=context_chunks
-    )
+    translator = DefaultTranslator(db_path=db_path, num_context_passages=top_k)
+    prediction = translator.forward(english_text=english_text)
     return (
         prediction.mirad_text,
         prediction.confidence,
-        word_equivalents,
-        context_chunks
+        prediction.word_equivalents,
+        prediction.context,
     )

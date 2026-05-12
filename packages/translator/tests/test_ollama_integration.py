@@ -31,7 +31,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 from mirad_translator.ollama_lm import OllamaLM
-from mirad_translator.translate import TranslatorModule
+from mirad_translator.translate import TranslatorModule, DefaultTranslator
 
 
 # ── OllamaLM connectivity integration ──────────────────────────────
@@ -77,7 +77,7 @@ class TestTranslatorModuleReal:
 
     def test_translate_simple_greeting(self):
         """Translation should return mirad_text and confidence."""
-        translator = TranslatorModule()
+        translator = DefaultTranslator()
         result = translator.forward(english_text="Hello")
         assert hasattr(result, "mirad_text")
         assert hasattr(result, "confidence")
@@ -86,14 +86,14 @@ class TestTranslatorModuleReal:
 
     def test_translate_returns_mirad_content(self):
         """Translation output should contain non-empty text."""
-        translator = TranslatorModule()
+        translator = DefaultTranslator()
         result = translator.forward(english_text="good morning")
         text = result.mirad_text.strip()
         assert len(text) > 0, "mirad_text should not be empty"
 
     def test_translate_confidence_is_string(self):
         """Confidence should be a non-empty string."""
-        translator = TranslatorModule()
+        translator = DefaultTranslator()
         result = translator.forward(english_text="How are you?")
         conf = result.confidence
         assert conf is not None
@@ -125,6 +125,6 @@ class TestCLIReal:
         # We reject connection-refused or model-not-found errors.
         stderr = result.stderr.lower()
         assert "connectionrefused" not in stderr, "Cannot reach Ollama"
-        # Model-not-found should only fail if the model actually isn't available
-        assert "model" not in stderr or "translation" in stderr.lower(), \
+        # Model-not-found from Ollama specifically, not sentence_transformers logging
+        assert "model '" not in stderr or "translation" in stderr.lower(), \
             f"Model not found error: {result.stderr}"
