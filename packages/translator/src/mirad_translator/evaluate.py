@@ -27,7 +27,7 @@ from typing import Callable, Optional
 import dspy
 from dspy import BootstrapFewShot, MIPROv2, Evaluate
 
-from mirad_translator.translate import TranslatorModule, DefaultTranslator
+from mirad_translator.translate import TranslatorModule, DefaultTranslator, _format_word_equivalents, _format_context_passages
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
 EVAL_CSV_PATH = os.environ.get(
@@ -232,6 +232,30 @@ def _make_ollama_lm(model: str = "qwen3.5:4b") -> "OllamaLM":
     return lm
 
 
+def _make_deepinfra_lm(model: str | None = None) -> dspy.LM:
+    """Create a DSPy LM backed by DeepInfra's OpenAI-compatible API.
+
+    Reads DEEPINFRA_API_KEY, DEEPINFRA_BASE_URL, and DEEPINFRA_TEACHER_MODEL
+    from environment variables (or .env file).
+    """
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parents[4] / ".env")
+
+    api_key = os.environ.get("DEEPINFRA_API_KEY")
+    api_base = os.environ.get("DEEPINFRA_BASE_URL", "https://api.deepinfra.com/v1/openai")
+    teacher_model = model or os.environ.get("DEEPINFRA_TEACHER_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
+
+    if not api_key:
+        raise ValueError("DEEPINFRA_API_KEY not set. Add it to .env or environment.")
+
+    lm = dspy.LM(
+        model=f"openai/{teacher_model}",
+        api_key=api_key,
+        api_base=api_base,
+    )
+    return lm
+
+
 def run_baseline_eval(
     model: str = "qwen3.5:4b",
     metric_name: str = "normalized_match",
@@ -359,7 +383,6 @@ def inspect_traces(
             "english_text": example.english_text,
             "gold_mirad": example.mirad_text,
             "predicted_mirad": prediction.mirad_text,
-            "confidence": prediction.confidence if hasattr(prediction, "confidence") else None,
             "word_equivalents": prediction.word_equivalents if hasattr(prediction, "word_equivalents") else {},
             "context_passages": prediction.context if hasattr(prediction, "context") else [],
             "normalized_score": score,
@@ -379,3 +402,203 @@ def inspect_traces(
         print(f"      PR: {t['predicted_mirad'][:60]!r}  GOLD: {t['gold_mirad'][:60]!r}  score={t['normalized_score']}")
 
     return {"traces": traces, "lm_history_count": len(lm.history)}
+
+
+# ---------------------------------------------------------------------------
+# Enrich examples with pre-computed intermediates for LabeledFewShot
+# ---------------------------------------------------------------------------
+
+def _enrich_examples(
+    examples: list[dspy.Example],
+    db_path=None,
+    num_context_passages: int = 0,
+) -> list[dspy.Example]:
+    """Enrich evaluation examples with pre-computed word_equivalents and context_passages.
+
+    LabeledFewShot requires demos that have all of the signature's input/output fields
+    populated. This helper runs lexicon lookup and retrieval for each example to fill
+    in ``word_equivalents`` and ``context_passages`` from runtime computation.
+
+    Args:
+        examples: Raw examples with english_text + mirad_text only.
+        db_path: Path to the lexicon DB.
+        num_context_passages: Number of RAG passages (0 disables retrieval).
+
+    Returns:
+        List of enriched dspy.Example with all signature fields, configured with
+        ``.with_inputs("english_text", "word_equivalents", "context_passages")``.
+    """
+    module = TranslatorModule(db_path=db_path, num_context_passages=num_context_passages)
+    enriched = []
+    for ex in examples:
+        word_eq_pred = module.lexicon_lookup(english_text=ex.english_text)
+        word_equivalents = word_eq_pred.word_equivalents
+
+        ctx_pred = module.context_retrieve(query=ex.english_text)
+        context_passages = ctx_pred.passages
+
+        we_str = _format_word_equivalents(word_equivalents)
+        ctx_str = _format_context_passages(context_passages)
+
+        enriched.append(
+            dspy.Example(
+                english_text=ex.english_text,
+                word_equivalents=we_str,
+                context_passages=ctx_str,
+                mirad_text=ex.mirad_text,
+            ).with_inputs("english_text", "word_equivalents", "context_passages")
+        )
+    return enriched
+
+
+# ---------------------------------------------------------------------------
+# LabeledFewShot baseline evaluation
+# ---------------------------------------------------------------------------
+
+def run_labeled_fewshot_eval(
+    model: str | None = None,
+    num_fewshot: int = 5,
+    num_threads: int = 1,
+    output_path: Optional[str] = None,
+    lm_type: str = "ollama",
+) -> dict:
+    """Run LabeledFewShot baseline evaluation with timed execution.
+
+    Splits the 44-pair evaluation set: first ``num_fewshot`` examples become
+    labeled demos, the remainder are the eval set. Enriches the few-shot demos
+    with pre-computed word equivalents and context passages so LabeledFewShot
+    can include them in the prompt. Uses k=0 (no RAG retrieval) to isolate
+    the effect of dictionary lookups + few-shot prompting.
+
+    Args:
+        model: Model name (default: qwen3.5:4b for Ollama, or DeepInfra teacher model).
+        num_fewshot: Number of labeled few-shot examples (default: 5).
+        num_threads: Parallel threads for evaluation (default: 1 for timing accuracy).
+        output_path: Override output path for results JSON.
+        lm_type: "ollama" for local Ollama, "deepinfra" for DeepInfra cloud API.
+
+    Returns:
+        Dict with normalized_score, exact_score, timing, and per-example results.
+    """
+    import time
+
+    _PROJECT_ROOT = Path(__file__).resolve().parents[4]
+    out_dir = _PROJECT_ROOT / "data" / "eval_results"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Configure LM ─────────────────────────────────────────────────────────
+    if lm_type == "deepinfra":
+        lm = _make_deepinfra_lm(model=model)
+    else:
+        lm = _make_ollama_lm(model=model)
+    dspy.settings.configure(lm=lm)
+
+    # ── Load and split dataset ────────────────────────────────────────────────
+    all_examples = load_evaluation_set()
+    fewshot_examples = all_examples[:num_fewshot]
+    eval_examples = all_examples[num_fewshot:]
+
+    print(f"[run_labeled_fewshot_eval] {num_fewshot} few-shot demos, {len(eval_examples)} eval examples")
+
+    # ── Enrich few-shot examples with pre-computed intermediates ──────────────
+    enriched_fewshot = _enrich_examples(fewshot_examples, db_path=None, num_context_passages=0)
+
+    # Print few-shot demo summary
+    for i, demo in enumerate(enriched_fewshot):
+        we_count = len(demo.word_equivalents.split("\n")) if demo.word_equivalents else 0
+        print(f"  Demo {i}: EN={demo.english_text[:50]!r}... WE={we_count} items")
+
+    # ── Build module with k=0 (no RAG retrieval) ──────────────────────────────
+    module = DefaultTranslator(num_context_passages=0)
+
+    # ── Compile with LabeledFewShot ───────────────────────────────────────────
+    from dspy import LabeledFewShot
+
+    compile_start = time.time()
+    optimizer = LabeledFewShot(k=num_fewshot)
+    compiled = optimizer.compile(student=module, trainset=enriched_fewshot)
+    compile_time = time.time() - compile_start
+    print(f"[run_labeled_fewshot_eval] Compile time: {compile_time:.1f}s")
+
+    # ── Evaluate on remaining examples ────────────────────────────────────────
+    eval_start = time.time()
+
+    # Eval examples only need english_text as input — the module computes intermediates
+    norm_evaluator = Evaluate(
+        devset=eval_examples,
+        metric=normalized_match_metric,
+        num_threads=num_threads,
+        display_progress=True,
+        display_table=0,
+    )
+    norm_result = norm_evaluator(compiled)
+
+    exact_evaluator = Evaluate(
+        devset=eval_examples,
+        metric=exact_match_metric,
+        num_threads=num_threads,
+        display_progress=True,
+        display_table=0,
+    )
+    exact_result = exact_evaluator(compiled)
+
+    eval_time = time.time() - eval_start
+    total_time = time.time() - compile_start
+
+    summary = {
+        "method": "LabeledFewShot",
+        "lm_type": lm_type,
+        "model": model,
+        "num_fewshot": num_fewshot,
+        "k_context_passages": 0,
+        "eval_set_size": len(eval_examples),
+        "normalized_score": norm_result.score if hasattr(norm_result, "score") else norm_result,
+        "exact_score": exact_result.score if hasattr(exact_result, "score") else exact_result,
+        "compile_time_s": round(compile_time, 2),
+        "eval_time_s": round(eval_time, 2),
+        "total_time_s": round(total_time, 2),
+    }
+
+    # ── Save results ──────────────────────────────────────────────────────────
+    results_path = output_path or str(out_dir / "labeled_fewshot_baseline.json")
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
+
+    # ── Per-example predictions ────────────────────────────────────────────────
+    per_example = []
+    for ex in eval_examples:
+        pred = compiled(ex.english_text)
+        norm_score = normalized_match_metric(ex, pred)
+        exact_score = exact_match_metric(ex, pred)
+        per_example.append({
+            "english_text": ex.english_text,
+            "gold_mirad": ex.mirad_text,
+            "predicted_mirad": pred.mirad_text,
+            "word_equivalents": pred.word_equivalents if hasattr(pred, "word_equivalents") else {},
+            "context": pred.context if hasattr(pred, "context") else [],
+            "normalized_match": norm_score,
+            "exact_match": exact_score,
+        })
+
+    per_example_path = str(out_dir / "labeled_fewshot_per_example.json")
+    with open(per_example_path, "w", encoding="utf-8") as f:
+        json.dump(per_example, f, indent=2, ensure_ascii=False)
+
+    print(f"\n{'='*60}")
+    print(f"LabeledFewShot Baseline Results (lm={lm_type}, k=0, {num_fewshot} demos)")
+    print(f"{'='*60}")
+    print(f"  Model:           {model}")
+    print(f"  LM type:          {lm_type}")
+    print(f"  Few-shot demos:  {num_fewshot}")
+    print(f"  Eval examples:   {len(eval_examples)}")
+    print(f"  RAG passages:    0 (disabled)")
+    print(f"  Normalized match: {summary['normalized_score']:.1f}%")
+    print(f"  Exact match:       {summary['exact_score']:.1f}%")
+    print(f"  Compile time:      {compile_time:.1f}s")
+    print(f"  Eval time:          {eval_time:.1f}s")
+    print(f"  Total time:         {total_time:.1f}s")
+    print(f"{'='*60}")
+    print(f"Summary saved to {results_path}")
+    print(f"Per-example results saved to {per_example_path}")
+
+    return summary

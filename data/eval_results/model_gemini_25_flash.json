@@ -1,0 +1,14 @@
+{
+  "method": "LabeledFewShot_k5",
+  "lm_type": "deepinfra",
+  "model": "google/gemini-2.5-flash",
+  "num_fewshot": 5,
+  "k_context_passages": 5,
+  "eval_set_size": 39,
+  "normalized_score": 48.7,
+  "exact_score": 48.7,
+  "exact_hits": 19,
+  "avg_latency_s": 11.0,
+  "compile_time_s": 0.0,
+  "eval_time_s": 427.91
+}

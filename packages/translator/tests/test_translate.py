@@ -17,35 +17,22 @@ from mirad_translator.translate import (
 # ---------------------------------------------------------------------------
 
 def test_translate_signature_fields():
-    """Signature should only have english_text as input (no retrieval fields)."""
-    # Input fields should contain english_text only
+    """Signature should have english_text, word_equivalents, context_passages as inputs."""
+    # Input fields
     assert 'english_text' in EnglishToMiradSignature.input_fields
-    assert 'word_equivalents' not in EnglishToMiradSignature.input_fields
-    assert 'context' not in EnglishToMiradSignature.input_fields
-    # Output fields should contain mirad_text and confidence
+    assert 'word_equivalents' in EnglishToMiradSignature.input_fields
+    assert 'context_passages' in EnglishToMiradSignature.input_fields
+    # Output fields — no confidence
     assert 'mirad_text' in EnglishToMiradSignature.output_fields
-    assert 'confidence' in EnglishToMiradSignature.output_fields
+    assert 'confidence' not in EnglishToMiradSignature.output_fields
 
 
 def test_signature_docstring_contains_grammar_rules():
-    """Signature docstring embeds grammar rules for DSPy 3.x system prompt.
-
-    DSPy 3.x may override the user-provided docstring with a generated one
-    that describes input/output fields. The grammar rules are nonetheless
-    passed to the LLM via the module's prompt construction. We verify:
-    1. The grammar rules constant exists and contains key rules.
-    2. The signature's input/output fields are correct.
-    """
+    """Signature docstring embeds grammar rules for DSPy 3.x system prompt."""
     # The grammar rules constant must contain key Mirad rules
     assert 'SVO' in _MIRAD_GRAMMAR_RULES or 'Subject + verb' in _MIRAD_GRAMMAR_RULES
     assert 'Simple active endings' in _MIRAD_GRAMMAR_RULES or '-e present' in _MIRAD_GRAMMAR_RULES
     assert 'at I/me' in _MIRAD_GRAMMAR_RULES
-
-    # The signature must have english_text as input and mirad_text + confidence as output
-    fields = EnglishToMiradSignature.model_fields
-    assert fields['english_text'].json_schema_extra['__dspy_field_type'] == 'input'
-    assert fields['mirad_text'].json_schema_extra['__dspy_field_type'] == 'output'
-    assert fields['confidence'].json_schema_extra['__dspy_field_type'] == 'output'
 
 
 # ---------------------------------------------------------------------------
@@ -111,7 +98,6 @@ def test_translator_module_forward():
     """TranslatorModule.forward takes only english_text and returns Prediction."""
     mock_prediction = Mock()
     mock_prediction.mirad_text = "At tose oma."
-    mock_prediction.confidence = "0.95"
 
     with patch('dspy.ChainOfThought') as mock_cot:
         mock_instance = Mock()
@@ -126,16 +112,14 @@ def test_translator_module_forward():
         result = translator.forward(english_text="I am cold.")
 
         assert result.mirad_text == "At tose oma."
-        assert result.confidence == "0.95"
         assert result.word_equivalents == {"i": "at", "cold": "oma"}
         assert result.context == ["[grammar] verb rules"]
 
 
-def test_translator_module_forward_injects_context_into_prompt():
-    """TranslatorModule should inject word_equivalents and context into the prompt."""
+def test_translator_module_forward_passes_separate_fields():
+    """TranslatorModule should pass word_equivalents and context_passages as separate fields."""
     mock_prediction = Mock()
     mock_prediction.mirad_text = "At tose oma."
-    mock_prediction.confidence = "0.95"
 
     with patch('dspy.ChainOfThought') as mock_cot:
         mock_instance = Mock()
@@ -149,20 +133,18 @@ def test_translator_module_forward_injects_context_into_prompt():
 
         translator.forward(english_text="I am cold.")
 
-        # Verify ChainOfThought was called with enriched english_text
-        call_args = mock_instance.call_args
-        enriched_text = call_args.kwargs.get('english_text', call_args[0][0] if call_args[0] else '')
-        assert "I am cold." in enriched_text
-        assert "Word equivalents" in enriched_text
-        assert "am → ese" in enriched_text
-        assert "[grammar] verb rules" in enriched_text
+        # Verify ChainOfThought was called with separate input fields
+        call_kwargs = mock_instance.call_args.kwargs
+        assert call_kwargs['english_text'] == "I am cold."
+        assert "am → ese" in call_kwargs['word_equivalents']
+        assert "i → at" in call_kwargs['word_equivalents']
+        assert "[grammar] verb rules" in call_kwargs['context_passages']
 
 
 def test_translator_module_forward_no_retrieval():
     """TranslatorModule works with empty word_equivalents and context."""
     mock_prediction = Mock()
     mock_prediction.mirad_text = "Helo."
-    mock_prediction.confidence = "0.5"
 
     with patch('dspy.ChainOfThought') as mock_cot:
         mock_instance = Mock()
@@ -175,8 +157,11 @@ def test_translator_module_forward_no_retrieval():
 
         result = translator.forward(english_text="Hello.")
 
-        # Should still call ChainOfThought, just without enrichment
+        # Should still call ChainOfThought, with empty intermediates
         assert mock_instance.called
+        call_kwargs = mock_instance.call_args.kwargs
+        assert call_kwargs['word_equivalents'] == ""
+        assert call_kwargs['context_passages'] == ""
         assert result.mirad_text == "Helo."
 
 
@@ -202,7 +187,6 @@ def test_translate_with_lookup_calls_module():
     """translate_with_lookup runs the full pipeline and returns all fields."""
     mock_pred = dspy.Prediction(
         mirad_text="At tose oma.",
-        confidence="0.9",
         word_equivalents={"i": "at", "cold": "oma"},
         context=["[grammar] verb rules"],
     )
@@ -215,9 +199,8 @@ def test_translate_with_lookup_calls_module():
         result = translate_with_lookup("I am cold.", db_path=":memory:")
 
         assert result[0] == "At tose oma."
-        assert result[1] == "0.9"
-        assert result[2] == {"i": "at", "cold": "oma"}
-        assert result[3] == ["[grammar] verb rules"]
+        assert result[1] == {"i": "at", "cold": "oma"}
+        assert result[2] == ["[grammar] verb rules"]
 
 
 # ---------------------------------------------------------------------------
@@ -225,7 +208,7 @@ def test_translate_with_lookup_calls_module():
 # ---------------------------------------------------------------------------
 
 def test_eval_example_correct_shape():
-    """Evaluation Examples should only have english_text as input."""
+    """Evaluation Examples should have english_text as input (Module computes intermediates)."""
     ex = dspy.Example(
         english_text="I am cold.",
         mirad_text="At tose oma.",
@@ -236,11 +219,31 @@ def test_eval_example_correct_shape():
     assert ex.mirad_text == "At tose oma."
 
 
-def test_signature_accepts_only_english_text_input():
-    """The signature should accept english_text as the sole input field."""
+def test_enriched_example_correct_shape():
+    """Enriched examples for LabeledFewShot should have all signature input fields."""
+    ex = dspy.Example(
+        english_text="I am cold.",
+        word_equivalents="i → at\ncold → oma",
+        context_passages="",
+        mirad_text="At tose oma.",
+    ).with_inputs("english_text", "word_equivalents", "context_passages")
+
+    assert set(ex.inputs().keys()) == {"english_text", "word_equivalents", "context_passages"}
+    assert ex.english_text == "I am cold."
+    assert "i → at" in ex.word_equivalents
+
+
+def test_signature_accepts_all_input_fields():
+    """The signature should accept english_text, word_equivalents, context_passages as inputs."""
     fields = EnglishToMiradSignature.model_fields
     input_fields = {
         name for name, f in fields.items()
         if f.json_schema_extra and f.json_schema_extra.get('__dspy_field_type') == 'input'
     }
-    assert input_fields == {"english_text"}
+    output_fields = {
+        name for name, f in fields.items()
+        if f.json_schema_extra and f.json_schema_extra.get('__dspy_field_type') == 'output'
+    }
+    assert input_fields == {"english_text", "word_equivalents", "context_passages"}
+    assert output_fields == {"mirad_text"}
+    assert "confidence" not in output_fields

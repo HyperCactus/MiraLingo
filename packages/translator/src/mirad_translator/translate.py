@@ -89,15 +89,212 @@ Objects:
 """.strip()
 
 
+def _format_word_equivalents(word_equivalents: dict) -> str:
+    """Format word equivalents dict as a readable string for the LLM."""
+    if not word_equivalents:
+        return ""
+    return "\n".join(f"{en} → {mi}" for en, mi in sorted(word_equivalents.items()))
+
+
+def _format_context_passages(passages: list) -> str:
+    """Format context passages as a single string for the LLM."""
+    if not passages:
+        return ""
+    return "\n\n".join(passages)
+
+
 class EnglishToMiradSignature(dspy.Signature):
     """Translate English text to Mirad.
 
     Follow these Mirad grammar rules:
     {grammar_rules}
+
+    Use the provided word equivalents (English→Mirad dictionary lookups) whenever
+    possible. Use the provided context passages (grammar and thesaurus excerpts) to
+    inform grammar, word order, and idiom choices. If the word equivalents or
+    context passages are empty, rely on the grammar rules above.
+
+    OUTPUT ONLY THE MIRAD TRANSLATION. No commentary, no explanations, no
+    confidence notes, no dictionary excerpts. Just the Mirad text.
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
     english_text = dspy.InputField(desc="English text to translate")
+    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line")
+    context_passages = dspy.InputField(desc="Retrieved grammar and thesaurus passages relevant to the translation")
     mirad_text = dspy.OutputField(desc="Translated text in Mirad")
-    confidence = dspy.OutputField(desc="Confidence score between 0 and 1")
+
+
+class CritiqueSignature(dspy.Signature):
+    """Review a candidate English→Mirad translation for correctness.
+
+    You are a Mirad grammar expert. Given the original English text, dictionary
+    lookups, grammar references, and a candidate Mirad translation, check for:
+
+    1. **Grammar violations**: wrong word order, missing/extra articles, wrong
+       verb tense endings (-e/-a/-o/-u), wrong aspect markers (-ey-/-ay-/-oy-/-uy-),
+       missing or wrong passive (-w-), wrong pronoun forms.
+    2. **Vocabulary errors**: words not in the dictionary lookups that seem
+       invented, or dictionary lookups ignored when they should have been used.
+    3. **Morphology errors**: wrong noun plural (-i), wrong possessive (-a),
+       wrong comparative/superlative (ga/ge/go/gwa/gwo + vyel), wrong adverb
+       formation (-y from -a adjectives).
+    4. **Structural errors**: wrong preposition (be/bu/bi), missing van/ven in
+       subordinate clauses, wrong conjunction (ay/ey/oy), missing/voy negation.
+    5. **Idiom mismatches**: literal translations of English idioms where Mirad
+       has a different construction.
+
+    Grammar rules for reference:
+    {grammar_rules}
+
+    Set pass=True only if the translation is fully correct. If any issue is
+    found, set pass=False and provide specific, actionable feedback describing
+    exactly what is wrong and how to fix it.
+    """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
+    english_text = dspy.InputField(desc="Original English text")
+    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
+    context_passages = dspy.InputField(desc="Grammar and thesaurus passages")
+    candidate_translation = dspy.InputField(desc="The candidate Mirad translation to review")
+    pass_ = dspy.OutputField(desc="True if the translation is correct, False if there are issues")
+    feedback = dspy.OutputField(desc="If pass_ is False, describe the specific errors and how to fix them")
+
+
+class FixTranslationSignature(dspy.Signature):
+    """Fix a Mirad translation based on critique feedback.
+
+    You are an English→Mirad translator. You previously produced a candidate
+    translation that was reviewed and found to have issues. Produce a corrected
+    Mirad translation that addresses all the feedback.
+
+    Follow these Mirad grammar rules:
+    {grammar_rules}
+
+    Use the provided word equivalents and context passages. Address every point
+    in the feedback. OUTPUT ONLY THE CORRECTED MIRAD TRANSLATION. No commentary.
+    """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
+    english_text = dspy.InputField(desc="English text to translate")
+    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
+    context_passages = dspy.InputField(desc="Grammar and thesaurus passages")
+    previous_attempt = dspy.InputField(desc="The previous Mirad translation that had issues")
+    feedback = dspy.InputField(desc="Specific feedback on what was wrong and how to fix it")
+    mirad_text = dspy.OutputField(desc="Corrected Mirad translation")
+
+
+class FollowUpQuerySignature(dspy.Signature):
+    """Generate a follow-up retrieval query for Mirad grammar and vocabulary.
+
+    Given the original English text to translate and the context already
+    retrieved, produce a focused follow-up query that will find grammar rules
+    or vocabulary entries NOT already covered by the initial retrieval.
+
+    Focus on specific grammar patterns, preposition usage, verb morphology,
+    or idiomatic constructions that appear in the source text but may not
+    be well-covered by the initial context. Keep the query short and specific.
+
+    If the initial context already covers all grammar patterns and vocabulary
+    needed, output an empty string to signal that no further retrieval is needed.
+    """
+    english_text = dspy.InputField(desc="English text to translate")
+    initial_context = dspy.InputField(desc="Context passages already retrieved")
+    word_equivalents = dspy.InputField(desc="Dictionary lookups already found")
+    follow_up_query = dspy.OutputField(desc="A focused follow-up query for grammar/vocabulary not yet covered, or empty string if no more retrieval is needed")
+
+
+class MultiHopTranslatorModule(dspy.Module):
+    """Translation module with multi-hop retrieval.
+
+    Instead of a single retrieval pass, this module:
+    1. Does an initial retrieval (same as TranslatorModule)
+    2. Asks the LM whether it needs more specific context, and if so, what query
+    3. Retrieves additional context with the follow-up query
+    4. Merges all context and generates the final translation
+
+    Args:
+        db_path: Path to the lexicon SQLite DB.
+        num_context_passages: Base number of RAG context passages per hop (0 disables retrieval).
+        num_hops: Number of retrieval hops (1 = single-hop like TranslatorModule, 2+ = multi-hop).
+    """
+
+    def __init__(self, db_path=None, num_context_passages: int = 5, num_hops: int = 2):
+        super().__init__()
+        self.generate = dspy.ChainOfThought(EnglishToMiradSignature)
+        self.generate_query = dspy.ChainOfThought(FollowUpQuerySignature)
+        self.lexicon_lookup = MiradLexiconLookup(db_path=db_path)
+        self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
+        self._db_path = db_path
+        self._num_context_passages = num_context_passages
+        self._num_hops = max(1, num_hops)
+
+    def _retrieve(self, english_text: str):
+        """Run lexicon lookup and context retrieval, return formatted strings + raw data."""
+        word_eq_pred = self.lexicon_lookup(english_text=english_text)
+        word_equivalents = word_eq_pred.word_equivalents
+
+        ctx_pred = self.context_retrieve(query=english_text)
+        context_passages = list(ctx_pred.passages)
+
+        we_str = _format_word_equivalents(word_equivalents)
+        ctx_str = _format_context_passages(context_passages)
+
+        return we_str, ctx_str, word_equivalents, context_passages
+
+    def forward(self, english_text: str) -> dspy.Prediction:
+        """Translate with multi-hop retrieval."""
+        # Hop 1: Initial retrieval
+        we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
+
+        # Additional hops: LM generates follow-up queries for more context
+        seen_ids = set()
+        for passage in context_passages:
+            # Deduplicate by content — track what we've seen
+            seen_ids.add(hash(passage[:100]))
+
+        all_context_passages = list(context_passages)
+
+        for hop in range(1, self._num_hops):
+            # Ask the LM if more context is needed
+            query_pred = self.generate_query(
+                english_text=english_text,
+                initial_context=ctx_str if ctx_str else "(no initial context retrieved)",
+                word_equivalents=we_str if we_str else "(no dictionary lookups found)",
+            )
+            follow_up = query_pred.follow_up_query.strip()
+
+            if not follow_up:
+                break  # LM says no more retrieval needed
+
+            # Retrieve with follow-up query
+            from mirad_translator.retrieval import retrieve_all
+            try:
+                result = retrieve_all(follow_up, top_k=self._num_context_passages)
+                new_passages = []
+                for section in ("grammar", "thesaurus"):
+                    for item in result.get(section, []):
+                        src = item.get("metadata", {}).get("source_section", section)
+                        passage_text = f"[{src}] {item['text']}"
+                        # Only add if not already seen
+                        content_hash = hash(passage_text[:100])
+                        if content_hash not in seen_ids:
+                            seen_ids.add(content_hash)
+                            new_passages.append(passage_text)
+            except Exception:
+                new_passages = []
+
+            if not new_passages:
+                break  # No new context found
+
+            all_context_passages.extend(new_passages)
+            ctx_str = _format_context_passages(all_context_passages)
+
+        # Generate translation with all accumulated context
+        prediction = self.generate(
+            english_text=english_text,
+            word_equivalents=we_str,
+            context_passages=ctx_str,
+        )
+        return dspy.Prediction(
+            mirad_text=prediction.mirad_text,
+            word_equivalents=word_equivalents,
+            context=all_context_passages,
+        )
 
 
 class MiradLexiconLookup(dspy.Module):
@@ -155,27 +352,41 @@ class MiradContextRetrieve(dspy.Retrieve):
 
 
 class TranslatorModule(dspy.Module):
-    """DSPy Module for English→Mirad translation with RAG retrieval.
+    """DSPy Module for English→Mirad translation with lexicon lookup and RAG retrieval.
 
     The module takes only ``english_text`` as input and internally:
     1. Looks up word equivalents via the lexicon DB
-    2. Retrieves grammar/thesaurus context via ChromaDB
-    3. Formats a rich prompt with retrieved context + grammar rules
-    4. Generates Mirad translation via ChainOfThought
+    2. Retrieves grammar/thesaurus context via ChromaDB (disabled when k=0)
+    3. Passes the original text, word equivalents, and context as separate
+       signature fields to ChainOfThought for translation
 
-    The signature (EnglishToMiradSignature) only has ``english_text`` as
-    input — retrieval is an internal module concern, not a signature field.
-    This makes BootstrapFewShot work correctly: eval Examples only need
-    ``english_text`` and ``mirad_text``, and the optimizer traces the full
-    retrieval→generate pipeline to produce bootstrapped demos.
+    The signature (EnglishToMiradSignature) has ``english_text``,
+    ``word_equivalents``, and ``context_passages`` as inputs — this allows
+    DSPy optimizers like LabeledFewShot and BootstrapFewShot to include
+    retrieved context in their demos so the model sees worked examples of
+    how to use dictionary lookups and grammar references.
     """
 
-    def __init__(self, db_path=None, num_context_passages: int = 5):
+    def __init__(self, db_path=None, num_context_passages: int = 0):
         super().__init__()
         self.generate = dspy.ChainOfThought(EnglishToMiradSignature)
         self.lexicon_lookup = MiradLexiconLookup(db_path=db_path)
         self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
         self._db_path = db_path
+        self._num_context_passages = num_context_passages
+
+    def _retrieve(self, english_text: str):
+        """Run lexicon lookup and context retrieval, return formatted strings + raw data."""
+        word_eq_pred = self.lexicon_lookup(english_text=english_text)
+        word_equivalents = word_eq_pred.word_equivalents
+
+        ctx_pred = self.context_retrieve(query=english_text)
+        context_passages = ctx_pred.passages
+
+        we_str = _format_word_equivalents(word_equivalents)
+        ctx_str = _format_context_passages(context_passages)
+
+        return we_str, ctx_str, word_equivalents, context_passages
 
     def forward(self, english_text: str) -> dspy.Prediction:
         """Translate English text to Mirad.
@@ -183,39 +394,114 @@ class TranslatorModule(dspy.Module):
         Retrieval (lexicon lookup + RAG context) happens internally;
         the caller only needs to provide ``english_text``.
         """
-        # Step 1: lexicon lookup
-        word_eq_pred = self.lexicon_lookup(english_text=english_text)
-        word_equivalents = word_eq_pred.word_equivalents
+        we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
 
-        # Step 2: RAG context retrieval
-        ctx_pred = self.context_retrieve(query=english_text)
-        context_passages = ctx_pred.passages
-
-        # Step 3: build enriched prompt for the LLM
-        # Inject word equivalents and context directly into the english_text
-        # so the ChainOfThought sees everything in one input field.
-        parts = [english_text]
-        if word_equivalents:
-            eq_lines = [f"  {en} → {mi}" for en, mi in sorted(word_equivalents.items())]
-            parts.append("\nWord equivalents (use these Mirad words when possible):")
-            parts.append("\n".join(eq_lines))
-        if context_passages:
-            parts.append("\nRelevant grammar and thesaurus context:")
-            parts.append("\n\n".join(context_passages))
-        enriched_text = "\n".join(parts)
-
-        # Step 4: generate translation
-        prediction = self.generate(english_text=enriched_text)
+        prediction = self.generate(
+            english_text=english_text,
+            word_equivalents=we_str,
+            context_passages=ctx_str,
+        )
         return dspy.Prediction(
             mirad_text=prediction.mirad_text,
-            confidence=prediction.confidence,
             word_equivalents=word_equivalents,
             context=context_passages,
         )
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 5):
-    """Factory: open/create SQLite lexicon DB and ChromaDB index, return TranslatorModule."""
+class CritiqueAndFixModule(dspy.Module):
+    """Translation module with a critique-and-fix loop.
+
+    Translates English→Mirad, then runs up to ``max_retries`` rounds of
+    critique (grammar/vocabulary check) and fix. If the critique signals
+    pass=True, the loop stops early and returns the accepted translation.
+
+    Args:
+        db_path: Path to the lexicon SQLite DB.
+        num_context_passages: Number of RAG context passages (0 disables retrieval).
+        max_retries: Maximum critique-fix rounds (default 3).
+    """
+
+    def __init__(self, db_path=None, num_context_passages: int = 0, max_retries: int = 3):
+        super().__init__()
+        self.translator = TranslatorModule(db_path=db_path, num_context_passages=num_context_passages)
+        self.critique = dspy.ChainOfThought(CritiqueSignature)
+        self.fix = dspy.ChainOfThought(FixTranslationSignature)
+        self._db_path = db_path
+        self._num_context_passages = num_context_passages
+        self._max_retries = max(0, max_retries)
+
+    def forward(self, english_text: str) -> dspy.Prediction:
+        """Translate with critique-and-fix loop."""
+        # Initial translation
+        trans_pred = self.translator(english_text=english_text)
+        candidate = trans_pred.mirad_text
+
+        # Retrieve context for critique (reuse translator's retrieval)
+        we_str, ctx_str, word_equivalents, context_passages = self.translator._retrieve(english_text)
+
+        current_translation = candidate
+
+        for round_idx in range(self._max_retries):
+            # Critique the current translation
+            critique_pred = self.critique(
+                english_text=english_text,
+                word_equivalents=we_str,
+                context_passages=ctx_str,
+                candidate_translation=current_translation,
+            )
+
+            # Parse pass_ field — LM may return bool or string
+            passed = critique_pred.pass_
+            if isinstance(passed, str):
+                passed = passed.strip().lower() in ("true", "yes", "1", "pass")
+
+            if passed:
+                # Translation accepted
+                return dspy.Prediction(
+                    mirad_text=current_translation,
+                    word_equivalents=word_equivalents,
+                    context=context_passages,
+                    critique_rounds=round_idx + 1,
+                    critique_passed=True,
+                    feedback=getattr(critique_pred, "feedback", ""),
+                )
+
+            # Fix the translation based on feedback
+            feedback = critique_pred.feedback
+            fix_pred = self.fix(
+                english_text=english_text,
+                word_equivalents=we_str,
+                context_passages=ctx_str,
+                previous_attempt=current_translation,
+                feedback=feedback,
+            )
+            current_translation = fix_pred.mirad_text
+
+        # Exhausted retries — return the last fix attempt
+        return dspy.Prediction(
+            mirad_text=current_translation,
+            word_equivalents=word_equivalents,
+            context=context_passages,
+            critique_rounds=self._max_retries,
+            critique_passed=False,
+            feedback=getattr(critique_pred, "feedback", ""),
+        )
+
+
+def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1):
+    """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
+
+    When max_retries > 0, returns a CritiqueAndFixModule that runs a
+    critique-and-fix loop after the initial translation.
+    When num_hops > 1, returns a MultiHopTranslatorModule that runs iterative
+    retrieval with LM-generated follow-up queries.
+
+    Args:
+        db_path: Path to the lexicon SQLite DB. Defaults to built-in path.
+        num_context_passages: Number of RAG context passages to retrieve (0 disables retrieval).
+        max_retries: Max critique-fix rounds (0 = no critique, plain translation).
+        num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries).
+    """
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
     from mirad_translator.retrieval import build_indexes as _build_chroma
 
@@ -228,22 +514,43 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 5):
         except Exception:
             pass  # ChromaDB not available; retrieval will be empty
 
+    if max_retries > 0:
+        return CritiqueAndFixModule(
+            db_path=effective_db_path,
+            num_context_passages=num_context_passages,
+            max_retries=max_retries,
+        )
+
+    if num_hops > 1:
+        return MultiHopTranslatorModule(
+            db_path=effective_db_path,
+            num_context_passages=num_context_passages,
+            num_hops=num_hops,
+        )
+
     return TranslatorModule(
         db_path=effective_db_path,
         num_context_passages=num_context_passages,
     )
 
 
-def translate_with_lookup(english_text: str, db_path=None, top_k: int = 5):
+def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_retries: int = 0, num_hops: int = 1):
     """High-level entry point: look up words + retrieve context + translate.
 
-    Returns (mirad_text, confidence, word_equivalents, context_chunks).
+    Args:
+        english_text: English text to translate.
+        db_path: Path to the lexicon SQLite DB.
+        top_k: Number of context passages to retrieve (0 disables retrieval).
+        max_retries: Max critique-fix rounds (0 = no critique).
+        num_hops: Number of retrieval hops (1 = single, 2+ = multi-hop).
+
+    Returns:
+        (mirad_text, word_equivalents, context_chunks) — translation, dict, list.
     """
-    translator = DefaultTranslator(db_path=db_path, num_context_passages=top_k)
+    translator = DefaultTranslator(db_path=db_path, num_context_passages=top_k, max_retries=max_retries, num_hops=num_hops)
     prediction = translator.forward(english_text=english_text)
     return (
         prediction.mirad_text,
-        prediction.confidence,
         prediction.word_equivalents,
         prediction.context,
     )

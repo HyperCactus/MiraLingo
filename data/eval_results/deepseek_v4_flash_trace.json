@@ -1,0 +1,98 @@
+{
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "traces": [
+    {
+      "english_text": "In the near future, the world will share a common auxiliary language.",
+      "gold_mirad": "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn.",
+      "predicted_mirad": "Ha yubna oj, ha mir o gonbuo yansauna gabyuxea dalzeyn.",
+      "word_equivalents": {
+        "in": "inilk",
+        "the": "ha",
+        "near": "yub bi, yuba, yubna",
+        "future": "oj, oja, ojna, ojoba, ojun",
+        "world": "mir, mira",
+        "will": "fan, fon, fwas, uja fondras",
+        "share": "gon, gonbuun, nasgon, yanbexun",
+        "a": "a, awa",
+        "common": "futaja, tyooda, yansana, yansauna",
+        "auxiliary": "gabyuxea",
+        "language": "dalbyen, dalsyen, dalzeyn"
+      },
+      "context_passages": [],
+      "normalized_score": 0.0,
+      "exact_score": 0.0,
+      "elapsed_s": 17.89
+    },
+    {
+      "english_text": "I will die happily knowing that I've had a good life.",
+      "gold_mirad": "At tojo ivay, tea van at beaye fia tej.",
+      "predicted_mirad": "At tojoo ivay tea van at bexa awa fia tej.",
+      "word_equivalents": {
+        "will": "fan, fon, fwas, uja fondras",
+        "die": "ekyagunid",
+        "happily": "ivay",
+        "knowing": "tea, ten",
+        "that": "ho, hua, hunog, van",
+        "had": "bayswa, bexwa",
+        "a": "a, awa",
+        "good": "fia, nuun, nyuun",
+        "life": "tej"
+      },
+      "context_passages": [],
+      "normalized_score": 0.0,
+      "exact_score": 0.0,
+      "elapsed_s": 9.57
+    },
+    {
+      "english_text": "The only woman worth my attention is you.",
+      "gold_mirad": "Hawa toyb nazea ata tezex se et.",
+      "predicted_mirad": "Ha ana toyb nazea ata tepbix se et.",
+      "word_equivalents": {
+        "the": "ha",
+        "only": "ana, anay, away, haway",
+        "woman": "toyb",
+        "worth": "fyin, naz, nazea, naziea, utnaz",
+        "my": "ata, ayta, wata",
+        "attention": "tepbix, tepkyoxen, tepzex, tepzexen",
+        "is": "se",
+        "you": "et, eyt"
+      },
+      "context_passages": [],
+      "normalized_score": 0.0,
+      "exact_score": 0.0,
+      "elapsed_s": 7.61
+    },
+    {
+      "english_text": "Is this a semi-automatic weapon?",
+      "gold_mirad": "Duven his se eynutexea dopar?",
+      "predicted_mirad": "Hia se eabyena apyexar?",
+      "word_equivalents": {
+        "is": "se",
+        "this": "hi-, hia, hinog",
+        "a": "a, awa",
+        "weapon": "apyexar, dopar"
+      },
+      "context_passages": [],
+      "normalized_score": 0.0,
+      "exact_score": 0.0,
+      "elapsed_s": 15.63
+    },
+    {
+      "english_text": "Your wife sang the most beautifully in the competition.",
+      "gold_mirad": "Eta tayd deuza ha gwa vi be ha ebyek.",
+      "predicted_mirad": "Eta tayd deuza gwa viay be ha oveken.",
+      "word_equivalents": {
+        "your": "ayeta, eta, eyta, weta, yeta",
+        "wife": "tayd",
+        "the": "ha",
+        "beautifully": "viay",
+        "in": "inilk",
+        "competition": "oveken, yanyeken"
+      },
+      "context_passages": [],
+      "normalized_score": 0.0,
+      "exact_score": 0.0,
+      "elapsed_s": 3.79
+    }
+  ]
+}

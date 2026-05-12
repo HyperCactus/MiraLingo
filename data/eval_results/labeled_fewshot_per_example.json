@@ -1,0 +1,537 @@
+[
+  {
+    "english_text": "This is the biggest house in our neighborhood.",
+    "gold_mirad": "His se ha gwa aga tam bi yata yubem.",
+    "predicted_mirad": "Hia se ha gwa aga tam be yata yubyem.",
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "is": "se",
+      "the": "ha",
+      "house": "tam",
+      "in": "inilk",
+      "our": "aeta, ayet, ayita, yata",
+      "neighborhood": "doeym, domgon, yubem, yubyem, yubyema"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "You will never gain perfect happiness.",
+    "gold_mirad": "Et hyoj ako fika ivan.",
+    "predicted_mirad": "Et hyojob akó fika ivan.",
+    "word_equivalents": {
+      "you": "et, eyt",
+      "will": "fan, fon, fwas, uja fondras",
+      "never": "hyoawa jod, hyogla job, hyogla jodi, hyojob, hyojod, hyojodi, hyoxag, owa jod",
+      "gain": "ak, akun, nasak, nazaken",
+      "perfect": "fika",
+      "happiness": "ivan"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "You must do it as quickly as possible.",
+    "gold_mirad": "Et yefe xer gwa ig.",
+    "predicted_mirad": "Et yefe xer his igay asolk yafwa.",
+    "word_equivalents": {
+      "you": "et, eyt",
+      "must": "yef",
+      "do": "vay",
+      "it": "has, his, hus, is",
+      "as": "asolk",
+      "quickly": "ig, igay, igtay",
+      "possible": "vea, yafwa"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "This house is not as big as mine.",
+    "gold_mirad": "Hia tam voy se ge aga vyel atas.",
+    "predicted_mirad": "Hia tam voy se ge aga ge atas.",
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "house": "tam",
+      "is": "se",
+      "not": "hyo-, voy",
+      "as": "asolk",
+      "big": "aga",
+      "mine": "atas, atasi, aytas, aytasi, mukiblem, mumyex, watas, watasi"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "My house is bigger than yours.",
+    "gold_mirad": "Ata tam se ga aga vyel etas.",
+    "predicted_mirad": "Ata tam se glayoa vyel etas.",
+    "word_equivalents": {
+      "my": "ata, ayta, wata",
+      "house": "tam",
+      "is": "se",
+      "than": "vyegexwa bay, vyel",
+      "yours": "ayetas, ayetasi, etas, etasi, eyetas, eyetasi, eytas, eytasi, wetas, wetasi, yetas, yetasi"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "The richest man in the world.",
+    "gold_mirad": "Ha gwa nyaza twob be ha mir.",
+    "predicted_mirad": "Ha twob gwa nyaza be ha mir.",
+    "word_equivalents": {
+      "the": "ha",
+      "man": "tob, twob",
+      "in": "inilk",
+      "world": "mir, mira"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Many are called but few are chosen.",
+    "gold_mirad": "Glati dyunwe oy gloti kexbiwe.",
+    "predicted_mirad": "Glati se dyuwa, oy gloat se kebiwa.",
+    "word_equivalents": {
+      "are": "se",
+      "called": "dyuwa, heydwa, teudwa",
+      "but": "boy, oy",
+      "few": "glo",
+      "chosen": "kebiwa, kyebiwa"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "How glad I am that you came!",
+    "gold_mirad": "Hoogla iva se at van et upa!",
+    "predicted_mirad": "Huyen ivla at se van et pua!",
+    "word_equivalents": {
+      "how": "duhonog, ha yuxun ho, habyen, hayena, heyen, hoyen, hoyeni, hoyuxun, hyogel, hyoyena",
+      "glad": "ivla, iyva",
+      "am": "amilk",
+      "that": "ho, hua, hunog, van",
+      "you": "et, eyt"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "The whole world knows about you.",
+    "gold_mirad": "Ha ayna mir te ayv et.",
+    "predicted_mirad": "Ha hyaika mir tre vyel et.",
+    "word_equivalents": {
+      "the": "ha",
+      "whole": "ayn, ayna, aynmula, gan, gana, hyaika",
+      "world": "mir, mira",
+      "about": "ayv, be syin bi, be vyen bi, be vyeson bi, vyel, vyelea, yuz bi",
+      "you": "et, eyt"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Money makes the world go round.",
+    "gold_mirad": "Nas zyube ha mir.",
+    "predicted_mirad": "Ha nas xa ha mir tyoper.",
+    "word_equivalents": {
+      "money": "nas",
+      "the": "ha",
+      "world": "mir, mira",
+      "round": "yuzmep, zyua"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "He said, \"Let there be light.\"",
+    "gold_mirad": "It da: \"Van esu man.\"",
+    "predicted_mirad": "Hut dwa: \"Van su man.\"",
+    "word_equivalents": {
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "said": "dwa",
+      "there": "be hum",
+      "be": "baelk",
+      "light": "kyua, maa, man, manar, mansiunar, mayna"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I think, therefore I am.",
+    "gold_mirad": "At texe, av hus, at ese.",
+    "predicted_mirad": "At texer, av hus at se.",
+    "word_equivalents": {
+      "therefore": "av hia tesyob, av his, av hua tesyob, av hus, avhus, hisav, husav",
+      "am": "amilk"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Let the buyer beware!",
+    "gold_mirad": "Van ha nuxbiut bikiu!",
+    "predicted_mirad": "Yoktosu ha nuniut!",
+    "word_equivalents": {
+      "let": "afu, ojbuwa",
+      "the": "ha",
+      "buyer": "niut, nuniut, nuxbiut"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "What a day this has been!",
+    "gold_mirad": "Hooa jub his saye!",
+    "predicted_mirad": "Duho jub hia seye!",
+    "word_equivalents": {
+      "what": "duho, has, hasi ho, hos",
+      "a": "a, awa",
+      "day": "jub, maj",
+      "this": "hi-, hia, hinog"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "The baby is still sleeping.",
+    "gold_mirad": "Ha tobud gaj tujeye.",
+    "predicted_mirad": "Ha tudet jey tuje.",
+    "word_equivalents": {
+      "the": "ha",
+      "baby": "tajbwat, tajyat, tajyata, tudet",
+      "is": "se",
+      "still": "bon, bos, bosa, boy pas, filvyunobar, gaj, gajob, gey bay hus, gey bay van, je hus, jey, kyoa, kyosa, kyosea, opansin"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I swim better than you.",
+    "gold_mirad": "At pipe ga fi vyel et.",
+    "predicted_mirad": "At piwe ga fi vyel et.",
+    "word_equivalents": {
+      "better": "ga fi, ga fia, ga fiay, sagvekekut, vekdut, vekekut",
+      "than": "vyegexwa bay, vyel",
+      "you": "et, eyt"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I am not your father.",
+    "gold_mirad": "At voy se eta ted.",
+    "predicted_mirad": "At voy se eta twed.",
+    "word_equivalents": {
+      "am": "amilk",
+      "not": "hyo-, voy",
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "father": "twed"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Everything ended well.",
+    "gold_mirad": "Hyas uja fi.",
+    "predicted_mirad": "Hyas uja fiay.",
+    "word_equivalents": {
+      "everything": "hyas, hyasun",
+      "ended": "uja, ujaa, ujbwa",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "How's the weather?",
+    "gold_mirad": "Ha maalyen se hoyena?",
+    "predicted_mirad": "Duhos se ha amalyen?",
+    "word_equivalents": {
+      "the": "ha",
+      "weather": "amalyen"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It is getting cold.",
+    "gold_mirad": "Omseye.",
+    "predicted_mirad": "Has xeye oma.",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "is": "se",
+      "cold": "oma, oman, teibok, tiebboyk"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I am getting cold.",
+    "gold_mirad": "At omseye.",
+    "predicted_mirad": "At omse.",
+    "word_equivalents": {
+      "am": "amilk",
+      "cold": "oma, oman, teibok, tiebboyk"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "What color is your car?",
+    "gold_mirad": "Eta pur se hovoza?",
+    "predicted_mirad": "Duho volz se eta pur?",
+    "word_equivalents": {
+      "what": "duho, has, hasi ho, hos",
+      "color": "volz",
+      "is": "se",
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "car": "bixpures, mempur, pur, pures, purim, utmempur, utpur"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It seems to me that...",
+    "gold_mirad": "Tease bu at van...",
+    "predicted_mirad": "His texe at van...",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "to": "bu",
+      "me": "at, ayt",
+      "that": "ho, hua, hunog, van"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It doesn't bother me.",
+    "gold_mirad": "Voy tepoboxe at.",
+    "predicted_mirad": "Has vo obose at.",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "bother": "obos",
+      "me": "at, ayt"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "This hat does not fit.",
+    "gold_mirad": "Hia tef voy finagse.",
+    "predicted_mirad": "Hia tefnyoov voy se fitapa.",
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "hat": "tefnyoov",
+      "does": "vay",
+      "not": "hyo-, voy",
+      "fit": "fitapa, pyas, vyanaba"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Go around the block.",
+    "gold_mirad": "Yuzper ha tomyan.",
+    "predicted_mirad": "Yuzpu ha domgones.",
+    "word_equivalents": {
+      "around": "yubge voy, yuz bi",
+      "the": "ha",
+      "block": "dom unkun, domgones, ebun, mef, ovbun, tomnyan, unkumeg"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Get well soon!",
+    "gold_mirad": "Fibaksu ig!",
+    "predicted_mirad": "Fibaku yubjo!",
+    "word_equivalents": {
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum",
+      "soon": "be yuboj, yub joy, yubjo"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "To your health!",
+    "gold_mirad": "Bu eta bak!",
+    "predicted_mirad": "Bu eta bak!",
+    "word_equivalents": {
+      "to": "bu",
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "health": "bak, tabakan"
+    },
+    "context": [],
+    "normalized_match": 1.0,
+    "exact_match": 1.0
+  },
+  {
+    "english_text": "To flush the toilet.",
+    "gold_mirad": "Ukxer ha milufsom.",
+    "predicted_mirad": "Ilukxer ha milufsom.",
+    "word_equivalents": {
+      "to": "bu",
+      "flush": "iluk, iluksun, ilukxar, nyaza, yez, yeza, yezna, yokipluxen",
+      "the": "ha",
+      "toilet": "efim, eftim, fyusulsom, milufim, milufsom"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "To water the plants.",
+    "gold_mirad": "Miluer ha vobi.",
+    "predicted_mirad": "Milbu ha vobi!",
+    "word_equivalents": {
+      "to": "bu",
+      "water": "-il, mil",
+      "the": "ha"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Do you speak in Mirad?",
+    "gold_mirad": "Duven et Miradale?",
+    "predicted_mirad": "Duven et dale be Mirad?",
+    "word_equivalents": {
+      "do": "vay",
+      "you": "et, eyt",
+      "in": "inilk",
+      "mirad": "Mirad"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Say it in Mirad!",
+    "gold_mirad": "Miradu has!",
+    "predicted_mirad": "Du his be Mirad!",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "in": "inilk",
+      "mirad": "Mirad"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It is snowing.",
+    "gold_mirad": "Malyomeye.",
+    "predicted_mirad": "Se malyomea.",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "is": "se",
+      "snowing": "malyomea, malyomen"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It is sleeting.",
+    "gold_mirad": "Mamyoymeye.",
+    "predicted_mirad": "Is seypele.",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "is": "se"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "It is raining.",
+    "gold_mirad": "Mamileye.",
+    "predicted_mirad": "Mamile.",
+    "word_equivalents": {
+      "it": "has, his, hus, is",
+      "is": "se",
+      "raining": "ilpyoxen, mamilea, mamilen, milpyoxen"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I pity you.",
+    "gold_mirad": "At yantipuvse et.",
+    "predicted_mirad": "At yantose et.",
+    "word_equivalents": {
+      "pity": "bloktip, tipuvan, yantipuv, yantipuvan, yantos, yantoser bay",
+      "you": "et, eyt"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Look here!",
+    "gold_mirad": "Teaxu him!",
+    "predicted_mirad": "Teax him!",
+    "word_equivalents": {
+      "look": "teax",
+      "here": "be him, hiim, him"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "I am cold.",
+    "gold_mirad": "At tose oma.",
+    "predicted_mirad": "At oma.",
+    "word_equivalents": {
+      "am": "amilk",
+      "cold": "oma, oman, teibok, tiebboyk"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  },
+  {
+    "english_text": "Be well!",
+    "gold_mirad": "Su baka!",
+    "predicted_mirad": "Fi!",
+    "word_equivalents": {
+      "be": "baelk",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context": [],
+    "normalized_match": 0.0,
+    "exact_match": 0.0
+  }
+]

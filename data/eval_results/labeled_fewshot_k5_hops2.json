@@ -1,0 +1,13 @@
+{
+  "method": "MultiHop_LabeledFewShot",
+  "lm_type": "deepinfra",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "num_fewshot": 5,
+  "k_context_passages": 5,
+  "num_hops": 2,
+  "eval_set_size": 39,
+  "normalized_score": 56.4,
+  "exact_score": 56.4,
+  "compile_time_s": 0.0,
+  "eval_time_s": 581.84
+}

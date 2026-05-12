@@ -1,0 +1,15 @@
+{
+  "method": "CritiqueAndFix_LabeledFewShot",
+  "lm_type": "deepinfra",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "num_fewshot": 5,
+  "k_context_passages": 5,
+  "max_retries": 3,
+  "eval_set_size": 39,
+  "normalized_score": 56.4,
+  "exact_score": 56.4,
+  "avg_critique_rounds": 1.21,
+  "critique_pass_rate": 97.4,
+  "compile_time_s": 0.0,
+  "eval_time_s": 451.91
+}

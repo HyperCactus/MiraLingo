@@ -1,0 +1,14 @@
+{
+  "method": "LabeledFewShot_k5",
+  "lm_type": "deepinfra",
+  "model": "openai/gpt-oss-20b",
+  "num_fewshot": 5,
+  "k_context_passages": 5,
+  "eval_set_size": 39,
+  "normalized_score": 28.2,
+  "exact_score": 28.2,
+  "exact_hits": 11,
+  "avg_latency_s": 15.1,
+  "compile_time_s": 0.0,
+  "eval_time_s": 590.34
+}

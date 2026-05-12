@@ -1,0 +1,13 @@
+{
+  "method": "LabeledFewShot",
+  "lm_type": "deepinfra",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "num_fewshot": 5,
+  "k_context_passages": 0,
+  "eval_set_size": 39,
+  "normalized_score": 2.56,
+  "exact_score": 2.56,
+  "compile_time_s": 0.0,
+  "eval_time_s": 366.18,
+  "total_time_s": 366.18
+}
