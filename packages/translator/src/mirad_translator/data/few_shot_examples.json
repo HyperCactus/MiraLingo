@@ -1,29 +1,224 @@
 {
   "few_shot_examples": [
     {
-      "english_text": "Hello",
-      "mirad_text": "Helo",
-      "confidence": 0.95
+      "english_text": "In the near future, the world will share a common auxiliary language.",
+      "mirad_text": "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn.",
+      "confidence": 0.98
     },
     {
-      "english_text": "How are you?",
-      "mirad_text": "Kum es tu?",
-      "confidence": 0.93
+      "english_text": "I will die happily knowing that I've had a good life.",
+      "mirad_text": "At tojo ivay, tea van at beaye fia tej.",
+      "confidence": 0.98
     },
     {
-      "english_text": "Good morning",
-      "mirad_text": "Bon matin",
-      "confidence": 0.94
+      "english_text": "The only woman worth my attention is you.",
+      "mirad_text": "Hawa toyb nazea ata tezex se et.",
+      "confidence": 0.98
     },
     {
-      "english_text": "Thank you",
-      "mirad_text": "Tanskju",
-      "confidence": 0.92
+      "english_text": "Is this a semi-automatic weapon?",
+      "mirad_text": "Duven his se eynutexea dopar?",
+      "confidence": 0.98
     },
     {
-      "english_text": "What is your name?",
-      "mirad_text": "Ku es noma de tu?",
-      "confidence": 0.91
+      "english_text": "Your wife sang the most beautifully in the competition.",
+      "mirad_text": "Eta tayd deuza ha gwa vi be ha ebyek.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "This is the biggest house in our neighborhood.",
+      "mirad_text": "His se ha gwa aga tam bi yata yubem.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "You will never gain perfect happiness.",
+      "mirad_text": "Et hyoj ako fika ivan.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "You must do it as quickly as possible.",
+      "mirad_text": "Et yefe xer gwa ig.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "This house is not as big as mine.",
+      "mirad_text": "Hia tam voy se ge aga vyel atas.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "My house is bigger than yours.",
+      "mirad_text": "Ata tam se ga aga vyel etas.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "The richest man in the world.",
+      "mirad_text": "Ha gwa nyaza twob be ha mir.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Many are called but few are chosen.",
+      "mirad_text": "Glati dyunwe oy gloti kexbiwe.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "How glad I am that you came!",
+      "mirad_text": "Hoogla iva se at van et upa!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "The whole world knows about you.",
+      "mirad_text": "Ha ayna mir te ayv et.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Money makes the world go round.",
+      "mirad_text": "Nas zyube ha mir.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "He said, \"Let there be light.\"",
+      "mirad_text": "It da: \"Van esu man.\"",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I think, therefore I am.",
+      "mirad_text": "At texe, av hus, at ese.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Let the buyer beware!",
+      "mirad_text": "Van ha nuxbiut bikiu!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "What a day this has been!",
+      "mirad_text": "Hooa jub his saye!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "The baby is still sleeping.",
+      "mirad_text": "Ha tobud gaj tujeye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I swim better than you.",
+      "mirad_text": "At pipe ga fi vyel et.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I am not your father.",
+      "mirad_text": "At voy se eta ted.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Everything ended well.",
+      "mirad_text": "Hyas uja fi.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "How's the weather?",
+      "mirad_text": "Ha maalyen se hoyena?",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It is getting cold.",
+      "mirad_text": "Omseye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I am getting cold.",
+      "mirad_text": "At omseye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "What color is your car?",
+      "mirad_text": "Eta pur se hovoza?",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It seems to me that...",
+      "mirad_text": "Tease bu at van...",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It doesn't bother me.",
+      "mirad_text": "Voy tepoboxe at.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "This hat does not fit.",
+      "mirad_text": "Hia tef voy finagse.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Go around the block.",
+      "mirad_text": "Yuzper ha tomyan.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Get well soon!",
+      "mirad_text": "Fibaksu ig!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "To your health!",
+      "mirad_text": "Bu eta bak!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "To flush the toilet.",
+      "mirad_text": "Ukxer ha milufsom.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "To water the plants.",
+      "mirad_text": "Miluer ha vobi.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Do you speak in Mirad?",
+      "mirad_text": "Duven et Miradale?",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Say it in Mirad!",
+      "mirad_text": "Miradu has!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It is snowing.",
+      "mirad_text": "Malyomeye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It is sleeting.",
+      "mirad_text": "Mamyoymeye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "It is raining.",
+      "mirad_text": "Mamileye.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I pity you.",
+      "mirad_text": "At yantipuvse et.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Look here!",
+      "mirad_text": "Teaxu him!",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "I am cold.",
+      "mirad_text": "At tose oma.",
+      "confidence": 0.98
+    },
+    {
+      "english_text": "Be well!",
+      "mirad_text": "Su baka!",
+      "confidence": 0.98
     }
   ]
 }
