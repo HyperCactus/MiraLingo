@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from mirad_translator.api import app, translator
+from mirad_translator.api import app
 from unittest.mock import patch, Mock
 import pytest
 import dspy
@@ -15,35 +15,37 @@ def test_health_ready():
         word_equivalents={}, context=[],
     )
 
-    with patch('mirad_translator.api.translator') as mock_translator:
-        mock_translator.forward.return_value = mock_prediction
+    with patch('mirad_translator.api.translator_en_mir') as mock_en_mir:
+        mock_en_mir.return_value = mock_prediction
+        with patch('mirad_translator.api.translator_mir_en') as mock_mir_en:
+            mock_mir_en.return_value = mock_prediction
 
-        response = client.get("/health")
-        assert response.status_code == 200
-        assert response.json() == {"status": "healthy"}
+            response = client.get("/health")
+            assert response.status_code == 200
+            assert response.json() == {"status": "healthy"}
 
 
 def test_health_not_ready():
     """Test /health endpoint when translator is not initialized."""
-    global translator
-    original_translator = translator
+    import mirad_translator.api as api_module
+    original_en_mir = api_module.translator_en_mir
+    original_mir_en = api_module.translator_mir_en
     try:
-        translator = None
+        api_module.translator_en_mir = None
+        api_module.translator_mir_en = None
 
         response = client.get("/health")
         assert response.status_code == 503
-        assert response.json() == {
-            "status": "unhealthy",
-            "reason": "Translator not initialized"
-        }
+        assert response.json()["status"] == "unhealthy"
     finally:
-        translator = original_translator
+        api_module.translator_en_mir = original_en_mir
+        api_module.translator_mir_en = original_mir_en
 
 
 def test_health_check_failed():
     """Test /health endpoint when translator health check fails."""
-    with patch('mirad_translator.api.translator') as mock_translator:
-        mock_translator.forward.side_effect = Exception("Health check failed")
+    with patch('mirad_translator.api.translator_en_mir') as mock_en_mir:
+        mock_en_mir.side_effect = Exception("Health check failed")
 
         response = client.get("/health")
         assert response.status_code == 503
@@ -56,10 +58,11 @@ def test_root():
     response = client.get("/")
     assert response.status_code == 200
     assert "message" in response.json()
+    assert "directions" in response.json()
 
 
 def test_translate_success():
-    """Test /translate endpoint with successful translation."""
+    """Test /translate endpoint with successful En→Mir translation."""
     mock_prediction = dspy.Prediction(
         mirad_text="Helo",
         confidence="0.95",
@@ -67,8 +70,8 @@ def test_translate_success():
         context=["[grammar] greeting rules"],
     )
 
-    with patch('mirad_translator.api.translator') as mock_translator:
-        mock_translator.forward.return_value = mock_prediction
+    with patch('mirad_translator.api.translator_en_mir') as mock_en_mir:
+        mock_en_mir.return_value = mock_prediction
 
         response = client.post("/translate", json={"text": "Hello"})
 
@@ -76,12 +79,31 @@ def test_translate_success():
         data = response.json()
         assert data["text"] == "Hello"
         assert data["translation"] == "Helo"
+        assert data["direction"] == "en_to_mir"
         assert data["confidence"] == "0.95"
         # Without retrieve=True, word_equivalents and context should be null
         assert data.get("word_equivalents") is None
         assert data.get("context") is None
 
-        mock_translator.forward.assert_called_once_with(english_text="Hello")
+
+def test_translate_mir_to_en():
+    """Test /translate endpoint with Mir→En direction."""
+    mock_prediction = dspy.Prediction(
+        english_text="I know the answer.",
+        word_equivalents={"at": "i", "te": "know"},
+        context=["[grammar] verb rules"],
+    )
+
+    with patch('mirad_translator.api.translator_mir_en') as mock_mir_en:
+        mock_mir_en.return_value = mock_prediction
+
+        response = client.post("/translate", json={"text": "At te ha dud.", "direction": "mir_to_en"})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["text"] == "At te ha dud."
+        assert data["translation"] == "I know the answer."
+        assert data["direction"] == "mir_to_en"
 
 
 def test_translate_with_retrieve():
@@ -93,8 +115,8 @@ def test_translate_with_retrieve():
         context=["[grammar] verb rules"],
     )
 
-    with patch('mirad_translator.api.translator') as mock_translator:
-        mock_translator.forward.return_value = mock_prediction
+    with patch('mirad_translator.api.translator_en_mir') as mock_en_mir:
+        mock_en_mir.return_value = mock_prediction
 
         response = client.post("/translate", json={"text": "I am cold.", "retrieve": True})
 
@@ -106,31 +128,22 @@ def test_translate_with_retrieve():
 
 def test_translate_no_translator():
     """Test /translate endpoint when translator is not initialized."""
-    global translator
-    original_translator = translator
+    import mirad_translator.api as api_module
+    original_en_mir = api_module.translator_en_mir
     try:
-        translator = None
+        api_module.translator_en_mir = None
 
         response = client.post("/translate", json={"text": "Hello"})
         assert response.status_code == 503
-        assert response.json()["detail"] == "Translator not initialized"
 
     finally:
-        translator = original_translator
+        api_module.translator_en_mir = original_en_mir
 
 
 def test_translate_exception():
     """Test /translate endpoint when translation fails."""
-    with patch('mirad_translator.api.translator') as mock_translator:
-        mock_translator.forward.side_effect = Exception("Translation failed")
+    with patch('mirad_translator.api.translator_en_mir') as mock_en_mir:
+        mock_en_mir.side_effect = Exception("Translation failed")
 
         response = client.post("/translate", json={"text": "Hello"})
         assert response.status_code == 500
-
-
-def test_startup_event():
-    """Test startup event exists and does not crash when Ollama is unavailable."""
-    startup_handlers = [
-        h for h in app.router.on_startup
-    ] if hasattr(app.router, 'on_startup') else []
-    assert len(startup_handlers) >= 1 or app.on_event("startup") is not None

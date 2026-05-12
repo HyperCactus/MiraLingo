@@ -98,6 +98,28 @@ def lookup_word(db_path=None, english_word=None):
     return row[0] if row else None
 
 
+def lookup_mirad_word(db_path=None, mirad_word=None):
+    """Look up a Mirad word in the lexicon DB (reverse lookup).
+
+    Args:
+        db_path: Path to the SQLite DB.
+        mirad_word: The Mirad word to look up.
+
+    Returns:
+        The English translation str, or None if not found.
+    """
+    db_path = db_path or DB_PATH
+    mirad_word = (mirad_word or "").strip()
+    if not mirad_word:
+        return None
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT english FROM lexicon WHERE mirad = ?", (mirad_word,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else None
+
+
 def get_stats(db_path=None):
     """Return dict with total entry count and per-letter breakdown."""
     db_path = db_path or DB_PATH

@@ -602,3 +602,236 @@ def run_labeled_fewshot_eval(
     print(f"Per-example results saved to {per_example_path}")
 
     return summary
+
+
+# ---------------------------------------------------------------------------
+# Mirad→English reverse evaluation
+# ---------------------------------------------------------------------------
+
+def load_reverse_evaluation_set(csv_path: Optional[str] = None) -> list[dspy.Example]:
+    """Load the English-Mirad sentence pairs as Mirad→English examples.
+
+    Each Example has:
+        - mirad_text: input (the Mirad sentence)
+        - english_text: gold label (the English sentence)
+    Word equivalents and context are NOT included as input fields — the
+    MiradToEnglishModule computes those internally.
+
+    Returns:
+        List of dspy.Example with .with_inputs('mirad_text').
+    """
+    path = Path(csv_path or EVAL_CSV_PATH)
+    if not path.exists():
+        raise FileNotFoundError(f"Evaluation CSV not found: {path}")
+
+    examples = []
+    with open(path, encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            english = row["English"].strip()
+            mirad = row["Mirad"].strip()
+            if english and mirad:
+                examples.append(
+                    dspy.Example(
+                        mirad_text=mirad,
+                        english_text=english,
+                    ).with_inputs("mirad_text")
+                )
+    return examples
+
+
+def exact_match_reverse_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Exact string match between predicted English and gold English translation.
+
+    Returns 1.0 for exact match, 0.0 otherwise.
+    Both sides are stripped and collapsed before comparison.
+    """
+    gold = _normalize(example.english_text)
+    pred = _normalize(prediction.english_text)
+    return 1.0 if gold == pred else 0.0
+
+
+def normalized_match_reverse_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Punctuation- and whitespace-tolerant match for Mir→En direction.
+
+    Strips all punctuation and normalizes whitespace, then compares.
+    """
+    gold = _normalize(example.english_text)
+    pred = _normalize(prediction.english_text)
+
+    def strip_punct(s: str) -> str:
+        s = re.sub(r'[.,!?;:()"\'][\[\]{}]', "", s)
+        return re.sub(r"\s+", " ", s).strip()
+
+    return 1.0 if strip_punct(gold) == strip_punct(pred) else 0.0
+
+
+def run_mir_to_en_baseline_eval(
+    model: str | None = None,
+    num_fewshot: int = 5,
+    num_context_passages: int = 5,
+    num_threads: int = 1,
+    output_path: Optional[str] = None,
+    lm_type: str = "deepinfra",
+) -> dict:
+    """Run baseline Mirad→English evaluation with LabeledFewShot k=5.
+
+    Mirrors run_labeled_fewshot_eval but for the Mir→En direction.
+    Uses the same 44-pair eval set with directions reversed: input is
+    mirad_text, gold label is english_text.
+
+    Args:
+        model: Model name (default: DeepSeek-V4-Flash).
+        num_fewshot: Number of labeled few-shot examples (default: 5).
+        num_context_passages: Number of RAG context passages (default: 5).
+        num_threads: Parallel threads for evaluation (default: 1).
+        output_path: Override output path for results JSON.
+        lm_type: "deepinfra" for cloud API, "ollama" for local Ollama.
+
+    Returns:
+        Dict with normalized_score, exact_score, timing, and per-example results.
+    """
+    import time
+
+    _PROJECT_ROOT = Path(__file__).resolve().parents[4]
+    out_dir = _PROJECT_ROOT / "data" / "eval_results"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Configure LM ─────────────────────────────────────────────────────────
+    if lm_type == "deepinfra":
+        lm = _make_deepinfra_lm(model=model)
+    else:
+        lm = _make_ollama_lm(model=model or "qwen3.5:4b")
+    dspy.settings.configure(lm=lm)
+
+    # ── Load and split dataset ────────────────────────────────────────────────
+    all_examples = load_reverse_evaluation_set()
+    fewshot_examples = all_examples[:num_fewshot]
+    eval_examples = all_examples[num_fewshot:]
+
+    print(f"[run_mir_to_en_baseline_eval] {num_fewshot} few-shot demos, {len(eval_examples)} eval examples, k={num_context_passages}")
+
+    # ── Enrich few-shot examples with pre-computed Mir→En intermediates ──────
+    from mirad_translator.translate import MiradToEnglishModule
+    module = MiradToEnglishModule(num_context_passages=num_context_passages)
+
+    enriched_fewshot = []
+    for ex in fewshot_examples:
+        we_pred = module.lexicon_lookup(mirad_text=ex.mirad_text)
+        word_equivalents = we_pred.word_equivalents
+        # Format as Mirad→English
+        we_str = "\n".join(f"{mi} → {en}" for mi, en in sorted(word_equivalents.items()))
+
+        ctx_pred = module.context_retrieve(query=ex.mirad_text)
+        context_passages = list(ctx_pred.passages)
+        ctx_str = _format_context_passages(context_passages)
+
+        enriched_fewshot.append(
+            dspy.Example(
+                mirad_text=ex.mirad_text,
+                word_equivalents=we_str,
+                context_passages=ctx_str,
+                english_text=ex.english_text,
+            ).with_inputs("mirad_text", "word_equivalents", "context_passages")
+        )
+
+    # Print few-shot demo summary
+    for i, demo in enumerate(enriched_fewshot):
+        we_count = len(demo.word_equivalents.split("\n")) if demo.word_equivalents else 0
+        print(f"  Demo {i}: MI={demo.mirad_text[:50]!r}... WE={we_count} items")
+
+    # ── Compile with LabeledFewShot ───────────────────────────────────────────
+    from dspy import LabeledFewShot
+
+    compile_start = time.time()
+    optimizer = LabeledFewShot(k=num_fewshot)
+    compiled = optimizer.compile(student=module, trainset=enriched_fewshot)
+    compile_time = time.time() - compile_start
+    print(f"[run_mir_to_en_baseline_eval] Compile time: {compile_time:.1f}s")
+
+    # ── Evaluate on remaining examples ────────────────────────────────────────
+    eval_start = time.time()
+
+    # Eval examples only need mirad_text as input — the module computes intermediates
+    norm_evaluator = Evaluate(
+        devset=eval_examples,
+        metric=normalized_match_reverse_metric,
+        num_threads=num_threads,
+        display_progress=True,
+        display_table=0,
+    )
+    norm_result = norm_evaluator(compiled)
+
+    exact_evaluator = Evaluate(
+        devset=eval_examples,
+        metric=exact_match_reverse_metric,
+        num_threads=num_threads,
+        display_progress=True,
+        display_table=0,
+    )
+    exact_result = exact_evaluator(compiled)
+
+    eval_time = time.time() - eval_start
+    total_time = time.time() - compile_start
+
+    norm_score = norm_result.score if hasattr(norm_result, "score") else norm_result
+    exact_score = exact_result.score if hasattr(exact_result, "score") else exact_result
+
+    summary = {
+        "method": "LabeledFewShot",
+        "direction": "mir_to_en",
+        "lm_type": lm_type,
+        "model": model or ("deepseek-ai/DeepSeek-V4-Flash" if lm_type == "deepinfra" else "qwen3.5:4b"),
+        "num_fewshot": num_fewshot,
+        "k_context_passages": num_context_passages,
+        "eval_set_size": len(eval_examples),
+        "normalized_score": norm_score,
+        "exact_score": exact_score,
+        "compile_time_s": round(compile_time, 2),
+        "eval_time_s": round(eval_time, 2),
+        "total_time_s": round(total_time, 2),
+    }
+
+    # ── Save summary ──────────────────────────────────────────────────────────
+    results_path = output_path or str(out_dir / "mir_to_en_labeled_fewshot_k5.json")
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
+
+    # ── Per-example predictions ────────────────────────────────────────────────
+    per_example = []
+    for ex in eval_examples:
+        pred = compiled(ex.mirad_text)
+        norm_score_ex = normalized_match_reverse_metric(ex, pred)
+        exact_score_ex = exact_match_reverse_metric(ex, pred)
+        per_example.append({
+            "mirad_text": ex.mirad_text,
+            "gold_english": ex.english_text,
+            "predicted_english": pred.english_text,
+            "word_equivalents": pred.word_equivalents if hasattr(pred, "word_equivalents") else {},
+            "context": pred.context if hasattr(pred, "context") else [],
+            "normalized_match": norm_score_ex,
+            "exact_match": exact_score_ex,
+        })
+
+    per_example_path = str(out_dir / "mir_to_en_labeled_fewshot_k5_per_example.json")
+    with open(per_example_path, "w", encoding="utf-8") as f:
+        json.dump(per_example, f, indent=2, ensure_ascii=False)
+
+    print(f"\n{'='*60}")
+    print(f"Mir→En LabeledFewShot Baseline (lm={lm_type}, k={num_context_passages}, {num_fewshot} demos)")
+    print(f"{'='*60}")
+    print(f"  Model:              {summary['model']}")
+    print(f"  LM type:            {lm_type}")
+    print(f"  Few-shot demos:     {num_fewshot}")
+    print(f"  Eval examples:      {len(eval_examples)}")
+    print(f"  RAG passages:      {num_context_passages}")
+    print(f"  Normalized match:  {norm_score:.1f}%")
+    print(f"  Exact match:        {exact_score:.1f}%")
+    print(f"  Compile time:       {compile_time:.1f}s")
+    print(f"  Eval time:           {eval_time:.1f}s")
+    print(f"  Total time:          {total_time:.1f}s")
+    print(f"{'='*60}")
+    print(f"Summary saved to {results_path}")
+    print(f"Per-example results saved to {per_example_path}")
+
+    return summary

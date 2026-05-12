@@ -8,8 +8,10 @@ import dspy
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Translate English to Mirad")
+    parser = argparse.ArgumentParser(description="Translate between English and Mirad")
     parser.add_argument('text', nargs='?', help='Text to translate')
+    parser.add_argument('--reverse', '-R', action='store_true',
+                        help='Reverse direction: Mirad→English (default is English→Mirad)')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     parser.add_argument('--retrieve', '-r', action='store_true',
                         help='Show retrieved word equivalents and context')
@@ -23,7 +25,8 @@ def main():
         logging.basicConfig(level=logging.INFO)
 
     if not args.text:
-        print("Error: Please provide text to translate")
+        direction = "Mirad→English" if args.reverse else "English→Mirad"
+        print(f"Error: Please provide text to translate ({direction})")
         sys.exit(1)
 
     try:
@@ -31,17 +34,17 @@ def main():
         lm = OllamaLM()
         dspy.configure(lm=lm)
 
-        # Initialize translator with retrieval built in
-        translator = DefaultTranslator()
+        # Select direction
+        direction = "mir_to_en" if args.reverse else "en_to_mir"
+        translator = DefaultTranslator(direction=direction)
 
         # Translate
-        prediction = translator.forward(english_text=args.text)
-        # Format confidence — may be str or float
-        try:
-            conf_val = float(prediction.confidence)
-            conf_str = f"{conf_val:.2f}"
-        except (ValueError, TypeError):
-            conf_str = str(prediction.confidence)
+        if args.reverse:
+            prediction = translator(mirad_text=args.text)
+            output_text = prediction.english_text
+        else:
+            prediction = translator(english_text=args.text)
+            output_text = prediction.mirad_text
 
         if args.retrieve:
             # Show retrieval details
@@ -50,8 +53,8 @@ def main():
 
             print("--- Word equivalents ---")
             if word_eq:
-                for en, mi in sorted(word_eq.items()):
-                    print(f"  {en} → {mi}")
+                for src, tgt in sorted(word_eq.items()):
+                    print(f"  {src} → {tgt}")
             else:
                 print("  (no matches)")
 
@@ -62,8 +65,8 @@ def main():
             else:
                 print("  (no context retrieved)")
 
-            print("--- Mirad ---")
-        print(f"{prediction.mirad_text} [{conf_str}]")
+            print("--- Translation ---")
+        print(output_text)
 
     except Exception as e:
         logging.error(f"Translation failed: {str(e)}")

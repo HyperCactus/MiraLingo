@@ -1,0 +1,18 @@
+{
+  "method": "BootstrapFewShot",
+  "lm_type": "deepinfra",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "max_bootstrapped_demos": 2,
+  "max_labeled_demos": 8,
+  "max_rounds": 1,
+  "metric_threshold": 0.5,
+  "k_context_passages": 5,
+  "train_size": 34,
+  "eval_size": 10,
+  "normalized_score": 50.0,
+  "exact_score": 50.0,
+  "compile_time_s": 0.16,
+  "eval_time_s": 77.98,
+  "total_time_s": 78.14,
+  "config_slug": "bfs_d2_l8_t50"
+}

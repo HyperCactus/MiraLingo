@@ -1,0 +1,11 @@
+config_slug,method,model,lm_type,max_bootstrapped_demos,max_labeled_demos,max_rounds,metric_threshold,num_fewshot,k_context_passages,train_size,eval_size,normalized_score,exact_score,compile_time_s,eval_time_s,total_time_s
+bfs_d2_l4_r1,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,2,4,1,,,5,34,10,60.0,60.0,168.78,60.63,229.42
+bfs_d4_l8_r1,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,4,8,1,,,5,34,10,60.0,60.0,118.59,68.69,187.28
+bfs_d4_l16_r1,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,4,16,1,,,5,34,10,60.0,60.0,156.2,53.92,210.12
+bfs_d8_l16_r2,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,8,16,2,,,5,34,10,70.0,70.0,235.18,49.98,285.16
+bfs_d4_l8_r3,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,4,8,3,,,5,34,10,60.0,60.0,105.51,0.3,105.81
+bfs_d2_l8_t50,BootstrapFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,2,8,1,0.5,,5,34,10,50.0,50.0,0.16,77.98,78.14
+lfs_k3,LabeledFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,,,,,3,0,34,10,0.0,0.0,0.0,0.14,0.14
+lfs_k5,LabeledFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,,,,,5,0,34,10,0.0,0.0,0.0,0.15,0.15
+lfs_k8,LabeledFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,,,,,8,0,34,10,10.0,10.0,0.0,0.33,0.33
+lfs_k12,LabeledFewShot,deepseek-ai/DeepSeek-V4-Flash,deepinfra,,,,,12,0,34,10,0.0,0.0,0.0,0.17,0.17

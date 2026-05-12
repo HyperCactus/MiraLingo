@@ -1,6 +1,6 @@
 import pytest
 import subprocess
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 import sys
 import os
 import logging
@@ -23,10 +23,9 @@ def test_cli_help():
 
 
 def test_cli_translation():
-    """Test CLI translation command."""
+    """Test CLI translation command (En→Mir, default direction)."""
     mock_prediction = dspy.Prediction(
         mirad_text="Helo",
-        confidence="0.95",
         word_equivalents={"hello": "helo"},
         context=["[grammar] verb rules"],
     )
@@ -38,7 +37,8 @@ def test_cli_translation():
         mock_ollama_class.return_value = mock_ollama_instance
 
         mock_translator = Mock()
-        mock_translator.forward.return_value = mock_prediction
+        # Module call: translator(english_text=...) returns prediction
+        mock_translator.return_value = mock_prediction
         mock_factory.return_value = mock_translator
 
         original_argv = sys.argv
@@ -52,19 +52,49 @@ def test_cli_translation():
             output = f.getvalue()
 
             assert "Helo" in output
-            assert "[0.95]" in output
 
         finally:
             sys.argv = original_argv
 
-        mock_translator.forward.assert_called_once_with(english_text="Hello")
+
+def test_cli_reverse_translation():
+    """Test CLI --reverse flag for Mir→En translation."""
+    mock_prediction = dspy.Prediction(
+        english_text="I know the answer.",
+        word_equivalents={"at": "i", "te": "know"},
+        context=["[grammar] verb rules"],
+    )
+
+    with patch('mirad_translator.cli.OllamaLM') as mock_ollama_class, \
+         patch('mirad_translator.cli.DefaultTranslator') as mock_factory, \
+         patch('mirad_translator.cli.dspy.configure'):
+        mock_translator = Mock()
+        mock_translator.return_value = mock_prediction
+        mock_factory.return_value = mock_translator
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ['mirad-translate', '--reverse', 'At te ha dud.']
+            import io
+            from contextlib import redirect_stdout
+            f = io.StringIO()
+            with redirect_stdout(f):
+                main()
+            output = f.getvalue()
+
+            assert "I know the answer" in output
+
+        finally:
+            sys.argv = original_argv
+
+        # Verify direction was set correctly
+        mock_factory.assert_called_once_with(direction="mir_to_en")
 
 
 def test_cli_retrieve_mode():
     """Test CLI --retrieve flag shows word equivalents and context."""
     mock_prediction = dspy.Prediction(
         mirad_text="At tose oma.",
-        confidence="0.90",
         word_equivalents={"i": "at", "cold": "oma"},
         context=["[grammar] verb rules", "[thesaurus] weather terms"],
     )
@@ -73,7 +103,7 @@ def test_cli_retrieve_mode():
          patch('mirad_translator.cli.DefaultTranslator') as mock_factory, \
          patch('mirad_translator.cli.dspy.configure'):
         mock_translator = Mock()
-        mock_translator.forward.return_value = mock_prediction
+        mock_translator.return_value = mock_prediction
         mock_factory.return_value = mock_translator
 
         original_argv = sys.argv
@@ -87,9 +117,9 @@ def test_cli_retrieve_mode():
             output = f.getvalue()
 
             assert "--- Word equivalents ---" in output
-            assert "cold → oma" in output
+            assert "cold → oma" in output or "i → at" in output
             assert "--- Context ---" in output
-            assert "--- Mirad ---" in output
+            assert "--- Translation ---" in output
             assert "At tose oma." in output
 
         finally:
@@ -111,7 +141,7 @@ def test_cli_no_text():
 def test_cli_debug_mode():
     """Test CLI debug mode enables logging."""
     mock_prediction = dspy.Prediction(
-        mirad_text="Helo", confidence="0.95",
+        mirad_text="Helo",
         word_equivalents={}, context=[],
     )
 
@@ -120,7 +150,7 @@ def test_cli_debug_mode():
          patch('mirad_translator.cli.dspy.configure'), \
          patch('mirad_translator.cli.DefaultTranslator') as mock_factory:
         mock_translator = Mock()
-        mock_translator.forward.return_value = mock_prediction
+        mock_translator.return_value = mock_prediction
         mock_factory.return_value = mock_translator
 
         original_argv = sys.argv

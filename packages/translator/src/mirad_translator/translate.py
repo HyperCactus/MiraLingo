@@ -198,6 +198,128 @@ class FollowUpQuerySignature(dspy.Signature):
     follow_up_query = dspy.OutputField(desc="A focused follow-up query for grammar/vocabulary not yet covered, or empty string if no more retrieval is needed")
 
 
+# =====================================================================
+# Mirad→English translation (reverse direction)
+# =====================================================================
+
+_MIRAD_TO_ENGLISH_RULES = """
+You are a Mirad→English translator. Translate Mirad text to natural English.
+Use the supplied vocabulary (Mirad→English dictionary lookups) when available.
+If vocabulary or context is empty, rely on the grammar rules below.
+Output ONLY the English translation. No commentary, no explanations.
+
+Core Mirad grammar (for reverse translation):
+- Mirad word order is SVO, same as English. Translate directly.
+- Articles: ha = the (definite). No indefinite article in Mirad; "tam" = "a house" or "the house" depending on context; use "the" when ha is present.
+- Plural: -i suffix on count nouns. ha via domi = the beautiful cities.
+- Pronouns: at=I, et=you, it=he/she, wit=he, iyt=she, is=it(inanimate). yat=we, yet=you(pl), yit=they(animate), yis=they(inanimate).
+  Possessive: -a suffix: ata=my, eta=your, ita=his/her, wita=his, iyta=her, yata=our, yita=their.
+- Verbs: Dictionary form ends in -er. Remove -er to get stem.
+  Endings: -e=present, -a=past, -o=future, -u=hypothetical/imperative/subjunctive.
+  Passive: -w- before tense vowel: xwe=is done, xwa=was done.
+  Aspects: progressive -ey-, perfect -ay-, imminent -oy-, potential -uy-.
+  Passive aspects use w buffer: xewe=is being done, xawe=has been done.
+- Negation: voy = not. Von = don't (negative imperative).
+- Adverbs: Adjective + -y (from -a ending): fia→fiay beautifully, iga→igay quickly.
+- Comparisons: ga=more, ge=as/like, go=less, gwa=most/greatest, gwo=least; vyel=than/as.
+- Questions: Duven = yes/no question starter. Question words: duhot=who, duhos=what, duhom=where, duhoj=when, duhoyen=how, duhosav=why.
+- Conjunctions: ay=and, ey=or, oy=but. van=that/so that, ven=if, oven=unless.
+- Relative: ho=who/whom/which. ho at te = whom I know.
+- Prepositions: be=at/in/on, bu=to/into, bi=of/from, ba=with, bo=without, van/ven/von as clausal conjunctions.
+- Possession: X bi Y = Y's X (literally: the X of Y). ha dyes bi Ivan = Ivan's book.
+- Omit dummy "it": Se fia van et upa. = It is good that you came.
+""".strip()
+
+
+class MiradToEnglishSignature(dspy.Signature):
+    """Translate Mirad text to English.
+
+    Follow these Mirad grammar rules for reverse translation:
+    {grammar_rules}
+
+    Use the provided word equivalents (Mirad→English dictionary lookups) whenever
+    possible. Use the provided context passages (grammar and thesaurus excerpts) to
+    inform grammar, word order, and translation choices. If the word equivalents or
+    context passages are empty, rely on the grammar rules above.
+
+    OUTPUT ONLY THE ENGLISH TRANSLATION. No commentary, no explanations. Just the English text.
+    """.format(grammar_rules=_MIRAD_TO_ENGLISH_RULES)
+    mirad_text = dspy.InputField(desc="Mirad text to translate")
+    word_equivalents = dspy.InputField(desc="Dictionary lookups: Mirad→English word pairs found in the lexicon, one per line")
+    context_passages = dspy.InputField(desc="Retrieved grammar and thesaurus passages relevant to the translation")
+    english_text = dspy.OutputField(desc="Translated text in English")
+
+
+class MiradLexiconReverseLookup(dspy.Module):
+    """DSPy-traceable reverse lexicon lookup module (Mirad→English).
+
+    Looks up each word in the Mirad input against the SQLite/FTS5
+    lexicon DB and returns a dict of {mirad_word: english_translation}.
+    """
+
+    def __init__(self, db_path=None):
+        super().__init__()
+        self._db_path = db_path
+
+    def forward(self, mirad_text: str) -> dspy.Prediction:
+        from mirad_translator.lexicon_db import lookup_mirad_word
+        words = mirad_text.split()
+        word_equivalents = {}
+        for w in words:
+            w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}')
+            if w_clean:
+                english = lookup_mirad_word(db_path=self._db_path, mirad_word=w_clean)
+                if english:
+                    word_equivalents[w_clean] = english
+        return dspy.Prediction(word_equivalents=word_equivalents)
+
+
+class MiradToEnglishModule(dspy.Module):
+    """DSPy Module for Mirad→English translation with lexicon lookup and RAG retrieval.
+
+    Mir→En counterpart to TranslatorModule. Takes mirad_text as input and internally:
+    1. Looks up Mirad→English word equivalents via reverse lexicon lookup
+    2. Retrieves grammar/thesaurus context via ChromaDB (same indexes, En query works for Mirad too)
+    3. Passes text, word equivalents, and context to ChainOfThought for translation
+
+    Args:
+        db_path: Path to the lexicon SQLite DB.
+        num_context_passages: Number of RAG context passages (0 disables retrieval).
+    """
+
+    def __init__(self, db_path=None, num_context_passages: int = 0):
+        super().__init__()
+        self.generate = dspy.ChainOfThought(MiradToEnglishSignature)
+        self.lexicon_lookup = MiradLexiconReverseLookup(db_path=db_path)
+        self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
+        self._db_path = db_path
+        self._num_context_passages = num_context_passages
+
+    def forward(self, mirad_text: str) -> dspy.Prediction:
+        """Translate Mirad text to English."""
+        # Look up Mirad words in the lexicon (reverse direction)
+        word_eq_pred = self.lexicon_lookup(mirad_text=mirad_text)
+        # Format as Mirad→English for the signature
+        word_equivalents = word_eq_pred.word_equivalents
+        we_str = "\n".join(f"{mi} → {en}" for mi, en in sorted(word_equivalents.items()))
+
+        # Retrieve context — use Mirad text as query (works with bilingual chunks)
+        ctx_pred = self.context_retrieve(query=mirad_text)
+        context_passages = list(ctx_pred.passages)
+        ctx_str = _format_context_passages(context_passages)
+
+        prediction = self.generate(
+            mirad_text=mirad_text,
+            word_equivalents=we_str,
+            context_passages=ctx_str,
+        )
+        return dspy.Prediction(
+            english_text=prediction.english_text,
+            word_equivalents=word_equivalents,
+            context=context_passages,
+        )
+
+
 class MultiHopTranslatorModule(dspy.Module):
     """Translation module with multi-hop retrieval.
 
@@ -488,19 +610,21 @@ class CritiqueAndFixModule(dspy.Module):
         )
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1):
+def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir"):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
     When max_retries > 0, returns a CritiqueAndFixModule that runs a
     critique-and-fix loop after the initial translation.
     When num_hops > 1, returns a MultiHopTranslatorModule that runs iterative
     retrieval with LM-generated follow-up queries.
+    When direction="mir_to_en", returns a MiradToEnglishModule for reverse translation.
 
     Args:
         db_path: Path to the lexicon SQLite DB. Defaults to built-in path.
         num_context_passages: Number of RAG context passages to retrieve (0 disables retrieval).
-        max_retries: Max critique-fix rounds (0 = no critique, plain translation).
-        num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries).
+        max_retries: Max critique-fix rounds (0 = no critique, plain translation). Only for en_to_mir.
+        num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries). Only for en_to_mir.
+        direction: Translation direction — "en_to_mir" (default) or "mir_to_en".
     """
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
     from mirad_translator.retrieval import build_indexes as _build_chroma
@@ -513,6 +637,12 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
             _build_chroma()
         except Exception:
             pass  # ChromaDB not available; retrieval will be empty
+
+    if direction == "mir_to_en":
+        return MiradToEnglishModule(
+            db_path=effective_db_path,
+            num_context_passages=num_context_passages,
+        )
 
     if max_retries > 0:
         return CritiqueAndFixModule(
