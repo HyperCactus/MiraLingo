@@ -45,6 +45,53 @@ EVAL_CSV_PATH = os.environ.get(
 )
 
 
+def save_compiled_program(compiled: dspy.Module, path: str) -> None:
+    """Save a compiled DSPy program to a JSON file for later reuse.
+
+    The saved program can be reloaded with ``load_compiled_program``.
+
+    Args:
+        compiled: A compiled dspy.Module (e.g. from compile_with_bootstrap).
+        path: File path to save to (convention: data/eval_results/compiled_<method>_<config>.json).
+    """
+    from pathlib import Path
+    import datetime
+
+    out_path = Path(path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    save_data = dspy.export(program=compiled)
+    meta = {
+        "saved_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "module_type": type(compiled).__name__,
+        "dspy_version": getattr(dspy, "__version__", "unknown"),
+        "note": "Reload with mirad_translator.evaluate.load_compiled_program(path)",
+    }
+
+    payload = {**save_data, "_meta": meta}
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
+
+    print(f"[save_compiled_program] Saved compiled program → {out_path}")
+
+
+def load_compiled_program(path: str) -> dspy.Module:
+    """Reload a compiled DSPy program from a JSON file.
+
+    Args:
+        path: Path to the saved JSON file.
+
+    Returns:
+        The reloaded compiled dspy.Module.
+    """
+    with open(path, encoding="utf-8") as f:
+        payload = json.load(f)
+    # Strip meta before loading
+    payload.pop("_meta", None)
+    return dspy.load(program=payload)
+
+
 # ---------------------------------------------------------------------------
 # Dataset loading
 # ---------------------------------------------------------------------------
@@ -134,7 +181,7 @@ def evaluate_module(
     module: Optional[dspy.Module] = None,
     metric: Optional[Callable] = None,
     devset: Optional[list[dspy.Example]] = None,
-    num_threads: int = 1,
+    num_threads: int = 10,
     display_progress: bool = True,
     display_table: int = 0,
     save_json: Optional[str] = None,
@@ -195,6 +242,7 @@ def compile_with_bootstrap(
     max_bootstrapped_demos: int = 4,
     max_labeled_demos: int = 16,
     max_rounds: int = 1,
+    save_path: Optional[str] = None,
 ) -> dspy.Module:
     """Compile a TranslatorModule with BootstrapFewShot.
 
@@ -209,6 +257,7 @@ def compile_with_bootstrap(
         max_bootstrapped_demos: Max bootstrapped (traced) demos per predictor.
         max_labeled_demos: Max labeled (direct) demos per predictor.
         max_rounds: Number of bootstrap rounds.
+        save_path: If provided, save the compiled program to this path as JSON.
 
     Returns:
         Compiled dspy.Module with bootstrapped demos.
@@ -227,6 +276,10 @@ def compile_with_bootstrap(
         max_rounds=max_rounds,
     )
     compiled = optimizer.compile(student, trainset=trainset)
+
+    if save_path:
+        save_compiled_program(compiled, save_path)
+
     return compiled
 
 
@@ -268,7 +321,7 @@ def _make_deepinfra_lm(model: str | None = None) -> dspy.LM:
 def run_baseline_eval(
     model: str = "qwen3.5:4b",
     metric_name: str = "normalized_match",
-    num_threads: int = 4,
+    num_threads: int = 10,
     output_path: Optional[str] = None,
 ) -> dict:
     """Run baseline evaluation with Ollama qwen3.5:4b and save per-example predictions.
@@ -470,6 +523,7 @@ def run_labeled_fewshot_eval(
     num_threads: int = 1,
     output_path: Optional[str] = None,
     lm_type: str = "ollama",
+    save_compiled: Optional[str] = None,
 ) -> dict:
     """Run LabeledFewShot baseline evaluation with timed execution.
 
@@ -485,6 +539,7 @@ def run_labeled_fewshot_eval(
         num_threads: Parallel threads for evaluation (default: 1 for timing accuracy).
         output_path: Override output path for results JSON.
         lm_type: "ollama" for local Ollama, "deepinfra" for DeepInfra cloud API.
+        save_compiled: If provided, save the compiled program to this path as JSON.
 
     Returns:
         Dict with normalized_score, exact_score, timing, and per-example results.
@@ -528,6 +583,9 @@ def run_labeled_fewshot_eval(
     compiled = optimizer.compile(student=module, trainset=enriched_fewshot)
     compile_time = time.time() - compile_start
     print(f"[run_labeled_fewshot_eval] Compile time: {compile_time:.1f}s")
+
+    if save_compiled:
+        save_compiled_program(compiled, save_compiled)
 
     # ── Evaluate on remaining examples ────────────────────────────────────────
     eval_start = time.time()
@@ -682,6 +740,7 @@ def run_mir_to_en_baseline_eval(
     num_threads: int = 1,
     output_path: Optional[str] = None,
     lm_type: str = "deepinfra",
+    save_compiled: Optional[str] = None,
 ) -> dict:
     """Run baseline Mirad→English evaluation with LabeledFewShot k=5.
 
@@ -696,6 +755,7 @@ def run_mir_to_en_baseline_eval(
         num_threads: Parallel threads for evaluation (default: 1).
         output_path: Override output path for results JSON.
         lm_type: "deepinfra" for cloud API, "ollama" for local Ollama.
+        save_compiled: If provided, save the compiled program to this path as JSON.
 
     Returns:
         Dict with normalized_score, exact_score, timing, and per-example results.
@@ -757,6 +817,9 @@ def run_mir_to_en_baseline_eval(
     compiled = optimizer.compile(student=module, trainset=enriched_fewshot)
     compile_time = time.time() - compile_start
     print(f"[run_mir_to_en_baseline_eval] Compile time: {compile_time:.1f}s")
+
+    if save_compiled:
+        save_compiled_program(compiled, save_compiled)
 
     # ── Evaluate on remaining examples ────────────────────────────────────────
     eval_start = time.time()

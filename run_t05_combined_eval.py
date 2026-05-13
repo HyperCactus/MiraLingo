@@ -71,8 +71,13 @@ def _load_lfs_predictions() -> list[dict]:
 # BFS Evaluation
 # ---------------------------------------------------------------------------
 
-def run_bfs_evaluation() -> tuple[list[dict], float, float]:
+def run_bfs_evaluation(
+    save_compiled: str | None = None,
+) -> tuple[list[dict], float, float]:
     """Compile BFS d8_l16_r2 and evaluate on all 39 eval examples.
+
+    Args:
+        save_compiled: If provided, save the compiled program to this path as JSON.
 
     Returns:
         per_example: list of dicts with keys: mirad_text, gold_english, raw_prediction,
@@ -145,6 +150,29 @@ def run_bfs_evaluation() -> tuple[list[dict], float, float]:
     compile_time = time.time() - compile_start
     print(f"[BFS] Compile time: {compile_time:.1f}s")
 
+    if save_compiled:
+        print(f"[BFS] Saving compiled program → {save_compiled}")
+        import dspy
+        save_data = dspy.export(program=compiled)
+        import datetime
+        meta = {
+            "saved_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "module_type": type(compiled).__name__,
+            "config": "bfs_d8_l16_r2",
+            "max_bootstrapped_demos": 8,
+            "max_labeled_demos": 16,
+            "max_rounds": 2,
+            "k_context_passages": 5,
+            "note": "Reload with mirad_translator.evaluate.load_compiled_program(path)",
+        }
+        payload = {**save_data, "_meta": meta}
+        import json as _json
+        save_path = Path(save_compiled)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(save_path, "w", encoding="utf-8") as f:
+            _json.dump(payload, f, indent=2, ensure_ascii=False)
+        print(f"[BFS] Compiled program saved → {save_path}")
+
     # Evaluate on full eval set
     print("[BFS] Evaluating on 39 eval examples...")
     eval_start = time.time()
@@ -205,7 +233,8 @@ def main():
         eval_time = bfs_data.get("eval_time_s", 0)
     else:
         print("\n[2/5] Running BFS d8_l16_r2 on 39 examples (may take several minutes)...")
-        bfs_examples, compile_time, eval_time = run_bfs_evaluation()
+        compiled_path = str(OUT_DIR / "compiled_bfs_d8_l16_r2.json")
+        bfs_examples, compile_time, eval_time = run_bfs_evaluation(save_compiled=compiled_path)
         
         # Save for caching
         bfs_data = {

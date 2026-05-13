@@ -17,6 +17,13 @@ from mirad_translator.translate import (
     CritiqueAndFixModule,
     DefaultTranslator,
     translate_with_lookup,
+    load_compiled_translator,
+)
+
+from mirad_translator.semantic_lexicon import (
+    semantic_lookup,
+    semantic_lookup_multi,
+    MiradSemanticLexiconLookup,
 )
 
 from mirad_translator.evaluate import (
@@ -33,4 +40,6 @@ from mirad_translator.evaluate import (
     run_mir_to_en_baseline_eval,
 )
 
-from mirad_translator.postprocess import postprocess_mirad, flag_conservative_errors
+from mirad_translator.eval_semantic_lexicon import (
+    run_semantic_eval,
+)

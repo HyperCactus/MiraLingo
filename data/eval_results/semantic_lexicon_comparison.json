@@ -1,0 +1,55 @@
+{
+  "method": "semantic_vs_exact_compiled",
+  "n_samples": 100,
+  "n_excluded_demos": 8,
+  "top_k_per_word": 3,
+  "min_similarity": 0.5,
+  "max_total_pairs": 30,
+  "seed": 42,
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "exact_lookup": {
+    "normalized_match_pct": 44.0,
+    "exact_match_pct": 44.0,
+    "avg_word_equivalents": 3.0,
+    "time_s": 9.1
+  },
+  "semantic_lookup": {
+    "normalized_match_pct": 43.0,
+    "exact_match_pct": 43.0,
+    "avg_word_equivalents": 10.7,
+    "time_s": 4.3
+  },
+  "compiled_program": {
+    "normalized_match_pct": 61.0,
+    "exact_match_pct": 61.0,
+    "avg_word_equivalents": 3.0,
+    "time_s": 700.4
+  },
+  "exact_vs_semantic": {
+    "both_correct": 33,
+    "exact_wins": 11,
+    "semantic_wins": 10,
+    "both_wrong": 46,
+    "punct_only_exact": 11,
+    "punct_only_semantic": 10,
+    "substantive_delta": 0
+  },
+  "exact_vs_compiled": {
+    "both_correct": 38,
+    "exact_wins": 6,
+    "compiled_wins": 23,
+    "both_wrong": 33,
+    "punct_only_exact": 6,
+    "punct_only_compiled": 23,
+    "substantive_delta": 0
+  },
+  "compiled_vs_semantic": {
+    "both_correct": 36,
+    "compiled_wins": 25,
+    "semantic_wins": 7,
+    "both_wrong": 32,
+    "punct_only_compiled": 25,
+    "punct_only_semantic": 7,
+    "substantive_delta": 0
+  }
+}

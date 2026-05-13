@@ -1,0 +1,24 @@
+{
+  "method": "compiled_semantic_vs_compiled_exact",
+  "n_samples": 100,
+  "n_excluded_demos": 8,
+  "top_k_per_word": 3,
+  "min_similarity": 0.5,
+  "max_total_pairs": 30,
+  "seed": 42,
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "compiled_exact_norm": 61.0,
+  "compiled_semantic_norm": 65.0,
+  "compiled_semantic_exact": 65.0,
+  "compiled_semantic_avg_we": 10.7,
+  "compiled_semantic_time_s": 981.1,
+  "pairwise": {
+    "both_correct": 56,
+    "exact_wins": 5,
+    "semantic_wins": 9,
+    "both_wrong": 30,
+    "substantive_exact": 0,
+    "substantive_semantic": 0,
+    "net_substantive_delta": 0
+  }
+}

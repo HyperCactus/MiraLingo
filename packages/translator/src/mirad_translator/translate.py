@@ -1,91 +1,91 @@
 import dspy
 from typing import Optional
+from pathlib import Path
 
 # Key Mirad grammar rules — used to populate EnglishToMiradSignature.__doc__
 # DSPy 2.x reads __doc__ as the instructions/system prompt.
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[4]
+COMPILED_PROGRAM_DIR = _PROJECT_ROOT / "data" / "eval_results" / "optimizer_comparison" / "compiled_bootstrap_fast_program"
+COMPILED_PROGRAM_PKL = COMPILED_PROGRAM_DIR / "program.pkl"
 _MIRAD_GRAMMAR_RULES = """
-You are an English→Mirad translator. Use only the supplied vocabulary when possible; do not invent roots unless needed. Output only Mirad unless asked to explain.
+You are an English→Mirad translator. Vocabulary/idioms may be supplied separately; use those exact Mirad words first. Do not invent plausible roots, compress, or substitute near-synonyms. Output only Mirad.
 
-Core syntax:
-- Normal word order is SVO: Subject + verb predicate + object. Keep declarative word order even in questions.
-  Example: At te ha dud. = I know the answer.
-- Modifiers of nouns precede the noun. Order: article/deictic/possessive → quantifier/number → adjective(s) → noun.
-  Example: ha ewa aga tami = the two big houses.
-- Prepositional phrases and relative clauses follow the noun they modify.
-  Example: ha tam bi Maria = Mary's house / the house of Maria.
-  Example: ha tob ho at te = the person whom I know.
-- Prepositions precede their complement: be tam = at home, bu tam = to home, bi Maria = of/from Maria.
-- Possession by a named person uses X bi Y, not English 's: ha dyes bi Ivan = Ivan's book.
+Sentence order:
+- Default is SVO: subject + finite verb + object. Do not move object pronouns before the verb.
+  I pity you. = At [verb] et.
+- Direct object follows the verb. If there is both indirect and direct object, use V + indirect + direct when the verb implies "to/for"; otherwise use bu/av.
+  Buu at hua nyem. = Give me that box. / Buu hua nyem bu at.
+- Keep normal word order in questions.
 
-Nouns:
-- No indefinite article. "a house" = tam. Definite "the" = ha before the noun phrase.
-- Plural common count nouns add -i only to the noun; modifiers do not agree.
-  Example: ha via domi = the beautiful cities.
-- Proper names are capitalized and usually take no ha.
-- Animate pronouns end in -t; inanimate pronouns end in -s.
+Noun phrases:
+- Modifier order: article/deictic/possessive → quantifier/number → adjective/adverbial degree → noun.
+  ha ewa aga tami = the two big houses.
+- Adjectives/determiners do not agree; only the noun pluralizes with -i.
+- ha = the. No indefinite article.
+- Proper names usually take no ha.
+- Possession/association/"of" uses X bi Y: ha tam bi Maria = Mary's house.
+- Use bi, not be, for "of/from/possessive/partitive" and for superlative domains like "best in/of the school": ha gwa fia tuxut bi ha tistam.
+- Use be only for location "at/in/on": be Paris, be tam.
+- Use ayv for "about" unless a supplied idiom says otherwise: te ayv et = know about you.
 
 Pronouns:
 - at I/me, et you, it he/she/him/her, wit he/him, iyt she/her, is it/inanimate.
-- yat we/us, yet you plural, yit they/them animate, yis they/them inanimate.
-- Possessive adjectives add -a: ata my, eta your, ita his/her, wita his, iyta her, yata our, yita their.
-- Pronouns do not change for subject/object case.
-- Omit dummy English "it" when it has no real referent.
-  Example: Se fia van et upa. = It is good that you came.
-  Example: Mamilo. = It will rain.
+- yat we/us, yet you-pl, yit they/them animate, yis they/them inanimate.
+- Possessive adjectives add -a: ata my, eta your, ita his/her, yata our, yita their.
+- Pronouns do not change for case; case comes from position or preposition.
+- Do not add a dummy "it" when English it has no referent:
+  Mamileye. = It is raining. / Se fia van et upa. = It is good that you came.
 
 Verbs:
-- Dictionary infinitives end in -er. Remove -er to get the stem.
-- Verbs do not agree with person or number.
-- Simple active endings: -e present, -a past, -o future, -u hypothetical/imperative/subjunctive.
-  Example with x- "do": at xe = I do; at xa = I did; at xo = I will do; at xu = I would do; Xu! = Do!
-- Passive inserts -w- before the final tense/mood vowel.
-  Example: xwe = is done, xwa = was done, xwo = will be done, xwu = would be done.
-- Aspects use stem + aspect marker + final tense/mood vowel:
-  progressive active -ey-: xeye = am doing, xeya = was doing.
-  perfect active -ay-: xaye = have done, xaya = had done.
-  imminent active -oy-: xoye = am about to do.
-  potential active -uy-: xuye = am apt/likely to do.
-- Passive aspect buffer is w instead of y where applicable: xewe = is being done, xawe = has been done.
-- Translate English tense directly; do not shift tense in subordinate clauses.
-  Example: "I knew he would come" → At ta van it upo. ("I knew that he will come.")
+- Infinitive ends -er. Stem = infinitive minus -er.
+- Verbs never agree with person/number.
+- Simple active: stem + e present, a past, o future, u hypothetical/imperative/subjunctive.
+  se = am/is/are; sa = was/were; so = will be; su = would be / Be!
+  xe = do/does; xa = did; xo = will do; xu = would do / Do!
+- Imperative has no subject and uses -u: Pu tam! = Go home. Negative imperative uses von: Von dalu! = Don't speak!
+- Passive inserts w before final vowel: xwe is done, xwa was done.
+- Progressive must preserve ey before tense vowel: stem + ey + e/a/o/u.
+  peye = is going; peya = was going; tujeye = is sleeping; Mamileye = is raining.
+  Never truncate progressive -eye to -ie.
+- Perfect uses ay: paye = has gone. Imminent uses oy: poye = is about to go. Potential uses uy: puye = is apt to go.
+- If English says "am/is/are VERB-ing", use progressive unless the supplied idiom says otherwise.
 
-Negation and adverbs:
-- voy = not; usually before the verb, but may follow if clear.
-  Example: At voy te. / At te voy. = I don't know.
-- von introduces negative imperatives/subjunctives: Von dalu! = Don't speak!
-- Adverbs usually sit immediately before or after what they modify.
-  Example: It deuze viay. = He sings beautifully.
-- Adjectives form adverbs by adding -y to final -a: fia → fiay, iga → igay.
-- Comparisons use ga/ge/go/gwa/gwo before adjective/adverb, and vyel for than/as.
-  Example: ga fia vyel et = better than you.
+Negation/adverbs:
+- voy = not, usually before the verb: At voy se eta ted. = I am not your parent/father as supplied.
+- Do not add hus/is as subject just because English has "it" unless it refers to a real thing.
+- Adjectives end -a; many adverbs end -ay. But if the supplied/few-shot form uses a bare adverb/root, keep it exactly.
+  "as quickly as possible" may be the idiom gwa ig, not *has gwa ig.
 
-Questions:
-- Yes/no questions begin with Duven and keep normal word order.
-  Example: Duven et te ha dud? = Do you know the answer?
-- Question words usually begin the sentence; no inversion:
-  duhot who, duhos what, duhom where, duhoj when, duhoyen how, duhosav why.
-  Example: Duhom et tambee? = Where do you live?
-- Some adverbial question words may also appear at the end.
-  Example: Et tambee duhom?
+Comparisons:
+- Degree words: ga more, ge as/equally, go less, gwa most, gwo least.
+- In comparative/equalative phrases, the linker after the adjective/adverb is vyel, never a repeated ge/ga/go.
+  ga fia vyel et = better than you.
+  ge aga vyel atas = as big as mine.
+  go via vyel etas = less beautiful than yours.
+- Superlative: gwa + adjective + noun + bi/be domain as appropriate.
+  ha gwa aga tam bi yata yubem = the biggest house in our neighborhood.
 
-Clauses and conjunctions:
-- ay = and, ey = or, oy = but.
-- van = that/let/may/so that; required for "that" clauses.
-  Example: At te van et upo. = I know that you will come.
-- ven = if/whether. Use future in both clauses when both are future in meaning.
-  Example: Ven et pio, at so uva. = If you leave, I will be sad.
-- oven = unless.
-- ho = relative who/whom/that/which after the noun it modifies.
-- Prepositions used as clausal conjunctions require van/ven/von:
-  ja van = before, je van = while, jo van = after, av van = so that, av von = so that not/lest, ov van = although.
-- For purpose clauses with same subject, prefer infinitive with av/ov when natural.
+Clauses:
+- van = that/let/may/so that; do not omit it in "that" clauses.
+  At ta van et upo. = I knew that you would come.
+- Mirad keeps true tense in subordinate clauses; do not backshift like English.
+- ven = if/whether. von = lest/that-not/don't.
+- ho = relative who/which/that after the noun.
+- If English "to me/for me" is a required indirect complement and not implied by the verb, preserve bu/av:
+  Tease bu at van... = It seems to me that...
 
-Objects:
-- Direct object follows the verb.
-- If a verb has both indirect and direct objects, indirect object usually comes before direct object when the verb implies "to/for".
-  Example: Buu at hua nyem. = Give me that box.
-- Motion/communication verbs may omit English to/from when inherent.
-  Example: At peye ha nam. = I am going to the store.
+Questions/exclamations:
+- Yes/no questions begin Duven and keep normal order.
+- Question words usually start the sentence: duhot who, duhos what, duhom where, duhoj when, duhoyen how, duhosav why.
+- Do not use Hyey as a generic filler. Use it only for actual "Oh!/What a..." interjection when intended. For idiomatic exclamation patterns, follow supplied examples exactly.
+
+Final self-check before output:
+1. Did every verb get the correct tense/aspect ending, especially progressive -eye?
+2. Did every object stay after the verb unless it is a legitimate indirect-before-direct pattern?
+3. Did every comparison use vyel after ga/ge/go + adjective/adverb?
+4. Did I preserve required particles: bi, be, bu, ayv, van?
+5. Did I use supplied vocabulary exactly instead of a plausible alternate?
 """.strip()
 
 
@@ -109,8 +109,12 @@ class EnglishToMiradSignature(dspy.Signature):
     Follow these Mirad grammar rules:
     {grammar_rules}
 
-    Use the provided word equivalents (English→Mirad dictionary lookups) whenever
-    possible. Use the provided context passages (grammar and thesaurus excerpts) to
+    VOCABULARY RULE: Use the provided word equivalents (English→Mirad dictionary
+    lookups) EXACTLY. Never substitute a plausible-sounding Mirad root when the
+    dictionary provides a specific word. If the dictionary says "house → tam",
+    output "tam", not "dom" or any other root.
+
+    Use the provided context passages (grammar and thesaurus excerpts) to
     inform grammar, word order, and idiom choices. If the word equivalents or
     context passages are empty, rely on the grammar rules above.
 
@@ -545,15 +549,46 @@ class TranslatorModule(dspy.Module):
 
         return we_str, ctx_str, word_equivalents, context_passages
 
-    def forward(self, english_text: str) -> dspy.Prediction:
+    def forward(
+        self,
+        english_text: str,
+        word_equivalents: str = "",
+        context_passages: str = "",
+    ) -> dspy.Prediction:
         """Translate English text to Mirad.
 
-        Retrieval (lexicon lookup + RAG context) happens internally;
-        the caller only needs to provide ``english_text``.
+        Accepts optional ``word_equivalents`` and ``context_passages`` for
+        DSPy demo compatibility (used when provided by DSPy demos; if empty
+        the module computes them internally from the lexicon and ChromaDB).
+
         The raw Mirad output is post-processed (by default) to fix known
         particle errors and normalize formatting.
         """
-        we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
+        # Use provided context if non-empty (from DSPy few-shot demos);
+        # otherwise compute internally.
+        if not word_equivalents:
+            we_pred = self.lexicon_lookup(english_text=english_text)
+            word_equivalents_dict = we_pred.word_equivalents
+            we_str = _format_word_equivalents(word_equivalents_dict)
+        else:
+            we_str = word_equivalents
+            # Parse provided string back to dict for return value
+            word_equivalents_dict = {}
+            for line in word_equivalents.split("\n"):
+                line = line.strip()
+                if " → " in line:
+                    en, mi = line.split(" → ", 1)
+                    word_equivalents_dict[en.strip()] = mi.strip()
+
+        if not context_passages:
+            ctx_pred = self.context_retrieve(query=english_text)
+            context_passages_list = list(ctx_pred.passages)
+            ctx_str = _format_context_passages(context_passages_list)
+        else:
+            context_passages_list = [
+                p for p in context_passages.split("\n\n") if p.strip()
+            ]
+            ctx_str = context_passages  # Already formatted string
 
         prediction = self.generate(
             english_text=english_text,
@@ -569,8 +604,8 @@ class TranslatorModule(dspy.Module):
         return dspy.Prediction(
             mirad_text=mirad_text,
             raw_mirad_text=raw_text if self._use_postprocessor else None,
-            word_equivalents=word_equivalents,
-            context=context_passages,
+            word_equivalents=word_equivalents_dict,
+            context=context_passages_list,
         )
 
 
@@ -654,14 +689,71 @@ class CritiqueAndFixModule(dspy.Module):
         )
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True):
+def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=3, max_total_pairs=30, min_similarity=0.5):
+    """Load the pre-compiled BootstrapFewShot translator from disk.
+
+    The compiled program has bootstrapped demos for the ChainOfThought predictor,
+    which significantly improves translation quality over the uncompiled module.
+
+    By default uses the program compiled with DeepSeek-V4-Flash stored at
+    data/eval_results/optimizer_comparison/compiled_bootstrap_fast_program/program.pkl.
+
+    Args:
+        compiled_path: Path to the compiled program .pkl file. Defaults to built-in path.
+        semantic_lexicon: If True (default), swap MiradLexiconLookup for MiradSemanticLexiconLookup
+            (top-k semantic neighbor search instead of exact match).
+        top_k_per_word: Semantic lookup neighbors per word (default 3).
+        max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30).
+        min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5).
+
+    Returns:
+        A compiled TranslatorModule (or module with semantic lookup swapped in).
+
+    Raises:
+        FileNotFoundError: If the compiled program file doesn't exist.
+    """
+    import cloudpickle
+
+    path = Path(compiled_path) if compiled_path else COMPILED_PROGRAM_PKL
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Compiled program not found at {path}. "
+            f"Run BootstrapFewShot optimization first, or set use_compiled=False."
+        )
+
+    with open(path, "rb") as f:
+        module = cloudpickle.load(f)
+
+    if semantic_lexicon:
+        from mirad_translator.semantic_lexicon import MiradSemanticLexiconLookup
+        module.lexicon_lookup = MiradSemanticLexiconLookup(
+            db_path=None,
+            top_k_per_word=top_k_per_word,
+            max_total_pairs=max_total_pairs,
+            min_similarity=min_similarity,
+        )
+
+    return module
+
+
+def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = True, semantic_lexicon: bool = True, top_k_per_word: int = 3, max_total_pairs: int = 30, min_similarity: float = 0.5):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
-    When max_retries > 0, returns a CritiqueAndFixModule that runs a
+    By default (use_compiled=True), loads the pre-compiled BootstrapFewShot program
+    which has bootstrapped demos for significantly better translation quality.
+    Set use_compiled=False to get an uncompiled TranslatorModule.
+
+    When max_retries > 0, wraps the translator in a CritiqueAndFixModule that runs a
     critique-and-fix loop after the initial translation.
     When num_hops > 1, returns a MultiHopTranslatorModule that runs iterative
     retrieval with LM-generated follow-up queries.
     When direction="mir_to_en", returns a MiradToEnglishModule for reverse translation.
+
+    When semantic_lexicon=True (requires use_compiled=True or a plain TranslatorModule),
+    swaps MiradLexiconLookup for MiradSemanticLexiconLookup, which uses embedding-based
+    top-k nearest-neighbor search over English words instead of exact match. This
+    helps find translations for inflected forms ("ran"→"run") and morphological variants
+    ("houses"→"house").
 
     By default, En→Mir translations (TranslatorModule) are piped through
     ``postprocess_mirad`` which applies high-precision particle corrections
@@ -676,7 +768,12 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
         num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries). Only for en_to_mir.
         direction: Translation direction — "en_to_mir" (default) or "mir_to_en".
         use_postprocessor: Apply post-processing to En→Mir translations (default True).
-                           Mir→En ignores this; no post-processing is applied in that direction.
+        use_compiled: Load the pre-compiled BootStrapFewShot program by default (default True).
+            Falls back to an uncompiled TranslatorModule if the compiled program is not found.
+        semantic_lexicon: Use semantic (embedding-based) top-k lexicon lookup instead of exact match (default True).
+        top_k_per_word: Semantic lookup neighbors per word (default 3). Only used when semantic_lexicon=True.
+        max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30). Only used when semantic_lexicon=True.
+        min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5). Only used when semantic_lexicon=True.
     """
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
     from mirad_translator.retrieval import build_indexes as _build_chroma
@@ -690,35 +787,73 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
         except Exception:
             pass  # ChromaDB not available; retrieval will be empty
 
+    # --- Reverse direction: always fresh module, never compiled ---
     if direction == "mir_to_en":
         return MiradToEnglishModule(
             db_path=effective_db_path,
             num_context_passages=num_context_passages,
         )
 
+    # --- Forward direction (en_to_mir) ---
+
+    # Try loading compiled program when use_compiled=True and no extra wrappers
+    if use_compiled and max_retries == 0 and num_hops == 1:
+        try:
+            return load_compiled_translator(
+                semantic_lexicon=semantic_lexicon,
+                top_k_per_word=top_k_per_word,
+                max_total_pairs=max_total_pairs,
+                min_similarity=min_similarity,
+            )
+        except FileNotFoundError:
+            pass  # Fall through to uncompiled module
+
+    # --- Build fresh module ---
     if max_retries > 0:
-        return CritiqueAndFixModule(
+        module = CritiqueAndFixModule(
             db_path=effective_db_path,
             num_context_passages=num_context_passages,
             max_retries=max_retries,
         )
-
-    if num_hops > 1:
-        return MultiHopTranslatorModule(
+    elif num_hops > 1:
+        module = MultiHopTranslatorModule(
             db_path=effective_db_path,
             num_context_passages=num_context_passages,
             num_hops=num_hops,
         )
+    else:
+        module = TranslatorModule(
+            db_path=effective_db_path,
+            num_context_passages=num_context_passages,
+            use_postprocessor=use_postprocessor,
+        )
 
-    return TranslatorModule(
-        db_path=effective_db_path,
-        num_context_passages=num_context_passages,
-        use_postprocessor=use_postprocessor,
-    )
+    # Swap in semantic lexicon if requested
+    if semantic_lexicon:
+        from mirad_translator.semantic_lexicon import MiradSemanticLexiconLookup
+        if hasattr(module, 'translator'):
+            # CritiqueAndFixModule wraps a translator
+            module.translator.lexicon_lookup = MiradSemanticLexiconLookup(
+                db_path=effective_db_path,
+                top_k_per_word=top_k_per_word,
+                max_total_pairs=max_total_pairs,
+                min_similarity=min_similarity,
+            )
+        elif hasattr(module, 'lexicon_lookup'):
+            module.lexicon_lookup = MiradSemanticLexiconLookup(
+                db_path=effective_db_path,
+                top_k_per_word=top_k_per_word,
+                max_total_pairs=max_total_pairs,
+                min_similarity=min_similarity,
+            )
+
+    return module
 
 
-def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_retries: int = 0, num_hops: int = 1):
+def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_retries: int = 0, num_hops: int = 1, use_compiled: bool = True, semantic_lexicon: bool = True):
     """High-level entry point: look up words + retrieve context + translate.
+
+    By default loads the compiled BootstrapFewShot program for best quality.
 
     Args:
         english_text: English text to translate.
@@ -726,12 +861,21 @@ def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_r
         top_k: Number of context passages to retrieve (0 disables retrieval).
         max_retries: Max critique-fix rounds (0 = no critique).
         num_hops: Number of retrieval hops (1 = single, 2+ = multi-hop).
+        use_compiled: Load compiled program (default True).
+        semantic_lexicon: Use semantic (embedding-based) top-k lexicon lookup (default True).
 
     Returns:
         (mirad_text, word_equivalents, context_chunks) — translation, dict, list.
     """
-    translator = DefaultTranslator(db_path=db_path, num_context_passages=top_k, max_retries=max_retries, num_hops=num_hops)
-    prediction = translator.forward(english_text=english_text)
+    translator = DefaultTranslator(
+        db_path=db_path,
+        num_context_passages=top_k,
+        max_retries=max_retries,
+        num_hops=num_hops,
+        use_compiled=use_compiled,
+        semantic_lexicon=semantic_lexicon,
+    )
+    prediction = translator(english_text=english_text)
     return (
         prediction.mirad_text,
         prediction.word_equivalents,

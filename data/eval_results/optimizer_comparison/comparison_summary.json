@@ -1,0 +1,28 @@
+{
+  "task": "Optimizer comparison: SIMBA vs GEPA vs BootstrapRS vs MIPROv2",
+  "direction": "en_to_mir",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "train_size": 8,
+  "eval_size": 36,
+  "baseline": {
+    "name": "Baseline (unoptimized)",
+    "normalized_pct": 41.66666666666667,
+    "normalized_hits": 15,
+    "exact_pct": 41.66666666666667,
+    "total": 36
+  },
+  "optimizers": {
+    "miprov2": {
+      "name": "MIPROv2",
+      "normalized_pct": 41.7,
+      "normalized_hits": 15,
+      "exact_pct": 41.7,
+      "exact_hits": 15,
+      "total": 36,
+      "compile_time_s": 507.54,
+      "eval_time_s": 0.54,
+      "delta_vs_baseline_pp": 0.0
+    }
+  },
+  "recommendation": "Best optimizer: MIPROv2 at 41.7% normalized match (+0.0pp vs baseline). Recommend running MIPROv2 with heavier configs (more candidates, rounds, or auto=medium/heavy) as the next step."
+}

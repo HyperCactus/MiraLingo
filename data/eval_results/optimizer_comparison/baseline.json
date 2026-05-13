@@ -1,0 +1,262 @@
+{
+  "optimizer": "baseline",
+  "method": "TranslatorModule (unoptimized)",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "num_context_passages": 5,
+  "use_postprocessor": true,
+  "per_example": [
+    {
+      "english_text": "This house is not as big as mine.",
+      "gold_mirad": "Hia tam voy se ge aga vyel atas.",
+      "predicted_mirad": "Hia tam voy se ge aga asolk be atas.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "My house is bigger than yours.",
+      "gold_mirad": "Ata tam se ga aga vyel etas.",
+      "predicted_mirad": "Ata tam se ga aga vyel etas.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "The richest man in the world.",
+      "gold_mirad": "Ha gwa nyaza twob be ha mir.",
+      "predicted_mirad": "Ha gwa nyaza twob bi ha mir.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Many are called but few are chosen.",
+      "gold_mirad": "Glati dyunwe oy gloti kexbiwe.",
+      "predicted_mirad": "Glati dyunwe oy gloti kexbiwe.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "How glad I am that you came!",
+      "gold_mirad": "Hoogla iva se at van et upa!",
+      "predicted_mirad": "Duhonog iva at se van et upa!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "The whole world knows about you.",
+      "gold_mirad": "Ha ayna mir te ayv et.",
+      "predicted_mirad": "Ha ayna mir te vyel et.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Money makes the world go round.",
+      "gold_mirad": "Nas zyube ha mir.",
+      "predicted_mirad": "Nas zyube ha mir.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "He said, \"Let there be light.\"",
+      "gold_mirad": "It da: \"Van esu man.\"",
+      "predicted_mirad": "It da: \"Van esu man.\"",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "I think, therefore I am.",
+      "gold_mirad": "At texe, av hus, at ese.",
+      "predicted_mirad": "At texer, av hus at beser.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Let the buyer beware!",
+      "gold_mirad": "Van ha nuxbiut bikiu!",
+      "predicted_mirad": "Yufu ha niut fukyexye.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "What a day this has been!",
+      "gold_mirad": "Hooa jub his saye!",
+      "predicted_mirad": "Duhoa jub hia seye!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "The baby is still sleeping.",
+      "gold_mirad": "Ha tobud gaj tujeye.",
+      "predicted_mirad": "Ha tudet gaj se tujea.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I swim better than you.",
+      "gold_mirad": "At pipe ga fi vyel et.",
+      "predicted_mirad": "At milzyepe ga fiay vyel et.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I am not your father.",
+      "gold_mirad": "At voy se eta ted.",
+      "predicted_mirad": "At voy se eta twed.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Everything ended well.",
+      "gold_mirad": "Hyas uja fi.",
+      "predicted_mirad": "Hyas uja fi.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "How's the weather?",
+      "gold_mirad": "Ha maalyen se hoyena?",
+      "predicted_mirad": "Duhoyen se ha maalyen?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "It is getting cold.",
+      "gold_mirad": "Omseye.",
+      "predicted_mirad": "Omseye.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "I am getting cold.",
+      "gold_mirad": "At omseye.",
+      "predicted_mirad": "At omseye.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "What color is your car?",
+      "gold_mirad": "Eta pur se hovoza?",
+      "predicted_mirad": "Eta pur se hovoza?",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "It seems to me that...",
+      "gold_mirad": "Tease bu at van...",
+      "predicted_mirad": "Tease at van...",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "It doesn't bother me.",
+      "gold_mirad": "Voy tepoboxe at.",
+      "predicted_mirad": "Voy bikxe at.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "This hat does not fit.",
+      "gold_mirad": "Hia tef voy finagse.",
+      "predicted_mirad": "Hia tef voy finagse.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "Go around the block.",
+      "gold_mirad": "Yuzper ha tomyan.",
+      "predicted_mirad": "Yuzpu ha dom unkun.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Get well soon!",
+      "gold_mirad": "Fibaksu ig!",
+      "predicted_mirad": "Fibaksu ig!",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "To your health!",
+      "gold_mirad": "Bu eta bak!",
+      "predicted_mirad": "Bak!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "To flush the toilet.",
+      "gold_mirad": "Ukxer ha milufsom.",
+      "predicted_mirad": "Ukxer ha milufsom.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "To water the plants.",
+      "gold_mirad": "Miluer ha vobi.",
+      "predicted_mirad": "Ha fobi milber.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Do you speak in Mirad?",
+      "gold_mirad": "Duven et Miradale?",
+      "predicted_mirad": "Duven et Miradale?",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "Say it in Mirad!",
+      "gold_mirad": "Miradu has!",
+      "predicted_mirad": "u has!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "It is snowing.",
+      "gold_mirad": "Malyomeye.",
+      "predicted_mirad": "Malyomeye.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "It is sleeting.",
+      "gold_mirad": "Mamyoymeye.",
+      "predicted_mirad": "Is mamyoyme.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "It is raining.",
+      "gold_mirad": "Mamileye.",
+      "predicted_mirad": "Mamile.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I pity you.",
+      "gold_mirad": "At yantipuvse et.",
+      "predicted_mirad": "At yantipuvie et.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "Look here!",
+      "gold_mirad": "Teaxu him!",
+      "predicted_mirad": "Teaxu him!",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "I am cold.",
+      "gold_mirad": "At tose oma.",
+      "predicted_mirad": "At tose oma.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "Be well!",
+      "gold_mirad": "Su baka!",
+      "predicted_mirad": "Baksu!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    }
+  ],
+  "eval_time_s": 0.52
+}

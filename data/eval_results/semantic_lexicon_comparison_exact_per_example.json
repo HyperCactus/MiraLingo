@@ -1,0 +1,902 @@
+[
+  {
+    "english": "your name is beautiful",
+    "gold_mirad": "Eta dyun se via.",
+    "predicted_mirad": "eta dyun se via",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "books",
+    "gold_mirad": "dyesi",
+    "predicted_mirad": "dyeni",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "you were very far from here",
+    "gold_mirad": "Et sa gla yib bi him.",
+    "predicted_mirad": "Et asa gla yib bi him.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she would go",
+    "gold_mirad": "It pu.",
+    "predicted_mirad": "It pu.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "come here",
+    "gold_mirad": "Upu him!",
+    "predicted_mirad": "Upu hiim!",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "happy",
+    "gold_mirad": "iva",
+    "predicted_mirad": "Iva",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "this teacher is bad",
+    "gold_mirad": "Hia tuxut se fua.",
+    "predicted_mirad": "hia tuxut se fua",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "bravo you deserve this",
+    "gold_mirad": "Hyay! Et utnaze his.",
+    "predicted_mirad": "Hway! Et yefse his.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "the desk is big",
+    "gold_mirad": "Ha dresem se aga.",
+    "predicted_mirad": "Ha dresem se aga.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "go to the store",
+    "gold_mirad": "Pe ha nam.",
+    "predicted_mirad": "Pu bu ha nam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "your book",
+    "gold_mirad": "eta dyes",
+    "predicted_mirad": "yeta dyes",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "my book",
+    "gold_mirad": "ata dyes",
+    "predicted_mirad": "ata dyes",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "your teacher is good",
+    "gold_mirad": "Eta tuxut se fia.",
+    "predicted_mirad": "Eta tuxut se fia.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she would come",
+    "gold_mirad": "It upu.",
+    "predicted_mirad": "it ey it upu",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she went",
+    "gold_mirad": "It pa.",
+    "predicted_mirad": "it pa",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "I do not know where he went",
+    "gold_mirad": "At voy te hom it pa.",
+    "predicted_mirad": "At voy te hom it pa.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "the books",
+    "gold_mirad": "ha dyesi",
+    "predicted_mirad": "ha dyeni",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "ugliness",
+    "gold_mirad": "vuan",
+    "predicted_mirad": "vuan",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "I come",
+    "gold_mirad": "At upe.",
+    "predicted_mirad": "At upe.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "unwanted",
+    "gold_mirad": "lofwa",
+    "predicted_mirad": "lofwa",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "take this telegram",
+    "gold_mirad": "Biu hia yibdren.",
+    "predicted_mirad": "Biu hia yibdren.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "you all would come",
+    "gold_mirad": "Yet upu.",
+    "predicted_mirad": "Yet fu uper.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "ours are bigger than yours",
+    "gold_mirad": "Yatasi se ga aga vyel yetasi.",
+    "predicted_mirad": "Ayetas se aga vyel ayetasi.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "you live very close by",
+    "gold_mirad": "Et tambese gla yub.",
+    "predicted_mirad": "Et tambese gla yub bi him.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "the beautiful city",
+    "gold_mirad": "ha via dom",
+    "predicted_mirad": "ha via dom",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "we were",
+    "gold_mirad": "Yat sa.",
+    "predicted_mirad": "Yat asa.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "unfriendly",
+    "gold_mirad": "odata",
+    "predicted_mirad": "odata",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "the student walks to school every day",
+    "gold_mirad": "Ha tixut tyoyape tistam hyajub.",
+    "predicted_mirad": "Ha tixut tyoyape tistam hyajub.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "an ugly person",
+    "gold_mirad": "vuat",
+    "predicted_mirad": "awa vua aot",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "they are",
+    "gold_mirad": "Yit se.",
+    "predicted_mirad": "yit se",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "they will come",
+    "gold_mirad": "Yit upo.",
+    "predicted_mirad": "Yit upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "they would be going home",
+    "gold_mirad": "Yit peyu tam.",
+    "predicted_mirad": "Yit peyu tam.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "he walks fast",
+    "gold_mirad": "It tyoyape ig.",
+    "predicted_mirad": "It tyope ig.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "my teacher is bad",
+    "gold_mirad": "Ata tuxut se fua.",
+    "predicted_mirad": "ata tuxut se fua",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "I did not know whether he or she would come",
+    "gold_mirad": "At voy ta ven it upo.",
+    "predicted_mirad": "At voy ta ven it ey iyt upu.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "our teacher is good",
+    "gold_mirad": "Yata tuxut se fia.",
+    "predicted_mirad": "Yata tuxut se fia.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "this teacher is the least good",
+    "gold_mirad": "Hia tuxut se ha gwo fia.",
+    "predicted_mirad": "Hia tuxut se gwo fia.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "do you walk to school",
+    "gold_mirad": "Duven et tyoyape tistam?",
+    "predicted_mirad": "Duven et tyope bu tistam?",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "we will work at home",
+    "gold_mirad": "Yat yexo be tam.",
+    "predicted_mirad": "yat yexo be tam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "the person",
+    "gold_mirad": "ha tob",
+    "predicted_mirad": "ha tob",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "any kind of drink is available",
+    "gold_mirad": "Hyeyena til se aysyafwa.",
+    "predicted_mirad": "Hyea til esea.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "ok I am sorry",
+    "gold_mirad": "Fi. Hwoy.",
+    "predicted_mirad": "Fi, at se tipuva.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "hey",
+    "gold_mirad": "Hey!",
+    "predicted_mirad": "Hey!",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "I knew that he or she would come",
+    "gold_mirad": "At ta van it upo.",
+    "predicted_mirad": "At ta van it upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "the desks",
+    "gold_mirad": "ha dresemi",
+    "predicted_mirad": "ha dresemi",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "where do you live",
+    "gold_mirad": "Duhom et tambese?",
+    "predicted_mirad": "Duhom et tambese?",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "they sing beautifully",
+    "gold_mirad": "Yit deuze vi.",
+    "predicted_mirad": "yit deuze viay",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "I would do",
+    "gold_mirad": "At xu.",
+    "predicted_mirad": "At xu.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "teachers",
+    "gold_mirad": "tuxuti",
+    "predicted_mirad": "tuxuti",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "a man",
+    "gold_mirad": "twob",
+    "predicted_mirad": "twob",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "we go",
+    "gold_mirad": "Yat pe.",
+    "predicted_mirad": "yat pe",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "they will be there until the end of the season",
+    "gold_mirad": "Yit so hum ju ha uj bi ha jeb.",
+    "predicted_mirad": "Yit so hum ju uj bi jeb.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 9,
+    "method": "EXACT"
+  },
+  {
+    "english": "this person",
+    "gold_mirad": "hit",
+    "predicted_mirad": "hit",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "fair people",
+    "gold_mirad": "yevati",
+    "predicted_mirad": "tyod yeva",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "this teacher is good",
+    "gold_mirad": "Hia tuxut se fia.",
+    "predicted_mirad": "Hia tuxut se fia.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "bad people",
+    "gold_mirad": "fuati",
+    "predicted_mirad": "fua yot",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "beautiful things",
+    "gold_mirad": "viasi",
+    "predicted_mirad": "via bexunyan",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "nothing bothers that gal",
+    "gold_mirad": "Hyos oboxe huyt.",
+    "predicted_mirad": "Hyosun voy bikxe hua toybet.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "I did it well",
+    "gold_mirad": "At xa has fi.",
+    "predicted_mirad": "At xa has fiay.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "I will be",
+    "gold_mirad": "At so.",
+    "predicted_mirad": "At so.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "they do not know",
+    "gold_mirad": "Yit voy te.",
+    "predicted_mirad": "Yit voy te.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "this teacher is too good",
+    "gold_mirad": "Hia tuxut se gra fia.",
+    "predicted_mirad": "hia tuxut se gra fia",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "they came",
+    "gold_mirad": "Yit upa.",
+    "predicted_mirad": "yit pua",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "I live downtown now",
+    "gold_mirad": "At tambese zedom hij.",
+    "predicted_mirad": "At tambese zedom hij.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "the teachers",
+    "gold_mirad": "ha tuxuti",
+    "predicted_mirad": "ha tuxuti",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "we would be",
+    "gold_mirad": "Yat su.",
+    "predicted_mirad": "Yatsu",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "true truly",
+    "gold_mirad": "vyaa vyaay",
+    "predicted_mirad": "vyaa vay",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "you will be",
+    "gold_mirad": "Et so.",
+    "predicted_mirad": "et so",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "these women's names have not been made public",
+    "gold_mirad": "Hiytia dyuni voy dodraye.",
+    "predicted_mirad": "Hia toybia dyuni voy douta saxwa.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "I knew that they would come",
+    "gold_mirad": "At ta van yit upo.",
+    "predicted_mirad": "At ta van yit upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "they live downtown now",
+    "gold_mirad": "Yit tambese zedom hij.",
+    "predicted_mirad": "Yit tambese zedom hij.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "we would come",
+    "gold_mirad": "Yat upu.",
+    "predicted_mirad": "yat upu",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "they were going home",
+    "gold_mirad": "Yit peya tam.",
+    "predicted_mirad": "Yit peya tam.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "boys",
+    "gold_mirad": "twobeti",
+    "predicted_mirad": "twobi",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "you all go",
+    "gold_mirad": "Yet pe.",
+    "predicted_mirad": "Pu yet.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "unhappy",
+    "gold_mirad": "oiva",
+    "predicted_mirad": "oiva",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she is going home",
+    "gold_mirad": "It peye tam.",
+    "predicted_mirad": "It peye be tam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "no I would not be happy",
+    "gold_mirad": "Vo. At voy su iva.",
+    "predicted_mirad": "Vo, at voy su iva.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "you live downtown now",
+    "gold_mirad": "Et tambese zedom hij.",
+    "predicted_mirad": "Et tambese zedom hij.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "students",
+    "gold_mirad": "tixuti",
+    "predicted_mirad": "tixuti",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "you will come",
+    "gold_mirad": "Et upo.",
+    "predicted_mirad": "Et upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "you are going home",
+    "gold_mirad": "Et peye tam.",
+    "predicted_mirad": "Et peye tam.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 4,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she will come",
+    "gold_mirad": "It upo.",
+    "predicted_mirad": "It upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "even if you disagree I will support you",
+    "gold_mirad": "Gey ven et yontexe, at bolo et.",
+    "predicted_mirad": "Gey ven et votexe, at boaro et.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "you live in the neighborhood",
+    "gold_mirad": "Et tambese ha yubem.",
+    "predicted_mirad": "Et tambese bi ha doeym.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "any color will be fine",
+    "gold_mirad": "Hyea voz so fia.",
+    "predicted_mirad": "Hyevolz so fia.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "dirty",
+    "gold_mirad": "vyua",
+    "predicted_mirad": "vyua",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "you all will work at home",
+    "gold_mirad": "Yet yexo be tam.",
+    "predicted_mirad": "Eti yexo be tam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 6,
+    "method": "EXACT"
+  },
+  {
+    "english": "they did it well",
+    "gold_mirad": "Yit xa has fi.",
+    "predicted_mirad": "yit has xa fiay",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  },
+  {
+    "english": "you all would go",
+    "gold_mirad": "Yet pu.",
+    "predicted_mirad": "Yet pu.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "he or she will work at home",
+    "gold_mirad": "It yexo be tam.",
+    "predicted_mirad": "It yexo be tam.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 7,
+    "method": "EXACT"
+  },
+  {
+    "english": "I can see myself in the mirror",
+    "gold_mirad": "At yafe teater aut be ha sinzyef.",
+    "predicted_mirad": "At syeb teater aut inilk ha sinzyef.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "yes I indeed agree",
+    "gold_mirad": "Va. At vay yantexe.",
+    "predicted_mirad": "Va, at vay yantexe.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "youths",
+    "gold_mirad": "jogati",
+    "predicted_mirad": "jogati",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 0,
+    "method": "EXACT"
+  },
+  {
+    "english": "this is a good student",
+    "gold_mirad": "His se fia tixut.",
+    "predicted_mirad": "Hia tixut se fia.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "a teacher",
+    "gold_mirad": "tuxut",
+    "predicted_mirad": "tuxut",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 2,
+    "method": "EXACT"
+  },
+  {
+    "english": "you all work at home",
+    "gold_mirad": "Yet yexe be tam.",
+    "predicted_mirad": "Yet hya yexe be tam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "when you arrived the fun began",
+    "gold_mirad": "Hoj et pua, ha if ija.",
+    "predicted_mirad": "Hej et upya, ha if ija.",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 5,
+    "method": "EXACT"
+  },
+  {
+    "english": "please",
+    "gold_mirad": "Diwe!",
+    "predicted_mirad": "diwe",
+    "normalized_match": false,
+    "exact_match": false,
+    "word_equivalents_count": 1,
+    "method": "EXACT"
+  },
+  {
+    "english": "I knew that you would come",
+    "gold_mirad": "At ta van et upo.",
+    "predicted_mirad": "At ta van et upo.",
+    "normalized_match": true,
+    "exact_match": true,
+    "word_equivalents_count": 3,
+    "method": "EXACT"
+  }
+]

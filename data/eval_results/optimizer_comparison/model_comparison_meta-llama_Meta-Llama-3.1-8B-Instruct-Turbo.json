@@ -1,0 +1,217 @@
+{
+  "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+  "per_example": [
+    {
+      "english_text": "birds",
+      "gold_mirad": "pati",
+      "predicted_mirad": "pat",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "how much did she win",
+      "gold_mirad": "Duhoglas iyt aka?",
+      "predicted_mirad": "Glatipak.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "this teacher is the best",
+      "gold_mirad": "Hia tuxut se ha gwa fia.",
+      "predicted_mirad": "Ha tuxut se gwa fi.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "we were very far from here",
+      "gold_mirad": "Yat sa gla yib bi him.",
+      "predicted_mirad": "Aet ve gla yib bi him.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "my life is good",
+      "gold_mirad": "Ata tej se fia.",
+      "predicted_mirad": "Ata tej fia se.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "the car",
+      "gold_mirad": "ha pur",
+      "predicted_mirad": "ha pur",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "personal personally",
+      "gold_mirad": "auta autay",
+      "predicted_mirad": "Aota. Aotay.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "we should get married",
+      "gold_mirad": "Yat yeyfe tadser.",
+      "predicted_mirad": "Ayet taduwa se?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "when were you born",
+      "gold_mirad": "Duhoj et taja?",
+      "predicted_mirad": "Hej ho et tajbwa.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "the student walks to school every day",
+      "gold_mirad": "Ha tixut tyoyape tistam hyajub.",
+      "predicted_mirad": "Ha tixut tyoyapeye tistam hijub.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "a father",
+      "gold_mirad": "twed",
+      "predicted_mirad": "a twed",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "false",
+      "gold_mirad": "vyoa",
+      "predicted_mirad": "ovyaka",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "the students walk to school every day",
+      "gold_mirad": "Ha tixuti tyoyape tistam hyajub.",
+      "predicted_mirad": "Ha sa tixut tyopeye ha tistam hijub.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "they were",
+      "gold_mirad": "Yit sa.",
+      "predicted_mirad": "Yit ixu.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "those are yours",
+      "gold_mirad": "Huasi se etasi.",
+      "predicted_mirad": "se ayetas",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I can see myself in the mirror",
+      "gold_mirad": "At yafe teater aut be ha sinzyef.",
+      "predicted_mirad": "At syeb inilk aut sinzyef.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I will compete and I will win",
+      "gold_mirad": "At oveko ay at ako.",
+      "predicted_mirad": "Upua fon ak.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "girls",
+      "gold_mirad": "toybeti",
+      "predicted_mirad": "yayti",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "this person is beautiful",
+      "gold_mirad": "Hit se via.",
+      "predicted_mirad": "Hinog aot se via.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "do as you would want others to act toward you",
+      "gold_mirad": "Xu hoyen et fu van hyuti axlu ub et.",
+      "predicted_mirad": "vay asolk et fon hyuti axlun",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "he or she would be",
+      "gold_mirad": "It su.",
+      "predicted_mirad": "se baelk",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "he or she does not know",
+      "gold_mirad": "It voy te.",
+      "predicted_mirad": "Voy hit huyt it vay.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "German people",
+      "gold_mirad": "Deumati",
+      "predicted_mirad": "Deud tyod",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "go left young man",
+      "gold_mirad": "Pu zu, jogat!",
+      "predicted_mirad": "Pilya hut i.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "these persons",
+      "gold_mirad": "hiti",
+      "predicted_mirad": "hitati",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "they were going home",
+      "gold_mirad": "Yit peya tam.",
+      "predicted_mirad": "Hati vay peyam tam.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "you all would be",
+      "gold_mirad": "Yet su.",
+      "predicted_mirad": "yeyti hya balk",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "good well",
+      "gold_mirad": "fia fiay",
+      "predicted_mirad": "fia fi",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "the bird",
+      "gold_mirad": "ha pat",
+      "predicted_mirad": "Ha pat",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "you live in the neighborhood",
+      "gold_mirad": "Et tambese ha yubem.",
+      "predicted_mirad": "Et tejya ha yubem.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    }
+  ],
+  "eval_time_s": 63.611945152282715,
+  "timestamp": "2026-05-13T11:06:08.737096+00:00"
+}
