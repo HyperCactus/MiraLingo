@@ -1,0 +1,17 @@
+{
+  "method": "BootstrapFewShotWithRandomSearch",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "lm_type": "deepinfra",
+  "num_candidate_programs": 4,
+  "max_bootstrapped_demos": 4,
+  "max_labeled_demos": 8,
+  "max_rounds": 1,
+  "normalized_score": null,
+  "bfs_baseline_score": 70.0,
+  "bfs_best_config": "bfs_d8_l16_r2",
+  "delta_vs_bfs": null,
+  "status": "timeout",
+  "timeout_note": "BFSRS timed out at 600s against DeepInfra API. DeepSeek-V4-Flash responds in 3-5s/call, making BFSRS (which needs ~20 compile + 10 eval calls = 30 calls * 3s = ~90s minimum per config) impractical for multi-config sweeps. BFS d8_l16_r2 at 70.0% is the best achievable result with current API latency profile.",
+  "all_candidates": [],
+  "config_slug": "bfsrs_best"
+}
