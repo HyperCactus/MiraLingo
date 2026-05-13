@@ -295,28 +295,54 @@ class MiradToEnglishModule(dspy.Module):
         self._db_path = db_path
         self._num_context_passages = num_context_passages
 
-    def forward(self, mirad_text: str) -> dspy.Prediction:
-        """Translate Mirad text to English."""
-        # Look up Mirad words in the lexicon (reverse direction)
-        word_eq_pred = self.lexicon_lookup(mirad_text=mirad_text)
-        # Format as Mirad→English for the signature
-        word_equivalents = word_eq_pred.word_equivalents
-        we_str = "\n".join(f"{mi} → {en}" for mi, en in sorted(word_equivalents.items()))
+    def forward(
+        self,
+        mirad_text: str,
+        word_equivalents: str = "",
+        context_passages: str = "",
+    ) -> dspy.Prediction:
+        """Translate Mirad text to English.
 
-        # Retrieve context — use Mirad text as query (works with bilingual chunks)
-        ctx_pred = self.context_retrieve(query=mirad_text)
-        context_passages = list(ctx_pred.passages)
-        ctx_str = _format_context_passages(context_passages)
+        Accepts optional ``word_equivalents`` and ``context_passages`` for DSPy
+        signature compatibility (these are used when provided by DSPy demos; if
+        empty the module computes them internally from the lexicon and ChromaDB).
+        """
+        # Use provided context if non-empty (from DSPy few-shot demos);
+        # otherwise compute internally.
+        if not word_equivalents:
+            word_eq_pred = self.lexicon_lookup(mirad_text=mirad_text)
+            word_equivalents_dict = word_eq_pred.word_equivalents
+            word_equivalents = "\n".join(
+                f"{mi} → {en}" for mi, en in sorted(word_equivalents_dict.items())
+            )
+        else:
+            # Parse provided string back to dict for return value
+            word_equivalents_dict = {}
+            for line in word_equivalents.split("\n"):
+                line = line.strip()
+                if " → " in line:
+                    mi, en = line.split(" → ", 1)
+                    word_equivalents_dict[mi.strip()] = en.strip()
+
+        if not context_passages:
+            ctx_pred = self.context_retrieve(query=mirad_text)
+            context_passages_list = list(ctx_pred.passages)
+            context_passages = _format_context_passages(context_passages_list)
+        else:
+            # Context already provided; split on double-newline to match format
+            context_passages_list = [
+                p for p in context_passages.split("\n\n") if p.strip()
+            ]
 
         prediction = self.generate(
             mirad_text=mirad_text,
-            word_equivalents=we_str,
-            context_passages=ctx_str,
+            word_equivalents=word_equivalents,
+            context_passages=context_passages,
         )
         return dspy.Prediction(
             english_text=prediction.english_text,
-            word_equivalents=word_equivalents,
-            context=context_passages,
+            word_equivalents=word_equivalents_dict,
+            context=context_passages_list,
         )
 
 
