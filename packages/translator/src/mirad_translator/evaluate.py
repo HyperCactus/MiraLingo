@@ -4,6 +4,15 @@ Evaluation dataset: data/phrases/english-mirad-sentence-pairs.csv (44 sentence p
 Metrics: exact_match, normalized_match (punctuation/whitespace-tolerant)
 Optimizers: BootstrapFewShot (starter), MIPROv2 (advanced)
 
+Post-processing:
+    TranslatorModule (returned by DefaultTranslator) pipes raw LM output through
+    ``postprocess_mirad`` by default, applying:
+      - be→bi possessive correction
+      - ge→vyel comparative correction
+      - Meta-commentary stripping
+      - Whitespace/punctuation normalization
+    Use ``use_postprocessor=False`` on DefaultTranslator() to get raw output only.
+
 Usage:
     from mirad_translator.evaluate import (
         load_evaluation_set,

@@ -287,13 +287,16 @@ class MiradToEnglishModule(dspy.Module):
         num_context_passages: Number of RAG context passages (0 disables retrieval).
     """
 
-    def __init__(self, db_path=None, num_context_passages: int = 0):
+    def __init__(self, db_path=None, num_context_passages: int = 0, use_postprocessor: bool = False):
         super().__init__()
         self.generate = dspy.ChainOfThought(MiradToEnglishSignature)
         self.lexicon_lookup = MiradLexiconReverseLookup(db_path=db_path)
         self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
         self._db_path = db_path
         self._num_context_passages = num_context_passages
+        # Mir→En post-processing is a no-op by default (reserved for future use).
+        # Mirad particle corrections (be→bi, ge→vyel) would corrupt English output.
+        self._use_postprocessor = use_postprocessor
 
     def forward(
         self,
@@ -513,15 +516,21 @@ class TranslatorModule(dspy.Module):
     DSPy optimizers like LabeledFewShot and BootstrapFewShot to include
     retrieved context in their demos so the model sees worked examples of
     how to use dictionary lookups and grammar references.
+
+    Post-processing: when ``use_postprocessor=True`` (default), the raw Mirad
+    output is passed through ``postprocess_mirad`` which corrects known
+    particle errors (``be→bi`` in possessives, ``ge→vyel`` in comparatives),
+    strips meta-commentary wrappers, and normalizes whitespace/punctuation.
     """
 
-    def __init__(self, db_path=None, num_context_passages: int = 0):
+    def __init__(self, db_path=None, num_context_passages: int = 0, use_postprocessor: bool = True):
         super().__init__()
         self.generate = dspy.ChainOfThought(EnglishToMiradSignature)
         self.lexicon_lookup = MiradLexiconLookup(db_path=db_path)
         self.context_retrieve = MiradContextRetrieve(k=num_context_passages)
         self._db_path = db_path
         self._num_context_passages = num_context_passages
+        self._use_postprocessor = use_postprocessor
 
     def _retrieve(self, english_text: str):
         """Run lexicon lookup and context retrieval, return formatted strings + raw data."""
@@ -541,6 +550,8 @@ class TranslatorModule(dspy.Module):
 
         Retrieval (lexicon lookup + RAG context) happens internally;
         the caller only needs to provide ``english_text``.
+        The raw Mirad output is post-processed (by default) to fix known
+        particle errors and normalize formatting.
         """
         we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
 
@@ -549,8 +560,15 @@ class TranslatorModule(dspy.Module):
             word_equivalents=we_str,
             context_passages=ctx_str,
         )
+        raw_text = prediction.mirad_text
+        if self._use_postprocessor:
+            from mirad_translator.postprocess import postprocess_mirad
+            mirad_text = postprocess_mirad(raw_text)
+        else:
+            mirad_text = raw_text
         return dspy.Prediction(
-            mirad_text=prediction.mirad_text,
+            mirad_text=mirad_text,
+            raw_mirad_text=raw_text if self._use_postprocessor else None,
             word_equivalents=word_equivalents,
             context=context_passages,
         )
@@ -636,7 +654,7 @@ class CritiqueAndFixModule(dspy.Module):
         )
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir"):
+def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
     When max_retries > 0, returns a CritiqueAndFixModule that runs a
@@ -645,12 +663,20 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
     retrieval with LM-generated follow-up queries.
     When direction="mir_to_en", returns a MiradToEnglishModule for reverse translation.
 
+    By default, En→Mir translations (TranslatorModule) are piped through
+    ``postprocess_mirad`` which applies high-precision particle corrections
+    (be→bi possessive, ge→vyel comparative), strips meta-commentary wrappers,
+    and normalizes whitespace/punctuation. Set use_postprocessor=False to
+    disable this and receive raw LM output only.
+
     Args:
         db_path: Path to the lexicon SQLite DB. Defaults to built-in path.
         num_context_passages: Number of RAG context passages to retrieve (0 disables retrieval).
         max_retries: Max critique-fix rounds (0 = no critique, plain translation). Only for en_to_mir.
         num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries). Only for en_to_mir.
         direction: Translation direction — "en_to_mir" (default) or "mir_to_en".
+        use_postprocessor: Apply post-processing to En→Mir translations (default True).
+                           Mir→En ignores this; no post-processing is applied in that direction.
     """
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
     from mirad_translator.retrieval import build_indexes as _build_chroma
@@ -687,6 +713,7 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
     return TranslatorModule(
         db_path=effective_db_path,
         num_context_passages=num_context_passages,
+        use_postprocessor=use_postprocessor,
     )
 
 
