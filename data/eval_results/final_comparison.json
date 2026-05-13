@@ -1,0 +1,111 @@
+{
+  "task": "T05 Combined Eval: Best optimizer config + post-processor",
+  "direction": "mir_to_en",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "eval_size": 39,
+  "configs": [
+    {
+      "id": 1,
+      "name": "LabeledFewShot k=5 baseline",
+      "method": "LabeledFewShot",
+      "metric": "normalized_match",
+      "normalized_score": 58.97435897435898,
+      "exact_score": 58.97435897435898,
+      "hits": 23,
+      "total": 39,
+      "eval_time_s": 56.84,
+      "note": "Mir→En, k_context_passages=5, from existing eval"
+    },
+    {
+      "id": 2,
+      "name": "BootstrapFewShot d8_l16_r2",
+      "method": "BootstrapFewShot",
+      "metric": "normalized_match",
+      "normalized_score": 66.66666666666666,
+      "exact_score": 61.53846153846154,
+      "hits": 26,
+      "total": 39,
+      "compile_time_s": 0.03,
+      "eval_time_s": 1.36,
+      "params": {
+        "max_bootstrapped_demos": 8,
+        "max_labeled_demos": 16,
+        "max_rounds": 2,
+        "k_context_passages": 5
+      }
+    },
+    {
+      "id": 3,
+      "name": "BootstrapFewShot d8_l16_r2 + post-processor",
+      "method": "BootstrapFewShot + MiradPostProcessor",
+      "metric": "normalized_match",
+      "normalized_score": 66.66666666666666,
+      "exact_score": 61.53846153846154,
+      "hits": 26,
+      "total": 39,
+      "postproc_improvements": 0,
+      "params": {
+        "max_bootstrapped_demos": 8,
+        "max_labeled_demos": 16,
+        "max_rounds": 2,
+        "k_context_passages": 5
+      },
+      "postprocessor_rules": [
+        "possessive_be→bi",
+        "comparative_ge→vyel",
+        "meta_commentary_strip",
+        "whitespace_normalize"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "BootstrapFewShot + post-processor + threshold-tuned",
+      "method": "BootstrapFewShot + MiradPostProcessor + threshold_tuned",
+      "metric": "normalized_match",
+      "normalized_score": 66.66666666666666,
+      "exact_score": 61.53846153846154,
+      "hits": 26,
+      "total": 39,
+      "best_threshold": 0.0,
+      "note": "normalized_match already handles variation; threshold tuning yields no change with hard metrics"
+    }
+  ],
+  "best_config": "BootstrapFewShot d8_l16_r2 (dev=66.7% → full=66.7%)",
+  "best_score": 66.7,
+  "target_90_reached": false,
+  "delta_vs_baseline": 7.7,
+  "assessment": {
+    "target_90_reachable": false,
+    "current_best": "BootstrapFewShot d8_l16_r2 (dev=66.7% → full=66.7%)",
+    "current_score": 66.66666666666666,
+    "gap_to_90": 23.3,
+    "delta_vs_lfs_baseline": 7.7,
+    "recommendation": "Best score (66.7%) is 23.3pp below 90% target. The gap is significant; DSPy bootstrapping alone cannot close it. Recommended next steps: (1) Scale gold training data to 200+ annotated Mir→En pairs — the 44-pair set is too small for bootstrapping to generalize across the long-tail of error types. (2) Fine-tune a LoRA adapter on the full 44-pair dataset with data augmentation (paraphrase, back-translation) to increase effective training set size. (3) Implement a hybrid symbolic-neural approach: rule-based grammar checker for morphology (verb endings, possessives, comparatives) + LM for lexical choice. The post-processor already validates morphology but cannot fix wrong word choices; a grammar-constrained decoding step (n-gram blocking, valid suffix enforcement) could yield an additional 5-10pp. (4) BFSRS timing out at 600s confirms that DeepSeek-V4-Flash's 3-5s/call latency makes iterative optimization impractical; switching to a faster model (qwen3.5:4b) would enable BFSRS to complete a 20-config sweep in <5min vs. the 10+ hours needed with DeepSeek-V4-Flash.",
+    "improvement_pathways": [
+      {
+        "name": "Scale gold training data",
+        "description": "Increase from 44 to 200+ annotated Mir→En pairs via crowdsourcing or LLM-assisted annotation with human review. More demos = better BFS bootstrapping quality.",
+        "expected_gain": "5-15pp depending on quality and diversity",
+        "effort": "high"
+      },
+      {
+        "name": "LoRA fine-tuning",
+        "description": "Fine-tune a small LM (e.g., Qwen2.5-1.5B or Qwen2.5-4B) with LoRA on augmented 44-pair dataset. Data augmentation via back-translation and paraphrasing.",
+        "expected_gain": "10-20pp (from other translation tasks' fine-tuning evidence)",
+        "effort": "medium"
+      },
+      {
+        "name": "Hybrid symbolic-neural",
+        "description": "Extend post-processor with grammar-constrained decoding. N-gram blocklist for common hallucinations, valid morphology enforcement (verb endings must match grammar rules).",
+        "expected_gain": "5-10pp for morphology errors, 0pp for lexical errors",
+        "effort": "medium"
+      },
+      {
+        "name": "Switch to faster model for iterative optimization",
+        "description": "Use qwen3.5:4b (local, fast) for BFSRS sweeps to find optimal config, then deploy best config with DeepSeek-V4-Flash for inference.",
+        "expected_gain": "Enables BFSRS multi-config sweeps (20+ configs in <5min vs. timeout with DeepSeek-V4-Flash)",
+        "effort": "low"
+      }
+    ]
+  }
+}

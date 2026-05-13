@@ -88,6 +88,8 @@ def run_bfs_evaluation() -> tuple[list[dict], float, float]:
         model="openai/deepseek-ai/DeepSeek-V4-Flash",
         api_key=api_key,
         api_base=api_base,
+        num_retries=5,  # robust against transient API failures
+        cache=True,
     )
     dspy.settings.configure(lm=lm)
 
@@ -136,6 +138,7 @@ def run_bfs_evaluation() -> tuple[list[dict], float, float]:
         max_bootstrapped_demos=8,
         max_labeled_demos=16,
         max_rounds=2,
+        max_errors=5,  # tolerate transient API failures during bootstrapping
     )
     compiled = optimizer.compile(student=module, trainset=enriched_fewshot)
 
