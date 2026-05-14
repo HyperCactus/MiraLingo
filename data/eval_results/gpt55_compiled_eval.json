@@ -6,8 +6,8 @@
     "compiled": true,
     "exact_pct": 72.5,
     "norm_pct": 72.5,
-    "sem_mean_pct": 88.2,
-    "sem_median_pct": 100.0,
+    "sem_mean_pct": null,
+    "sem_median_pct": null,
     "errors": 3,
     "elapsed_s": 412.5,
     "per_example": [
@@ -17,7 +17,7 @@
         "predicted_mirad": "Duhos yit xe av yex hij?",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "they do",
@@ -25,7 +25,7 @@
         "predicted_mirad": "Yit xe.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "you would do",
@@ -33,7 +33,7 @@
         "predicted_mirad": "et xu",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.9704
+        "semantic_similarity": null
       },
       {
         "english": "do you all walk to school",
@@ -41,7 +41,7 @@
         "predicted_mirad": "Duven yet tyoyape tistam?",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "fast",
@@ -49,7 +49,7 @@
         "predicted_mirad": "iga",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "names",
@@ -57,7 +57,7 @@
         "predicted_mirad": "dyuni",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "they live where the road ends",
@@ -65,7 +65,7 @@
         "predicted_mirad": "",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.0
+        "semantic_similarity": null
       },
       {
         "english": "they work even nights",
@@ -73,7 +73,7 @@
         "predicted_mirad": "Yit yexe gey be moji.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "nothing bothers that gal",
@@ -81,7 +81,7 @@
         "predicted_mirad": "Hyos oboxe hua toybet.",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.7939
+        "semantic_similarity": null
       },
       {
         "english": "a bad person",
@@ -89,7 +89,7 @@
         "predicted_mirad": "fua aot",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.627
+        "semantic_similarity": null
       },
       {
         "english": "clean",
@@ -97,7 +97,7 @@
         "predicted_mirad": "vyia",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "the student is walking to school today",
@@ -105,7 +105,7 @@
         "predicted_mirad": "Ha tixut tyoyapeye tistam hijub.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "we go",
@@ -113,7 +113,7 @@
         "predicted_mirad": "Yat pe.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "that teacher is bad",
@@ -121,7 +121,7 @@
         "predicted_mirad": "Hua tuxut se fua.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "maybe he or she is good and bad",
@@ -129,7 +129,7 @@
         "predicted_mirad": "It vey se fia ay fua.",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.9738
+        "semantic_similarity": null
       },
       {
         "english": "I did not know whether he or she would come",
@@ -137,7 +137,7 @@
         "predicted_mirad": "At voy ta ven it upo.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "I live downtown now",
@@ -145,7 +145,7 @@
         "predicted_mirad": "At tambese zedom hij.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "they come",
@@ -153,7 +153,7 @@
         "predicted_mirad": "Yit upe.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "a bad thing",
@@ -161,7 +161,7 @@
         "predicted_mirad": "fua son",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.6321
+        "semantic_similarity": null
       },
       {
         "english": "I myself do not smoke",
@@ -169,7 +169,7 @@
         "predicted_mirad": "At aut voy movie.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "my life is bad",
@@ -177,7 +177,7 @@
         "predicted_mirad": "Ata tej se fua.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "she also sings",
@@ -185,7 +185,7 @@
         "predicted_mirad": "Iyt gay deuze.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "he or she came",
@@ -193,7 +193,7 @@
         "predicted_mirad": "It upya.",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.7384
+        "semantic_similarity": null
       },
       {
         "english": "they know",
@@ -201,7 +201,7 @@
         "predicted_mirad": "Yit te.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "these people were better than those ones",
@@ -209,7 +209,7 @@
         "predicted_mirad": "Hiati sa fia vyel huati.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "they live there",
@@ -217,7 +217,7 @@
         "predicted_mirad": "Yit tambese hum.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "I live there",
@@ -225,7 +225,7 @@
         "predicted_mirad": "At tambese hum.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "I did",
@@ -233,7 +233,7 @@
         "predicted_mirad": "At xa.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "before this they lived in the suburbs",
@@ -241,7 +241,7 @@
         "predicted_mirad": "Ja his, yit tambesa ha yuzdom.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "he or she will be",
@@ -249,7 +249,7 @@
         "predicted_mirad": "It so.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "you will go",
@@ -257,7 +257,7 @@
         "predicted_mirad": "Et po.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "big",
@@ -265,7 +265,7 @@
         "predicted_mirad": "aga",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "work hard",
@@ -273,7 +273,7 @@
         "predicted_mirad": "Yexu jestay.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "he often wins",
@@ -281,7 +281,7 @@
         "predicted_mirad": "It glaxag ake.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "I know his father",
@@ -289,7 +289,7 @@
         "predicted_mirad": "At te wita twed.",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.8967
+        "semantic_similarity": null
       },
       {
         "english": "a name",
@@ -297,7 +297,7 @@
         "predicted_mirad": "dyun",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       },
       {
         "english": "all roads lead to Rome",
@@ -305,7 +305,7 @@
         "predicted_mirad": "Hya mepi zape bu Rom.",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.6566
+        "semantic_similarity": null
       },
       {
         "english": "unless you say otherwise I will be silent",
@@ -313,7 +313,7 @@
         "predicted_mirad": "",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.0
+        "semantic_similarity": null
       },
       {
         "english": "work as slowly as you need to",
@@ -321,7 +321,7 @@
         "predicted_mirad": "",
         "exact_match": 0,
         "normalized_match": 0,
-        "semantic_similarity": 0.0
+        "semantic_similarity": null
       },
       {
         "english": "no my name is Bill",
@@ -329,9 +329,10 @@
         "predicted_mirad": "Vo. Ata dyun se Bill.",
         "exact_match": 1,
         "normalized_match": 1,
-        "semantic_similarity": 1.0
+        "semantic_similarity": null
       }
-    ]
+    ],
+    "_note": "SEMANTIC SIMILARITY VALUES ARE INVALID for En→Mir direction. The embedding model (all-MiniLM-L6-v2) was trained on English text and cannot produce meaningful semantic similarity scores for Mirad text. Only exact_match and normalized_match are valid metrics for this direction."
   },
   "mir_to_en": {
     "n_samples": 20,
