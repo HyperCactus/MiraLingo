@@ -1,0 +1,254 @@
+{
+  "direction": "mir_to_en",
+  "model": "cas/aya-expanse-8b",
+  "config": "uncompiled, no RAG",
+  "eval_size": 30,
+  "exact_pct": 0.0,
+  "norm_pct": 0.0,
+  "sem_mean_pct": 32.0,
+  "sem_median_pct": 19.5,
+  "errors": 0,
+  "eval_time_s": 142.71,
+  "per_example": [
+    {
+      "mirad_text": "pati",
+      "gold_english": "birds",
+      "predicted_english": "Pati (placeholder)",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1283
+    },
+    {
+      "mirad_text": "Duhoglas iyt aka?",
+      "gold_english": "how much did she win",
+      "predicted_english": "How is it called?",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0749
+    },
+    {
+      "mirad_text": "Hia tuxut se ha gwa fia.",
+      "gold_english": "this teacher is the best",
+      "predicted_english": "The preceptor are [untranslated 'gwa' could be replaced with 'and' or left as is depending on the intended meaning].",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0756
+    },
+    {
+      "mirad_text": "Yat sa gla yib bi him.",
+      "gold_english": "we were very far from here",
+      "predicted_english": "The people are going away from this place majorly.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.2979
+    },
+    {
+      "mirad_text": "Ata tej se fia.",
+      "gold_english": "my life is good",
+      "predicted_english": "You are the life.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.4854
+    },
+    {
+      "mirad_text": "ha pur",
+      "gold_english": "the car",
+      "predicted_english": "The motor vehicle",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.739
+    },
+    {
+      "mirad_text": "auta autay",
+      "gold_english": "personal personally",
+      "predicted_english": "Also, too.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1469
+    },
+    {
+      "mirad_text": "Yat yeyfe tadser.",
+      "gold_english": "we should get married",
+      "predicted_english": "The people need education.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1718
+    },
+    {
+      "mirad_text": "Duhoj et taja?",
+      "gold_english": "when were you born",
+      "predicted_english": "How is your birthday?",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.499
+    },
+    {
+      "mirad_text": "Ha tixut tyoyape tistam hyajub.",
+      "gold_english": "the student walks to school every day",
+      "predicted_english": "The students attend school every day.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.7533
+    },
+    {
+      "mirad_text": "twed",
+      "gold_english": "a father",
+      "predicted_english": "Father",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.8799
+    },
+    {
+      "mirad_text": "vyoa",
+      "gold_english": "false",
+      "predicted_english": "Given the lack of context and specific word equivalents, a possible interpretation of \"vyoa\" could be \"to move forward\" or \"proceed\", assuming that 'vyo' suggests motion and 'a' indicates an action or",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0394
+    },
+    {
+      "mirad_text": "Ha tixuti tyoyape tistam hyajub.",
+      "gold_english": "the students walk to school every day",
+      "predicted_english": "I go to school every day.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.6342
+    },
+    {
+      "mirad_text": "Yit sa.",
+      "gold_english": "they were",
+      "predicted_english": "It's done.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1121
+    },
+    {
+      "mirad_text": "Huasi se etasi.",
+      "gold_english": "those are yours",
+      "predicted_english": "Your things are.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.4416
+    },
+    {
+      "mirad_text": "At yafe teater aut be ha sinzyef.",
+      "gold_english": "I can see myself in the mirror",
+      "predicted_english": "At the theater, one looks into the looking glass.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.336
+    },
+    {
+      "mirad_text": "At oveko ay at ako.",
+      "gold_english": "I will compete and I will win",
+      "predicted_english": "And when I grow up.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1955
+    },
+    {
+      "mirad_text": "toybeti",
+      "gold_english": "girls",
+      "predicted_english": "Toybeti (no direct English translation)",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0893
+    },
+    {
+      "mirad_text": "Hit se via.",
+      "gold_english": "this person is beautiful",
+      "predicted_english": "Are beautiful.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.4615
+    },
+    {
+      "mirad_text": "Xu hoyen et fu van hyuti axlu ub et.",
+      "gold_english": "do as you would want others to act toward you",
+      "predicted_english": "He sees that others would like to use it modulo.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1792
+    },
+    {
+      "mirad_text": "It su.",
+      "gold_english": "he or she would be",
+      "predicted_english": "It is. (or) It works.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.2501
+    },
+    {
+      "mirad_text": "It voy te.",
+      "gold_english": "he or she does not know",
+      "predicted_english": "I will go.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0564
+    },
+    {
+      "mirad_text": "Deumati",
+      "gold_english": "German people",
+      "predicted_english": "Deumati could be translated as \"Goddess\" or \"Lady of the Heavens.\"",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1547
+    },
+    {
+      "mirad_text": "Pu zu, jogat!",
+      "gold_english": "go left young man",
+      "predicted_english": "To the young person on the left!",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.5599
+    },
+    {
+      "mirad_text": "hiti",
+      "gold_english": "these persons",
+      "predicted_english": "Given the limited resources, I can suggest a literal translation for now: \"Hiti\" (assuming it's a proper noun or term) remains as \"hiti.\"",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0283
+    },
+    {
+      "mirad_text": "Yit peya tam.",
+      "gold_english": "they were going home",
+      "predicted_english": "He entered the house.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.4452
+    },
+    {
+      "mirad_text": "Yet su.",
+      "gold_english": "you all would be",
+      "predicted_english": "Yet still (or yet, in a more casual context).",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.0946
+    },
+    {
+      "mirad_text": "fia fiay",
+      "gold_english": "good well",
+      "predicted_english": "Who is crying?",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.1324
+    },
+    {
+      "mirad_text": "ha pat",
+      "gold_english": "the bird",
+      "predicted_english": "The bird",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Et tambese ha yubem.",
+      "gold_english": "you live in the neighborhood",
+      "predicted_english": "And they also see it.",
+      "exact_match": 0,
+      "normalized_match": 0,
+      "semantic_similarity": 0.125
+    }
+  ]
+}
