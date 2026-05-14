@@ -1,0 +1,207 @@
+{
+  "direction": "mir_to_en",
+  "n_samples": 5,
+  "models": {
+    "qwen3:4b": {
+      "exact_pct": 0.0,
+      "norm_pct": 0.0,
+      "sem_mean_pct": 4.6,
+      "sem_median_pct": 0.0,
+      "elapsed_s": 400.8,
+      "errors": 3,
+      "per_example": [
+        {
+          "mirad_text": "pati",
+          "gold_english": "birds",
+          "predicted_english": "pati",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.2296
+        },
+        {
+          "mirad_text": "Duhoglas iyt aka?",
+          "gold_english": "how much did she win",
+          "predicted_english": "Translation not possible",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0007
+        },
+        {
+          "mirad_text": "Hia tuxut se ha gwa fia.",
+          "gold_english": "this teacher is the best",
+          "predicted_english": "",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0
+        },
+        {
+          "mirad_text": "Yat sa gla yib bi him.",
+          "gold_english": "we were very far from here",
+          "predicted_english": "",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0
+        },
+        {
+          "mirad_text": "Ata tej se fia.",
+          "gold_english": "my life is good",
+          "predicted_english": "",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0
+        }
+      ]
+    },
+    "mistral:7b": {
+      "exact_pct": 0.0,
+      "norm_pct": 0.0,
+      "sem_mean_pct": 25.0,
+      "sem_median_pct": 29.1,
+      "elapsed_s": 29.2,
+      "errors": 0,
+      "per_example": [
+        {
+          "mirad_text": "pati",
+          "gold_english": "birds",
+          "predicted_english": "husband",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.291
+        },
+        {
+          "mirad_text": "Duhoglas iyt aka?",
+          "gold_english": "how much did she win",
+          "predicted_english": "Your name?",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0438
+        },
+        {
+          "mirad_text": "Hia tuxut se ha gwa fia.",
+          "gold_english": "this teacher is the best",
+          "predicted_english": "The preceptor are at the house.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0825
+        },
+        {
+          "mirad_text": "Yat sa gla yib bi him.",
+          "gold_english": "we were very far from here",
+          "predicted_english": "The people majorly move away from this place.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.3176
+        },
+        {
+          "mirad_text": "Ata tej se fia.",
+          "gold_english": "my life is good",
+          "predicted_english": "Life are finish.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.5132
+        }
+      ]
+    },
+    "llama3.2:3b": {
+      "exact_pct": 0.0,
+      "norm_pct": 0.0,
+      "sem_mean_pct": 17.3,
+      "sem_median_pct": 17.3,
+      "elapsed_s": 22.2,
+      "errors": 0,
+      "per_example": [
+        {
+          "mirad_text": "pati",
+          "gold_english": "birds",
+          "predicted_english": "]\nUnfortunately, a direct translation for \"pati\" is not explicitly listed in the provided dictionary. Further analysis of the word's usage within the context passages may provide insight into its mean",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.007
+        },
+        {
+          "mirad_text": "Duhoglas iyt aka?",
+          "gold_english": "how much did she win",
+          "predicted_english": "A rough translation of the given phrase could be \"How are you called?\" or possibly \"What is your name?\". However, please note that this is not a precise translation due to the limitations of the avail",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": -0.016
+        },
+        {
+          "mirad_text": "Hia tuxut se ha gwa fia.",
+          "gold_english": "this teacher is the best",
+          "predicted_english": "The preceptor are he/him.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.1725
+        },
+        {
+          "mirad_text": "Yat sa gla yib bi him.",
+          "gold_english": "we were very far from here",
+          "predicted_english": "The people are majorly away from this place.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.4427
+        },
+        {
+          "mirad_text": "Ata tej se fia.",
+          "gold_english": "my life is good",
+          "predicted_english": "They are living",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.2608
+        }
+      ]
+    },
+    "gemma4:e2b": {
+      "exact_pct": 0.0,
+      "norm_pct": 0.0,
+      "sem_mean_pct": 19.0,
+      "sem_median_pct": 14.7,
+      "elapsed_s": 55.4,
+      "errors": 0,
+      "per_example": [
+        {
+          "mirad_text": "pati",
+          "gold_english": "birds",
+          "predicted_english": "Translation not possible without context.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.0217
+        },
+        {
+          "mirad_text": "Duhoglas iyt aka?",
+          "gold_english": "how much did she win",
+          "predicted_english": "I cannot translate this text because the necessary word equivalences and context passages are missing.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": -0.0627
+        },
+        {
+          "mirad_text": "Hia tuxut se ha gwa fia.",
+          "gold_english": "this teacher is the best",
+          "predicted_english": "Hi preceptor are the. (Note: The provided translation is grammatically awkward. A more natural interpretation based on the known words would depend on the full context or a more accurate lexicon.)\nAlt",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.1467
+        },
+        {
+          "mirad_text": "Yat sa gla yib bi him.",
+          "gold_english": "we were very far from here",
+          "predicted_english": "The people are majorly away from this place.",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.4427
+        },
+        {
+          "mirad_text": "Ata tej se fia.",
+          "gold_english": "my life is good",
+          "predicted_english": "This life are. (Note: The sentence seems incomplete or grammatically awkward in the original Mirad, but this reflects the direct mapping of the provided equivalents.)",
+          "exact_match": 0,
+          "normalized_match": 0,
+          "semantic_similarity": 0.403
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-05-14T13:15:14.855813+00:00"
+}

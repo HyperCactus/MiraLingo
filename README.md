@@ -1,139 +1,89 @@
-# Mirad Phonemes Engine
+# Mirad Language Engine
 
-A text-to-speech preparation engine for **Mirad** — an artificial constructed language (conlang) designed for logical international communication.
+An open-source **Mirad language learning** platform — early development.
+
+This project builds tools for the [Mirad](https://en.wikibooks.org/wiki/Mirad_Grammar/print_version) constructed language: a phoneme-based text-to-speech system, a bidirectional English↔Mirad translator, and (eventually) an interactive web app for learning.
+
+> **Status:** Early development. TTS is functional, translator produces results but needs improvement, web app not yet started.
+
+---
 
 ## What is Mirad?
 
-Mirad (formerly Unilingua) is a taxonomic/ontological constructed language developed by Noubar Agopoff in 1966. Its vocabulary is built on systematic, consistent rules where every letter has semantic or grammatical value, making words derivable and opposites predictable through vowel-switching.
+Mirad (formerly Unilingua) is an artificial constructed language designed by Noubar Agopoff in 1966 for logical international communication. Its vocabulary is built from systematic rules — every letter carries semantic or grammatical value, words are derivable from roots, and opposites are predictable through vowel-switching. This makes Mirad uniquely suited for computational processing: regular morphology, deterministic phonology, and an ontology-encoded lexicon.
 
-**Learn more:**
-- [Mirad Grammar (Wikibooks)](https://en.wikibooks.org/wiki/Mirad_Grammar/print_version)
-- [Mirad Thesaurus](https://en.wikibooks.org/wiki/Mirad_Thesaurus)
-- [Mirad Lexicon](https://en.wikibooks.org/wiki/Mirad_Lexicon)
+**Learn more about Mirad:**
 
-## Monorepo Structure
+- [Mirad Grammar — Wikibooks](https://en.wikibooks.org/wiki/Mirad_Grammar/print_version) — full grammar reference
+- [Mirad Lexicon — Wikibooks](https://en.wikibooks.org/wiki/Mirad_Lexicon) — word roots and derivations
+- [Mirad Thesaurus — Wikibooks](https://en.wikibooks.org/wiki/Mirad_Thesaurus) — semantic groupings
 
-This is a Python monorepo with three packages under `packages/`:
+---
 
-| Package | Description |
-|---------|-------------|
-| `packages/tts` | Mirad TTS preparation engine: tokenisation, syllabification, stress assignment, and IPA transcription. |
-| `packages/translator` | Mirad translator (in progress) |
-| `packages/webapp` | Mirad language learning web application (in progress) |
+## Packages
 
-Shared reference data lives at the repo root under `data/`.
+| Package | Description | Status |
+|---------|-------------|--------|
+| [**packages/tts**](packages/tts/) | Phoneme-based TTS engine — tokenization, syllabification, stress, IPA, audio synthesis via eSpeak NG / Piper / MBROLA | Functional |
+| [**packages/translator**](packages/translator/) | Bidirectional English↔Mirad translation using local LLMs, DSPy optimization, RAG retrieval, and deterministic post-processing | Operational (≈67% accuracy) |
+| [**packages/webapp**](packages/webapp/) | Interactive language-learning web application | Not yet started |
 
-## What This Project Does
+Shared reference data (lexicon, grammar documents, evaluation results) lives in [`data/`](data/).
 
-The `tts` package prepares Mirad text for speech synthesis by:
+---
 
-- **Tokenization** — parsing text into words, punctuation, and other tokens
-- **Syllabification** — breaking words into syllables according to Mirad phonotactics
-- **Stress assignment** — marking stress on the last non-final vowel
-- **IPA transcription** — converting to International Phonetic Alphabet notation
-- **TTS backend integration** — generating audio via eSpeak
-
-## Work in Progress
-
-Roadmap:
-1. Mirad phoneme-based TTS engine
-2. English/other languages to Mirad translator
-3. Mirad language learning web-app
-
-## Installation
+## Quick Start
 
 Requires Python 3.10+.
 
 ```bash
-# Install the TTS package from source
+# Install TTS
 pip install -e packages/tts/
+
+# Install translator
+pip install -e packages/translator/
+
+# TTS: transcribe to IPA
+mirad-tts "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn." --ipa
+
+# Translator: English → Mirad
+python -c "
+from mirad_translator.translate import DefaultTranslator
+t = DefaultTranslator(num_context_passages=0)
+result = t.forward('Hello, how are you?')
+print(result.mirad_text)
+"
 ```
 
 ### Docker
 
-Two services are defined in `docker-compose.yml`:
-
-- **tts** — builds and runs the TTS engine in a container
-- **ollama** — provides local LLM inference on port 11434 (used by the translator package)
-
 ```bash
-# Build and run TTS via Docker
+# TTS via Docker
 docker compose build tts
-docker compose run --rm tts mirad-tts "test" --ipa
+docker compose run --rm tts mirad-tts "Be yuboj" --ipa
 
-# Start all services (ollama + others)
-docker compose up -d
+# Start Ollama for local LLM inference
+docker compose up -d ollama
 ```
 
-On macOS or Windows, [Docker Desktop](https://docs.docker.com/desktop/) is required.
+See individual package READMEs for full usage, API details, and configuration.
 
-## Usage
+---
 
-### Command Line
+## Project Roadmap
 
-```bash
-# Output IPA transcription (default)
-python -m mirad_tts.cli "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
+1. ✅ Mirad phoneme-based TTS engine
+2. 🔧 Bidirectional English↔Mirad translator (improving accuracy toward 90%)
+3. ⬜ Mirad language learning web application
 
-# Output syllables with stress markers
-python -m mirad_tts.cli --syllables "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
-
-# Output eSpeak phoneme input
-python -m mirad_tts.cli --espeak "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
-
-# Generate WAV audio
-python -m mirad_tts.cli --wav output.wav "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
-
-# Debug mode (show all pipeline stages)
-python -m mirad_tts.cli --debug "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
-```
-
-After `pip install -e packages/tts/`, the `mirad-tts` command is also available:
-
-```bash
-mirad-tts "Be yuboj" --ipa
-```
-
-### Python API
-
-```python
-from mirad_tts import tokenize, text_to_ipa, text_to_espeak_phoneme_input
-
-text = "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn."
-
-# Tokenize
-tokens = tokenize(text)
-
-# Get IPA transcription
-ipa = text_to_ipa(text)
-
-# Get eSpeak phoneme input
-espeak = text_to_espeak_phoneme_input(text)
-```
-
-## Development
-
-Run tests:
-
-```bash
-PYTHONPATH=src pytest
-```
+---
 
 ## Documentation
 
-- [TTS Installation Guide](docs/TTS_INSTALLATION.md) — installing eSpeak NG locally and sample generation
-- [data/README.md](data/README.md) — reference data overview
-- [scripts/README.md](scripts/README.md) — utility scripts
-
-## Scripts
-
-Utility scripts in `scripts/`:
-
-- `generate_samples.py` — generate audio samples from Mirad words
-- `compare_backends.py` — compare eSpeak outputs side-by-side
-- `download_wikibook_pdf.py` — download Wikibooks references as PDF
-- `pdf_to_markdown.py` — convert PDF references to Markdown
-- `verify-ollama.sh` — health-check script for the ollama service (use via Docker)
+- [TTS Installation Guide](docs/TTS_INSTALLATION.md) — setting up eSpeak NG, Piper, MBROLA
+- [Piper Integration](docs/PIPER_INTEGRATION.md) — Piper TTS backend details
+- [TTS README](docs/README_PIPER.md) — Piper-specific notes
+- [Data Overview](data/README.md) — reference data and evaluation results
 
 ## License
 

@@ -1,39 +1,16 @@
 # Mirad Web App
 
-Interactive web application for learning the Mirad constructed language.
+> ⚠️ **Not yet implemented.** This package is a placeholder for the planned interactive web application.
 
-## What This Package Does
+## Planned Scope
 
-A web-based interface for Mirad language learning and practice.
+An interactive web application for learning Mirad, powered by the other packages in this monorepo:
 
-**Status:** Not yet implemented. This package is in the planning stage.
-
-## Planned Features
-
-- [ ] Mirad vocabulary browser and flashcard system
-- [ ] Interactive syllabification and pronunciation practice
-- [ ] Translation exercises powered by the translator package
-- [ ] Progress tracking and spaced repetition
-
-## Installation
-
-Once implemented, install with:
-
-```bash
-pip install -e packages/webapp/
-```
-
-## Development
-
-Start the development server:
-
-```bash
-docker compose up -d
-# Navigate to http://localhost:3000 (or configured port)
-```
-
-See root [README.md](../../README.md) for Docker setup.
+- [**packages/tts**](../tts/) — pronunciation feedback via the TTS engine
+- [**packages/translator**](../translator/) — translation exercises and practice
+- Vocabulary browser and flashcard system
+- Progress tracking and spaced repetition
 
 ## Status
 
-Planned — see root [README.md](../../README.md) for roadmap.
+Planned — no implementation yet. See the [root README](../../README.md) for the project roadmap.

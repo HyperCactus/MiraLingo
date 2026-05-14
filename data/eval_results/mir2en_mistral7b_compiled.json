@@ -1,0 +1,53 @@
+{
+  "model": "mistral:7b",
+  "compiled": true,
+  "n_samples": 5,
+  "exact_pct": 0.0,
+  "norm_pct": 0.0,
+  "sem_mean_pct": 0.8,
+  "sem_median_pct": -4.5,
+  "elapsed_s": 81.9,
+  "errors": 0,
+  "per_example": [
+    {
+      "mi": "pati",
+      "gold": "birds",
+      "pred": "My family",
+      "exact": 0.0,
+      "norm": 0.0,
+      "sem": 0.2589978575706482
+    },
+    {
+      "mi": "Duhoglas iyt aka?",
+      "gold": "how much did she win",
+      "pred": "Animals: \n\n- **plet** = marsupial \n- **aplet** = kangaroo \n- **eplet** = koala \n- **ipyet** = crocodile \n- **kepyet** = gecko \n- **lapyet** = boa, boa constrictor \n- **lepyet** = cobra \n- **lipyet** =",
+      "exact": 0.0,
+      "norm": 0.0,
+      "sem": -0.04534534364938736
+    },
+    {
+      "mi": "Hia tuxut se ha gwa fia.",
+      "gold": "this teacher is the best",
+      "pred": "Here are some examples:\n- \"nasukat\" means \"poor person\" or \"pauper\".\n- \"nasyan\" refers to \"capital\".\n- \"nasyef\" translates to \"debt\" or \"monetary debt\".\n- \"nasyefien\" denotes \"renting\", \"borrowing\", \"",
+      "exact": 0.0,
+      "norm": 0.0,
+      "sem": -0.06977775692939758
+    },
+    {
+      "mi": "Yat sa gla yib bi him.",
+      "gold": "we were very far from here",
+      "pred": "1. Award - a prize or certificate given to recognize achievements or excellence in a certain field.\nExample: She received the award for her outstanding academic performance.\nSynonyms: Prize, trophy, h",
+      "exact": 0.0,
+      "norm": 0.0,
+      "sem": -0.1325228214263916
+    },
+    {
+      "mi": "Ata tej se fia.",
+      "gold": "my life is good",
+      "pred": "- **citizen**: A person who is a native or legal resident of a country.\n- **citizenship**: The state of being a citizen of a particular country, typically with its protection and the right to particip",
+      "exact": 0.0,
+      "norm": 0.0,
+      "sem": 0.02901812270283699
+    }
+  ]
+}

@@ -253,3 +253,11 @@ scripts/
 
 skills-lock.json
 plan.md
+
+# ChromaDB vector database - regenerated on first query, do not track
+data/chroma_db/
+
+# Old/superseded Ollama benchmark files (replaced by mir2en_ollama_multimodel.json)
+data/eval_results/ollama_2model_benchmark.json
+data/eval_results/ollama_benchmark_aya_per_example.json
+data/eval_results/ollama_benchmark_qwen35_per_example.json
