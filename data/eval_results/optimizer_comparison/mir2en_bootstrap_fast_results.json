@@ -1,0 +1,231 @@
+{
+  "optimizer": "BootstrapRS-fast-mir2en",
+  "config": {
+    "max_bootstrapped_demos": 4,
+    "max_labeled_demos": 8,
+    "max_rounds": 1,
+    "num_candidate_programs": 2,
+    "max_errors": 5
+  },
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "train_size": 50,
+  "eval_size": 30,
+  "num_context_passages": 5,
+  "direction": "mir_to_en",
+  "per_example": [
+    {
+      "mirad_text": "pati",
+      "gold_english": "birds",
+      "predicted_english": "birds",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "Duhoglas iyt aka?",
+      "gold_english": "how much did she win",
+      "predicted_english": "How much did she win?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Hia tuxut se ha gwa fia.",
+      "gold_english": "this teacher is the best",
+      "predicted_english": "This teacher is the best.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Yat sa gla yib bi him.",
+      "gold_english": "we were very far from here",
+      "predicted_english": "we were very far from here",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "Ata tej se fia.",
+      "gold_english": "my life is good",
+      "predicted_english": "my life is good",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "ha pur",
+      "gold_english": "the car",
+      "predicted_english": "the car",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "auta autay",
+      "gold_english": "personal personally",
+      "predicted_english": "my own by myself",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Yat yeyfe tadser.",
+      "gold_english": "we should get married",
+      "predicted_english": "We should get married.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Duhoj et taja?",
+      "gold_english": "when were you born",
+      "predicted_english": "When were you born?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Ha tixut tyoyape tistam hyajub.",
+      "gold_english": "the student walks to school every day",
+      "predicted_english": "The student walks to schoolhouse every day.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "twed",
+      "gold_english": "a father",
+      "predicted_english": "father",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "vyoa",
+      "gold_english": "false",
+      "predicted_english": "wrong",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Ha tixuti tyoyape tistam hyajub.",
+      "gold_english": "the students walk to school every day",
+      "predicted_english": "The students walk to school every day.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Yit sa.",
+      "gold_english": "they were",
+      "predicted_english": "They were.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Huasi se etasi.",
+      "gold_english": "those are yours",
+      "predicted_english": "those are yours",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "At yafe teater aut be ha sinzyef.",
+      "gold_english": "I can see myself in the mirror",
+      "predicted_english": "I can see myself in the looking glass.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "At oveko ay at ako.",
+      "gold_english": "I will compete and I will win",
+      "predicted_english": "I will compete and I will win.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "toybeti",
+      "gold_english": "girls",
+      "predicted_english": "girls",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "Hit se via.",
+      "gold_english": "this person is beautiful",
+      "predicted_english": "this is beautiful",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Xu hoyen et fu van hyuti axlu ub et.",
+      "gold_english": "do as you would want others to act toward you",
+      "predicted_english": "Do as you would like that other people act towards you.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "It su.",
+      "gold_english": "he or she would be",
+      "predicted_english": "he would be",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "It voy te.",
+      "gold_english": "he or she does not know",
+      "predicted_english": "he does not know",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Deumati",
+      "gold_english": "German people",
+      "predicted_english": "vocalists",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Pu zu, jogat!",
+      "gold_english": "go left young man",
+      "predicted_english": "Go left, young person!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "hiti",
+      "gold_english": "these persons",
+      "predicted_english": "these ones",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Yit peya tam.",
+      "gold_english": "they were going home",
+      "predicted_english": "They were going home.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "mirad_text": "Yet su.",
+      "gold_english": "you all would be",
+      "predicted_english": "you all would be",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "fia fiay",
+      "gold_english": "good well",
+      "predicted_english": "good well",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "ha pat",
+      "gold_english": "the bird",
+      "predicted_english": "the bird",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "mirad_text": "Et tambese ha yubem.",
+      "gold_english": "you live in the neighborhood",
+      "predicted_english": "You live in the neighborhood.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    }
+  ],
+  "compile_time_s": 892.8,
+  "eval_time_s": 8.36,
+  "compiled_program_dir": "compiled_mir2en_program/",
+  "timestamp": "2026-05-14T10:48:10.079094+00:00"
+}

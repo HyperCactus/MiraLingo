@@ -1,7 +1,8 @@
 """DSPy-native evaluation, metrics, and optimization for English→Mirad translation.
 
 Evaluation dataset: data/phrases/english-mirad-sentence-pairs.csv (44 sentence pairs)
-Metrics: exact_match, normalized_match (punctuation/whitespace-tolerant)
+Metrics: exact_match, normalized_match (punctuation/whitespace-tolerant),
+         semantic_similarity (all-MiniLM-L6-v2 cosine similarity on English text)
 Optimizers: BootstrapFewShot (starter), MIPROv2 (advanced)
 
 Post-processing:
@@ -731,6 +732,60 @@ def normalized_match_reverse_metric(example: dspy.Example, prediction: dspy.Pred
         return re.sub(r"\s+", " ", s).strip()
 
     return 1.0 if strip_punct(gold) == strip_punct(pred) else 0.0
+
+
+# ---------------------------------------------------------------------------
+# Semantic similarity metrics (all-MiniLM-L6-v2 cosine similarity)
+# ---------------------------------------------------------------------------
+
+_semantic_model = None
+
+
+def _get_semantic_model():
+    """Lazy-load the all-MiniLM-L6-v2 model (same as ChromaDB retrieval)."""
+    global _semantic_model
+    if _semantic_model is None:
+        from sentence_transformers import SentenceTransformer
+        _semantic_model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _semantic_model
+
+
+def _cosine_similarity(a, b):
+    """Compute cosine similarity between two numpy vectors."""
+    import numpy as np
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return float(np.dot(a, norm_b) / (norm_a * norm_b))
+
+
+def semantic_similarity_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Semantic cosine similarity between predicted and gold *English* text.
+
+    Uses all-MiniLM-L6-v2 (the same model used for ChromaDB retrieval) to
+    embed both texts and compute cosine similarity. Returns a float in [0, 1].
+
+    Suitable for both En→Mir (comparing predicted translation correctness
+    semantically) and Mir→En directions, since English text is compared in
+    both cases.
+    """
+    model = _get_semantic_model()
+    gold = _normalize(example.english_text)
+    pred = _normalize(prediction.english_text)
+    embeddings = model.encode([gold, pred], normalize_embeddings=True)
+    import numpy as np
+    return float(np.dot(embeddings[0], embeddings[1]))
+
+
+def semantic_similarity_reverse_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Semantic cosine similarity for Mir→En direction — same as semantic_similarity_metric.
+
+    Included for naming consistency with the reverse metric family.
+    Compares predicted English text against gold English text using
+    all-MiniLM-L6-v2 embeddings.
+    """
+    return semantic_similarity_metric(example, prediction, trace=trace)
 
 
 def run_mir_to_en_baseline_eval(

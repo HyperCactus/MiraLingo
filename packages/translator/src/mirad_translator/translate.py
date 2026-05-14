@@ -8,6 +8,8 @@ from pathlib import Path
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
 COMPILED_PROGRAM_DIR = _PROJECT_ROOT / "data" / "eval_results" / "optimizer_comparison" / "compiled_bootstrap_fast_program"
 COMPILED_PROGRAM_PKL = COMPILED_PROGRAM_DIR / "program.pkl"
+COMPILED_MIR2EN_PROGRAM_DIR = _PROJECT_ROOT / "data" / "eval_results" / "optimizer_comparison" / "compiled_mir2en_program"
+COMPILED_MIR2EN_PROGRAM_PKL = COMPILED_MIR2EN_PROGRAM_DIR / "program.pkl"
 _MIRAD_GRAMMAR_RULES = """
 You are an English→Mirad translator. Vocabulary/idioms may be supplied separately; use those exact Mirad words first. Do not invent plausible roots, compress, or substitute near-synonyms. Output only Mirad.
 
@@ -736,6 +738,50 @@ def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_pe
     return module
 
 
+def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=3, max_total_pairs=30, min_similarity=0.5):
+    """Load the pre-compiled BootstrapRS Mir→En translator from disk.
+
+    The compiled program has bootstrapped demos for the ChainOfThought predictor,
+    which significantly improves translation quality over the uncompiled module.
+
+    Args:
+        compiled_path: Path to the compiled program .pkl file. Defaults to built-in path.
+        semantic_lexicon: If True (default), swap MiradLexiconReverseLookup for
+            MiradSemanticLexiconLookup (top-k semantic neighbor search).
+        top_k_per_word: Semantic lookup neighbors per word (default 3).
+        max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30).
+        min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5).
+
+    Returns:
+        A compiled MiradToEnglishModule (or module with semantic lookup swapped in).
+
+    Raises:
+        FileNotFoundError: If the compiled program file doesn't exist.
+    """
+    import cloudpickle
+
+    path = Path(compiled_path) if compiled_path else COMPILED_MIR2EN_PROGRAM_PKL
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Compiled Mir→En program not found at {path}. "
+            f"Run run_bootstrap_mir2en.py first, or set use_compiled=False."
+        )
+
+    with open(path, "rb") as f:
+        module = cloudpickle.load(f)
+
+    if semantic_lexicon:
+        from mirad_translator.semantic_lexicon import MiradSemanticLexiconLookup
+        module.lexicon_lookup = MiradSemanticLexiconLookup(
+            db_path=None,
+            top_k_per_word=top_k_per_word,
+            max_total_pairs=max_total_pairs,
+            min_similarity=min_similarity,
+        )
+
+    return module
+
+
 def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = True, semantic_lexicon: bool = True, top_k_per_word: int = 3, max_total_pairs: int = 30, min_similarity: float = 0.5):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
@@ -748,6 +794,8 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
     When num_hops > 1, returns a MultiHopTranslatorModule that runs iterative
     retrieval with LM-generated follow-up queries.
     When direction="mir_to_en", returns a MiradToEnglishModule for reverse translation.
+    When use_compiled=True and direction="mir_to_en", loads the pre-compiled
+    BootstrapRS Mir→En program (falling back to an uncompiled module if not found).
 
     When semantic_lexicon=True (requires use_compiled=True or a plain TranslatorModule),
     swaps MiradLexiconLookup for MiradSemanticLexiconLookup, which uses embedding-based
@@ -787,8 +835,16 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
         except Exception:
             pass  # ChromaDB not available; retrieval will be empty
 
-    # --- Reverse direction: always fresh module, never compiled ---
+    # --- Reverse direction: try compiled Mir→En program first ---
     if direction == "mir_to_en":
+        if use_compiled:
+            try:
+                # Note: semantic_lexicon is En→Mir only; Mir→En uses exact reverse lookup
+                return load_compiled_mir2en_translator(
+                    semantic_lexicon=False,
+                )
+            except FileNotFoundError:
+                pass  # Fall through to uncompiled module
         return MiradToEnglishModule(
             db_path=effective_db_path,
             num_context_passages=num_context_passages,
