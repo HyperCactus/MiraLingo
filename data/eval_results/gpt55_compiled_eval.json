@@ -1,0 +1,508 @@
+{
+  "model": "gpt-5.5",
+  "timestamp": "2026-05-14T13:42:48.316251+00:00",
+  "en_to_mir": {
+    "n_samples": 40,
+    "compiled": true,
+    "exact_pct": 72.5,
+    "norm_pct": 72.5,
+    "sem_mean_pct": 88.2,
+    "sem_median_pct": 100.0,
+    "errors": 3,
+    "elapsed_s": 412.5,
+    "per_example": [
+      {
+        "english": "what do they do for work now",
+        "gold_mirad": "Duhos yit xe av yex hij?",
+        "predicted_mirad": "Duhos yit xe av yex hij?",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "they do",
+        "gold_mirad": "Yit xe.",
+        "predicted_mirad": "Yit xe.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "you would do",
+        "gold_mirad": "Et xu.",
+        "predicted_mirad": "et xu",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9704
+      },
+      {
+        "english": "do you all walk to school",
+        "gold_mirad": "Duven yet tyoyape tistam?",
+        "predicted_mirad": "Duven yet tyoyape tistam?",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "fast",
+        "gold_mirad": "iga",
+        "predicted_mirad": "iga",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "names",
+        "gold_mirad": "dyuni",
+        "predicted_mirad": "dyuni",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "they live where the road ends",
+        "gold_mirad": "Yit tambese hom ha mep uje.",
+        "predicted_mirad": "",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.0
+      },
+      {
+        "english": "they work even nights",
+        "gold_mirad": "Yit yexe gey be moji.",
+        "predicted_mirad": "Yit yexe gey be moji.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "nothing bothers that gal",
+        "gold_mirad": "Hyos oboxe huyt.",
+        "predicted_mirad": "Hyos oboxe hua toybet.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.7939
+      },
+      {
+        "english": "a bad person",
+        "gold_mirad": "fuat",
+        "predicted_mirad": "fua aot",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.627
+      },
+      {
+        "english": "clean",
+        "gold_mirad": "vyia",
+        "predicted_mirad": "vyia",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "the student is walking to school today",
+        "gold_mirad": "Ha tixut tyoyapeye tistam hijub.",
+        "predicted_mirad": "Ha tixut tyoyapeye tistam hijub.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "we go",
+        "gold_mirad": "Yat pe.",
+        "predicted_mirad": "Yat pe.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "that teacher is bad",
+        "gold_mirad": "Hua tuxut se fua.",
+        "predicted_mirad": "Hua tuxut se fua.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "maybe he or she is good and bad",
+        "gold_mirad": "Ve. It se fia ay fua.",
+        "predicted_mirad": "It vey se fia ay fua.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9738
+      },
+      {
+        "english": "I did not know whether he or she would come",
+        "gold_mirad": "At voy ta ven it upo.",
+        "predicted_mirad": "At voy ta ven it upo.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "I live downtown now",
+        "gold_mirad": "At tambese zedom hij.",
+        "predicted_mirad": "At tambese zedom hij.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "they come",
+        "gold_mirad": "Yit upe.",
+        "predicted_mirad": "Yit upe.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "a bad thing",
+        "gold_mirad": "fus",
+        "predicted_mirad": "fua son",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.6321
+      },
+      {
+        "english": "I myself do not smoke",
+        "gold_mirad": "At aut voy movie.",
+        "predicted_mirad": "At aut voy movie.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "my life is bad",
+        "gold_mirad": "Ata tej se fua.",
+        "predicted_mirad": "Ata tej se fua.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "she also sings",
+        "gold_mirad": "Iyt gay deuze.",
+        "predicted_mirad": "Iyt gay deuze.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "he or she came",
+        "gold_mirad": "It upa.",
+        "predicted_mirad": "It upya.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.7384
+      },
+      {
+        "english": "they know",
+        "gold_mirad": "Yit te.",
+        "predicted_mirad": "Yit te.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "these people were better than those ones",
+        "gold_mirad": "Hiati sa fia vyel huati.",
+        "predicted_mirad": "Hiati sa fia vyel huati.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "they live there",
+        "gold_mirad": "Yit tambese hum.",
+        "predicted_mirad": "Yit tambese hum.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "I live there",
+        "gold_mirad": "At tambese hum.",
+        "predicted_mirad": "At tambese hum.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "I did",
+        "gold_mirad": "At xa.",
+        "predicted_mirad": "At xa.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "before this they lived in the suburbs",
+        "gold_mirad": "Ja his, yit tambesa ha yuzdom.",
+        "predicted_mirad": "Ja his, yit tambesa ha yuzdom.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "he or she will be",
+        "gold_mirad": "It so.",
+        "predicted_mirad": "It so.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "you will go",
+        "gold_mirad": "Et po.",
+        "predicted_mirad": "Et po.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "big",
+        "gold_mirad": "aga",
+        "predicted_mirad": "aga",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "work hard",
+        "gold_mirad": "Yexu jestay.",
+        "predicted_mirad": "Yexu jestay.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "he often wins",
+        "gold_mirad": "It glaxag ake.",
+        "predicted_mirad": "It glaxag ake.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "I know his father",
+        "gold_mirad": "At tre wita twed.",
+        "predicted_mirad": "At te wita twed.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.8967
+      },
+      {
+        "english": "a name",
+        "gold_mirad": "dyun",
+        "predicted_mirad": "dyun",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "english": "all roads lead to Rome",
+        "gold_mirad": "Hya mepi izpe Roma.",
+        "predicted_mirad": "Hya mepi zape bu Rom.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.6566
+      },
+      {
+        "english": "unless you say otherwise I will be silent",
+        "gold_mirad": "Oven et do hyuyen, at dolo.",
+        "predicted_mirad": "",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.0
+      },
+      {
+        "english": "work as slowly as you need to",
+        "gold_mirad": "Yexu hogla ugay et efe.",
+        "predicted_mirad": "",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.0
+      },
+      {
+        "english": "no my name is Bill",
+        "gold_mirad": "Vo. Ata dyun se Bill.",
+        "predicted_mirad": "Vo. Ata dyun se Bill.",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      }
+    ]
+  },
+  "mir_to_en": {
+    "n_samples": 20,
+    "compiled": true,
+    "exact_pct": 30.0,
+    "norm_pct": 35.0,
+    "sem_mean_pct": 80.8,
+    "sem_median_pct": 98.3,
+    "errors": 1,
+    "elapsed_s": 150.1,
+    "per_example": [
+      {
+        "mirad": "pati",
+        "gold_english": "birds",
+        "predicted_english": "birds",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "Duhoglas iyt aka?",
+        "gold_english": "how much did she win",
+        "predicted_english": "How much did she win?",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.974
+      },
+      {
+        "mirad": "Hia tuxut se ha gwa fia.",
+        "gold_english": "this teacher is the best",
+        "predicted_english": "This preceptor is the best.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.2777
+      },
+      {
+        "mirad": "Yat sa gla yib bi him.",
+        "gold_english": "we were very far from here",
+        "predicted_english": "We were very far from here.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9833
+      },
+      {
+        "mirad": "Ata tej se fia.",
+        "gold_english": "my life is good",
+        "predicted_english": "my life is good",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "ha pur",
+        "gold_english": "the car",
+        "predicted_english": "the car",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "auta autay",
+        "gold_english": "personal personally",
+        "predicted_english": "my own, by myself",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.4221
+      },
+      {
+        "mirad": "Yat yeyfe tadser.",
+        "gold_english": "we should get married",
+        "predicted_english": "we should get married",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "Duhoj et taja?",
+        "gold_english": "when were you born",
+        "predicted_english": "When were you born?",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9531
+      },
+      {
+        "mirad": "Ha tixut tyoyape tistam hyajub.",
+        "gold_english": "the student walks to school every day",
+        "predicted_english": "The student walks to school every day.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9925
+      },
+      {
+        "mirad": "twed",
+        "gold_english": "a father",
+        "predicted_english": "father",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.8799
+      },
+      {
+        "mirad": "vyoa",
+        "gold_english": "false",
+        "predicted_english": "wrong",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.479
+      },
+      {
+        "mirad": "Ha tixuti tyoyape tistam hyajub.",
+        "gold_english": "the students walk to school every day",
+        "predicted_english": "The students walk to school every day.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9935
+      },
+      {
+        "mirad": "Yit sa.",
+        "gold_english": "they were",
+        "predicted_english": "they were",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "Huasi se etasi.",
+        "gold_english": "those are yours",
+        "predicted_english": "Those are yours.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.9133
+      },
+      {
+        "mirad": "At yafe teater aut be ha sinzyef.",
+        "gold_english": "I can see myself in the mirror",
+        "predicted_english": "I can see myself in the looking glass.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.7513
+      },
+      {
+        "mirad": "At oveko ay at ako.",
+        "gold_english": "I will compete and I will win",
+        "predicted_english": "I will compete and I will win.",
+        "exact_match": 0,
+        "normalized_match": 1,
+        "semantic_similarity": 0.9921
+      },
+      {
+        "mirad": "toybeti",
+        "gold_english": "girls",
+        "predicted_english": "",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.0
+      },
+      {
+        "mirad": "Hit se via.",
+        "gold_english": "this person is beautiful",
+        "predicted_english": "this person is beautiful",
+        "exact_match": 1,
+        "normalized_match": 1,
+        "semantic_similarity": 1.0
+      },
+      {
+        "mirad": "Xu hoyen et fu van hyuti axlu ub et.",
+        "gold_english": "do as you would want others to act toward you",
+        "predicted_english": "Do unto others as you would have them do unto you.",
+        "exact_match": 0,
+        "normalized_match": 0,
+        "semantic_similarity": 0.5407
+      }
+    ]
+  }
+}
