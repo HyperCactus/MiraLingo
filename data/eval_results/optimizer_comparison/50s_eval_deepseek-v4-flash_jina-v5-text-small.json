@@ -1,0 +1,372 @@
+{
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "label": "deepseek-ai/DeepSeek-V4-Flash + jina-v5-text-small",
+  "embedding_model": "jinaai/jina-embeddings-v5-text-small",
+  "embedding_dim": 1024,
+  "per_example": [
+    {
+      "english_text": "you would do",
+      "gold_mirad": "Et xu.",
+      "predicted_mirad": "Et xu.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "do you all walk to school",
+      "gold_mirad": "Duven yet tyoyape tistam?",
+      "predicted_mirad": "Duven yet tyope hya bu tistam?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "fast",
+      "gold_mirad": "iga",
+      "predicted_mirad": "iga",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "they live where the road ends",
+      "gold_mirad": "Yit tambese hom ha mep uje.",
+      "predicted_mirad": "Yit tambese hom ha mep uje.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "they work even nights",
+      "gold_mirad": "Yit yexe gey be moji.",
+      "predicted_mirad": "Yit yexe gey moji.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "nothing bothers that gal",
+      "gold_mirad": "Hyos oboxe huyt.",
+      "predicted_mirad": "Hyos oboxe hua toybet.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "a bad person",
+      "gold_mirad": "fuat",
+      "predicted_mirad": "fua tob",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "the student is walking to school today",
+      "gold_mirad": "Ha tixut tyoyapeye tistam hijub.",
+      "predicted_mirad": "Ha tixut tyoyapeye tistam hijub.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "we go",
+      "gold_mirad": "Yat pe.",
+      "predicted_mirad": "Yat pe.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "that teacher is bad",
+      "gold_mirad": "Hua tuxut se fua.",
+      "predicted_mirad": "Hua tuxut se fua.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "maybe he or she is good and bad",
+      "gold_mirad": "Ve. It se fia ay fua.",
+      "predicted_mirad": "Ve. It se fia ay fua.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "I did not know whether he or she would come",
+      "gold_mirad": "At voy ta ven it upo.",
+      "predicted_mirad": "At voy ta ven it upo.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "I live downtown now",
+      "gold_mirad": "At tambese zedom hij.",
+      "predicted_mirad": "At bese zedom hij.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "they come",
+      "gold_mirad": "Yit upe.",
+      "predicted_mirad": "Yit upe.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "a bad thing",
+      "gold_mirad": "fus",
+      "predicted_mirad": "Fuas",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I myself do not smoke",
+      "gold_mirad": "At aut voy movie.",
+      "predicted_mirad": "At aut voy movie.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "my life is bad",
+      "gold_mirad": "Ata tej se fua.",
+      "predicted_mirad": "Ata tej se fua.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "she also sings",
+      "gold_mirad": "Iyt gay deuze.",
+      "predicted_mirad": "Iyt gay deuze.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "he or she came",
+      "gold_mirad": "It upa.",
+      "predicted_mirad": "It upya.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "they know",
+      "gold_mirad": "Yit te.",
+      "predicted_mirad": "Yit te.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "they live there",
+      "gold_mirad": "Yit tambese hum.",
+      "predicted_mirad": "Yit teje hum.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I live there",
+      "gold_mirad": "At tambese hum.",
+      "predicted_mirad": "At teje be hum.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I did",
+      "gold_mirad": "At xa.",
+      "predicted_mirad": "At xa.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "before this they lived in the suburbs",
+      "gold_mirad": "Ja his, yit tambesa ha yuzdom.",
+      "predicted_mirad": "Ja his, yit teja bi ha yuzdom.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "he or she will be",
+      "gold_mirad": "It so.",
+      "predicted_mirad": "it so",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "you will go",
+      "gold_mirad": "Et po.",
+      "predicted_mirad": "Et po.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "big",
+      "gold_mirad": "aga",
+      "predicted_mirad": "aga",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "work hard",
+      "gold_mirad": "Yexu jestay.",
+      "predicted_mirad": "Yexu jestay!",
+      "normalized_match": 1.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "he often wins",
+      "gold_mirad": "It glaxag ake.",
+      "predicted_mirad": "It gla jodi ake.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "I know his father",
+      "gold_mirad": "At tre wita twed.",
+      "predicted_mirad": "At te ita twed.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "a name",
+      "gold_mirad": "dyun",
+      "predicted_mirad": "dyun",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "all roads lead to Rome",
+      "gold_mirad": "Hya mepi izpe Roma.",
+      "predicted_mirad": "Hya mepi izpe Roma.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "unless you say otherwise I will be silent",
+      "gold_mirad": "Oven et do hyuyen, at dolo.",
+      "predicted_mirad": "Oven et do hyuyen, at dolo.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "work as slowly as you need to",
+      "gold_mirad": "Yexu hogla ugay et efe.",
+      "predicted_mirad": "Yexu ge ugay vyel ge efwa.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "what is your name",
+      "gold_mirad": "Duhos se eta dyun?",
+      "predicted_mirad": "Duhos se eta dyun?",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "normal",
+      "gold_mirad": "ega",
+      "predicted_mirad": "ega",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "a small house",
+      "gold_mirad": "oga tam",
+      "predicted_mirad": "oga tam",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "you are welcome",
+      "gold_mirad": "Hwey!",
+      "predicted_mirad": "Updiwe.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "take this telegram",
+      "gold_mirad": "Biu hia yibdren.",
+      "predicted_mirad": "Biu hia nyifdras.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "you were very far from here",
+      "gold_mirad": "Et sa gla yib bi him.",
+      "predicted_mirad": "Et sa gla yib bi him.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "your teacher is good",
+      "gold_mirad": "Eta tuxut se fia.",
+      "predicted_mirad": "Eta tuxut se fia.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "he or she is going home",
+      "gold_mirad": "It peye tam.",
+      "predicted_mirad": "It peye tam.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "birds",
+      "gold_mirad": "pati",
+      "predicted_mirad": "pati",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "how much did she win",
+      "gold_mirad": "Duhoglas iyt aka?",
+      "predicted_mirad": "Hogla iyt aka?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "this teacher is the best",
+      "gold_mirad": "Hia tuxut se ha gwa fia.",
+      "predicted_mirad": "Hia tuxut se gwafi.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "we were very far from here",
+      "gold_mirad": "Yat sa gla yib bi him.",
+      "predicted_mirad": "Yat sa gla yib bi him.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "my life is good",
+      "gold_mirad": "Ata tej se fia.",
+      "predicted_mirad": "Ata tej se fia.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "the car",
+      "gold_mirad": "ha pur",
+      "predicted_mirad": "ha pur",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "personal personally",
+      "gold_mirad": "auta autay",
+      "predicted_mirad": "aota aotay",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "we should get married",
+      "gold_mirad": "Yat yeyfe tadser.",
+      "predicted_mirad": "Yat yeyfe tadier.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    }
+  ],
+  "eval_time_s": 527.66,
+  "normalized_score": 60.0,
+  "exact_score": 57.99999999999999,
+  "normalized_hits": 30,
+  "exact_hits": 29,
+  "total": 50,
+  "seed": 42,
+  "semantic_lexicon": true,
+  "top_k_per_word": 3,
+  "max_total_pairs": 30,
+  "min_similarity": 0.5,
+  "compiled_program": "compiled_bootstrap_fast_program",
+  "postprocessor": true,
+  "timestamp": "2026-05-18T07:41:17.178179+00:00"
+}

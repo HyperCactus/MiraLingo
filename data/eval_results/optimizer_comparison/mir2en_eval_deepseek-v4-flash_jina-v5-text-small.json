@@ -1,0 +1,424 @@
+{
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "direction": "mir_to_en",
+  "label": "deepseek-ai/DeepSeek-V4-Flash + jina-v5-text-small (Mir→En)",
+  "embedding_model": "jinaai/jina-embeddings-v5-text-small",
+  "embedding_dim": 1024,
+  "per_example": [
+    {
+      "mirad_text": "Duhos yit xe av yex hij?",
+      "gold_english": "what do they do for work now",
+      "predicted_english": "What do they do for work now?",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.981627
+    },
+    {
+      "mirad_text": "Yit xe.",
+      "gold_english": "they do",
+      "predicted_english": "They do.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.882378
+    },
+    {
+      "mirad_text": "Et xu.",
+      "gold_english": "you would do",
+      "predicted_english": "Do it.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.650441
+    },
+    {
+      "mirad_text": "Duven yet tyoyape tistam?",
+      "gold_english": "do you all walk to school",
+      "predicted_english": "Do you walk to school?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.883782
+    },
+    {
+      "mirad_text": "iga",
+      "gold_english": "fast",
+      "predicted_english": "allegro",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.401184
+    },
+    {
+      "mirad_text": "dyuni",
+      "gold_english": "names",
+      "predicted_english": "words",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.365218
+    },
+    {
+      "mirad_text": "Yit tambese hom ha mep uje.",
+      "gold_english": "they live where the road ends",
+      "predicted_english": "They live where the road ends.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.961652
+    },
+    {
+      "mirad_text": "Yit yexe gey be moji.",
+      "gold_english": "they work even nights",
+      "predicted_english": "They also work at night.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.89252
+    },
+    {
+      "mirad_text": "Hyos oboxe huyt.",
+      "gold_english": "nothing bothers that gal",
+      "predicted_english": "Nothing bothers that gal.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.884858
+    },
+    {
+      "mirad_text": "fuat",
+      "gold_english": "a bad person",
+      "predicted_english": "bad person",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.980142
+    },
+    {
+      "mirad_text": "vyia",
+      "gold_english": "clean",
+      "predicted_english": "clean",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Ha tixut tyoyapeye tistam hijub.",
+      "gold_english": "the student is walking to school today",
+      "predicted_english": "The student is walking to school today.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.989392
+    },
+    {
+      "mirad_text": "Yat pe.",
+      "gold_english": "we go",
+      "predicted_english": "we go",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Hua tuxut se fua.",
+      "gold_english": "that teacher is bad",
+      "predicted_english": "That teacher is bad.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.974197
+    },
+    {
+      "mirad_text": "Ve. It se fia ay fua.",
+      "gold_english": "maybe he or she is good and bad",
+      "predicted_english": "Maybe. He is good and bad.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.890735
+    },
+    {
+      "mirad_text": "At voy ta ven it upo.",
+      "gold_english": "I did not know whether he or she would come",
+      "predicted_english": "I didn't know if he would come.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.875725
+    },
+    {
+      "mirad_text": "At tambese zedom hij.",
+      "gold_english": "I live downtown now",
+      "predicted_english": "I live downtown now.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.964345
+    },
+    {
+      "mirad_text": "Yit upe.",
+      "gold_english": "they come",
+      "predicted_english": "they come",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "fus",
+      "gold_english": "a bad thing",
+      "predicted_english": "bad thing",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.96664
+    },
+    {
+      "mirad_text": "At aut voy movie.",
+      "gold_english": "I myself do not smoke",
+      "predicted_english": "I myself do not smoke.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.938611
+    },
+    {
+      "mirad_text": "Ata tej se fua.",
+      "gold_english": "my life is bad",
+      "predicted_english": "My life is bad.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.945923
+    },
+    {
+      "mirad_text": "Iyt gay deuze.",
+      "gold_english": "she also sings",
+      "predicted_english": "She no longer sings.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.719646
+    },
+    {
+      "mirad_text": "It upa.",
+      "gold_english": "he or she came",
+      "predicted_english": "he came",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.761395
+    },
+    {
+      "mirad_text": "Yit te.",
+      "gold_english": "they know",
+      "predicted_english": "they know",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Hiati sa fia vyel huati.",
+      "gold_english": "these people were better than those ones",
+      "predicted_english": "These ones were better than those ones.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.818848
+    },
+    {
+      "mirad_text": "Yit tambese hum.",
+      "gold_english": "they live there",
+      "predicted_english": "They live there.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.943562
+    },
+    {
+      "mirad_text": "At tambese hum.",
+      "gold_english": "I live there",
+      "predicted_english": "I live there.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.92999
+    },
+    {
+      "mirad_text": "At xa.",
+      "gold_english": "I did",
+      "predicted_english": "I did.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.894342
+    },
+    {
+      "mirad_text": "Ja his, yit tambesa ha yuzdom.",
+      "gold_english": "before this they lived in the suburbs",
+      "predicted_english": "Before this, they lived in the suburbs.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.967027
+    },
+    {
+      "mirad_text": "It so.",
+      "gold_english": "he or she will be",
+      "predicted_english": "He will be.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.777812
+    },
+    {
+      "mirad_text": "Et po.",
+      "gold_english": "you will go",
+      "predicted_english": "You will go.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.899193
+    },
+    {
+      "mirad_text": "aga",
+      "gold_english": "big",
+      "predicted_english": "big",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Yexu jestay.",
+      "gold_english": "work hard",
+      "predicted_english": "Work unremittingly.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.836027
+    },
+    {
+      "mirad_text": "It glaxag ake.",
+      "gold_english": "he often wins",
+      "predicted_english": "he very often wins",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.980946
+    },
+    {
+      "mirad_text": "At tre wita twed.",
+      "gold_english": "I know his father",
+      "predicted_english": "I know his father.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.914336
+    },
+    {
+      "mirad_text": "dyun",
+      "gold_english": "a name",
+      "predicted_english": "name",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.959286
+    },
+    {
+      "mirad_text": "Hya mepi izpe Roma.",
+      "gold_english": "all roads lead to Rome",
+      "predicted_english": "All roads lead to Rome.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.9376
+    },
+    {
+      "mirad_text": "Oven et do hyuyen, at dolo.",
+      "gold_english": "unless you say otherwise I will be silent",
+      "predicted_english": "Unless you say otherwise, I will be silent.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.955921
+    },
+    {
+      "mirad_text": "Yexu hogla ugay et efe.",
+      "gold_english": "work as slowly as you need to",
+      "predicted_english": "Work as slowly as you need.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.975159
+    },
+    {
+      "mirad_text": "Vo. Ata dyun se Bill.",
+      "gold_english": "no my name is Bill",
+      "predicted_english": "No. My name is Bill.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.937538
+    },
+    {
+      "mirad_text": "Huy hos at yaka.",
+      "gold_english": "there is what I expected",
+      "predicted_english": "There's what I expected.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.93056
+    },
+    {
+      "mirad_text": "Duhos se eta dyun?",
+      "gold_english": "what is your name",
+      "predicted_english": "What is your name?",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.946896
+    },
+    {
+      "mirad_text": "ega",
+      "gold_english": "normal",
+      "predicted_english": "old",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.285859
+    },
+    {
+      "mirad_text": "oga tam",
+      "gold_english": "a small house",
+      "predicted_english": "small house",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.965737
+    },
+    {
+      "mirad_text": "It yexa be tam.",
+      "gold_english": "he or she worked at home",
+      "predicted_english": "He worked at home.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.883932
+    },
+    {
+      "mirad_text": "Hwey!",
+      "gold_english": "you are welcome",
+      "predicted_english": "You're welcome!",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.890776
+    },
+    {
+      "mirad_text": "Biu hia yibdren.",
+      "gold_english": "take this telegram",
+      "predicted_english": "Take this letter.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.544416
+    },
+    {
+      "mirad_text": "Et sa gla yib bi him.",
+      "gold_english": "you were very far from here",
+      "predicted_english": "you were very far from here",
+      "normalized_match": 1.0,
+      "exact_match": 1.0,
+      "semantic_similarity": 1.0
+    },
+    {
+      "mirad_text": "Eta tuxut se fia.",
+      "gold_english": "your teacher is good",
+      "predicted_english": "Your teacher is good.",
+      "normalized_match": 1.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.966362
+    },
+    {
+      "mirad_text": "It peye tam.",
+      "gold_english": "he or she is going home",
+      "predicted_english": "He is going home.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0,
+      "semantic_similarity": 0.825456
+    }
+  ],
+  "eval_time_s": 42.29,
+  "normalized_score": 52.0,
+  "exact_score": 12.0,
+  "semantic_similarity_avg": 0.87755984,
+  "normalized_hits": 26,
+  "exact_hits": 6,
+  "total": 50,
+  "seed": 42,
+  "semantic_lexicon": true,
+  "top_k_per_word": 3,
+  "max_total_pairs": 30,
+  "min_similarity": 0.5,
+  "compiled_program": "compiled_mir2en_program",
+  "postprocessor": false,
+  "timestamp": "2026-05-18T08:15:56.519286+00:00"
+}

@@ -50,12 +50,39 @@ def chunk_fixed(text, chunk_size=100, overlap=50):
     return ["\n".join(lines[i:i+chunk_size]) for i in range(0, len(lines), chunk_size - overlap) if lines[i:i+chunk_size]]
 
 
+def _hard_split(text, max_words=200):
+    """Split a chunk that's still too long by sentences, then by words."""
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    chunks, current, current_len = [], [], 0
+    for sent in sentences:
+        sent_len = len(sent.split())
+        if current_len + sent_len <= max_words:
+            current.append(sent)
+            current_len += sent_len
+        else:
+            if current:
+                chunks.append(" ".join(current))
+            # If a single sentence exceeds max_words, split by words
+            if sent_len > max_words:
+                words = sent.split()
+                for j in range(0, len(words), max_words):
+                    chunks.append(" ".join(words[j:j + max_words]))
+                current, current_len = [], 0
+            else:
+                current, current_len = [sent], sent_len
+    if current:
+        chunks.append(" ".join(current))
+    return chunks if chunks else [text]
+
+
 def chunk_grammar(text=None):
     """Chunk the Mirad grammar document.
 
-    Strategy: split at ## ** headers. Sections >300 lines use
-    paragraph chunking (max 400 tokens, 50-token overlap),
-    then fixed 100-line fallback.
+    Strategy: split at ## ** headers, then sub-chunk any section
+    exceeding 200 words using paragraph chunking (max_tokens=200,
+    30-token overlap), then hard-split any remaining oversize chunks.
+    200 words ≈ 400 tokens which fits comfortably in 8 GiB VRAM
+    with jina-embeddings-v5.
     """
     if text is None:
         with open(GRAMMAR_PATH, encoding="utf-8", errors="replace") as f:
@@ -67,10 +94,17 @@ def chunk_grammar(text=None):
         part = part.strip()
         if not part:
             continue
-        lines = part.splitlines()
-        if len(lines) > 300:
-            para_chunks = chunk_by_paragraphs(part, max_tokens=400, overlap_tokens=50)
-            chunks.extend(para_chunks if para_chunks else chunk_fixed(part, 100, 50))
+        word_count = count_tokens(part)
+        if word_count > 200:
+            para_chunks = chunk_by_paragraphs(part, max_tokens=200, overlap_tokens=30)
+            if not para_chunks:
+                para_chunks = chunk_fixed(part, chunk_size=50, overlap=25)
+            # Hard-split any chunks that still exceed 200 words
+            for pc in para_chunks:
+                if count_tokens(pc) > 200:
+                    chunks.extend(_hard_split(pc, max_words=200))
+                else:
+                    chunks.append(pc)
         else:
             chunks.append(part)
     return chunks
@@ -79,8 +113,9 @@ def chunk_grammar(text=None):
 def chunk_thesaurus(text=None):
     """Chunk the Mirad thesaurus document.
 
-    Strategy: split at ## ** topic headers. Oversize topics (>300 lines)
-    use paragraph chunking with fixed fallback.
+    Strategy: split at ## ** topic headers, then sub-chunk any section
+    exceeding 200 words using paragraph chunking (max_tokens=200,
+    30-token overlap), then hard-split any remaining oversize chunks.
     """
     if text is None:
         with open(THESAURUS_PATH, encoding="utf-8", errors="replace") as f:
@@ -92,10 +127,16 @@ def chunk_thesaurus(text=None):
         part = part.strip()
         if not part:
             continue
-        lines = part.splitlines()
-        if len(lines) > 300:
-            para_chunks = chunk_by_paragraphs(part, max_tokens=400, overlap_tokens=50)
-            chunks.extend(para_chunks if para_chunks else chunk_fixed(part, 100, 50))
+        word_count = count_tokens(part)
+        if word_count > 200:
+            para_chunks = chunk_by_paragraphs(part, max_tokens=200, overlap_tokens=30)
+            if not para_chunks:
+                para_chunks = chunk_fixed(part, chunk_size=50, overlap=25)
+            for pc in para_chunks:
+                if count_tokens(pc) > 200:
+                    chunks.extend(_hard_split(pc, max_words=200))
+                else:
+                    chunks.append(pc)
         else:
             chunks.append(part)
     return chunks

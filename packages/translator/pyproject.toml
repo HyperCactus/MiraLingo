@@ -34,12 +34,14 @@ Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
 rag = [
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
+    "peft>=0.19.0",
 ]
 
 [project.optional-dependencies.eval]
 eval = [
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
+    "peft>=0.19.0",
     "wordfreq>=2.10.0",
     "tiktoken>=0.5.0",
 ]
@@ -50,6 +52,7 @@ develop = [
     "pytest-cov",
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
+    "peft>=0.19.0",
     "wordfreq>=2.10.0",
     "tiktoken>=0.5.0",
 ]

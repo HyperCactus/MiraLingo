@@ -2,7 +2,7 @@
 
 Evaluation dataset: data/phrases/english-mirad-sentence-pairs.csv (44 sentence pairs)
 Metrics: exact_match, normalized_match (punctuation/whitespace-tolerant),
-         semantic_similarity (all-MiniLM-L6-v2 cosine similarity on English text)
+         semantic_similarity (jina-embeddings-v5-text-small cosine similarity on English text)
 Optimizers: BootstrapFewShot (starter), MIPROv2 (advanced)
 
 Post-processing:
@@ -735,18 +735,22 @@ def normalized_match_reverse_metric(example: dspy.Example, prediction: dspy.Pred
 
 
 # ---------------------------------------------------------------------------
-# Semantic similarity metrics (all-MiniLM-L6-v2 cosine similarity)
+# Semantic similarity metrics (jina-embeddings-v5-text-small cosine similarity)
 # ---------------------------------------------------------------------------
 
 _semantic_model = None
 
 
 def _get_semantic_model():
-    """Lazy-load the all-MiniLM-L6-v2 model (same as ChromaDB retrieval)."""
+    """Lazy-load the jina-embeddings-v5-text-small model for semantic similarity."""
     global _semantic_model
     if _semantic_model is None:
         from sentence_transformers import SentenceTransformer
-        _semantic_model = SentenceTransformer("all-MiniLM-L6-v2")
+        _semantic_model = SentenceTransformer(
+            "jinaai/jina-embeddings-v5-text-small",
+            trust_remote_code=True,
+            model_kwargs={"default_task": "retrieval"},
+        )
     return _semantic_model
 
 
@@ -763,8 +767,8 @@ def _cosine_similarity(a, b):
 def semantic_similarity_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
     """Semantic cosine similarity between predicted and gold *English* text.
 
-    Uses all-MiniLM-L6-v2 (the same model used for ChromaDB retrieval) to
-    embed both texts and compute cosine similarity. Returns a float in [0, 1].
+    Uses jina-embeddings-v5-text-small to embed both texts and compute
+    cosine similarity. Returns a float in [0, 1].
 
     Suitable for both En→Mir (comparing predicted translation correctness
     semantically) and Mir→En directions, since English text is compared in
@@ -783,7 +787,7 @@ def semantic_similarity_reverse_metric(example: dspy.Example, prediction: dspy.P
 
     Included for naming consistency with the reverse metric family.
     Compares predicted English text against gold English text using
-    all-MiniLM-L6-v2 embeddings.
+    jina-embeddings-v5-text-small embeddings.
     """
     return semantic_similarity_metric(example, prediction, trace=trace)
 

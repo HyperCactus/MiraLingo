@@ -1,4 +1,4 @@
-"""Semantic lexicon lookup using ChromaDB + all-MiniLM-L6-v2 embeddings.
+"""Semantic lexicon lookup using ChromaDB + jina-embeddings-v5-text-small embeddings.
 
 Extends exact-match lookup (MiradLexiconLookup) with top-k nearest-neighbor
 search over English word embeddings. This allows finding translations for
@@ -8,8 +8,10 @@ inflected forms ("ran" → "run" → "xebwa"), morphological variants ("houses" 
 Architecture:
     - A new "lexicon" ChromaDB collection stores each English entry as a document
       with its Mirad translation in metadata.
-    - The same all-MiniLM-L6-v2 model already used for grammar/thesaurus retrieval
-      embeds query words at lookup time.
+    - The jina-embeddings-v5-text-small model (1024-dim) embeds English words
+      for semantic similarity search. This model provides better retrieval
+      quality than all-MiniLM-L6-v2, especially for short queries like
+      individual English words.
     - SemanticSemantiLookup returns top-k (English, Mirad) pairs per query word,
       optionally merged with exact-match results.
 """
@@ -57,7 +59,7 @@ def _index_lexicon(collection):
     """Build the lexicon ChromaDB collection from the SQLite DB.
 
     Each row becomes a document (the English word) with metadata containing
-    the Mirad translation. Embeddings are computed with all-MiniLM-L6-v2.
+    the Mirad translation. Embeddings are computed with jina-embeddings-v5-text-small.
     """
     import chromadb
 
@@ -81,7 +83,7 @@ def _index_lexicon(collection):
     ids = [f"lex_{i}" for i in range(len(rows))]
     metadatas = [{"english": en, "mirad": mi} for en, mi in zip(english_words, mirad_translations)]
 
-    # ChromaDB add has a batch-size limit (~5461 with 384-dim vectors); chunk it
+    # ChromaDB add has a batch-size limit; chunk it for safety with 1024-dim vectors
     batch_size = 5000
     for start in range(0, len(ids), batch_size):
         end = min(start + batch_size, len(ids))
@@ -117,7 +119,7 @@ def semantic_lookup(
         english_word: The word to look up.
         top_k: Maximum number of semantic neighbors to return.
         min_similarity: Minimum cosine similarity (0-1) to include a result.
-            all-MiniLM-L6-v2 L2 distances map roughly as: cos ≈ 1 - L2²/4.
+            jina-embeddings-v5 L2 distances can be converted: cos ≈ 1 - L2²/2
             Default 0.35 filters out very distant hits.
         include_exact: Whether to merge in the exact-match result from SQLite.
 
@@ -254,7 +256,7 @@ def semantic_lookup_multi(
 class MiradSemanticLexiconLookup(dspy.Module):
     """DSPy-traceable semantic lexicon lookup module.
 
-    Uses ChromaDB + all-MiniLM-L6-v2 embeddings to find top-k semantically
+    Uses ChromaDB + jina-embeddings-v5-text-small embeddings to find top-k semantically
     similar English words for each input word, along with their Mirad
     translations. Falls back gracefully if ChromaDB/embeddings are unavailable.
     """
