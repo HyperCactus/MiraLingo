@@ -6,10 +6,11 @@ from typing import Any
 
 from fastapi import FastAPI, Query, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 
+from .audio import AudioFailure, synthesize_card_audio
 from .auth import SESSION_USER_KEY, authenticate_local_admin, serialize_user, user_from_session
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
@@ -165,6 +166,49 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             limit=limit,
         )
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+
+    @app.get("/practice/audio/{card_id:path}", tags=["practice"])
+    def practice_audio(request: Request, card_id: str):
+        """Return MBROLA WAV audio for one authenticated configured practice card."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "audio_synthesis",
+                    "backend": "mbrola",
+                    "card_id": card_id,
+                    "detail": "Login is required to request practice audio.",
+                },
+            )
+        try:
+            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+        except CardContentSourceMissingError as exc:
+            payload = error_to_payload(exc)
+            payload.update({"phase": "audio_synthesis", "backend": "mbrola", "card_id": card_id})
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=payload)
+        except CardContentImportError as exc:
+            payload = error_to_payload(exc)
+            payload.update({"phase": "audio_synthesis", "backend": "mbrola", "card_id": card_id})
+            return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
+
+        audio_result = synthesize_card_audio(card_id=card_id, cards=result.cards)
+        if isinstance(audio_result, AudioFailure):
+            return JSONResponse(status_code=audio_result.status_code, content=audio_result.payload)
+
+        headers = {
+            "Cache-Control": "no-store",
+            "X-MiraLingo-Audio-Phase": audio_result.diagnostics["phase"],
+            "X-MiraLingo-Audio-Backend": audio_result.diagnostics["backend"],
+            "X-MiraLingo-Card-Id": audio_result.diagnostics["card_id"],
+        }
+        return Response(
+            content=audio_result.wav_bytes,
+            media_type=audio_result.content_type,
+            headers=headers,
+        )
 
     @app.post("/practice/answers", tags=["practice"])
     @app.post("/practice/answer", tags=["practice"], include_in_schema=False)
