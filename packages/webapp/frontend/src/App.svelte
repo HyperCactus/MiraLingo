@@ -30,6 +30,9 @@
   let practiceQueue = null;
   let currentCard = null;
   let answerSubmitting = false;
+  let progressState = "idle";
+  let progressError = "";
+  let practiceProgress = null;
   let audioState = "idle";
   let audioMessage = "";
   let audioDiagnostic = "";
@@ -83,6 +86,23 @@
     if (payload?.error === "unknown_card") return "That practice card is no longer available. Refresh the queue.";
     if (payload?.error === "source_missing") return "Practice content is not configured yet. Check the phrase CSV path.";
     return fallback;
+  };
+
+  const friendlyProgressError = (payload, status) => {
+    if (status === 401 || payload?.error === "unauthenticated") {
+      return "Your session expired. Log in again to view progress.";
+    }
+    if (payload?.error === "source_missing") return "Progress is unavailable until practice content is configured.";
+    return "Progress is unavailable right now. Practice controls still work; try refreshing progress after your next answer.";
+  };
+
+  const formatAccuracy = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
+  const formatCount = (value) => (typeof value === "number" ? value : 0);
+  const formatLatestAnswer = (event) => {
+    if (!event) return "No answers yet";
+    const type = event.card_type ?? "card";
+    const result = event.correct ? "correct" : "incorrect";
+    return `${type} ${event.card_id ?? "unknown"}: ${result}`;
   };
 
   async function readJson(response) {
@@ -161,6 +181,28 @@
       currentCard = null;
       lastAudioCardId = null;
       practiceError = "";
+      progressState = "idle";
+      progressError = "";
+      practiceProgress = null;
+    }
+  }
+
+  async function loadPracticeProgress() {
+    progressState = "loading";
+    progressError = "";
+    try {
+      const response = await fetch("/practice/progress", { headers: { Accept: "application/json" } });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok !== true) {
+        progressState = "error";
+        progressError = friendlyProgressError(payload, response.status);
+        return;
+      }
+      practiceProgress = payload;
+      progressState = payload.event_count > 0 ? "ready" : "empty";
+    } catch (_error) {
+      progressState = "error";
+      progressError = "Progress is unavailable right now. Practice controls still work; try refreshing progress after your next answer.";
     }
   }
 
@@ -177,17 +219,20 @@
         lastAudioCardId = null;
         practiceState = "error";
         practiceError = friendlyPracticeError(payload, "Practice queue is unavailable. Try again after checking the server.");
+        await loadPracticeProgress();
         return;
       }
       practiceQueue = payload;
       currentCard = payload.cards?.[0] ?? null;
       lastAudioCardId = currentCard?.id ?? null;
       practiceState = currentCard ? "ready" : "empty";
+      await loadPracticeProgress();
     } catch (_error) {
       practiceState = "error";
       currentCard = null;
       lastAudioCardId = null;
       practiceError = "Could not reach practice APIs. Check that the web server is running.";
+      await loadPracticeProgress();
     }
   }
 
@@ -316,6 +361,67 @@
         {:else if practiceError}
           <p class="error-message" role="alert">{practiceError}</p>
         {/if}
+
+        <section class="progress-panel" aria-labelledby="progress-heading">
+          <div class="progress-header">
+            <div>
+              <p class="eyebrow">Session progress</p>
+              <h2 id="progress-heading">Practice stats</h2>
+            </div>
+            <button class="secondary-action" type="button" on:click={loadPracticeProgress} disabled={progressState === "loading"}>
+              {progressState === "loading" ? "Refreshing…" : "Refresh progress"}
+            </button>
+          </div>
+
+          {#if progressState === "loading"}
+            <p class="status-message" role="status">Loading practice progress…</p>
+          {:else if progressError}
+            <p class="error-message" role="alert">{progressError}</p>
+          {:else if practiceProgress && progressState === "empty"}
+            <p class="status-message" role="status">No answers yet. Try the current card, then mark whether you knew it to build progress stats.</p>
+          {/if}
+
+          {#if practiceProgress}
+            <dl class="progress-summary" aria-label="Practice progress summary">
+              <div>
+                <dt>Attempts</dt>
+                <dd>{formatCount(practiceProgress.total)}</dd>
+              </div>
+              <div>
+                <dt>Correct</dt>
+                <dd>{formatCount(practiceProgress.correct)}</dd>
+              </div>
+              <div>
+                <dt>Incorrect</dt>
+                <dd>{formatCount(practiceProgress.incorrect)}</dd>
+              </div>
+              <div>
+                <dt>Accuracy</dt>
+                <dd>{formatAccuracy(practiceProgress.accuracy)}</dd>
+              </div>
+            </dl>
+            <dl class="progress-breakdown" aria-label="Progress by card type">
+              <div>
+                <dt>Words</dt>
+                <dd>{formatCount(practiceProgress.per_type?.word?.attempts)} attempts · {formatAccuracy(practiceProgress.per_type?.word?.accuracy)}</dd>
+              </div>
+              <div>
+                <dt>Phrases</dt>
+                <dd>{formatCount(practiceProgress.per_type?.phrase?.attempts)} attempts · {formatAccuracy(practiceProgress.per_type?.phrase?.accuracy)}</dd>
+              </div>
+              <div>
+                <dt>Latest answer</dt>
+                <dd>{formatLatestAnswer(practiceProgress.latest_event)}</dd>
+              </div>
+            </dl>
+            <ul class="progress-badges" aria-label="Scheduler progress indicators">
+              <li><strong>{formatCount(practiceProgress.weak_count)}</strong> weak</li>
+              <li><strong>{formatCount(practiceProgress.mastered_count)}</strong> mastered</li>
+              <li><strong>{formatCount(practiceProgress.new_count)}</strong> new</li>
+              <li><strong>{formatCount(practiceProgress.stale_count)}</strong> stale</li>
+            </ul>
+          {/if}
+        </section>
 
         {#if currentCard}
           <article class="practice-card" aria-label="Current practice card">

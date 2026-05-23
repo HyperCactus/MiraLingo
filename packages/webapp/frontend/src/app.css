@@ -316,7 +316,8 @@ input:focus-visible {
 }
 
 .practice-panel,
-.practice-card {
+.practice-card,
+.progress-panel {
   display: grid;
   gap: 1rem;
   border: 1px solid rgba(37, 95, 91, 0.18);
@@ -342,6 +343,84 @@ input:focus-visible {
 
 .practice-card {
   background: #fffaf2;
+}
+
+.progress-panel {
+  background: linear-gradient(135deg, rgba(255, 250, 242, 0.96), rgba(217, 239, 232, 0.72));
+}
+
+.progress-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.progress-header h2 {
+  margin-bottom: 0;
+}
+
+.progress-summary,
+.progress-breakdown {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.progress-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.progress-breakdown {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.progress-summary div,
+.progress-breakdown div {
+  border: 1px solid rgba(37, 95, 91, 0.12);
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.progress-summary dt,
+.progress-breakdown dt {
+  color: #65727e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.progress-summary dd,
+.progress-breakdown dd {
+  margin: 0.3rem 0 0;
+  overflow-wrap: anywhere;
+  color: #172026;
+  font-weight: 900;
+}
+
+.progress-summary dd {
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
+  letter-spacing: -0.05em;
+}
+
+.progress-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progress-badges li {
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  color: #173d3a;
+  background: #f7c46c;
+  font-weight: 900;
 }
 
 .card-meta span {
@@ -468,7 +547,9 @@ input:focus-visible {
   .link-grid,
   .practice-grid,
   .status-grid,
-  .diagnostic-grid {
+  .diagnostic-grid,
+  .progress-summary,
+  .progress-breakdown {
     grid-template-columns: 1fr;
   }
 
