@@ -31,4 +31,36 @@ def test_frontend_welcome_text_is_present() -> None:
     app_source = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
 
     assert app_source.exists()
-    assert "Welcome to MiraLingo" in app_source.read_text(encoding="utf-8")
+    contents = app_source.read_text(encoding="utf-8")
+    assert "Welcome to MiraLingo" in contents
+    assert "Mirad pronunciation, translation, and vocabulary" in contents
+    assert "Create account" in contents
+    assert "../../README.md" in contents
+
+
+def test_frontend_auth_states_and_error_copy_are_wired() -> None:
+    app_source = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
+
+    contents = app_source.read_text(encoding="utf-8")
+    assert 'fetch("/auth/current-user"' in contents
+    assert 'fetch("/auth/login"' in contents
+    assert 'fetch("/auth/logout"' in contents
+    assert 'authState = "anonymous"' in contents
+    assert 'authState = "login-failed"' in contents
+    assert 'authState = "authenticated"' in contents
+    assert "Invalid username or password." in contents
+    assert "Could not reach MiraLingo auth" in contents
+    assert 'role="alert"' in contents
+
+
+def test_frontend_stylesheet_defines_responsive_app_home() -> None:
+    frontend_src = Path(__file__).parents[1] / "frontend" / "src"
+    app_source = (frontend_src / "App.svelte").read_text(encoding="utf-8")
+    css_source = frontend_src / "app.css"
+
+    assert 'import "./app.css";' in app_source
+    assert css_source.exists()
+    contents = css_source.read_text(encoding="utf-8")
+    assert ".welcome-shell" in contents
+    assert ".home-panel" in contents
+    assert "@media (max-width: 820px)" in contents
