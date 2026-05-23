@@ -25,6 +25,11 @@
   let user = null;
   let errorMessage = "";
   let isSubmitting = false;
+  let practiceState = "idle";
+  let practiceError = "";
+  let practiceQueue = null;
+  let currentCard = null;
+  let answerSubmitting = false;
 
   const friendlyAuthError = (payload, fallback) => {
     if (payload?.detail) return payload.detail;
@@ -32,6 +37,14 @@
     if (payload?.error === "local_admin_disabled") {
       return "Local admin login is only available when development bootstrap is enabled.";
     }
+    return fallback;
+  };
+
+  const friendlyPracticeError = (payload, fallback) => {
+    if (payload?.detail) return payload.detail;
+    if (payload?.error === "unauthenticated") return "Your session expired. Log in again to continue practice.";
+    if (payload?.error === "unknown_card") return "That practice card is no longer available. Refresh the queue.";
+    if (payload?.error === "source_missing") return "Practice content is not configured yet. Check the phrase CSV path.";
     return fallback;
   };
 
@@ -53,6 +66,7 @@
       if (response.ok && payload.authenticated) {
         user = payload.user;
         authState = "authenticated";
+        await loadPracticeQueue();
         return;
       }
       user = null;
@@ -86,6 +100,7 @@
       user = payload.user;
       password = "";
       authState = "authenticated";
+      await loadPracticeQueue();
     } catch (_error) {
       user = null;
       authState = "login-failed";
@@ -103,6 +118,61 @@
       user = null;
       password = "";
       authState = "anonymous";
+      practiceState = "idle";
+      practiceQueue = null;
+      currentCard = null;
+      practiceError = "";
+    }
+  }
+
+  async function loadPracticeQueue() {
+    practiceState = "loading";
+    practiceError = "";
+    try {
+      const response = await fetch("/practice/queue?limit=3", { headers: { Accept: "application/json" } });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        practiceQueue = payload;
+        currentCard = null;
+        practiceState = "error";
+        practiceError = friendlyPracticeError(payload, "Practice queue is unavailable. Try again after checking the server.");
+        return;
+      }
+      practiceQueue = payload;
+      currentCard = payload.cards?.[0] ?? null;
+      practiceState = currentCard ? "ready" : "empty";
+    } catch (_error) {
+      practiceState = "error";
+      currentCard = null;
+      practiceError = "Could not reach practice APIs. Check that the web server is running.";
+    }
+  }
+
+  async function submitPracticeAnswer(correct) {
+    if (!currentCard || answerSubmitting) return;
+    answerSubmitting = true;
+    practiceError = "";
+    try {
+      const response = await fetch("/practice/answers", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ card_id: currentCard.id, correct }),
+      });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        practiceState = "error";
+        practiceError = friendlyPracticeError(payload, "Answer rejected. Refresh the queue and try again.");
+        return;
+      }
+      await loadPracticeQueue();
+    } catch (_error) {
+      practiceState = "error";
+      practiceError = "Could not submit the practice answer. Check the server and try again.";
+    } finally {
+      answerSubmitting = false;
     }
   }
 
@@ -124,8 +194,8 @@
         <p class="eyebrow">MiraLingo app home</p>
         <h1 id="home-heading">Welcome back, {user?.username ?? "admin"}.</h1>
         <p class="lede">
-          Your local development account is ready for Mirad pronunciation, translation, and vocabulary
-          practice flows as they come online.
+          Request an adaptive Mirad practice queue, answer the current card, and watch the scheduler
+          prioritize weak or stale content from your session history.
         </p>
       </div>
       <dl class="status-grid" aria-label="Current session">
@@ -138,27 +208,72 @@
           <dd>{user?.role ?? "admin"}</dd>
         </div>
         <div>
-          <dt>Mode</dt>
-          <dd>Local development</dd>
+          <dt>Practice events</dt>
+          <dd>{practiceQueue?.event_count ?? 0}</dd>
         </div>
       </dl>
-      <div class="practice-grid" aria-label="Practice areas">
-        <article>
-          <span aria-hidden="true">↔</span>
-          <h2>Translation drills</h2>
-          <p>Move between English and Mirad with feedback from the translator engine.</p>
-        </article>
-        <article>
-          <span aria-hidden="true">♪</span>
-          <h2>Pronunciation</h2>
-          <p>Prepare for TTS-backed listening and speaking practice.</p>
-        </article>
-        <article>
-          <span aria-hidden="true">✦</span>
-          <h2>Vocabulary</h2>
-          <p>Build a future spaced-repetition loop around Mirad roots and compounds.</p>
-        </article>
-      </div>
+
+      <section class="practice-panel" aria-labelledby="practice-heading">
+        <div class="practice-header">
+          <div>
+            <p class="eyebrow">Adaptive session</p>
+            <h2 id="practice-heading">Practice queue</h2>
+          </div>
+          <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
+            {practiceState === "loading" ? "Loading…" : "Refresh queue"}
+          </button>
+        </div>
+
+        {#if practiceState === "loading"}
+          <p class="status-message" role="status">Loading practice queue…</p>
+        {:else if practiceState === "empty"}
+          <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
+        {:else if practiceError}
+          <p class="error-message" role="alert">{practiceError}</p>
+        {/if}
+
+        {#if currentCard}
+          <article class="practice-card" aria-label="Current practice card">
+            <div class="card-meta">
+              <span>{currentCard.type}</span>
+              <span>Reason: {currentCard.scheduler_reason}</span>
+            </div>
+            <p class="prompt-label">English prompt</p>
+            <p class="prompt-text">{currentCard.prompt}</p>
+            <details>
+              <summary>Show Mirad answer</summary>
+              <p>{currentCard.answer}</p>
+            </details>
+            <dl class="diagnostic-grid" aria-label="Practice diagnostics">
+              <div>
+                <dt>event_count</dt>
+                <dd>{practiceQueue?.event_count ?? 0}</dd>
+              </div>
+              <div>
+                <dt>scheduler_reason</dt>
+                <dd>{currentCard.scheduler_reason}</dd>
+              </div>
+              <div>
+                <dt>Mastery</dt>
+                <dd>{currentCard.mastery?.correct ?? 0}/{currentCard.mastery?.attempts ?? 0} correct</dd>
+              </div>
+              <div>
+                <dt>Recency</dt>
+                <dd>{currentCard.recency?.last_seen_at ?? "new"}</dd>
+              </div>
+            </dl>
+            <div class="answer-row" aria-label="Submit answer">
+              <button class="primary-action" type="button" disabled={answerSubmitting} on:click={() => submitPracticeAnswer(true)}>
+                {answerSubmitting ? "Submitting…" : "I knew it"}
+              </button>
+              <button class="secondary-action" type="button" disabled={answerSubmitting} on:click={() => submitPracticeAnswer(false)}>
+                I missed it
+              </button>
+            </div>
+          </article>
+        {/if}
+      </section>
+
       <button class="secondary-action" type="button" on:click={logout}>Log out</button>
     </section>
   </main>

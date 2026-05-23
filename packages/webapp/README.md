@@ -7,11 +7,12 @@ MiraLingo is the local web application shell for learning Mirad. The S01 slice p
 Implemented in this package:
 
 - FastAPI backend with `/health`, `/auth/current-user`, `/auth/login`, and `/auth/logout` endpoints.
-- Signed-cookie session state that stores only password-free user fields.
+- Signed-cookie session state that stores only password-free user fields plus bounded per-session practice events.
 - Guarded local admin bootstrap (`admin` / `admin`) that works only when development settings enable it.
-- Svelte welcome screen for anonymous users and app home for the local admin session.
+- Authenticated adaptive practice APIs at `/practice/queue` and `/practice/answers`.
+- Svelte welcome screen for anonymous users and an authenticated practice panel for the local admin session.
 
-Future slices will add Mirad pronunciation, translation, vocabulary, and progress workflows using the engines in sibling packages.
+Future slices will add richer Mirad pronunciation, translation, vocabulary, and progress workflows using the engines in sibling packages.
 
 ## Local Configuration
 
@@ -58,7 +59,26 @@ npm install
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the Vite URL shown by the command. When logged out, the page should show "Welcome to MiraLingo" and the local admin login card. After signing in as `admin` / `admin` against a development backend, it should show the MiraLingo app home.
+Open the Vite URL shown by the command. When logged out, the page should show "Welcome to MiraLingo" and the local admin login card. After signing in as `admin` / `admin` against a development backend, it should show the MiraLingo app home and authenticated practice panel.
+
+## S03 Adaptive Practice Queue
+
+S03 adds a session-scoped adaptive practice loop for logged-in users. The frontend fetches one bounded queue at a time from `GET /practice/queue?limit=3`; it does not poll. The current card shows the English prompt, optional Mirad answer reveal, card type, scheduler reason, event count, mastery, and recency diagnostics. The `I knew it` and `I missed it` buttons submit explicit correctness to `POST /practice/answers` and are disabled while the answer request is in flight to avoid duplicate session events.
+
+Useful authenticated API checks after logging in with a cookie jar:
+
+```bash
+curl -c /tmp/miralingo.cookies -b /tmp/miralingo.cookies \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin"}' \
+  http://127.0.0.1:8000/auth/login
+curl -b /tmp/miralingo.cookies 'http://127.0.0.1:8000/practice/queue?limit=3'
+curl -b /tmp/miralingo.cookies -H 'Content-Type: application/json' \
+  -d '{"card_id":"word:the","correct":false}' \
+  http://127.0.0.1:8000/practice/answers
+```
+
+Practice responses are deliberately diagnostic. Queue payloads include `ok`, `phase`, `event_count`, `cards[].scheduler_reason`, `cards[].mastery`, and `cards[].recency`. Answer payloads include `ok`, `phase`, `card_id`, `card_type`, `correct`, `event_count`, `scheduler_reason`, `mastery`, `recency`, and `latest_event`. Error paths return structured phases for unauthenticated, missing-content, invalid-payload, and unknown-card cases without echoing credentials.
 
 ## S02 Card Content Import Preview
 
@@ -114,7 +134,7 @@ Run the full deterministic webapp regression from the repository root:
 PYTHONPATH=packages/webapp/src:packages/translator/src python -m pytest packages/webapp/tests -q
 ```
 
-This verifies the S01 auth/app shell contracts plus the S02 importer, CLI, and API preview contracts.
+This verifies the S01 auth/app shell contracts, S02 importer/CLI/API preview contracts, and S03 authenticated adaptive practice API/frontend source contracts.
 
 The S01 flow coverage in `packages/webapp/tests/test_s01_flow.py` verifies:
 
@@ -127,6 +147,9 @@ The S01 flow coverage in `packages/webapp/tests/test_s01_flow.py` verifies:
 
 ## Failure Modes
 
+- **Practice API unavailable or answer rejected:** the authenticated practice panel shows an actionable alert and avoids exposing credentials or raw stack traces.
+- **Practice content missing or empty:** queue errors mention content configuration; empty queues show that cards must be imported first.
+- **Repeated answer clicks:** practice answer buttons are disabled while submission is in flight, preventing duplicate events for the same click.
 - **Backend process unavailable:** browser fetches fail and the frontend shows "Could not reach MiraLingo auth. Check that the web server is running." The deterministic pytest path avoids network dependency by using FastAPI `TestClient` in process.
 - **Logged-out session:** `/auth/current-user` returns HTTP 401 with `{ "authenticated": false, "user": null }`, allowing agents and UI code to distinguish anonymous state from backend failure.
 - **Invalid credentials:** `/auth/login` returns HTTP 401 with `error: invalid_credentials` and does not echo the submitted password.
@@ -140,10 +163,13 @@ S01 authentication is a local development bootstrap backed by signed cookies and
 
 ## Negative Tests
 
-Negative coverage lives in `packages/webapp/tests/test_auth.py` and `packages/webapp/tests/test_s01_flow.py`:
+Negative coverage lives in `packages/webapp/tests/test_auth.py`, `packages/webapp/tests/test_s01_flow.py`, and `packages/webapp/tests/test_s03_flow.py`:
 
 - Invalid `admin` password returns `invalid_credentials` without password echo.
 - Logged-out `/auth/current-user` returns explicit HTTP 401 JSON.
 - Production environment refuses `admin` / `admin` with `local_admin_disabled`.
 - Logout clears the authenticated session.
 - Malformed login body returns HTTP 422 and leaves the session anonymous.
+- Practice queue and answer submission require auth and return structured unauthenticated diagnostics.
+- Unknown practice cards return structured `unknown_card` diagnostics without credential echo.
+- Frontend source keeps practice UI in the authenticated branch, includes both correctness controls, surfaces queue errors, and disables controls while submitting.
