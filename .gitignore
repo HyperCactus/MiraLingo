@@ -108,3 +108,7 @@ tmp/
 packages/tts/dist/
 packages/translator/dist/
 packages/webapp/dist/
+
+# ── GSD baseline (auto-generated) ──
+*.pyc
+target/

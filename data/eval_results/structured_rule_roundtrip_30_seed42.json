@@ -1,0 +1,964 @@
+{
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "seed": 42,
+  "n": 30,
+  "source_csv": "data/phrases/english-mirad-sentence-pairs.csv",
+  "created_at": "2026-05-23T08:34:21.273408+00:00",
+  "elapsed_sec": 1449.75,
+  "results": [
+    {
+      "index": 1,
+      "english": "your name is ugly",
+      "gold_mirad": "Eta dyun se vua.",
+      "pred_mirad": "Eta dyun se vua.",
+      "en2mir_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "Thy name is comely.",
+      "roundtrip_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "adjective.descriptive.ends_a"
+      ],
+      "roundtrip_retention_score": 0.0,
+      "roundtrip_retention_rationale": "\"Ugly\" and \"comely\" are direct opposites, so the round-trip inverts the meaning completely.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Thy name is comely.",
+      "gold_mir2en_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "adjective.descriptive.ends_a"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.0,
+      "gold_mir2en_retention_rationale": "\"Ugly\" and \"comely\" are direct opposites, so the round-trip inverts the meaning completely.",
+      "duration_sec": 10.21
+    },
+    {
+      "index": 2,
+      "english": "books",
+      "gold_mirad": "dyesi",
+      "pred_mirad": "dyesi",
+      "en2mir_used_rule_ids": [
+        "noun.plural.common_countable"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "recites",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.infinitive_er_stem"
+      ],
+      "roundtrip_retention_score": 0.0,
+      "roundtrip_retention_rationale": "Original noun \"books\" became verb \"recites\", changing part of speech and meaning entirely with no semantic retention.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "recites",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.infinitive_er_stem"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.0,
+      "gold_mir2en_retention_rationale": "Original noun \"books\" became verb \"recites\", changing part of speech and meaning entirely with no semantic retention.",
+      "duration_sec": 1.82
+    },
+    {
+      "index": 3,
+      "english": "they live downtown now",
+      "gold_mirad": "Yit tambese zedom hij.",
+      "pred_mirad": "Yit bese zedom hij.",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement",
+        "verb.motion_communication_omit_direction_preposition",
+        "pronoun.personal.invariant_case",
+        "determiner.deictic_adverbs.place_time_manner"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "They are staying downtown now.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement",
+        "syntax.basic_svo",
+        "determiner.deictic_adverbs.place_time_manner"
+      ],
+      "roundtrip_retention_score": 0.7,
+      "roundtrip_retention_rationale": "The core location and present-time reference are preserved, but the change from \"live\" (habitual/permanent) to \"are staying\" (temporary) significantly alters the intended duration and nature of residing downtown, reducing full semantic retention.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "They reside downtown now.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.progressive.active_ey_plus_tense"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "\"Reside\" is a synonym of \"live\" with no semantic shift; all other elements match perfectly.",
+      "duration_sec": 26.81
+    },
+    {
+      "index": 4,
+      "english": "you all will go",
+      "gold_mirad": "Yet po.",
+      "pred_mirad": "yet po",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "Go!",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.conditional_imperative_u_subject",
+        "verb.no_person_number_agreement",
+        "pronoun.personal.invariant_case"
+      ],
+      "roundtrip_retention_score": 0.0,
+      "roundtrip_retention_rationale": "Completely different speech act (statement vs. command), tense (future vs. imperative), and subject presence (explicit vs. omitted). No semantic overlap.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Be quiet!",
+      "gold_mir2en_used_rule_ids": [
+        "verb.conditional_imperative_u_subject"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.0,
+      "gold_mir2en_retention_rationale": "The round-trip output is a completely different sentence with no shared meaning. It changes from a future statement about going to an imperative command about being quiet.",
+      "duration_sec": 22.99
+    },
+    {
+      "index": 5,
+      "english": "we would come",
+      "gold_mirad": "Yat upu.",
+      "pred_mirad": "yat upu",
+      "en2mir_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.infinitive_er_stem",
+        "verb.no_person_number_agreement",
+        "pronoun.personal.invariant_case"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "Let us come!",
+      "roundtrip_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.simple.active_suffixes",
+        "verb.motion_communication_omit_direction_preposition"
+      ],
+      "roundtrip_retention_score": 0.2,
+      "roundtrip_retention_rationale": "The meaning is not preserved because the original conditional statement is transformed into a hortative imperative, changing the mood and speaker intent.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Let's come.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.no_person_number_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.4,
+      "gold_mir2en_retention_rationale": "The roundtrip changes the conditional \"would come\" to a hortative/imperative \"Let's come,\" which alters the speaker's intent from a hypothetical or polite future action to a direct suggestion. The subject and tense shift reduce semantic retention despite the lexical similarity.",
+      "duration_sec": 22.01
+    },
+    {
+      "index": 6,
+      "english": "hot",
+      "gold_mirad": "ama",
+      "pred_mirad": "ama",
+      "en2mir_used_rule_ids": [
+        "derivation.adjective_noun_to_adj_suffixes",
+        "adjective.descriptive.ends_a"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "thermal",
+      "roundtrip_used_rule_ids": [
+        "adjective.descriptive.ends_a"
+      ],
+      "roundtrip_retention_score": 0.7,
+      "roundtrip_retention_rationale": "\"thermal\" retains the core heat concept but shifts from general sensory experience to a more technical/relational meaning, losing the common colloquial sense of \"hot\".",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "thermal",
+      "gold_mir2en_used_rule_ids": [
+        "adjective.descriptive.ends_a"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.7,
+      "gold_mir2en_retention_rationale": "\"thermal\" retains the core heat concept but shifts from general sensory experience to a more technical/relational meaning, losing the common colloquial sense of \"hot\".",
+      "duration_sec": 1.92
+    },
+    {
+      "index": 7,
+      "english": "this teacher is good",
+      "gold_mirad": "Hia tuxut se fia.",
+      "pred_mirad": "Hia tuxut se fia.",
+      "en2mir_used_rule_ids": [
+        "determiner.demonstrative_hia_hua",
+        "verb.stative_complement_after_ser",
+        "verb.no_person_number_agreement",
+        "adjective.position.before_noun",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "This teacher is good.",
+      "roundtrip_used_rule_ids": [
+        "syntax.basic_svo",
+        "verb.no_person_number_agreement",
+        "adjective.descriptive.ends_a",
+        "adjective.position.before_noun"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The roundtrip output matches the original English exactly, except for standard sentence capitalization, which does not affect meaning.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "This teacher is good.",
+      "gold_mir2en_used_rule_ids": [
+        "syntax.basic_svo",
+        "verb.no_person_number_agreement",
+        "adjective.descriptive.ends_a",
+        "adjective.position.before_noun"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The roundtrip output matches the original English exactly, except for standard sentence capitalization, which does not affect meaning.",
+      "duration_sec": 30.73
+    },
+    {
+      "index": 8,
+      "english": "I would like to congratulate you",
+      "gold_mirad": "At fu hwayder et.",
+      "pred_mirad": "At fu hwayder et.",
+      "en2mir_used_rule_ids": [
+        "verb.modal_auxiliary_before_infinitive",
+        "verb.modal_hypothetical_mitigates"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "I would like to cheer on thee.",
+      "roundtrip_used_rule_ids": [
+        "verb.modal_hypothetical_mitigates",
+        "verb.conditional_imperative_u_subject"
+      ],
+      "roundtrip_retention_score": 0.3,
+      "roundtrip_retention_rationale": "The roundtrip changes the core verb from \"congratulate\" to \"cheer on,\" which alters the speech act from expressing praise for an achievement to offering encouragement or support. The archaic pronoun \"thee\" further distances the meaning from standard modern English. Only the general structure and positive tone are partially retained.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "I would like to cheer on thee.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.modal_hypothetical_mitigates",
+        "verb.conditional_imperative_u_subject"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.3,
+      "gold_mir2en_retention_rationale": "The roundtrip changes the core verb from \"congratulate\" to \"cheer on,\" which alters the speech act from expressing praise for an achievement to offering encouragement or support. The archaic pronoun \"thee\" further distances the meaning from standard modern English. Only the general structure and positive tone are partially retained.",
+      "duration_sec": 40.31
+    },
+    {
+      "index": 9,
+      "english": "this desk is small but good",
+      "gold_mirad": "Hia dresem se oga oy fia.",
+      "pred_mirad": "hia dresem oga oy fia",
+      "en2mir_used_rule_ids": [
+        "determiner.demonstrative_hia_hua",
+        "conjunction.coordinate_ay_ey_oy",
+        "adjective.descriptive.ends_a",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "this small not good desk",
+      "roundtrip_used_rule_ids": [
+        "adjective.negation_o_lo_ol",
+        "noun.modifiers.order_no_agreement",
+        "adjective.position.before_noun",
+        "determiner.categories",
+        "syntax.subject.noun_phrase_structure"
+      ],
+      "roundtrip_retention_score": 0.0,
+      "roundtrip_retention_rationale": "The roundtrip changes \"good\" to \"not good,\" introducing a negation that directly contradicts the original positive assertion.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "This desk is new but not good.",
+      "gold_mir2en_used_rule_ids": [
+        "conjunction.coordinate_ay_ey_oy",
+        "determiner.deictic_begin_h",
+        "verb.no_person_number_agreement",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.0,
+      "gold_mir2en_retention_rationale": "Two key semantic errors: the original's \"small\" was changed to \"new,\" and the original's \"good\" was negated to \"not good.\" This completely inverts the meaning, losing all factual content about the desk's size and quality.",
+      "duration_sec": 88.8
+    },
+    {
+      "index": 10,
+      "english": "unloved",
+      "gold_mirad": "oifwa",
+      "pred_mirad": "oifwa",
+      "en2mir_used_rule_ids": [
+        "adjective.negation_o_lo_ol",
+        "adjective.descriptive.ends_a"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "unloved",
+      "roundtrip_used_rule_ids": [
+        "adjective.negation_o_lo_ol",
+        "derivation.adjective_verb_participles_ea_wa_oa_ua"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The original and roundtrip outputs are exactly the same word, with no change in meaning.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "unloved",
+      "gold_mir2en_used_rule_ids": [
+        "adjective.negation_o_lo_ol",
+        "derivation.adjective_verb_participles_ea_wa_oa_ua"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The original and roundtrip outputs are exactly the same word, with no change in meaning.",
+      "duration_sec": 40.17
+    },
+    {
+      "index": 11,
+      "english": "he looks like a good worker",
+      "gold_mirad": "Wit tease fia yexut.",
+      "pred_mirad": "It tease gel fia yexut.",
+      "en2mir_used_rule_ids": [
+        "verb.no_person_number_agreement",
+        "verb.simple.active_suffixes",
+        "adjective.position.before_noun"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "He/She teases like a good worker.",
+      "roundtrip_used_rule_ids": [
+        "verb.infinitive_er_stem",
+        "verb.no_person_number_agreement",
+        "adjective.position.before_noun"
+      ],
+      "roundtrip_retention_score": 0.0,
+      "roundtrip_retention_rationale": "The verb \"looks\" (meaning appears) is replaced with \"teases,\" a completely different action, destroying the original meaning. The pronoun ambiguity adds further deviation.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "He is a good worker.",
+      "gold_mir2en_used_rule_ids": [
+        "pronoun.personal.invariant_case",
+        "verb.no_person_number_agreement",
+        "noun.modifiers.order_no_agreement",
+        "verb.simple.active_suffixes"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.7,
+      "gold_mir2en_retention_rationale": "The round-trip version preserves the core claim about being a good worker but loses the hedging nuance of \"looks like,\" shifting from appearance-based assessment to a flat assertion.",
+      "duration_sec": 95.05
+    },
+    {
+      "index": 12,
+      "english": "your book",
+      "gold_mirad": "eta dyes",
+      "pred_mirad": "eta dyes",
+      "en2mir_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "adjective.position.before_noun"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "your book",
+      "roundtrip_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The phrase is unchanged, indicating complete semantic retention.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "your book",
+      "gold_mir2en_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The phrase is unchanged, indicating complete semantic retention.",
+      "duration_sec": 31.88
+    },
+    {
+      "index": 13,
+      "english": "my book",
+      "gold_mirad": "ata dyes",
+      "pred_mirad": "ata dyes",
+      "en2mir_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "my book",
+      "roundtrip_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The roundtrip output exactly matches the original, so no meaning loss occurred.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "my book",
+      "gold_mir2en_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The roundtrip output exactly matches the original, so no meaning loss occurred.",
+      "duration_sec": 28.15
+    },
+    {
+      "index": 14,
+      "english": "my teacher is bad",
+      "gold_mirad": "Ata tuxut se fua.",
+      "pred_mirad": "ata tuxut se fua",
+      "en2mir_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "verb.no_person_number_agreement",
+        "verb.stative_complement_after_ser"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "My preceptor is bad.",
+      "roundtrip_used_rule_ids": [
+        "noun.possession.named_person_bi",
+        "verb.no_person_number_agreement"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "\"Preceptor\" is a synonym for teacher in this context; no factual drift or syntactic changes occur.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "My preceptor is bad.",
+      "gold_mir2en_used_rule_ids": [
+        "pronoun.possessive_add_a_s_si",
+        "verb.stative_complement_after_ser",
+        "verb.no_person_number_agreement",
+        "adjective.position.before_noun"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "\"Preceptor\" is a synonym for teacher in this context; no factual drift or syntactic changes occur.",
+      "duration_sec": 50.18
+    },
+    {
+      "index": 15,
+      "english": "you all will come",
+      "gold_mirad": "Yet upo.",
+      "pred_mirad": "Yet upo.",
+      "en2mir_used_rule_ids": [
+        "verb.infinitive_er_stem",
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "You (plural) will come.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.infinitive_er_stem",
+        "verb.motion_communication_omit_direction_preposition"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The roundtrip English maintains the exact meaning: second-person plural future statement. The explicit \"(plural)\" clarifies the subject but does not alter the semantics.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "You (plural) will come.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.infinitive_er_stem",
+        "verb.motion_communication_omit_direction_preposition"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The roundtrip English maintains the exact meaning: second-person plural future statement. The explicit \"(plural)\" clarifies the subject but does not alter the semantics.",
+      "duration_sec": 49.88
+    },
+    {
+      "index": 16,
+      "english": "you all go",
+      "gold_mirad": "Yet pe.",
+      "pred_mirad": "yet pu",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.conditional_imperative_u_subject"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "You would go.",
+      "roundtrip_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.no_person_number_agreement",
+        "verb.infinitive_er_stem"
+      ],
+      "roundtrip_retention_score": 0.3,
+      "roundtrip_retention_rationale": "The roundtrip changes imperative mood to conditional mood and loses plural \"all\". Factual drift: subject number reduced, tense/mood altered, deictic \"all\" removed.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Go, all of you!",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.85,
+      "gold_mir2en_retention_rationale": "Core meaning (group going) is preserved, but mood changes from declarative to imperative, slightly altering pragmatic force without changing factual content. Minor penalty for mood shift.",
+      "duration_sec": 61.11
+    },
+    {
+      "index": 17,
+      "english": "we will not start until you get here",
+      "gold_mirad": "Yat voy ijo ju van et puo him.",
+      "pred_mirad": "yat voy ijbo ju van et upe him",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement",
+        "conjunction.subordinate_van_that",
+        "determiner.deictic_adverbs.place_time_manner"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "We will not start until you come here.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "syntax.basic_svo",
+        "verb.no_person_number_agreement",
+        "conjunction.coordinate_ay_ey_oy"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "Identical meaning: \"get here\" and \"come here\" are synonymous in context; no changes to negation, tense, quantifiers, or factual content.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "We will not come here until you arrive here.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "conjunction.subordinate_van_that",
+        "verb.no_person_number_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.4,
+      "gold_mir2en_retention_rationale": "Major change in verb meaning: \"start\" (begin an activity) replaced with \"come\" (move to a location). This is factual drift. Also adds explicit location \"here\" not present in original. Only partial preservation of the conditional structure.",
+      "duration_sec": 128.92
+    },
+    {
+      "index": 18,
+      "english": "the books",
+      "gold_mirad": "ha dyesi",
+      "pred_mirad": "ha dyesi",
+      "en2mir_used_rule_ids": [
+        "noun.plural.common_countable",
+        "noun.article.definite_ha"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "the books",
+      "roundtrip_used_rule_ids": [
+        "noun.plural.common_countable",
+        "noun.article.definite_ha"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "Perfect preservation; the exact same noun phrase is returned without any drift.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "the books",
+      "gold_mir2en_used_rule_ids": [
+        "noun.plural.common_countable",
+        "noun.article.definite_ha"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "Perfect preservation; the exact same noun phrase is returned without any drift.",
+      "duration_sec": 28.57
+    },
+    {
+      "index": 19,
+      "english": "bad things",
+      "gold_mirad": "fusi",
+      "pred_mirad": "fua suni",
+      "en2mir_used_rule_ids": [
+        "noun.plural.common_countable",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "bad things",
+      "roundtrip_used_rule_ids": [
+        "adjective.descriptive.ends_a",
+        "noun.plural.common_countable",
+        "noun.modifiers.order_no_agreement",
+        "adjective.position.before_noun"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "Exact match with no loss or alteration of meaning.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "words",
+      "gold_mir2en_used_rule_ids": [
+        "noun.plural.common_countable"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.0,
+      "gold_mir2en_retention_rationale": "\"bad things\" denotes negative entities, while \"words\" is a semantically unrelated term with no negative implication; meaning is entirely lost.",
+      "duration_sec": 61.03
+    },
+    {
+      "index": 20,
+      "english": "we would do",
+      "gold_mirad": "Yat xu.",
+      "pred_mirad": "yat xu",
+      "en2mir_used_rule_ids": [
+        "verb.conditional_imperative_u_subject"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "Let's do.",
+      "roundtrip_used_rule_ids": [
+        "verb.conditional_imperative_u_subject"
+      ],
+      "roundtrip_retention_score": 0.25,
+      "roundtrip_retention_rationale": "Mood changed from conditional/declarative to imperative suggestion; \"we would\" implies potential or planned action, while \"let's\" is an invitation; significant pragmatic and semantic drift.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Let us do.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.simple.active_suffixes"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.4,
+      "gold_mir2en_retention_rationale": "Subject and verb are similar, but the conditional mood is replaced by a hortative/imperative, altering the intended hypothetical meaning to a direct suggestion. Major mood shift reduces retention.",
+      "duration_sec": 76.3
+    },
+    {
+      "index": 21,
+      "english": "this is very good",
+      "gold_mirad": "His se gla fia.",
+      "pred_mirad": "hia se gla fia",
+      "en2mir_used_rule_ids": [
+        "verb.no_person_number_agreement",
+        "adjective.descriptive.ends_a",
+        "determiner.deictic_begin_h"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "This is very good.",
+      "roundtrip_used_rule_ids": [
+        "determiner.demonstrative_hia_hua"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The round-trip translation produced an exact semantic equivalent; only trivial capitalization differs, which does not affect meaning.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "This is very good.",
+      "gold_mir2en_used_rule_ids": [
+        "adjective.position.before_noun",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The round-trip translation produced an exact semantic equivalent; only trivial capitalization differs, which does not affect meaning.",
+      "duration_sec": 75.38
+    },
+    {
+      "index": 22,
+      "english": "I would come",
+      "gold_mirad": "At upu.",
+      "pred_mirad": "At upu.",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.conditional_imperative_u_subject"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "I would come.",
+      "roundtrip_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.simple.active_suffixes"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The round-trip output is a perfect semantic and syntactic copy of the original; no meaning change occurred.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "I would come.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.simple.active_suffixes"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The round-trip output is a perfect semantic and syntactic copy of the original; no meaning change occurred.",
+      "duration_sec": 50.26
+    },
+    {
+      "index": 23,
+      "english": "we must protect our own things",
+      "gold_mirad": "Yat yefe ovmasber yatasi.",
+      "pred_mirad": "Yat yefe beaxer yauta suni.",
+      "en2mir_used_rule_ids": [
+        "verb.modal_auxiliary_before_infinitive",
+        "verb.no_person_number_agreement",
+        "syntax.basic_svo",
+        "pronoun.possessive_add_a_s_si",
+        "adjective.position.before_noun"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "We must keep our own things.",
+      "roundtrip_used_rule_ids": [
+        "verb.modal_auxiliary_before_infinitive",
+        "pronoun.reflexive_insert_u"
+      ],
+      "roundtrip_retention_score": 0.85,
+      "roundtrip_retention_rationale": "\"Protect\" implies active defense, while \"keep\" is more neutral, causing slight meaning loss but preserving the core intent of preserving one's possessions.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "We must protect our own things.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.modal_auxiliary_before_infinitive",
+        "pronoun.possessive_add_a_s_si",
+        "verb.no_person_number_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The original and roundtrip sentences are exactly the same, indicating complete semantic retention.",
+      "duration_sec": 64.58
+    },
+    {
+      "index": 24,
+      "english": "unfriendly",
+      "gold_mirad": "odata",
+      "pred_mirad": "odata",
+      "en2mir_used_rule_ids": [
+        "adjective.negation_o_lo_ol"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "unfriendly",
+      "roundtrip_used_rule_ids": [
+        "syntax.subject.noun_phrase_structure",
+        "adjective.position.before_noun",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The input and output are exactly the same word, indicating complete semantic retention with no loss or alteration.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "unfriendly",
+      "gold_mir2en_used_rule_ids": [
+        "syntax.subject.noun_phrase_structure",
+        "adjective.position.before_noun",
+        "noun.modifiers.order_no_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The input and output are exactly the same word, indicating complete semantic retention with no loss or alteration.",
+      "duration_sec": 22.73
+    },
+    {
+      "index": 25,
+      "english": "before this we lived in the suburbs",
+      "gold_mirad": "Ja his, yat tambesa ha yuzdom.",
+      "pred_mirad": "Ja his yat besa be yuzdom.",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "pronoun.personal.invariant_case",
+        "syntax.basic_svo",
+        "determiner.deictic_adverbs.place_time_manner"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "Before this, we stayed in the suburb.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes"
+      ],
+      "roundtrip_retention_score": 0.5,
+      "roundtrip_retention_rationale": "The sentence structure and temporal marker (\"before this\") are preserved, but the core meaning shifts from a general residential area (\"suburbs\") to a specific location (\"the suburb\") and from a permanent living situation (\"lived\") to a temporary one (\"stayed\"), leading to significant meaning loss.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "Before this, we lived in the suburb.",
+      "gold_mir2en_used_rule_ids": [
+        "determiner.deictic_adverbs.place_time_manner",
+        "verb.no_person_number_agreement",
+        "verb.simple.active_suffixes",
+        "noun.article.definite_ha",
+        "pronoun.personal.invariant_case"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.9,
+      "gold_mir2en_retention_rationale": "The meaning is largely retained, but the shift from plural \"suburbs\" to singular \"suburb\" introduces a subtle factual change in specificity, slightly altering the intended sense of living in a suburban area in general versus a specific suburb.",
+      "duration_sec": 65.76
+    },
+    {
+      "index": 26,
+      "english": "the beautiful city",
+      "gold_mirad": "ha via dom",
+      "pred_mirad": "ha via dom",
+      "en2mir_used_rule_ids": [
+        "noun.modifiers.order_no_agreement",
+        "adjective.position.before_noun"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "the beautiful city",
+      "roundtrip_used_rule_ids": [
+        "noun.modifiers.order_no_agreement",
+        "adjective.position.before_noun",
+        "syntax.subject.noun_phrase_structure"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The original and roundtrip strings match exactly, so meaning is fully preserved.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "the beautiful city",
+      "gold_mir2en_used_rule_ids": [
+        "noun.modifiers.order_no_agreement",
+        "adjective.position.before_noun",
+        "syntax.subject.noun_phrase_structure"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The original and roundtrip strings match exactly, so meaning is fully preserved.",
+      "duration_sec": 28.77
+    },
+    {
+      "index": 27,
+      "english": "I was",
+      "gold_mirad": "At sa.",
+      "pred_mirad": "At sa.",
+      "en2mir_used_rule_ids": [
+        "verb.infinitive_er_stem",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 1.0,
+      "en2mir_normalized_strict": 1.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "I was.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "Full semantic retention; the addition of a period is a purely typographical change that does not alter meaning.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "I was.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.no_person_number_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "Full semantic retention; the addition of a period is a purely typographical change that does not alter meaning.",
+      "duration_sec": 31.23
+    },
+    {
+      "index": 28,
+      "english": "we would be going home",
+      "gold_mirad": "Yat peyu tam.",
+      "pred_mirad": "yat peyu be tam",
+      "en2mir_used_rule_ids": [
+        "verb.progressive.active_ey_plus_tense",
+        "verb.conditional_imperative_u_subject",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 0.0,
+      "roundtrip_english": "We are going to the house.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.motion_communication_omit_direction_preposition"
+      ],
+      "roundtrip_retention_score": 0.3,
+      "roundtrip_retention_rationale": "The roundtrip loses the conditional or future-in-the-past meaning of \"would be going\" and replaces it with a simple present continuous indicative. Additionally, \"home\" (one's own residence) is changed to \"the house\" (any house), altering the context. These changes constitute significant meaning drift, so the retention is low.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "We would go home.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.conditional_imperative_u_subject",
+        "verb.motion_communication_omit_direction_preposition"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.95,
+      "gold_mir2en_retention_rationale": "Meaning of intending to return home is fully retained; only a minor aspectual difference (continuous vs. simple) without factual change.",
+      "duration_sec": 129.75
+    },
+    {
+      "index": 29,
+      "english": "he or she is",
+      "gold_mirad": "It se.",
+      "pred_mirad": "it se",
+      "en2mir_used_rule_ids": [
+        "verb.stative_complement_after_ser"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "it is",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes"
+      ],
+      "roundtrip_retention_score": 0.2,
+      "roundtrip_retention_rationale": "The meaning is largely lost because \"he or she\" explicitly denotes a human being, whereas \"it\" denotes an inanimate or non-person entity, resulting in a significant semantic difference.",
+      "roundtrip_relaxed_english_match": 0.0,
+      "gold_mirad_to_english": "It is.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.no_person_number_agreement"
+      ],
+      "gold_mir2en_relaxed_english_match": 0.0,
+      "gold_mir2en_retention_score": 0.5,
+      "gold_mir2en_retention_rationale": "The predicate \"is\" is preserved, but the subject shifts from a human to an inanimate referent, losing gender and animacy information, which reduces factual and semantic equivalence.",
+      "duration_sec": 45.33
+    },
+    {
+      "index": 30,
+      "english": "you will come",
+      "gold_mirad": "Et upo.",
+      "pred_mirad": "et upo",
+      "en2mir_used_rule_ids": [
+        "verb.simple.active_suffixes",
+        "verb.infinitive_er_stem",
+        "verb.no_person_number_agreement"
+      ],
+      "en2mir_exact": 0.0,
+      "en2mir_normalized_strict": 0.0,
+      "en2mir_relaxed": 1.0,
+      "roundtrip_english": "You will come.",
+      "roundtrip_used_rule_ids": [
+        "verb.simple.active_suffixes"
+      ],
+      "roundtrip_retention_score": 1.0,
+      "roundtrip_retention_rationale": "The only difference is capitalization, which is a trivial orthographic variation. The semantic meaning is identical.",
+      "roundtrip_relaxed_english_match": 1.0,
+      "gold_mirad_to_english": "You will come.",
+      "gold_mir2en_used_rule_ids": [
+        "verb.simple.active_suffixes"
+      ],
+      "gold_mir2en_relaxed_english_match": 1.0,
+      "gold_mir2en_retention_score": 1.0,
+      "gold_mir2en_retention_rationale": "The only difference is capitalization, which is a trivial orthographic variation. The semantic meaning is identical.",
+      "duration_sec": 39.08
+    }
+  ],
+  "summary": {
+    "completed": 30,
+    "fully_valid": 30,
+    "rows_with_any_error": 0,
+    "en2mir_exact_rate": 0.4666666666666667,
+    "en2mir_normalized_strict_rate": 0.4666666666666667,
+    "en2mir_relaxed_rate": 0.6666666666666666,
+    "roundtrip_relaxed_english_match_rate": 0.4,
+    "roundtrip_retention_mean": 0.6433333333333333,
+    "roundtrip_retention_median": 0.925,
+    "gold_mir2en_relaxed_english_rate": 0.4,
+    "gold_mir2en_retention_mean": 0.7033333333333334,
+    "gold_mir2en_retention_median": 0.975,
+    "roundtrip_metric_vs_en2mir_relaxed_pearson": 0.1363791993045998,
+    "roundtrip_metric_auc_for_en2mir_relaxed": 0.5975,
+    "roundtrip_metric_vs_en2mir_strict_pearson": 0.32792342906766914,
+    "roundtrip_metric_auc_for_en2mir_strict": 0.6897321428571429
+  }
+}

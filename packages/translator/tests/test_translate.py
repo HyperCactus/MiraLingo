@@ -248,8 +248,8 @@ def test_signature_accepts_all_input_fields():
         name for name, f in fields.items()
         if f.json_schema_extra and f.json_schema_extra.get('__dspy_field_type') == 'output'
     }
-    assert input_fields == {"english_text", "word_equivalents", "context_passages"}
-    assert output_fields == {"mirad_text"}
+    assert input_fields == {"english_text", "normalized_structure", "word_equivalents", "context_passages"}
+    assert output_fields == {"mirad_text", "used_rule_ids"}
     assert "confidence" not in output_fields
 
 

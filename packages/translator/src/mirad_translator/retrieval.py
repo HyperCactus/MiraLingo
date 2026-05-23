@@ -1,5 +1,7 @@
-"""ChromaDB retrieval for grammar and thesaurus chunks."""
+"""ChromaDB retrieval for structured grammar rules and thesaurus chunks."""
 from pathlib import Path
+import json
+from typing import Any
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
 CHROMA_DIR = str(_PROJECT_ROOT / "data" / "chroma_db")
@@ -11,6 +13,7 @@ _CHROMA_AVAILABLE = False
 _ST_AVAILABLE = False
 _grammar_collection = None
 _thesaurus_collection = None
+_grammar_rules_collection = None
 _embedding_model = None
 
 try:
@@ -49,6 +52,83 @@ def _get_grammar_collection():
         if _grammar_collection.count() == 0:
             _index_grammar(_grammar_collection)
     return _grammar_collection
+
+
+def _get_grammar_rules_path() -> Path:
+    return _PROJECT_ROOT / "data" / "mirad-docs" / "nirad_grammer_rules.json"
+
+
+def _load_grammar_rules() -> list[dict[str, Any]]:
+    path = _get_grammar_rules_path()
+    if not path.exists():
+        raise FileNotFoundError(f"Grammar rules JSON not found: {path}")
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rule_sets = data.get("rule_sets", {}) if isinstance(data, dict) else {}
+    rules: list[dict[str, Any]] = []
+
+    for section, section_rules in rule_sets.items():
+        if not isinstance(section_rules, list):
+            continue
+        for idx, rule in enumerate(section_rules):
+            if not isinstance(rule, dict):
+                continue
+            rid = rule.get("id") or f"{section}.{idx}"
+            tags = rule.get("retrieval_tags") or []
+            if not isinstance(tags, list):
+                tags = [str(tags)]
+            examples = rule.get("examples") or []
+
+            rules.append(
+                {
+                    "id": str(rid),
+                    "section": section,
+                    "title": str(rule.get("title") or ""),
+                    "rule": str(rule.get("rule") or ""),
+                    "pseudocode": str(rule.get("pseudocode") or ""),
+                    "examples": examples if isinstance(examples, list) else [examples],
+                    "retrieval_tags": [str(t) for t in tags],
+                }
+            )
+
+    return rules
+
+
+def _format_rule_document(rule: dict[str, Any]) -> str:
+    examples = rule.get("examples") or []
+    ex_lines = []
+    for ex in examples[:3]:
+        if isinstance(ex, dict):
+            mi = ex.get("mirad", "")
+            en = ex.get("english", "")
+            if mi or en:
+                ex_lines.append(f"- {mi} => {en}".strip())
+        else:
+            ex_lines.append(f"- {str(ex)}")
+    ex_text = "\n".join(ex_lines)
+
+    return (
+        f"ID: {rule.get('id', '')}\n"
+        f"SECTION: {rule.get('section', '')}\n"
+        f"TITLE: {rule.get('title', '')}\n"
+        f"DESCRIPTION: {rule.get('rule', '')}\n"
+        f"PSEUDOCODE: {rule.get('pseudocode', '')}\n"
+        f"EXAMPLES:\n{ex_text}".strip()
+    )
+
+
+def _get_grammar_rules_collection():
+    global _grammar_rules_collection
+    if _grammar_rules_collection is None:
+        if not _CHROMA_AVAILABLE:
+            raise RuntimeError("chromadb not installed. Run: pip install chromadb")
+        client = chromadb.PersistentClient(path=CHROMA_DIR)
+        _grammar_rules_collection = client.get_or_create_collection(
+            name="grammar_rules", metadata={"doc_type": "grammar_rules"}
+        )
+        if _grammar_rules_collection.count() == 0:
+            _index_grammar_rules(_grammar_rules_collection)
+    return _grammar_rules_collection
 
 
 def _get_thesaurus_collection():
@@ -123,6 +203,38 @@ def _index_grammar(collection):
     return len(chunks)
 
 
+def _index_grammar_rules(collection):
+    rules = _load_grammar_rules()
+    if not rules:
+        return 0
+
+    embedder = _get_embedder()
+    # Embed retrieval tags only (as requested), but persist full structured rule payload in metadata.
+    tag_texts = ["; ".join(r.get("retrieval_tags", [])) for r in rules]
+    embeddings = _batch_encode(embedder, tag_texts)
+    ids = [f"grammar_rule_{i}" for i in range(len(rules))]
+    docs = [_format_rule_document(r) for r in rules]
+    metadatas = []
+    for i, rule in enumerate(rules):
+        examples = rule.get("examples") or []
+        examples_text = json.dumps(examples[:5], ensure_ascii=False)
+        metadatas.append(
+            {
+                "doc_type": "grammar_rule",
+                "source_section": rule.get("section", "grammar_rules"),
+                "rule_id": rule.get("id", f"rule_{i}"),
+                "title": rule.get("title", ""),
+                "description": rule.get("rule", ""),
+                "pseudocode": rule.get("pseudocode", ""),
+                "examples": examples_text,
+                "retrieval_tags": "; ".join(rule.get("retrieval_tags", [])),
+            }
+        )
+
+    collection.add(ids=ids, documents=docs, embeddings=embeddings, metadatas=metadatas)
+    return len(rules)
+
+
 def _index_thesaurus(collection):
     chunks = get_thesaurus_chunks()
     embedder = _get_embedder()
@@ -134,19 +246,39 @@ def _index_thesaurus(collection):
 
 
 def retrieve_grammar(query, top_k=3):
-    """Retrieve top_k grammar chunks for a query."""
-    collection = _get_grammar_collection()
+    """Retrieve top_k grammar rules for a query based on retrieval_tags similarity."""
+    collection = _get_grammar_rules_collection()
     embedder = _get_embedder()
     q_embedding = embedder.encode([query], show_progress_bar=False).tolist()
     results = collection.query(query_embeddings=q_embedding, n_results=top_k)
-    return [
-        {"text": doc, "distance": dist, "metadata": meta}
-        for doc, dist, meta in zip(
-            results["documents"][0],
-            results["distances"][0],
-            results["metadatas"][0]
+
+    output = []
+    for doc, dist, meta in zip(
+        results["documents"][0],
+        results["distances"][0],
+        results["metadatas"][0],
+    ):
+        examples = []
+        try:
+            examples = json.loads(meta.get("examples", "[]") or "[]")
+        except Exception:
+            examples = []
+
+        output.append(
+            {
+                "text": doc,
+                "distance": dist,
+                "metadata": meta,
+                "rule": {
+                    "id": meta.get("rule_id", ""),
+                    "description": meta.get("description", ""),
+                    "pseudocode": meta.get("pseudocode", ""),
+                    "examples": examples,
+                    "retrieval_tags": [t.strip() for t in (meta.get("retrieval_tags", "") or "").split(";") if t.strip()],
+                },
+            }
         )
-    ]
+    return output
 
 
 def retrieve_thesaurus(query, top_k=3):
@@ -174,35 +306,39 @@ def retrieve_all(query, top_k=3):
 
 
 def build_indexes():
-    """Force-build both ChromaDB indexes."""
+    """Force-build grammar-rules and thesaurus ChromaDB indexes."""
     if not _CHROMA_AVAILABLE:
         raise RuntimeError("chromadb not installed.")
     client = chromadb.PersistentClient(path=CHROMA_DIR)
-    gc = client.get_or_create_collection("grammar", metadata={"doc_type": "grammar"})
+    grc = client.get_or_create_collection("grammar_rules", metadata={"doc_type": "grammar_rules"})
     tc = client.get_or_create_collection("thesaurus", metadata={"doc_type": "thesaurus"})
+
     # Clear existing data for clean rebuild
-    if gc.count() > 0:
-        gc_ids = gc.get()["ids"]
-        if gc_ids:
-            gc.delete(ids=gc_ids)
+    if grc.count() > 0:
+        grc_ids = grc.get()["ids"]
+        if grc_ids:
+            grc.delete(ids=grc_ids)
     if tc.count() > 0:
         tc_ids = tc.get()["ids"]
         if tc_ids:
             tc.delete(ids=tc_ids)
-    n_g = _index_grammar(gc)
+
+    n_gr = _index_grammar_rules(grc)
     n_t = _index_thesaurus(tc)
+
     # Reset cached collections so next access picks up fresh data
-    global _grammar_collection, _thesaurus_collection
-    _grammar_collection = gc
+    global _grammar_rules_collection, _thesaurus_collection
+    _grammar_rules_collection = grc
     _thesaurus_collection = tc
-    return {"grammar_chunks": n_g, "thesaurus_chunks": n_t}
+    return {"grammar_rules": n_gr, "thesaurus_chunks": n_t}
 
 
 def get_chunk_counts():
-    """Return current chunk counts in ChromaDB."""
+    """Return current index counts in ChromaDB."""
     if not _CHROMA_AVAILABLE:
-        return {"grammar": 0, "thesaurus": 0}
+        return {"grammar": 0, "grammar_rules": 0, "thesaurus": 0}
     client = chromadb.PersistentClient(path=CHROMA_DIR)
-    gc = client.get_or_create_collection("grammar")
+    grc = client.get_or_create_collection("grammar_rules")
     tc = client.get_or_create_collection("thesaurus")
-    return {"grammar": gc.count(), "thesaurus": tc.count()}
+    count = grc.count()
+    return {"grammar": count, "grammar_rules": count, "thesaurus": tc.count()}

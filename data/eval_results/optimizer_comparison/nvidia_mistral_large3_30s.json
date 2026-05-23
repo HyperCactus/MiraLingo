@@ -1,0 +1,11 @@
+{
+  "model": "mistralai/mistral-large-3-675b-instruct-2512",
+  "label": "mistralai/mistral-large-3-675b-instruct-2512",
+  "per_example": [],
+  "eval_time_s": 0.0,
+  "normalized_score": 0.0,
+  "exact_score": 0.0,
+  "normalized_hits": 0,
+  "exact_hits": 0,
+  "total": 30
+}

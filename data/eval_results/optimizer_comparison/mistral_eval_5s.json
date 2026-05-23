@@ -1,0 +1,47 @@
+{
+  "model": "mistralai/mistral-large-3-675b-instruct-2512",
+  "label": "Mistral Large",
+  "per_example": [
+    {
+      "english_text": "what do they do for work now",
+      "gold_mirad": "Duhos yit xe av yex hij?",
+      "predicted_mirad": "Duhos yit xe av yex hij?",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "they do",
+      "gold_mirad": "Yit xe.",
+      "predicted_mirad": "Yit xe.",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    },
+    {
+      "english_text": "you would do",
+      "gold_mirad": "Et xu.",
+      "predicted_mirad": "Et fuxer.",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "do you all walk to school",
+      "gold_mirad": "Duven yet tyoyape tistam?",
+      "predicted_mirad": "Duven yet tyope bu tistam?",
+      "normalized_match": 0.0,
+      "exact_match": 0.0
+    },
+    {
+      "english_text": "fast",
+      "gold_mirad": "iga",
+      "predicted_mirad": "iga",
+      "normalized_match": 1.0,
+      "exact_match": 1.0
+    }
+  ],
+  "eval_time_s": 286.62,
+  "normalized_score": 60.0,
+  "exact_score": 60.0,
+  "normalized_hits": 3,
+  "exact_hits": 3,
+  "total": 5
+}

@@ -1,0 +1,4509 @@
+{
+  "language": "Mirad",
+  "version": "working_rag_grammar_v1_expanded",
+  "purpose": "Atomic grammar rules for RAG-based Mirad <-> English translation.",
+  "schema_note": "Each object is one retrieval unit. Embed title + rule.description + examples + retrieval_tags.",
+  "rule_sets": {
+    "orthography_phonology": [
+      {
+        "id": "orthography.alphabet.roman_no_diacritics",
+        "title": "Mirad uses the Roman alphabet without diacritics for native words",
+        "category": "orthography",
+        "subcategory": "alphabet",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 55,
+        "applies_to": {
+          "unit": "written_word"
+        },
+        "rule": {
+          "description": "Native Mirad words are written with the Latin alphabet and no diacritics. Capitalization is used like English for sentence starts, proper nouns, and acronyms.",
+          "pseudocode": [
+            "if token.is_native_mirad:",
+            "    require token.characters subset_of latin_letters",
+            "    reject diacritics",
+            "if token.is_sentence_initial or token.is_proper_noun or token.is_acronym:",
+            "    capitalize as in English"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Mirad",
+            "english": "Mirad",
+            "analysis": "proper name capitalized"
+          },
+          {
+            "mirad": "Ferad",
+            "english": "French language",
+            "analysis": "language name capitalized"
+          }
+        ],
+        "retrieval_tags": [
+          "alphabet",
+          "capitalization",
+          "diacritics",
+          "proper nouns",
+          "spelling"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Alphabet / Capitalization"
+        }
+      },
+      {
+        "id": "orthography.punctuation.direct_quote_colon",
+        "title": "Use a colon before direct quotations",
+        "category": "orthography",
+        "subcategory": "punctuation",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 40,
+        "applies_to": {
+          "construction": "direct_quotation"
+        },
+        "rule": {
+          "description": "Mirad uses a colon before direct speech where English often uses a comma.",
+          "pseudocode": [
+            "if clause.introduces_direct_quote:",
+            "    place ':' after reporting clause",
+            "    quote_content = quoted_sentence"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "It da: \"Van esu man.\"",
+            "english": "He said, \"Let there be light.\"",
+            "analysis": "colon introduces the quote"
+          }
+        ],
+        "retrieval_tags": [
+          "direct quote",
+          "colon",
+          "punctuation",
+          "reported speech"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Punctuation"
+        }
+      },
+      {
+        "id": "phonology.consonants.one_to_one",
+        "title": "Consonant letters map one-to-one to sounds",
+        "category": "phonology",
+        "subcategory": "consonants",
+        "direction": [
+          "mirad_to_english"
+        ],
+        "priority": 35,
+        "applies_to": {
+          "unit": "letter"
+        },
+        "rule": {
+          "description": "Native Mirad has no silent consonants and no native consonant digraphs. Notable values: x = English sh, c = ch, j = zh, g is always hard, s is always unvoiced.",
+          "pseudocode": [
+            "for each consonant in native_word:",
+            "    pronounce according_to Mirad_consonant_table",
+            "    do_not_apply English digraph or silent-letter rules"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "x",
+            "english": "sh sound",
+            "analysis": "x corresponds to /ʃ/"
+          },
+          {
+            "mirad": "j",
+            "english": "zh sound",
+            "analysis": "j corresponds to /ʒ/"
+          }
+        ],
+        "retrieval_tags": [
+          "pronunciation",
+          "consonants",
+          "x",
+          "j",
+          "c",
+          "g",
+          "s"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Pronunciation of Consonants"
+        }
+      },
+      {
+        "id": "phonology.syllable.one_vowel",
+        "title": "Every syllable contains exactly one vowel nucleus",
+        "category": "phonology",
+        "subcategory": "syllabification",
+        "direction": [
+          "mirad_to_english"
+        ],
+        "priority": 35,
+        "applies_to": {
+          "unit": "syllable"
+        },
+        "rule": {
+          "description": "Each Mirad syllable contains one vowel. Glided vowels with y or w count as one complex vowel for syllabification and stress.",
+          "pseudocode": [
+            "identify vowel_nuclei including complex glides",
+            "split word so each syllable has exactly one nucleus",
+            "treat final/post-vocalic y or w as part_of preceding complex vowel when applicable"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "ama",
+            "english": "hot",
+            "analysis": "a-ma"
+          },
+          {
+            "mirad": "ayma",
+            "english": "warm",
+            "analysis": "ay-ma; ay is one complex vowel"
+          },
+          {
+            "mirad": "vyaa",
+            "english": "true",
+            "analysis": "vya-a; two vowel nuclei"
+          }
+        ],
+        "retrieval_tags": [
+          "syllable",
+          "vowel",
+          "complex vowel",
+          "stress",
+          "y",
+          "w"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Syllabification"
+        }
+      },
+      {
+        "id": "phonology.stress.penultimate_vowel",
+        "title": "Stress falls on the last non-final vowel",
+        "category": "phonology",
+        "subcategory": "stress",
+        "direction": [
+          "mirad_to_english"
+        ],
+        "priority": 30,
+        "applies_to": {
+          "unit": "word",
+          "syllable_count": ">1"
+        },
+        "rule": {
+          "description": "Stress is regular and not phonemic. In words with more than one syllable, stress occurs on the last non-final vowel, including complex glided vowels.",
+          "pseudocode": [
+            "if word.syllable_count > 1:",
+            "    stress = vowel_nucleus_before_final_vowel_nucleus"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Mirad",
+            "english": "Mirad",
+            "analysis": "Mi-rad; stress on Mi"
+          },
+          {
+            "mirad": "tejna",
+            "english": "vital",
+            "analysis": "tej-na; stress on tej"
+          }
+        ],
+        "retrieval_tags": [
+          "stress",
+          "accent",
+          "pronunciation",
+          "syllabification"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Stress"
+        }
+      }
+    ],
+    "nouns": [
+      {
+        "id": "noun.common_singular.ends_consonant",
+        "title": "Common singular nouns end in a consonant",
+        "category": "morphology",
+        "subcategory": "nouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "part_of_speech": "noun",
+          "noun_type": "common",
+          "number": "singular"
+        },
+        "rule": {
+          "description": "In native Mirad, singular common nouns normally end in a consonant. Proper nouns may end in vowels.",
+          "pseudocode": [
+            "if noun.is_common and noun.number == singular and noun.is_native:",
+            "    expect final_character is consonant",
+            "if noun.is_proper:",
+            "    allow final_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tam",
+            "english": "house",
+            "analysis": "singular common noun ending in consonant"
+          },
+          {
+            "mirad": "Roma",
+            "english": "Rome",
+            "analysis": "proper noun may end in vowel"
+          }
+        ],
+        "retrieval_tags": [
+          "noun",
+          "singular",
+          "common noun",
+          "proper noun",
+          "final consonant"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Types"
+        }
+      },
+      {
+        "id": "noun.plural.common_countable",
+        "title": "Pluralize common countable nouns with -i",
+        "category": "morphology",
+        "subcategory": "nouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "noun",
+          "noun_type": "common_countable",
+          "number": "plural"
+        },
+        "rule": {
+          "description": "A singular countable common noun becomes plural by suffixing -i. Only the noun is pluralized; articles and adjectives do not agree in number.",
+          "pseudocode": [
+            "if noun.is_common_countable and target_number == plural:",
+            "    noun.surface = noun.singular + 'i'",
+            "    do_not_pluralize(article)",
+            "    do_not_pluralize(adjectives)"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tam → tami",
+            "english": "house → houses",
+            "analysis": "plural suffix -i"
+          },
+          {
+            "mirad": "ha via dom → ha via domi",
+            "english": "the beautiful city → the beautiful cities",
+            "analysis": "only dom changes"
+          }
+        ],
+        "retrieval_tags": [
+          "plural",
+          "nouns",
+          "-i",
+          "agreement",
+          "countable nouns"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Pluralization of Common Nouns"
+        }
+      },
+      {
+        "id": "noun.article.definite_ha",
+        "title": "Use ha as the invariable definite article",
+        "category": "syntax",
+        "subcategory": "noun_phrase",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "noun",
+          "definiteness": "definite"
+        },
+        "rule": {
+          "description": "Mirad has one definite article, ha. It precedes the noun and any adjectives. It does not change for gender, number, or case. There is no indefinite article.",
+          "pseudocode": [
+            "if english_np.definiteness == definite:",
+            "    mirad_np = 'ha' + modifiers + noun",
+            "else if english_np.has_indefinite_article:",
+            "    omit_article_in_mirad"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tam",
+            "english": "a house",
+            "analysis": "indefinite; no article"
+          },
+          {
+            "mirad": "ha tam",
+            "english": "the house",
+            "analysis": "definite marked with ha"
+          },
+          {
+            "mirad": "ha tami",
+            "english": "the houses",
+            "analysis": "ha unchanged before plural noun"
+          }
+        ],
+        "retrieval_tags": [
+          "article",
+          "definite",
+          "ha",
+          "indefinite",
+          "noun phrase"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Modifying Nouns with the Definite Article"
+        }
+      },
+      {
+        "id": "noun.modifiers.order_no_agreement",
+        "title": "Noun modifiers precede the noun and do not agree",
+        "category": "syntax",
+        "subcategory": "noun_phrase",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "phrase_type": "noun_phrase"
+        },
+        "rule": {
+          "description": "Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.",
+          "pseudocode": [
+            "mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun",
+            "do_not_inflect_modifiers_for_gender_number_case"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "ha ewa aga tami",
+            "english": "the two big houses",
+            "analysis": "modifiers precede noun; only tami is plural"
+          },
+          {
+            "mirad": "ata aja teji",
+            "english": "my past lives",
+            "analysis": "possessive and adjective precede noun"
+          }
+        ],
+        "retrieval_tags": [
+          "noun modifiers",
+          "adjective order",
+          "agreement",
+          "noun phrase",
+          "word order"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Modifiers: Placement and Agreement"
+        }
+      },
+      {
+        "id": "noun.possession.named_person_bi",
+        "title": "Use X bi Y for possession by a named person",
+        "category": "syntax",
+        "subcategory": "possession",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "semantic_relation": "possession",
+          "possessor_type": "proper_name"
+        },
+        "rule": {
+          "description": "Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.",
+          "pseudocode": [
+            "if english_possessive.possessor.is_proper_name:",
+            "    mirad = possessed_np + 'bi' + possessor_name"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "ha tam bi Maria",
+            "english": "Mary's house / the house of Mary",
+            "analysis": "possessor follows bi"
+          }
+        ],
+        "retrieval_tags": [
+          "possession",
+          "of",
+          "bi",
+          "proper name",
+          "genitive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage"
+        }
+      },
+      {
+        "id": "noun.linkage.prepositional_and_compound",
+        "title": "Nouns may link by conjunction, preposition, juxtaposition, compounding, or hyphenation",
+        "category": "syntax",
+        "subcategory": "noun_linkage",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "phrase_type": "complex_noun"
+        },
+        "rule": {
+          "description": "Noun relationships may be expressed with prepositions/conjunctions after the head noun, by modifier noun before the head noun, by compounding, or by hyphenating equal/opposed elements.",
+          "pseudocode": [
+            "if relation.is_associative_or_possessive:",
+            "    use head + preposition/conjunction + complement",
+            "if modifier_noun.functions_attributively:",
+            "    use modifier_noun + head_noun or compound(modifier, head)",
+            "if two_elements_are_equal_or_opposed:",
+            "    hyphenate(element1, element2)"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ivan ay Maria",
+            "english": "Ivan and Maria",
+            "analysis": "conjunction linkage"
+          },
+          {
+            "mirad": "tej bi nasuk",
+            "english": "a life of poverty",
+            "analysis": "preposition linkage"
+          },
+          {
+            "mirad": "dom yuzpur",
+            "english": "city bus",
+            "analysis": "juxtaposed modifier noun"
+          },
+          {
+            "mirad": "maj-moj",
+            "english": "day-and-night",
+            "analysis": "hyphenated equal/opposed nouns"
+          }
+        ],
+        "retrieval_tags": [
+          "noun linkage",
+          "compound noun",
+          "juxtaposition",
+          "hyphenation",
+          "preposition",
+          "conjunction"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage"
+        }
+      },
+      {
+        "id": "noun.gender.w_y_markers",
+        "title": "Mark noun gender with w for masculine and y for feminine",
+        "category": "morphology",
+        "subcategory": "gender",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "noun",
+          "semantic_class": [
+            "person",
+            "animal",
+            "clothing"
+          ]
+        },
+        "rule": {
+          "description": "Nouns are gender-neutral by default. To create a male form, prefix the semantically significant vowel with w. To create a female form, suffix that vowel with y. Agent nouns in -ut use -uyt for female, while the male form usually stays -ut.",
+          "pseudocode": [
+            "if target_gender == masculine:",
+            "    insert 'w' before semantic_vowel",
+            "if target_gender == feminine and noun.ends_with_agentive_ut:",
+            "    replace_suffix('ut', 'uyt')",
+            "else if target_gender == feminine:",
+            "    insert 'y' after semantic_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tob / twob / toyb",
+            "english": "person / man / woman",
+            "analysis": "w marks masculine; y marks feminine"
+          },
+          {
+            "mirad": "ted / twed / teyd",
+            "english": "parent / father / mother",
+            "analysis": "gendered forms from neutral noun"
+          },
+          {
+            "mirad": "deuzut / deuzuyt",
+            "english": "singer / songstress",
+            "analysis": "female agentive -uyt"
+          }
+        ],
+        "retrieval_tags": [
+          "gender",
+          "masculine",
+          "feminine",
+          "w",
+          "y",
+          "agent noun",
+          "-uyt"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Gender"
+        }
+      }
+    ],
+    "adjectives_adverbs": [
+      {
+        "id": "adjective.descriptive.ends_a",
+        "title": "Descriptive adjectives end in -a",
+        "category": "morphology",
+        "subcategory": "adjectives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "type": "descriptive"
+        },
+        "rule": {
+          "description": "All descriptive adjectives end in the adjectival marker -a. Adjectives can be derived from qualitative roots, nouns, passive verb stems, and prepositions.",
+          "pseudocode": [
+            "if target_part_of_speech == descriptive_adjective:",
+            "    form = stem + 'a'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "fia",
+            "english": "good",
+            "analysis": "fi- + -a"
+          },
+          {
+            "mirad": "pura",
+            "english": "vehicular",
+            "analysis": "pur 'vehicle' + -a"
+          },
+          {
+            "mirad": "dalwa",
+            "english": "spoken",
+            "analysis": "passive verb stem + -a"
+          }
+        ],
+        "retrieval_tags": [
+          "adjective",
+          "descriptive",
+          "-a",
+          "derived adjective"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Descriptive Adjectives"
+        }
+      },
+      {
+        "id": "adjective.position.before_noun",
+        "title": "Adjectives precede the noun",
+        "category": "syntax",
+        "subcategory": "adjectives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "phrase_type": "noun_phrase"
+        },
+        "rule": {
+          "description": "Descriptive adjectives are placed before the nouns they modify.",
+          "pseudocode": [
+            "mirad_np = optional_article + adjective_list + noun"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "aga tam",
+            "english": "a big house",
+            "analysis": "aga precedes tam"
+          },
+          {
+            "mirad": "ha fia toyb",
+            "english": "the good woman",
+            "analysis": "article + adjective + noun"
+          }
+        ],
+        "retrieval_tags": [
+          "adjective",
+          "word order",
+          "before noun",
+          "noun phrase"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Descriptive Adjectives"
+        }
+      },
+      {
+        "id": "adjective.degree.quantifier_before_adjective",
+        "title": "Use degree quantifiers before adjectives for comparison",
+        "category": "syntax",
+        "subcategory": "comparison",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "semantic_operation": "degree"
+        },
+        "rule": {
+          "description": "Comparative and degree meanings are expressed by placing a quantitative determiner before the adjective. vyel introduces the comparison standard, like English 'than' or 'as'.",
+          "pseudocode": [
+            "if comparison == more:",
+            "    form = 'ga' + adjective + optional('vyel' + standard)",
+            "if comparison == equal:",
+            "    form = 'ge' + adjective + optional('vyel' + standard)",
+            "if comparison == less:",
+            "    form = 'go' + adjective + optional('vyel' + standard)",
+            "if superlative == most:",
+            "    form = 'gwa' + adjective + optional('bi/be' + set_or_domain)"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "ga fia",
+            "english": "better / more good",
+            "analysis": "ga marks more"
+          },
+          {
+            "mirad": "ge fia",
+            "english": "as good",
+            "analysis": "ge marks equality"
+          },
+          {
+            "mirad": "Ata tam se ga aga vyel etas.",
+            "english": "My house is bigger than yours.",
+            "analysis": "vyel introduces standard"
+          }
+        ],
+        "retrieval_tags": [
+          "comparison",
+          "comparative",
+          "superlative",
+          "degree",
+          "ga",
+          "ge",
+          "go",
+          "gwa",
+          "vyel"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Comparing Adjectives by Degree"
+        }
+      },
+      {
+        "id": "adjective.substantivize_n_s_t",
+        "title": "Derive adjective substantives with -n, -s, and -t",
+        "category": "morphology",
+        "subcategory": "deadjectival_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 75,
+        "applies_to": {
+          "base_part_of_speech": "adjective",
+          "target_part_of_speech": [
+            "noun",
+            "pronoun"
+          ]
+        },
+        "rule": {
+          "description": "An adjective can become an abstract quality noun with -n, a thing with that quality with -s, or a person with that quality with -t.",
+          "pseudocode": [
+            "if target == abstract_quality:",
+            "    form = adjective_stem + 'n'",
+            "if target == thing_with_quality:",
+            "    form = adjective_stem + 's'",
+            "if target == person_with_quality:",
+            "    form = adjective_stem + 't'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "fia / fian / fias / fiat",
+            "english": "good / goodness / good thing / good person",
+            "analysis": "-n, -s, -t derivations"
+          },
+          {
+            "mirad": "yeva / yevan / yevas / yevat",
+            "english": "fair / justice / fair thing / fair person",
+            "analysis": "adjective substantivization"
+          }
+        ],
+        "retrieval_tags": [
+          "substantive",
+          "deadjectival",
+          "-n",
+          "-s",
+          "-t",
+          "quality",
+          "person",
+          "thing"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deriving Substantives from Adjectives"
+        }
+      },
+      {
+        "id": "adjective.negation_o_lo_ol",
+        "title": "Negate adjective semantics with o-, lo-, or ol-",
+        "category": "morphology",
+        "subcategory": "semantic_negation",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "semantic_operation": "negation"
+        },
+        "rule": {
+          "description": "Descriptive adjectives can be negated by prefixing o-. If this creates ambiguity or the adjective already begins with o, lo- or ol- may be used. Stronger polar opposition can use lyo- or ov-.",
+          "pseudocode": [
+            "if adjective.can_take_o_negation and not ambiguous:",
+            "    form = 'o' + adjective",
+            "else if adjective.begins_with_consonant:",
+            "    form = 'lo' + adjective",
+            "else:",
+            "    form = 'ol' + adjective",
+            "if meaning == hostile_or_anti:",
+            "    form = one_of(['lyo' + adjective, 'ov' + adjective])"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "twa → otwa",
+            "english": "known → unknown",
+            "analysis": "o- negation"
+          },
+          {
+            "mirad": "fwa → lofwa",
+            "english": "wanted → unwanted",
+            "analysis": "lo- avoids ambiguity"
+          },
+          {
+            "mirad": "data → ovdata",
+            "english": "friendly → hostile",
+            "analysis": "strong polar opposition"
+          }
+        ],
+        "retrieval_tags": [
+          "negation",
+          "adjective",
+          "un-",
+          "non-",
+          "o",
+          "lo",
+          "ol",
+          "ov",
+          "lyo"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Reversing the Semantics of Adjectives"
+        }
+      },
+      {
+        "id": "adjective.opposites.vowel_switching",
+        "title": "Form adjective opposites by vowel switching",
+        "category": "morphology",
+        "subcategory": "semantic_vowels",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "semantic_operation": "opposite"
+        },
+        "rule": {
+          "description": "Many base adjectives form semantic contrasts by switching the stem vowel. In i/u pairs, i is positive and u negative. In a/e/o scales, a is positive, e intermediate, and o negative.",
+          "pseudocode": [
+            "if adjective.pattern == i_u_contrast:",
+            "    positive = stem_with('i')",
+            "    negative = stem_with('u')",
+            "if adjective.pattern == a_e_o_scale:",
+            "    positive = stem_with('a')",
+            "    intermediate = stem_with('e')",
+            "    negative = stem_with('o')"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "fia / fua",
+            "english": "good / bad",
+            "analysis": "i/u contrast"
+          },
+          {
+            "mirad": "iva / uva",
+            "english": "happy / sad",
+            "analysis": "i/u contrast"
+          },
+          {
+            "mirad": "aga / ega / oga",
+            "english": "big / normal / little",
+            "analysis": "a/e/o scalar set"
+          }
+        ],
+        "retrieval_tags": [
+          "opposites",
+          "vowel switching",
+          "semantic vowels",
+          "i u",
+          "a e o",
+          "adjectives"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Scalarization of Base Word Adjectives"
+        }
+      },
+      {
+        "id": "adjective.deintensify_with_y_glide",
+        "title": "Deintensify adjective meaning with a y-glide",
+        "category": "morphology",
+        "subcategory": "semantic_intensity",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 65,
+        "applies_to": {
+          "part_of_speech": "adjective",
+          "semantic_operation": "mitigation"
+        },
+        "rule": {
+          "description": "The semantic strength of many qualitative adjectives can be reduced by adding a y-glide after the ordinal or stem vowel.",
+          "pseudocode": [
+            "if adjective.is_qualitative and target_intensity == mitigated:",
+            "    insert 'y' after relevant_stem_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "oma → oyma",
+            "english": "cold → cool",
+            "analysis": "y-glide reduces intensity"
+          },
+          {
+            "mirad": "ama → ayma",
+            "english": "hot → warm",
+            "analysis": "y-glide reduces intensity"
+          },
+          {
+            "mirad": "ifwa → iyfwa",
+            "english": "loved → liked",
+            "analysis": "weaker affect"
+          }
+        ],
+        "retrieval_tags": [
+          "deintensify",
+          "mitigate",
+          "y-glide",
+          "adjectives",
+          "intensity"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deintensifying the Sense of Adjectives"
+        }
+      },
+      {
+        "id": "adverb.derive_adjective_plus_y",
+        "title": "Many adverbs are formed with -y from adjectives",
+        "category": "morphology",
+        "subcategory": "adverbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "base_part_of_speech": "adjective",
+          "target_part_of_speech": "adverb"
+        },
+        "rule": {
+          "description": "A descriptive adjective can often be converted into an adverb by adding -y, corresponding to English -ly.",
+          "pseudocode": [
+            "if adjective modifies verb/adjective/clause as manner_or_degree:",
+            "    adverb = adjective + 'y'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "via → viay",
+            "english": "beautiful → beautifully",
+            "analysis": "adverbial -y"
+          },
+          {
+            "mirad": "azay",
+            "english": "loudly / strongly",
+            "analysis": "adverb derived from adjective"
+          }
+        ],
+        "retrieval_tags": [
+          "adverb",
+          "-y",
+          "manner",
+          "adjective",
+          "beautifully"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Adverbs / Comparison of Adverbs by Degree"
+        }
+      },
+      {
+        "id": "adverb.degree.same_as_adjectives",
+        "title": "Adverbs use the same degree quantifiers as adjectives",
+        "category": "syntax",
+        "subcategory": "adverbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 65,
+        "applies_to": {
+          "part_of_speech": "adverb",
+          "semantic_operation": "comparison"
+        },
+        "rule": {
+          "description": "Adverbs are compared by placing quantitative degree words before them, parallel to adjective comparison. vyel introduces the comparison standard.",
+          "pseudocode": [
+            "if adverb.comparison:",
+            "    form = degree_quantifier + adverb + optional('vyel' + standard)"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Dalu ge azay vyel et yafe.",
+            "english": "Speak as loudly as you can.",
+            "analysis": "ge + adverb + vyel"
+          }
+        ],
+        "retrieval_tags": [
+          "adverb comparison",
+          "degree",
+          "ga",
+          "ge",
+          "vyel",
+          "as",
+          "than"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Comparison of Adverbs by Degree"
+        }
+      }
+    ],
+    "pronouns": [
+      {
+        "id": "pronoun.personal.invariant_case",
+        "title": "Personal pronouns do not change for case",
+        "category": "morphosyntax",
+        "subcategory": "personal_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "feature": "case"
+        },
+        "rule": {
+          "description": "Mirad personal pronouns have the same form whether subject, direct object, indirect object, or object of a preposition. Syntax and prepositions determine function.",
+          "pseudocode": [
+            "pronoun_form = lookup_person_number_animacy_gender()",
+            "do_not_inflect_for_case",
+            "determine_case_from_position_or_preposition"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At xe.",
+            "english": "I do.",
+            "analysis": "at as subject"
+          },
+          {
+            "mirad": "Ha yepet teupixa at.",
+            "english": "The dog bit me.",
+            "analysis": "at as object"
+          },
+          {
+            "mirad": "His se av et.",
+            "english": "This is for you.",
+            "analysis": "et after preposition"
+          }
+        ],
+        "retrieval_tags": [
+          "pronoun",
+          "case",
+          "subject",
+          "object",
+          "preposition",
+          "invariant"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Cases"
+        }
+      },
+      {
+        "id": "pronoun.animate_t_inanimate_s",
+        "title": "Animate pronouns end in -t and inanimate pronouns end in -s",
+        "category": "morphosyntax",
+        "subcategory": "pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "feature": "animacy"
+        },
+        "rule": {
+          "description": "Pronouns ending in -t refer to animate beings; pronouns ending in -s refer to inanimate objects, concepts, or abstractions. English 'it/they/them' must be resolved by antecedent animacy.",
+          "pseudocode": [
+            "if antecedent.is_animate:",
+            "    use pronoun ending '-t'",
+            "if antecedent.is_inanimate:",
+            "    use pronoun ending '-s'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "it",
+            "english": "he/she/him/her/animate it",
+            "analysis": "animate singular"
+          },
+          {
+            "mirad": "is",
+            "english": "it",
+            "analysis": "inanimate singular"
+          },
+          {
+            "mirad": "yit / yis",
+            "english": "they animate / they inanimate",
+            "analysis": "plural animacy contrast"
+          }
+        ],
+        "retrieval_tags": [
+          "pronoun",
+          "animate",
+          "inanimate",
+          "it",
+          "they",
+          "-t",
+          "-s"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Animacy / Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.person_number_core_table",
+        "title": "Core personal pronouns encode person and number",
+        "category": "lexical_grammar",
+        "subcategory": "personal_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "type": "personal"
+        },
+        "rule": {
+          "description": "Core animate personal pronouns are at I/me, et you, it he/she/him/her, yat we/us, yet you plural, yit they/them. Plural personal pronouns generally begin with y.",
+          "pseudocode": [
+            "map person_number to core_pronoun:",
+            "    1sg -> at",
+            "    2sg -> et",
+            "    3sg animate -> it",
+            "    1pl -> yat",
+            "    2pl -> yet",
+            "    3pl animate -> yit"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At xe.",
+            "english": "I do.",
+            "analysis": "1sg"
+          },
+          {
+            "mirad": "Yat xe.",
+            "english": "We do.",
+            "analysis": "1pl begins with y"
+          },
+          {
+            "mirad": "Yit xe.",
+            "english": "They do.",
+            "analysis": "3pl animate"
+          }
+        ],
+        "retrieval_tags": [
+          "personal pronoun",
+          "at",
+          "et",
+          "it",
+          "yat",
+          "yet",
+          "yit",
+          "plural y"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.gender.optional_w_y",
+        "title": "Third-person animate pronouns can optionally mark gender",
+        "category": "morphology",
+        "subcategory": "pronoun_gender",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "person": "third",
+          "animacy": "animate"
+        },
+        "rule": {
+          "description": "The gender-neutral third-person animate pronoun it can become wit for masculine or iyt for feminine. Gender marking is optional and used when needed to distinguish referents.",
+          "pseudocode": [
+            "if pronoun == third_singular_animate:",
+            "    if gender == masculine: use 'wit'",
+            "    else if gender == feminine: use 'iyt'",
+            "    else: use 'it'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "it",
+            "english": "he/she/him/her",
+            "analysis": "gender-neutral animate"
+          },
+          {
+            "mirad": "wit",
+            "english": "he/him",
+            "analysis": "masculine"
+          },
+          {
+            "mirad": "iyt",
+            "english": "she/her",
+            "analysis": "feminine"
+          }
+        ],
+        "retrieval_tags": [
+          "gender",
+          "pronouns",
+          "he",
+          "she",
+          "wit",
+          "iyt",
+          "it",
+          "optional gender"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Gender in Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.generic_ot_yot",
+        "title": "Use ot and yot for generic animate reference",
+        "category": "lexical_grammar",
+        "subcategory": "generic_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "specificity": "generic",
+          "animacy": "animate"
+        },
+        "rule": {
+          "description": "ot means generic one; yot means people/they in a generic unspecific sense.",
+          "pseudocode": [
+            "if english_subject in ['one', 'generic you']:",
+            "    use 'ot'",
+            "if english_subject in ['people', 'they' generic]:",
+            "    use 'yot'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ot yefe xer ha yakwas.",
+            "english": "One must do what is expected.",
+            "analysis": "ot as generic one"
+          },
+          {
+            "mirad": "Yot de van et vyode hyoj.",
+            "english": "People say you never lie.",
+            "analysis": "yot as generic people"
+          }
+        ],
+        "retrieval_tags": [
+          "generic pronoun",
+          "one",
+          "people",
+          "they",
+          "ot",
+          "yot"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Generic Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.hybrid_aet_ayet",
+        "title": "Use aet and ayet for first-plus-second-person hybrid pronouns",
+        "category": "lexical_grammar",
+        "subcategory": "hybrid_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 60,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "person": "1+2"
+        },
+        "rule": {
+          "description": "aet means 'you and I' dual. ayet means 'you people and I' plural. Use only when the situation explicitly combines first and second person.",
+          "pseudocode": [
+            "if referent == speaker + one_addressee:",
+            "    use 'aet'",
+            "if referent == speaker + multiple_addressees:",
+            "    use 'ayet'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Aet yeyfe tadser.",
+            "english": "You and I should get married.",
+            "analysis": "aet = speaker + addressee"
+          },
+          {
+            "mirad": "Ayet efe yanbeser.",
+            "english": "You people and I need to stick together.",
+            "analysis": "ayet = speaker + multiple addressees"
+          }
+        ],
+        "retrieval_tags": [
+          "hybrid pronoun",
+          "you and I",
+          "aet",
+          "ayet",
+          "inclusive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Hybrid Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.reflexive_insert_u",
+        "title": "Form reflexive pronouns by adding u before final -t",
+        "category": "morphology",
+        "subcategory": "reflexive_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "specificity": "reflexive"
+        },
+        "rule": {
+          "description": "Reflexive personal pronouns are formed by placing u before the final -t. Reflexives do not mark gender.",
+          "pseudocode": [
+            "if pronoun.is_animate_personal and target == reflexive:",
+            "    insert 'u' before final 't'",
+            "    do_not_mark_gender"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at → aut",
+            "english": "I/me → myself",
+            "analysis": "u before final t"
+          },
+          {
+            "mirad": "et → eut",
+            "english": "you → yourself",
+            "analysis": "u before final t"
+          },
+          {
+            "mirad": "it → iut",
+            "english": "he/she → himself/herself",
+            "analysis": "gender-neutral reflexive"
+          }
+        ],
+        "retrieval_tags": [
+          "reflexive",
+          "myself",
+          "yourself",
+          "himself",
+          "herself",
+          "u",
+          "pronoun"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Reflexive Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.reflexive_prefix_ut",
+        "title": "Prefix ut- to verbs and nouns for self-/auto- meanings",
+        "category": "derivation",
+        "subcategory": "reflexive_prefix",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "prefix": "ut",
+          "semantic_operation": "self"
+        },
+        "rule": {
+          "description": "The reflexive element ut can be prefixed to verbs or other stems to mean self-, auto-, or reflexive action.",
+          "pseudocode": [
+            "if semantic_prefix == self_or_auto:",
+            "    derived = 'ut' + base"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tojber → uttojber",
+            "english": "kill → commit suicide",
+            "analysis": "self-directed killing"
+          },
+          {
+            "mirad": "vyixer → utvyixer",
+            "english": "clean → wash oneself",
+            "analysis": "reflexive action"
+          },
+          {
+            "mirad": "tejdin → uttejdin",
+            "english": "biography → autobiography",
+            "analysis": "self-biography"
+          }
+        ],
+        "retrieval_tags": [
+          "ut",
+          "self",
+          "auto",
+          "reflexive prefix",
+          "suicide",
+          "autobiography"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Reflexive Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.emphatic.personal_plus_reflexive",
+        "title": "Form emphatic pronouns with personal pronoun plus reflexive",
+        "category": "syntax",
+        "subcategory": "emphatic_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "emphasis": true
+        },
+        "rule": {
+          "description": "Emphatic personal pronouns are formed by following a personal pronoun with the corresponding reflexive pronoun.",
+          "pseudocode": [
+            "if pronoun.is_emphatic:",
+            "    form = personal_pronoun + ' ' + corresponding_reflexive"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at aut",
+            "english": "I myself / me myself",
+            "analysis": "personal + reflexive"
+          },
+          {
+            "mirad": "yet yeut",
+            "english": "you yourselves",
+            "analysis": "plural emphatic"
+          },
+          {
+            "mirad": "iyt iut",
+            "english": "she herself",
+            "analysis": "gender in personal pronoun only"
+          }
+        ],
+        "retrieval_tags": [
+          "emphatic",
+          "myself",
+          "yourself",
+          "pronoun",
+          "personal plus reflexive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Emphatic Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.reciprocal_hyuit_hyuis",
+        "title": "Use hyuit for animate reciprocal and hyuis for inanimate reciprocal",
+        "category": "lexical_grammar",
+        "subcategory": "reciprocal_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "specificity": "reciprocal"
+        },
+        "rule": {
+          "description": "hyuit means one another / each other for sentient beings. hyuis means one another / each other for inanimate objects, concepts, or abstractions. These forms do not express gender or number.",
+          "pseudocode": [
+            "if reciprocal.referents_are_animate:",
+            "    use 'hyuit'",
+            "else:",
+            "    use 'hyuis'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Yat yefe ifer hyuit.",
+            "english": "We must love one another.",
+            "analysis": "animate reciprocal"
+          },
+          {
+            "mirad": "Meri glexag yanpyexe hyuis.",
+            "english": "Planets sometimes crash into each other.",
+            "analysis": "inanimate reciprocal"
+          }
+        ],
+        "retrieval_tags": [
+          "reciprocal",
+          "each other",
+          "one another",
+          "hyuit",
+          "hyuis",
+          "animate",
+          "inanimate"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Reciprocal Personal Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.possessive_add_a_s_si",
+        "title": "Form possessive adjectives and pronouns from personal pronouns",
+        "category": "morphology",
+        "subcategory": "possessives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "pronoun",
+          "semantic_relation": "possession"
+        },
+        "rule": {
+          "description": "Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.",
+          "pseudocode": [
+            "possessive_adjective = pronoun + 'a'",
+            "if possessed_referent == inanimate_singular:",
+            "    possessive_pronoun = pronoun + 'as'",
+            "if possessed_referent == inanimate_plural:",
+            "    possessive_pronoun = pronoun + 'asi'",
+            "if possessed_referent == animate:",
+            "    replace final_s_with_t in possessive_pronoun"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at → ata",
+            "english": "I/me → my",
+            "analysis": "possessive adjective -a"
+          },
+          {
+            "mirad": "atas",
+            "english": "mine",
+            "analysis": "possessive pronoun for thing"
+          },
+          {
+            "mirad": "Etasi naze ga vyel atasi.",
+            "english": "Yours are worth more than mine.",
+            "analysis": "plural possessed things"
+          }
+        ],
+        "retrieval_tags": [
+          "possessive",
+          "my",
+          "mine",
+          "your",
+          "yours",
+          "-a",
+          "-as",
+          "-asi"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Possessive Adjectives and Pronouns"
+        }
+      },
+      {
+        "id": "pronoun.english_it.translation_rules",
+        "title": "Translate English it by antecedent type or omit dummy it",
+        "category": "translation_rule",
+        "subcategory": "english_it",
+        "direction": [
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "english_token": "it"
+        },
+        "rule": {
+          "description": "If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.",
+          "pseudocode": [
+            "if english_it.has_antecedent:",
+            "    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')",
+            "    else: use 'is' or deictic_determiner",
+            "else if english_it.is_dummy_subject:",
+            "    omit pronoun"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At eke bay ha epet hosav at iyfe it.",
+            "english": "I play with the dog because I like it.",
+            "analysis": "dog is animate, so it"
+          },
+          {
+            "mirad": "At teasa ha dyezun ay at iyfa is gla.",
+            "english": "I saw the movie and I liked it a lot.",
+            "analysis": "movie is inanimate, so is"
+          },
+          {
+            "mirad": "Mamilo.",
+            "english": "It will rain.",
+            "analysis": "dummy it omitted"
+          }
+        ],
+        "retrieval_tags": [
+          "translate it",
+          "dummy it",
+          "expletive it",
+          "animate it",
+          "inanimate it",
+          "omit pronoun"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Translating various uses of it in English"
+        }
+      }
+    ],
+    "verbs": [
+      {
+        "id": "verb.infinitive_er_stem",
+        "title": "Verb stems are formed by removing -er from the infinitive",
+        "category": "morphology",
+        "subcategory": "verb_stems",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "verb",
+          "form": "infinitive"
+        },
+        "rule": {
+          "description": "Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.",
+          "pseudocode": [
+            "if verb.infinitive.ends_with('er'):",
+            "    stem = remove_suffix(verb.infinitive, 'er')",
+            "else:",
+            "    lookup irregular_or_nonstandard_entry"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "yexer → yex-",
+            "english": "to work → work stem",
+            "analysis": "remove -er"
+          },
+          {
+            "mirad": "poser → pos-",
+            "english": "to stop → stop stem",
+            "analysis": "remove -er"
+          },
+          {
+            "mirad": "xwer → xw-",
+            "english": "to happen/be done → passive stem",
+            "analysis": "remove -er"
+          }
+        ],
+        "retrieval_tags": [
+          "verb stem",
+          "infinitive",
+          "-er",
+          "conjugation",
+          "verbs"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Verb Stems"
+        }
+      },
+      {
+        "id": "verb.no_person_number_agreement",
+        "title": "Verbs do not change for person or number",
+        "category": "morphosyntax",
+        "subcategory": "verb_agreement",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "verb",
+          "agreement": "person_number"
+        },
+        "rule": {
+          "description": "The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.",
+          "pseudocode": [
+            "verb_form = conjugate(stem, tense, aspect, mood, voice)",
+            "do_not_modify verb_form for subject.person",
+            "do_not_modify verb_form for subject.number"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at se",
+            "english": "I am",
+            "analysis": "se unchanged"
+          },
+          {
+            "mirad": "et se",
+            "english": "you are",
+            "analysis": "se unchanged"
+          },
+          {
+            "mirad": "yit se",
+            "english": "they are",
+            "analysis": "se unchanged"
+          }
+        ],
+        "retrieval_tags": [
+          "verb agreement",
+          "person",
+          "number",
+          "invariable",
+          "conjugation"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Verb ser Unchanged for person/number"
+        }
+      },
+      {
+        "id": "verb.simple.active_suffixes",
+        "title": "Simple active tense suffixes are -e, -a, -o, -u",
+        "category": "morphology",
+        "subcategory": "tense_aspect_mood",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "aspect": "simple",
+          "voice": "active"
+        },
+        "rule": {
+          "description": "Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.",
+          "pseudocode": [
+            "if aspect == simple and voice == active:",
+            "    if tense == present and mood == indicative: form = stem + 'e'",
+            "    if tense == past and mood == indicative: form = stem + 'a'",
+            "    if tense == future and mood == indicative: form = stem + 'o'",
+            "    if mood == hypothetical or imperative: form = stem + 'u'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at xe",
+            "english": "I do",
+            "analysis": "x- + -e"
+          },
+          {
+            "mirad": "at xa",
+            "english": "I did",
+            "analysis": "x- + -a"
+          },
+          {
+            "mirad": "at xo",
+            "english": "I will do",
+            "analysis": "x- + -o"
+          },
+          {
+            "mirad": "Xu!",
+            "english": "Do!",
+            "analysis": "x- + -u imperative"
+          }
+        ],
+        "retrieval_tags": [
+          "simple tense",
+          "present",
+          "past",
+          "future",
+          "hypothetical",
+          "imperative",
+          "-e",
+          "-a",
+          "-o",
+          "-u"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Simple Aspect / Conjugation in the Simple Active Tenses"
+        }
+      },
+      {
+        "id": "verb.passive.insert_w_before_tense",
+        "title": "Passive voice inserts w before the tense vowel",
+        "category": "morphology",
+        "subcategory": "voice",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "part_of_speech": "verb",
+          "voice": "passive"
+        },
+        "rule": {
+          "description": "In finite passive forms, the passive marker w is inserted between the verb stem and the final tense/mood vowel. Passive forms translate English 'be/get + past participle' when a patient is subject.",
+          "pseudocode": [
+            "if voice == passive and aspect == simple:",
+            "    form = stem + 'w' + tense_or_mood_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Has xwe.",
+            "english": "It is done.",
+            "analysis": "x- + w + e"
+          },
+          {
+            "mirad": "Has xwa.",
+            "english": "It was done.",
+            "analysis": "x- + w + a"
+          },
+          {
+            "mirad": "Has xwo.",
+            "english": "It will be done.",
+            "analysis": "x- + w + o"
+          }
+        ],
+        "retrieval_tags": [
+          "passive",
+          "voice",
+          "w",
+          "is done",
+          "was done",
+          "by phrase"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Passive Voice / Simple Aspect"
+        }
+      },
+      {
+        "id": "verb.simple.passive_suffixes",
+        "title": "Simple passive forms are stem + w + tense vowel",
+        "category": "morphology",
+        "subcategory": "tense_aspect_voice",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "aspect": "simple",
+          "voice": "passive"
+        },
+        "rule": {
+          "description": "Simple passive present is -we, past -wa, future -wo, and hypothetical -wu after the verb stem.",
+          "pseudocode": [
+            "if aspect == simple and voice == passive:",
+            "    form = stem + {'present':'we','past':'wa','future':'wo','hypothetical':'wu'}[tam]"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "xwe",
+            "english": "is done",
+            "analysis": "present passive"
+          },
+          {
+            "mirad": "xwa",
+            "english": "was done",
+            "analysis": "past passive"
+          },
+          {
+            "mirad": "xwu",
+            "english": "would be done",
+            "analysis": "hypothetical passive"
+          }
+        ],
+        "retrieval_tags": [
+          "simple passive",
+          "-we",
+          "-wa",
+          "-wo",
+          "-wu",
+          "tense"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Simple Aspect"
+        }
+      },
+      {
+        "id": "verb.progressive.active_ey_plus_tense",
+        "title": "Active progressive uses stem + ey + tense vowel",
+        "category": "morphology",
+        "subcategory": "aspect_progressive",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "aspect": "progressive",
+          "voice": "active"
+        },
+        "rule": {
+          "description": "The active progressive inserts the present aspect vowel e plus buffer y between the stem and final tense/mood vowel: -eye, -eya, -eyo, -eyu.",
+          "pseudocode": [
+            "if aspect == progressive and voice == active:",
+            "    form = stem + 'ey' + final_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "at xeye",
+            "english": "I am doing",
+            "analysis": "x- + ey + e"
+          },
+          {
+            "mirad": "at xeya",
+            "english": "I was doing",
+            "analysis": "x- + ey + a"
+          },
+          {
+            "mirad": "at xeyo",
+            "english": "I will be doing",
+            "analysis": "x- + ey + o"
+          }
+        ],
+        "retrieval_tags": [
+          "progressive",
+          "continuous",
+          "-eye",
+          "-eya",
+          "-eyo",
+          "-eyu",
+          "doing"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Progressive Aspect"
+        }
+      },
+      {
+        "id": "verb.progressive.passive_ew_plus_tense",
+        "title": "Passive progressive uses stem + ew + tense vowel",
+        "category": "morphology",
+        "subcategory": "aspect_progressive",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "aspect": "progressive",
+          "voice": "passive"
+        },
+        "rule": {
+          "description": "The passive progressive inserts e plus passive/buffer w before the final tense/mood vowel: -ewe, -ewa, -ewo, -ewu.",
+          "pseudocode": [
+            "if aspect == progressive and voice == passive:",
+            "    form = stem + 'ew' + final_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Has xewe.",
+            "english": "It is being done.",
+            "analysis": "x- + ew + e"
+          },
+          {
+            "mirad": "Has xewa.",
+            "english": "It was being done.",
+            "analysis": "x- + ew + a"
+          }
+        ],
+        "retrieval_tags": [
+          "passive progressive",
+          "being done",
+          "-ewe",
+          "-ewa",
+          "-ewo",
+          "-ewu"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Progressive Aspect"
+        }
+      },
+      {
+        "id": "verb.perfect.active_ay_plus_tense",
+        "title": "Active perfect uses stem + ay + tense vowel",
+        "category": "morphology",
+        "subcategory": "aspect_perfect",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "aspect": "perfect",
+          "voice": "active"
+        },
+        "rule": {
+          "description": "The active perfect inserts the past aspect vowel a plus buffer y before the final tense/mood vowel: -aye, -aya, -ayo, -ayu.",
+          "pseudocode": [
+            "if aspect == perfect and voice == active:",
+            "    form = stem + 'ay' + final_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At xaye.",
+            "english": "I have done.",
+            "analysis": "x- + ay + e"
+          },
+          {
+            "mirad": "At xaya.",
+            "english": "I had done.",
+            "analysis": "x- + ay + a"
+          },
+          {
+            "mirad": "At xayo.",
+            "english": "I will have done.",
+            "analysis": "x- + ay + o"
+          }
+        ],
+        "retrieval_tags": [
+          "perfect",
+          "have done",
+          "had done",
+          "will have done",
+          "-aye",
+          "-aya",
+          "-ayo"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Perfect Aspect"
+        }
+      },
+      {
+        "id": "verb.perfect.passive_aw_plus_tense",
+        "title": "Passive perfect uses stem + aw + tense vowel",
+        "category": "morphology",
+        "subcategory": "aspect_perfect",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "aspect": "perfect",
+          "voice": "passive"
+        },
+        "rule": {
+          "description": "The passive perfect inserts a plus passive/buffer w before the final tense/mood vowel: -awe, -awa, -awo, -awu.",
+          "pseudocode": [
+            "if aspect == perfect and voice == passive:",
+            "    form = stem + 'aw' + final_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Has xawe.",
+            "english": "It has been done.",
+            "analysis": "x- + aw + e"
+          },
+          {
+            "mirad": "Has xawa.",
+            "english": "It had been done.",
+            "analysis": "x- + aw + a"
+          },
+          {
+            "mirad": "Has xawo.",
+            "english": "It will have been done.",
+            "analysis": "x- + aw + o"
+          }
+        ],
+        "retrieval_tags": [
+          "passive perfect",
+          "has been done",
+          "had been done",
+          "-awe",
+          "-awa",
+          "-awo"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Perfect Aspect"
+        }
+      },
+      {
+        "id": "verb.imminent.oy_or_ow_aspect",
+        "title": "Imminent aspect uses future aspect vowel o plus buffer y/w",
+        "category": "morphology",
+        "subcategory": "aspect_imminent",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "aspect": "imminent"
+        },
+        "rule": {
+          "description": "The imminent/prospective aspect means 'be about to'. It uses future aspect vowel o plus buffer y in active voice or w in passive voice before the final tense vowel. Only indicative mood imminent tenses are normally used.",
+          "pseudocode": [
+            "if aspect == imminent and voice == active:",
+            "    form = stem + 'oy' + final_indicative_tense_vowel",
+            "if aspect == imminent and voice == passive:",
+            "    form = stem + 'ow' + final_indicative_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "xoye",
+            "english": "is about to do",
+            "analysis": "active imminent present"
+          },
+          {
+            "mirad": "xoya",
+            "english": "was about to do",
+            "analysis": "active imminent past"
+          }
+        ],
+        "retrieval_tags": [
+          "imminent",
+          "prospective",
+          "about to",
+          "-oye",
+          "-oya",
+          "aspect"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Imminent Aspect"
+        }
+      },
+      {
+        "id": "verb.potential.uy_or_uw_aspect",
+        "title": "Potential aspect uses u plus buffer y/w",
+        "category": "morphology",
+        "subcategory": "aspect_potential",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "aspect": "potential"
+        },
+        "rule": {
+          "description": "The potential aspect indicates aptitude or likelihood. It uses u plus buffer y in active voice or w in passive voice before the final tense/mood vowel.",
+          "pseudocode": [
+            "if aspect == potential and voice == active:",
+            "    form = stem + 'uy' + final_tense_vowel",
+            "if aspect == potential and voice == passive:",
+            "    form = stem + 'uw' + final_tense_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "xuye",
+            "english": "is apt to do / may do",
+            "analysis": "active potential present"
+          },
+          {
+            "mirad": "xuwa",
+            "english": "was apt to be done",
+            "analysis": "passive potential past"
+          }
+        ],
+        "retrieval_tags": [
+          "potential",
+          "apt to",
+          "likely",
+          "may",
+          "aspect",
+          "-uye",
+          "-uwa"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Potential Aspect"
+        }
+      },
+      {
+        "id": "verb.conditional_imperative_u_subject",
+        "title": "-u form is conditional with a subject and imperative without one",
+        "category": "morphosyntax",
+        "subcategory": "mood",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "verb_ending": "u"
+        },
+        "rule": {
+          "description": "A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.",
+          "pseudocode": [
+            "if finite_verb.ends_with('u'):",
+            "    if clause.has_explicit_subject:",
+            "        interpret_as conditional_hypothetical",
+            "    else:",
+            "        interpret_as imperative"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Hus su fia.",
+            "english": "That would be good.",
+            "analysis": "subject present; conditional"
+          },
+          {
+            "mirad": "Su baka!",
+            "english": "Be well!",
+            "analysis": "no subject; command"
+          },
+          {
+            "mirad": "Xu has hij!",
+            "english": "Do it now!",
+            "analysis": "imperative"
+          }
+        ],
+        "retrieval_tags": [
+          "conditional",
+          "imperative",
+          "hypothetical",
+          "-u",
+          "command",
+          "would"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Conditional and Imperative"
+        }
+      },
+      {
+        "id": "verb.modal_auxiliary_before_infinitive",
+        "title": "Modal auxiliaries precede infinitives",
+        "category": "syntax",
+        "subcategory": "modal_verbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "construction": "modal + infinitive"
+        },
+        "rule": {
+          "description": "Modal verbs such as wanting, needing, being able, being obliged, liking, and fearing are conjugated as auxiliaries and followed by an infinitive verb in -er.",
+          "pseudocode": [
+            "modal = conjugate(modal_stem, tense_aspect_mood_voice)",
+            "main_verb = infinitive_er_form",
+            "clause_predicate = modal + ' ' + main_verb"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At fe per.",
+            "english": "I want to go.",
+            "analysis": "fe + infinitive per"
+          },
+          {
+            "mirad": "Et yafe aker.",
+            "english": "You can win.",
+            "analysis": "yafe + infinitive aker"
+          },
+          {
+            "mirad": "Yet yefe iper.",
+            "english": "You must leave.",
+            "analysis": "yefe + infinitive iper"
+          }
+        ],
+        "retrieval_tags": [
+          "modal",
+          "auxiliary",
+          "infinitive",
+          "can",
+          "must",
+          "want",
+          "like",
+          "should"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Modal Verbs"
+        }
+      },
+      {
+        "id": "verb.modal_hypothetical_mitigates",
+        "title": "Hypothetical modal forms soften modal meaning",
+        "category": "semantics",
+        "subcategory": "modal_verbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "part_of_speech": "modal_verb",
+          "mood": "hypothetical"
+        },
+        "rule": {
+          "description": "When a modal auxiliary is in the hypothetical -u form, its meaning is softened, similar to English would like, could, ought to.",
+          "pseudocode": [
+            "if modal_verb.ending == 'u':",
+            "    translate_with_softened_modal_equivalent"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At fe per.",
+            "english": "I want to go.",
+            "analysis": "direct desire"
+          },
+          {
+            "mirad": "At fu per.",
+            "english": "I would like to go.",
+            "analysis": "softened desire"
+          },
+          {
+            "mirad": "Et yafe aker.",
+            "english": "You can win.",
+            "analysis": "can"
+          },
+          {
+            "mirad": "Et yafu aker.",
+            "english": "You could win.",
+            "analysis": "could"
+          }
+        ],
+        "retrieval_tags": [
+          "modal",
+          "hypothetical",
+          "softening",
+          "would like",
+          "could",
+          "ought"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Modal Verbs"
+        }
+      },
+      {
+        "id": "verb.modal_y_glide_reduces_strength",
+        "title": "Post-y-gliding modal stems reduces modal strength",
+        "category": "semantics",
+        "subcategory": "modal_verbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 60,
+        "applies_to": {
+          "part_of_speech": "modal_verb",
+          "semantic_operation": "mitigation"
+        },
+        "rule": {
+          "description": "Adding a y-glide after the modal stem vowel weakens the force of some modal or affective verbs, such as love to like or must to should.",
+          "pseudocode": [
+            "if modal_or_affective_verb.needs_weaker_meaning:",
+            "    insert_y_after_stem_vowel"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At ife et.",
+            "english": "I love you.",
+            "analysis": "strong affection"
+          },
+          {
+            "mirad": "At iyfe et.",
+            "english": "I like you.",
+            "analysis": "y-glide weakens"
+          },
+          {
+            "mirad": "Et yefe iper.",
+            "english": "You must leave.",
+            "analysis": "strong obligation"
+          },
+          {
+            "mirad": "Et yeyfe iper.",
+            "english": "You should leave.",
+            "analysis": "weaker obligation"
+          }
+        ],
+        "retrieval_tags": [
+          "modal",
+          "y-glide",
+          "should",
+          "like",
+          "might",
+          "weaken",
+          "mitigate"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Modal Verbs"
+        }
+      },
+      {
+        "id": "verb.transitive.direct_object_after_verb",
+        "title": "Transitive verbs take a direct object after the verb",
+        "category": "syntax",
+        "subcategory": "verb_complements",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "verb_type": "transitive"
+        },
+        "rule": {
+          "description": "A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.",
+          "pseudocode": [
+            "if verb.is_transitive:",
+            "    clause = subject + verb + direct_object"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ha yepet teupixa at.",
+            "english": "The dog bit me.",
+            "analysis": "subject + verb + object"
+          },
+          {
+            "mirad": "Biu hia yibdren.",
+            "english": "Take this telegram.",
+            "analysis": "imperative verb + direct object"
+          }
+        ],
+        "retrieval_tags": [
+          "transitive",
+          "direct object",
+          "SVO",
+          "verb complement"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Object / Word Order"
+        }
+      },
+      {
+        "id": "verb.ditransitive.indirect_before_direct",
+        "title": "Some verbs take indirect object before direct object",
+        "category": "syntax",
+        "subcategory": "ditransitive_verbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "verb_type": "ditransitive"
+        },
+        "rule": {
+          "description": "Many common transitive verbs imply a directional preposition. When both indirect and direct objects are present, the indirect object comes before the direct object without an explicit preposition. A prepositional paraphrase can also be used.",
+          "pseudocode": [
+            "if verb.implies_direction and has_indirect_object and has_direct_object:",
+            "    order = verb + indirect_object + direct_object",
+            "else if preposition_needed:",
+            "    order = verb + direct_object + preposition + indirect_object"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Buu at hua nyem.",
+            "english": "Give me that box.",
+            "analysis": "indirect object at before direct object hua nyem"
+          },
+          {
+            "mirad": "Du it doler.",
+            "english": "Tell him to be quiet.",
+            "analysis": "it is indirect object"
+          },
+          {
+            "mirad": "Nusbiu at dyes.",
+            "english": "Buy me a book.",
+            "analysis": "indirect before direct"
+          }
+        ],
+        "retrieval_tags": [
+          "ditransitive",
+          "indirect object",
+          "direct object",
+          "give",
+          "tell",
+          "buy"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Object / Verbs of Motion and Communication"
+        }
+      },
+      {
+        "id": "verb.stative_complement_after_ser",
+        "title": "Stative verbs take complements rather than objects",
+        "category": "syntax",
+        "subcategory": "verb_complements",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "verb_type": "stative_intransitive"
+        },
+        "rule": {
+          "description": "Stative intransitive verbs such as ser 'to be' may be followed by complements: noun, pronoun, adjective, infinitive, gerund, or clause.",
+          "pseudocode": [
+            "if verb == ser or verb.is_stative_intransitive:",
+            "    complement = noun_or_pronoun_or_adjective_or_infinitive_or_gerund_or_clause",
+            "    clause = subject + verb + complement"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "His se fis.",
+            "english": "This is a good thing.",
+            "analysis": "noun/pronoun complement"
+          },
+          {
+            "mirad": "His se gla fia.",
+            "english": "This is very good.",
+            "analysis": "adjective complement"
+          },
+          {
+            "mirad": "Se fia aker.",
+            "english": "It is good to win.",
+            "analysis": "infinitive complement"
+          }
+        ],
+        "retrieval_tags": [
+          "ser",
+          "to be",
+          "complement",
+          "stative",
+          "adjective complement",
+          "infinitive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Predicate / Word Order"
+        }
+      },
+      {
+        "id": "verb.communication_clause_object_van",
+        "title": "Communication and cognition verbs can take clause objects",
+        "category": "syntax",
+        "subcategory": "complement_clauses",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "verb_class": [
+            "communication",
+            "cognition"
+          ]
+        },
+        "rule": {
+          "description": "Verbs of knowing, saying, telling, and informing can take a whole clause as direct object. van can introduce a that-clause, and interrogative deictics can introduce embedded questions.",
+          "pseudocode": [
+            "if verb.class in ['communication','cognition'] and complement.is_declarative_clause:",
+            "    use optional_or_required_subordinator('van') + clause",
+            "if complement.is_embedded_question:",
+            "    use interrogative_deictic + embedded_clause"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At ta van et upo.",
+            "english": "I knew that you would come.",
+            "analysis": "van introduces clause object"
+          },
+          {
+            "mirad": "Duven et te hoa tam se itas?",
+            "english": "Do you know which house is his?",
+            "analysis": "embedded question"
+          },
+          {
+            "mirad": "At da it hom et tambee.",
+            "english": "I told him where you live.",
+            "analysis": "indirect object + clause object"
+          }
+        ],
+        "retrieval_tags": [
+          "that clause",
+          "van",
+          "say",
+          "tell",
+          "know",
+          "embedded question",
+          "communication verbs"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Object / Communication Verbs"
+        }
+      },
+      {
+        "id": "verb.motion_communication_omit_direction_preposition",
+        "title": "Motion and communication verbs may omit inherent directional prepositions",
+        "category": "syntax",
+        "subcategory": "preposition_omission",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "verb_class": [
+            "motion",
+            "communication",
+            "directional"
+          ]
+        },
+        "rule": {
+          "description": "Certain verbs contain inherent directionality or positionality and can take an object without a preposition where English might use to/from/in. This includes motion, residence, origin, and communication verbs.",
+          "pseudocode": [
+            "if verb.has_inherent_directionality and object.is_directional_or_locative_or_recipient:",
+            "    omit preposition",
+            "    place object according_to verb_complement_rules"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At peye ha nam.",
+            "english": "I am going to the store.",
+            "analysis": "to omitted"
+          },
+          {
+            "mirad": "Pu tam!",
+            "english": "Go home!",
+            "analysis": "to omitted"
+          },
+          {
+            "mirad": "At byise Ferom.",
+            "english": "I come from France.",
+            "analysis": "from omitted"
+          },
+          {
+            "mirad": "Du at eta dyun.",
+            "english": "Tell me your name.",
+            "analysis": "to omitted before recipient"
+          }
+        ],
+        "retrieval_tags": [
+          "omit preposition",
+          "motion verbs",
+          "go home",
+          "come from",
+          "tell me",
+          "directionality"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Omitting Prepositions after Certain Verbs / Verbs of Motion and Communication"
+        }
+      }
+    ],
+    "determiners": [
+      {
+        "id": "determiner.categories",
+        "title": "Determiners include deictic, pronominal, quantitative, and numerical types",
+        "category": "lexical_grammar",
+        "subcategory": "determiners",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 75,
+        "applies_to": {
+          "part_of_speech": "determiner"
+        },
+        "rule": {
+          "description": "Mirad determiners specify context and may function adjectivally, pronominally, or adverbially. Major types are deictic, pronominal/possessive, quantitative, and numerical.",
+          "pseudocode": [
+            "classify determiner by semantic_function:",
+            "    deictic | possessive | quantitative | numerical",
+            "classify by syntactic_function:",
+            "    adjective | pronoun | adverb"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "hia",
+            "english": "this",
+            "analysis": "deictic adjective/pronoun depending on use"
+          },
+          {
+            "mirad": "ata",
+            "english": "my",
+            "analysis": "pronominal possessive adjective"
+          },
+          {
+            "mirad": "ga",
+            "english": "more",
+            "analysis": "quantitative determiner"
+          }
+        ],
+        "retrieval_tags": [
+          "determiners",
+          "deictic",
+          "possessive",
+          "quantitative",
+          "numerical"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Types of Determiners"
+        }
+      },
+      {
+        "id": "determiner.deictic_begin_h",
+        "title": "Deictic determiners begin with h",
+        "category": "morphology",
+        "subcategory": "deictic_determiners",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "deictic_determiner"
+        },
+        "rule": {
+          "description": "All deictic determiners begin with h. Following letters specify category such as interrogative, indefinite, proximal, distal, universal, negative, person, thing, place, time, manner, degree, etc.",
+          "pseudocode": [
+            "if word.is_deictic_determiner:",
+            "    require word.starts_with('h')",
+            "    parse prefix_after_h for deixis_type",
+            "    parse suffix for semantic_category"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "hia",
+            "english": "this",
+            "analysis": "proximal deictic"
+          },
+          {
+            "mirad": "hua",
+            "english": "that",
+            "analysis": "distal deictic"
+          },
+          {
+            "mirad": "duhot?",
+            "english": "who?",
+            "analysis": "interrogative animate deictic"
+          }
+        ],
+        "retrieval_tags": [
+          "deictic",
+          "demonstrative",
+          "h",
+          "this",
+          "that",
+          "who",
+          "what",
+          "correlatives"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deictic Determiners"
+        }
+      },
+      {
+        "id": "determiner.interrogative_duh_forms",
+        "title": "Interrogative deictics use duh- forms",
+        "category": "morphology",
+        "subcategory": "interrogatives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "sentence_function": "question",
+          "determiner_type": "interrogative"
+        },
+        "rule": {
+          "description": "Interrogative deictic determiners are built with duh- plus a category ending: duhot? who/whom, duhos? what, duhota? whose, duhom? where, duhoj? when, duhoyen? how.",
+          "pseudocode": [
+            "if asking_for_person: use 'duhot?'",
+            "if asking_for_thing: use 'duhos?'",
+            "if asking_for_possessor: use 'duhota?'",
+            "if asking_for_place: use 'duhom?'",
+            "if asking_for_time: use 'duhoj?'",
+            "if asking_for_manner: use 'duhoyen?'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Duhot?",
+            "english": "Who? / Whom?",
+            "analysis": "animate interrogative"
+          },
+          {
+            "mirad": "Duhos?",
+            "english": "What?",
+            "analysis": "inanimate interrogative"
+          },
+          {
+            "mirad": "Duhom yit se?",
+            "english": "Where are they?",
+            "analysis": "place interrogative"
+          }
+        ],
+        "retrieval_tags": [
+          "question words",
+          "who",
+          "what",
+          "whose",
+          "where",
+          "when",
+          "how",
+          "duh"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deictic Determiners / Animate Determiners"
+        }
+      },
+      {
+        "id": "determiner.animate_t_thing_s_plural_i",
+        "title": "Deictic pronouns use -t for persons, -s for things, and -i for plurals",
+        "category": "morphosyntax",
+        "subcategory": "deictic_pronouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "part_of_speech": "deictic_pronoun"
+        },
+        "rule": {
+          "description": "Deictic pronouns ending in -t refer to persons and those ending in -s refer to things. Plural is formed with -i: duhot? who, duhoti? which persons; duhos? what, duhosi? what things.",
+          "pseudocode": [
+            "if referent.is_person:",
+            "    category_final = 't'",
+            "else:",
+            "    category_final = 's'",
+            "if number == plural:",
+            "    add 'i'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "duhot? / duhoti?",
+            "english": "who? / which persons?",
+            "analysis": "animate singular/plural"
+          },
+          {
+            "mirad": "duhos? / duhosi?",
+            "english": "what? / what things?",
+            "analysis": "inanimate singular/plural"
+          },
+          {
+            "mirad": "hias / hiasi",
+            "english": "this one / these ones",
+            "analysis": "inanimate deictic pronoun plus plural"
+          }
+        ],
+        "retrieval_tags": [
+          "deictic pronoun",
+          "who",
+          "what",
+          "plural",
+          "-t",
+          "-s",
+          "-i"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Animate Determiners and Personal Pronouns / Pronominalizing Adjectives"
+        }
+      },
+      {
+        "id": "determiner.demonstrative_hia_hua",
+        "title": "Use hia for this and hua for that",
+        "category": "lexical_grammar",
+        "subcategory": "demonstratives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "semantic_function": "demonstrative"
+        },
+        "rule": {
+          "description": "hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.",
+          "pseudocode": [
+            "if referent.is_near_speaker: base = 'hi'",
+            "if referent.is_far_or_contextual: base = 'hu'",
+            "if used_as_adjective: form = base + 'a'",
+            "if used_as_thing_pronoun: form = base + 'as' or base + 'asi'",
+            "if used_as_person_pronoun: form = base + 'at' or base + 'ati'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "hia tam",
+            "english": "this house",
+            "analysis": "proximal adjective"
+          },
+          {
+            "mirad": "hua tam",
+            "english": "that house",
+            "analysis": "distal adjective"
+          },
+          {
+            "mirad": "Hias se etas.",
+            "english": "This one is yours.",
+            "analysis": "proximal thing pronoun"
+          }
+        ],
+        "retrieval_tags": [
+          "this",
+          "that",
+          "these",
+          "those",
+          "hia",
+          "hua",
+          "demonstrative"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deictic Determiners / Pronominalizing Adjectives"
+        }
+      },
+      {
+        "id": "determiner.universal_hya_all_every",
+        "title": "Use hya, hyaha, and hyawa for every/all/all the/each",
+        "category": "lexical_grammar",
+        "subcategory": "universal_determiners",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "semantic_quantification": "universal"
+        },
+        "rule": {
+          "description": "hya means every/all. hyaha means all the. hyawa means each. Choose based on whether the English quantifier is distributive, collective, or definite collective.",
+          "pseudocode": [
+            "if English == 'every' or generic 'all': use 'hya'",
+            "if English == 'all the': use 'hyaha'",
+            "if English == 'each': use 'hyawa'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Hya dom ayse tebixea suni teaxer.",
+            "english": "Every city has interesting things to see.",
+            "analysis": "hya = every"
+          },
+          {
+            "mirad": "Hyaha domi ayse tebixusi.",
+            "english": "All the cities have things of interest.",
+            "analysis": "hyaha = all the"
+          },
+          {
+            "mirad": "Hyawa dom ayse tebixun.",
+            "english": "Each city has something of interest.",
+            "analysis": "hyawa = each"
+          }
+        ],
+        "retrieval_tags": [
+          "every",
+          "all",
+          "all the",
+          "each",
+          "hya",
+          "hyaha",
+          "hyawa"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Numerical Deictic Determiners"
+        }
+      },
+      {
+        "id": "determiner.hawa_only_haway_adverb",
+        "title": "hawa means the only; haway means only/solely",
+        "category": "lexical_grammar",
+        "subcategory": "exclusive_determiners",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "semantic_quantification": "exclusive"
+        },
+        "rule": {
+          "description": "hawa is an adjectival determiner meaning the only. Adding -y gives haway, an adverb meaning only or solely.",
+          "pseudocode": [
+            "if 'only' modifies noun:",
+            "    use 'hawa' before noun",
+            "if 'only' modifies clause/verb/focus element adverbially:",
+            "    use 'haway'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Hawa toyb nazea ata tezex se et.",
+            "english": "The only woman worth my attention is you.",
+            "analysis": "hawa modifies noun"
+          },
+          {
+            "mirad": "Haway et nize ata tezex.",
+            "english": "Only you deserve my attention.",
+            "analysis": "haway is adverbial"
+          }
+        ],
+        "retrieval_tags": [
+          "only",
+          "the only",
+          "solely",
+          "hawa",
+          "haway",
+          "exclusive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Numerical Deictic Determiners"
+        }
+      },
+      {
+        "id": "determiner.either_neither_both_patterns",
+        "title": "Either/neither/both use fixed deictic-conjunction patterns",
+        "category": "syntax",
+        "subcategory": "coordinated_determiners",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 75,
+        "applies_to": {
+          "construction": "binary_coordination"
+        },
+        "rule": {
+          "description": "Either A or B is Hyeawa A ey B. Neither A nor B is Hyeowa A oy B. Both A and B is Hyaewa A ay B. Only A, not B is Hawa A, voy B.",
+          "pseudocode": [
+            "if construction == either_or: use 'Hyeawa' + A + 'ey' + B",
+            "if construction == neither_nor: use 'Hyeowa' + A + 'oy' + B",
+            "if construction == both_and: use 'Hyaewa' + A + 'ay' + B",
+            "if construction == only_not: use 'Hawa' + A + ', voy' + B"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Hyeawa A ey B",
+            "english": "either A or B",
+            "analysis": "either-or pattern"
+          },
+          {
+            "mirad": "Hyeowa A oy B",
+            "english": "neither A nor B",
+            "analysis": "neither-nor pattern"
+          },
+          {
+            "mirad": "Hyaewa A ay B",
+            "english": "both A and B",
+            "analysis": "both-and pattern"
+          }
+        ],
+        "retrieval_tags": [
+          "either",
+          "neither",
+          "both",
+          "or",
+          "nor",
+          "and",
+          "hyeawa",
+          "hyeowa",
+          "hyaewa"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Numerical Deictic Determiners"
+        }
+      },
+      {
+        "id": "determiner.deictic_adverbs.place_time_manner",
+        "title": "Deictic adverbs encode place, time, and manner",
+        "category": "lexical_grammar",
+        "subcategory": "deictic_adverbs",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "part_of_speech": "adverb",
+          "type": "deictic"
+        },
+        "rule": {
+          "description": "Correlative deictic adverbs include place: duhom? where, hem somewhere, him here, hum there; time: duhoj? when, hej sometime, hij now, huj then; manner: duhoyen? how, heyen somehow, hiyen this way, huyen that way.",
+          "pseudocode": [
+            "choose deictic_prefix by deixis_type: interrogative/indefinite/proximal/distal",
+            "choose category_suffix by circumstance: place/time/manner"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Duhom yit se?",
+            "english": "Where are they?",
+            "analysis": "place interrogative"
+          },
+          {
+            "mirad": "Yit tambesa him.",
+            "english": "They lived here.",
+            "analysis": "proximal place"
+          },
+          {
+            "mirad": "Xu has hij!",
+            "english": "Do it now!",
+            "analysis": "proximal time"
+          }
+        ],
+        "retrieval_tags": [
+          "deictic adverb",
+          "where",
+          "when",
+          "how",
+          "here",
+          "there",
+          "now",
+          "then",
+          "him",
+          "hij"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Deictic Adverbs"
+        }
+      },
+      {
+        "id": "determiner.how_disambiguation",
+        "title": "Translate English how according to function",
+        "category": "translation_rule",
+        "subcategory": "how",
+        "direction": [
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "english_token": "how"
+        },
+        "rule": {
+          "description": "English 'how' can be manner adverb duhoyen?, adjective of kind duhoyena?, or degree expression duhonog/duhogla depending on what it modifies.",
+          "pseudocode": [
+            "if how asks manner/way: use 'duhoyen?'",
+            "if how asks quality/kind of noun/event: use 'duhoyena?'",
+            "if how asks degree of adjective: use degree form such as 'duhonog' or 'duhogla' + adjective"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Duhoyen wit xa hus?",
+            "english": "How did he do that?",
+            "analysis": "manner"
+          },
+          {
+            "mirad": "Duhoyena sa ha dyezun?",
+            "english": "How was the film?",
+            "analysis": "kind/quality adjective"
+          },
+          {
+            "mirad": "Duhonog aga it se?",
+            "english": "How big is he?",
+            "analysis": "degree"
+          }
+        ],
+        "retrieval_tags": [
+          "how",
+          "manner",
+          "degree",
+          "kind",
+          "duhoyen",
+          "duhoyena",
+          "duhonog"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Numerical Deictic Determiners / How"
+        }
+      }
+    ],
+    "syntax_word_order": [
+      {
+        "id": "syntax.basic_svo",
+        "title": "Basic clause order is Subject–Verb–Object",
+        "category": "syntax",
+        "subcategory": "word_order",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 100,
+        "applies_to": {
+          "clause_type": "basic_declarative"
+        },
+        "rule": {
+          "description": "Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.",
+          "pseudocode": [
+            "if clause.is_basic_declarative:",
+            "    order = [subject, verb_predicate, object_or_complement]"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ha yepet teupixa at.",
+            "english": "The dog bit me.",
+            "analysis": "subject + verb + object"
+          }
+        ],
+        "retrieval_tags": [
+          "word order",
+          "SVO",
+          "subject",
+          "verb",
+          "object",
+          "declarative"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Word Order"
+        }
+      },
+      {
+        "id": "syntax.subject.noun_phrase_structure",
+        "title": "Subjects are noun/pronoun phrases with optional modifiers",
+        "category": "syntax",
+        "subcategory": "subject",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "clause_role": "subject"
+        },
+        "rule": {
+          "description": "The subject is the entity responsible for the verb's action or state. It can be a noun phrase or pronoun, with modifiers such as deictic adjectives, quantifiers, and descriptive adjectives before the head noun.",
+          "pseudocode": [
+            "subject = noun_phrase | pronoun | coordinated_subject",
+            "noun_phrase = modifiers* + head_noun + optional_post_head_phrases"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Hya domi ayse tebixusi.",
+            "english": "All cities have things of interest.",
+            "analysis": "hya domi is subject noun phrase"
+          }
+        ],
+        "retrieval_tags": [
+          "subject",
+          "noun phrase",
+          "modifiers",
+          "word order"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Subject / Word Order"
+        }
+      },
+      {
+        "id": "syntax.object.after_predicate",
+        "title": "Objects and complements follow the verb predicate",
+        "category": "syntax",
+        "subcategory": "predicate_structure",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "clause_role": [
+            "object",
+            "complement"
+          ]
+        },
+        "rule": {
+          "description": "In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.",
+          "pseudocode": [
+            "predicate = finite_verb + optional_adverbs",
+            "if direct_object: place after predicate",
+            "if indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Biu hia yibdren.",
+            "english": "Take this telegram.",
+            "analysis": "object follows verb"
+          },
+          {
+            "mirad": "Buu at hua nyem.",
+            "english": "Give me that box.",
+            "analysis": "indirect object before direct object"
+          }
+        ],
+        "retrieval_tags": [
+          "object",
+          "complement",
+          "predicate",
+          "direct object",
+          "indirect object"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "The Object / Word Order"
+        }
+      },
+      {
+        "id": "syntax.direct_discourse_colon",
+        "title": "Direct discourse follows a reporting clause and colon",
+        "category": "syntax",
+        "subcategory": "reported_speech",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 55,
+        "applies_to": {
+          "discourse_type": "direct"
+        },
+        "rule": {
+          "description": "In direct discourse, a reporting clause can introduce the quoted material with a colon.",
+          "pseudocode": [
+            "if discourse == direct:",
+            "    output reporting_clause + ':' + quoted_clause"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ha tob zoyda at: \"Va.\"",
+            "english": "The man replied to me, \"Yes.\"",
+            "analysis": "colon before direct quote"
+          }
+        ],
+        "retrieval_tags": [
+          "direct discourse",
+          "quote",
+          "colon",
+          "reported speech"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Direct Discourse"
+        }
+      }
+    ],
+    "prepositions_conjunctions": [
+      {
+        "id": "conjunction.coordinate_ay_ey_oy",
+        "title": "Use ay, ey, and oy for and, or, and but/nor-like exclusion",
+        "category": "lexical_grammar",
+        "subcategory": "coordinate_conjunctions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "part_of_speech": "conjunction",
+          "type": "coordinate"
+        },
+        "rule": {
+          "description": "ay links elements as 'and'; ey links alternatives as 'or'; oy can express exclusion/contrast such as 'but' or in neither/nor patterns, depending on construction.",
+          "pseudocode": [
+            "if relation == conjunction: use 'ay'",
+            "if relation == alternative: use 'ey'",
+            "if relation == contrast_or_negative_alternative: use 'oy'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Ivan ay Maria",
+            "english": "Ivan and Maria",
+            "analysis": "ay = and"
+          },
+          {
+            "mirad": "ha tam ey ha par",
+            "english": "the house or the car",
+            "analysis": "ey = or"
+          },
+          {
+            "mirad": "hyati oy ha toybi",
+            "english": "all but the women",
+            "analysis": "oy expresses exclusion"
+          }
+        ],
+        "retrieval_tags": [
+          "and",
+          "or",
+          "but",
+          "nor",
+          "ay",
+          "ey",
+          "oy",
+          "coordinate conjunction"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage / Conjunctions"
+        }
+      },
+      {
+        "id": "conjunction.subordinate_van_that",
+        "title": "Use van for that-clauses",
+        "category": "syntax",
+        "subcategory": "subordination",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "conjunction",
+          "type": "subordinate",
+          "meaning": "that"
+        },
+        "rule": {
+          "description": "van introduces a subordinate declarative clause corresponding to English 'that', especially after verbs of cognition, saying, or in complement clauses.",
+          "pseudocode": [
+            "if embedded_clause.is_declarative:",
+            "    introduce_with 'van' when clarity or grammar requires"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "At ta van et upo.",
+            "english": "I knew that you would come.",
+            "analysis": "van introduces clause object"
+          },
+          {
+            "mirad": "Se uva van iyt pia.",
+            "english": "It is sad that she left.",
+            "analysis": "van introduces complement clause"
+          }
+        ],
+        "retrieval_tags": [
+          "that",
+          "van",
+          "subordinate conjunction",
+          "complement clause"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Communication Verbs / Word Order"
+        }
+      },
+      {
+        "id": "preposition.bi_of_possession_partitive",
+        "title": "bi expresses of, possession, and partitive relations",
+        "category": "lexical_grammar",
+        "subcategory": "prepositions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "part_of_speech": "preposition",
+          "form": "bi"
+        },
+        "rule": {
+          "description": "bi translates many English of-relations, including possession by named persons and partitives such as a glass of wine.",
+          "pseudocode": [
+            "if relation in ['of', 'possessive', 'partitive']:",
+            "    use head + 'bi' + complement"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "ha tam bi Maria",
+            "english": "Mary's house / the house of Mary",
+            "analysis": "possessive bi"
+          },
+          {
+            "mirad": "tilzyeb bi vafil",
+            "english": "a glass of wine",
+            "analysis": "partitive bi"
+          }
+        ],
+        "retrieval_tags": [
+          "preposition",
+          "of",
+          "bi",
+          "possession",
+          "partitive"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage"
+        }
+      },
+      {
+        "id": "preposition.bay_with_company",
+        "title": "bay means with/in the company of",
+        "category": "lexical_grammar",
+        "subcategory": "prepositions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "part_of_speech": "preposition",
+          "form": "bay"
+        },
+        "rule": {
+          "description": "bay expresses accompaniment, corresponding to English 'with' in the sense of in the company of.",
+          "pseudocode": [
+            "if relation == accompaniment:",
+            "    use 'bay' + companion_np"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "Upu eker bay yat.",
+            "english": "Come play with us.",
+            "analysis": "bay marks company"
+          }
+        ],
+        "retrieval_tags": [
+          "with",
+          "bay",
+          "accompaniment",
+          "company",
+          "preposition"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Prepositions / Vocabulary"
+        }
+      },
+      {
+        "id": "preposition.av_for_beneficiary",
+        "title": "av marks for/beneficiary",
+        "category": "lexical_grammar",
+        "subcategory": "prepositions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "part_of_speech": "preposition",
+          "form": "av"
+        },
+        "rule": {
+          "description": "av corresponds to English 'for' in beneficiary or advantage contexts.",
+          "pseudocode": [
+            "if relation == beneficiary_or_for:",
+            "    use 'av' + beneficiary_np"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "His se av et.",
+            "english": "This is for you.",
+            "analysis": "av marks beneficiary"
+          },
+          {
+            "mirad": "Nusbiu dyes av at.",
+            "english": "Buy a book for me.",
+            "analysis": "prepositional paraphrase"
+          }
+        ],
+        "retrieval_tags": [
+          "for",
+          "av",
+          "beneficiary",
+          "preposition"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Cases / Verbs of Motion and Communication"
+        }
+      },
+      {
+        "id": "preposition.boy_without",
+        "title": "boy means without",
+        "category": "lexical_grammar",
+        "subcategory": "prepositions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 60,
+        "applies_to": {
+          "part_of_speech": "preposition",
+          "form": "boy"
+        },
+        "rule": {
+          "description": "boy links a noun phrase to express lack or absence, corresponding to English 'without'.",
+          "pseudocode": [
+            "if relation == absence_or_without:",
+            "    use head + 'boy' + complement"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "nyandras boy eta dyun",
+            "english": "a list without your name",
+            "analysis": "boy = without"
+          }
+        ],
+        "retrieval_tags": [
+          "without",
+          "boy",
+          "absence",
+          "preposition"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage"
+        }
+      },
+      {
+        "id": "preposition.ayv_about",
+        "title": "ayv means about/concerning",
+        "category": "lexical_grammar",
+        "subcategory": "prepositions",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 60,
+        "applies_to": {
+          "part_of_speech": "preposition",
+          "form": "ayv"
+        },
+        "rule": {
+          "description": "ayv introduces the topic or subject matter of a noun, speech, writing, or thought, corresponding to English 'about'.",
+          "pseudocode": [
+            "if relation == topic_or_about:",
+            "    use head + 'ayv' + topic_np"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "dyes ayv ha Ea Mira Dropek",
+            "english": "a book about the Second World War",
+            "analysis": "ayv introduces topic"
+          }
+        ],
+        "retrieval_tags": [
+          "about",
+          "concerning",
+          "ayv",
+          "topic",
+          "preposition"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Linkage"
+        }
+      }
+    ],
+    "derivation_word_building": [
+      {
+        "id": "derivation.compound.prefix_drop_endings",
+        "title": "Compounds often drop adjective -a and verb -er in prefixes",
+        "category": "derivation",
+        "subcategory": "compounding",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "word_formation": "compound"
+        },
+        "rule": {
+          "description": "The first two or three letters of a word can serve as prefixes. When used as prefixes, adjective -a and verb -er are often dropped; long noun prefixes may be clipped.",
+          "pseudocode": [
+            "if base_word.used_as_prefix:",
+            "    if base_word.ends_with('a') and is_adjective: drop_final_a",
+            "    if base_word.ends_with('er') and is_verb: drop_final_er",
+            "    if prefix_too_long: optionally_clip",
+            "    compound = prefix + head"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "oza + der → ozder",
+            "english": "weak + say → whisper",
+            "analysis": "adjective ending dropped"
+          },
+          {
+            "mirad": "yaga + der → yagder",
+            "english": "long + say → ramble",
+            "analysis": "adjective ending dropped"
+          },
+          {
+            "mirad": "mam + mil → mamil",
+            "english": "sky + water → rain",
+            "analysis": "noun compound"
+          }
+        ],
+        "retrieval_tags": [
+          "compound",
+          "prefix",
+          "drop -a",
+          "drop -er",
+          "word building",
+          "affixation"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Rule #2: Affixation / Prefixes"
+        }
+      },
+      {
+        "id": "derivation.noun.abstract_an",
+        "title": "Use -an/-n to derive abstract quality nouns",
+        "category": "derivation",
+        "subcategory": "noun_suffixes",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 75,
+        "applies_to": {
+          "target_part_of_speech": "noun",
+          "semantic_type": "abstract_quality"
+        },
+        "rule": {
+          "description": "Abstract quality nouns meaning -ness, -hood, or -ity are commonly formed from adjective stems with -an or -n.",
+          "pseudocode": [
+            "if target == abstract_quality_noun:",
+            "    form = adjective_stem + 'an' or adjective_stem + 'n' according_to_base_pattern"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "via → vian",
+            "english": "beautiful → beauty",
+            "analysis": "abstract quality"
+          },
+          {
+            "mirad": "yeva → yevan",
+            "english": "fair → fairness/equity",
+            "analysis": "abstract quality"
+          },
+          {
+            "mirad": "toba → toban",
+            "english": "human → humanity",
+            "analysis": "abstract quality"
+          }
+        ],
+        "retrieval_tags": [
+          "abstract noun",
+          "quality",
+          "-an",
+          "-n",
+          "-ness",
+          "-ity"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.noun.gerund_en",
+        "title": "Use -en to derive gerunds/action nouns from verbs",
+        "category": "derivation",
+        "subcategory": "noun_suffixes",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "base_part_of_speech": "verb",
+          "target_part_of_speech": "noun"
+        },
+        "rule": {
+          "description": "The suffix -en forms present gerunds or action nouns meaning English -ing, -tion, or -ment from verb stems.",
+          "pseudocode": [
+            "if verb_stem nominalized_as_action:",
+            "    noun = verb_stem + 'en'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "deuzer → deuzen",
+            "english": "to sing → singing",
+            "analysis": "verb stem + -en"
+          },
+          {
+            "mirad": "axer → axen",
+            "english": "to act → action/acting",
+            "analysis": "verb stem + -en"
+          },
+          {
+            "mirad": "ifier → ifien",
+            "english": "to enjoy → enjoyment",
+            "analysis": "verb stem + -en"
+          }
+        ],
+        "retrieval_tags": [
+          "gerund",
+          "verbal noun",
+          "-en",
+          "-ing",
+          "action noun",
+          "nominalization"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.noun.agent_ut_uyt",
+        "title": "Use -ut for agents and -uyt for female agents",
+        "category": "derivation",
+        "subcategory": "agent_nouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "base_part_of_speech": "verb",
+          "target_part_of_speech": "agent_noun"
+        },
+        "rule": {
+          "description": "Agent nouns meaning one who does X are formed from verb stems with -ut. The female-specific form uses -uyt.",
+          "pseudocode": [
+            "if target == agent_noun:",
+            "    form = verb_stem + 'ut'",
+            "if target_gender == feminine:",
+            "    form = verb_stem + 'uyt'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "poper → poput",
+            "english": "to travel → traveler",
+            "analysis": "agent -ut"
+          },
+          {
+            "mirad": "aker → akut",
+            "english": "to win → winner",
+            "analysis": "agent -ut"
+          },
+          {
+            "mirad": "beker → bekuyt",
+            "english": "to treat → nurse",
+            "analysis": "female agent -uyt"
+          }
+        ],
+        "retrieval_tags": [
+          "agent noun",
+          "-ut",
+          "-uyt",
+          "one who",
+          "-er",
+          "feminine agent"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes / Gender"
+        }
+      },
+      {
+        "id": "derivation.noun.person_t_thing_s",
+        "title": "Use -t for person and -s for thing from adjectives and determiners",
+        "category": "derivation",
+        "subcategory": "person_thing_nominalization",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "target_part_of_speech": "pronoun_or_noun",
+          "animacy": [
+            "animate",
+            "inanimate"
+          ]
+        },
+        "rule": {
+          "description": "The suffix -t often derives a person, while -s derives a thing/object from adjectives or determiner stems.",
+          "pseudocode": [
+            "if target_referent == person:",
+            "    form = stem + 't'",
+            "if target_referent == thing:",
+            "    form = stem + 's'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "fia → fiat / fias",
+            "english": "good → good person / good thing",
+            "analysis": "-t vs -s"
+          },
+          {
+            "mirad": "duho- → duhot? / duhos?",
+            "english": "which → who? / what?",
+            "analysis": "animate vs inanimate interrogative"
+          }
+        ],
+        "retrieval_tags": [
+          "person",
+          "thing",
+          "-t",
+          "-s",
+          "animate",
+          "inanimate",
+          "nominalization"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Pronouns / Deriving Substantives from Adjectives"
+        }
+      },
+      {
+        "id": "derivation.noun.collection_yan",
+        "title": "Use -yan for collections or groupings",
+        "category": "derivation",
+        "subcategory": "noun_suffixes",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 70,
+        "applies_to": {
+          "target_part_of_speech": "noun",
+          "semantic_type": "collection"
+        },
+        "rule": {
+          "description": "The suffix -yan forms a collection, group, or -ary from noun stems.",
+          "pseudocode": [
+            "if target == collection_of(base_noun):",
+            "    form = base_noun + 'yan'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tob → tobyan",
+            "english": "man/human → mankind",
+            "analysis": "collection"
+          },
+          {
+            "mirad": "mar → maryan",
+            "english": "star → constellation",
+            "analysis": "collection of stars"
+          },
+          {
+            "mirad": "fab → fabyan",
+            "english": "tree → forest",
+            "analysis": "collection of trees"
+          },
+          {
+            "mirad": "dyes → dyesyan",
+            "english": "book → library",
+            "analysis": "book collection/place"
+          }
+        ],
+        "retrieval_tags": [
+          "collection",
+          "group",
+          "-yan",
+          "forest",
+          "library",
+          "constellation"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.noun.place_m_im_am_um_yem",
+        "title": "Place and enclosure suffixes derive rooms, buildings, compartments, and boxes",
+        "category": "derivation",
+        "subcategory": "noun_suffixes",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 65,
+        "applies_to": {
+          "target_part_of_speech": "noun",
+          "semantic_type": "place_or_container"
+        },
+        "rule": {
+          "description": "Place-like nouns are derived with suffixes such as -(e)m for place, -im for room, -am for house/building, -um for compartment/booth, and -yem for enclosure/box.",
+          "pseudocode": [
+            "if target == general_place: use stem + 'em' or 'm'",
+            "if target == room: use stem + 'im'",
+            "if target == building: use stem + 'am'",
+            "if target == compartment_or_booth: use stem + 'um'",
+            "if target == enclosure_or_box: use stem + 'yem'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "yex → yexem",
+            "english": "work → worksite",
+            "analysis": "place suffix"
+          },
+          {
+            "mirad": "magel- → magelim",
+            "english": "cook → kitchen",
+            "analysis": "room suffix"
+          },
+          {
+            "mirad": "til → tilam",
+            "english": "drink → bar/tavern",
+            "analysis": "building suffix"
+          },
+          {
+            "mirad": "apet → apetyem",
+            "english": "horse → corral",
+            "analysis": "enclosure suffix"
+          }
+        ],
+        "retrieval_tags": [
+          "place",
+          "room",
+          "building",
+          "compartment",
+          "enclosure",
+          "-em",
+          "-im",
+          "-am",
+          "-um",
+          "-yem"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.noun.tool_ar_ir_ur",
+        "title": "Use -ar/-ir/-ur for tools, machines, engines, and vehicles",
+        "category": "derivation",
+        "subcategory": "instrument_nouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 75,
+        "applies_to": {
+          "target_part_of_speech": "noun",
+          "semantic_type": "instrument"
+        },
+        "rule": {
+          "description": "The suffixes -ar, -ir, and -ur form instruments, tools, machines, engines, or vehicles, usually from verb stems. Exact nuance depends on the lexical family.",
+          "pseudocode": [
+            "if target == tool_or_instrument:",
+            "    form = verb_stem + one_of(['ar','ir','ur']) according_to_instrument_class"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "drer → drar",
+            "english": "to write → pencil",
+            "analysis": "writing tool"
+          },
+          {
+            "mirad": "gobler → goblar",
+            "english": "to cut → knife",
+            "analysis": "cutting tool"
+          },
+          {
+            "mirad": "per → pur",
+            "english": "to go → car",
+            "analysis": "vehicle"
+          }
+        ],
+        "retrieval_tags": [
+          "tool",
+          "instrument",
+          "machine",
+          "vehicle",
+          "-ar",
+          "-ir",
+          "-ur"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.noun.science_tun_tut_tuyn_tuin",
+        "title": "Science and theory suffixes derive fields and specialists",
+        "category": "derivation",
+        "subcategory": "academic_nouns",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 60,
+        "applies_to": {
+          "semantic_domain": "science_theory"
+        },
+        "rule": {
+          "description": "-tun means science of/-ology; -tut means scientist/-ologist; -tuyn means pseudo-science; -tuin means theory.",
+          "pseudocode": [
+            "if target == science_of(base): form = base + 'tun'",
+            "if target == scientist_of(base): form = base + 'tut'",
+            "if target == pseudoscience_of(base): form = base + 'tuyn'",
+            "if target == theory: form = base + 'tuin'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tot → tottun / tottut",
+            "english": "god → theology / theologian",
+            "analysis": "field and specialist"
+          },
+          {
+            "mirad": "vob → vobtun / vobtut",
+            "english": "plant → botany / botanist",
+            "analysis": "science and scientist"
+          },
+          {
+            "mirad": "mar → martuyn",
+            "english": "star → astrology",
+            "analysis": "pseudo-science suffix"
+          }
+        ],
+        "retrieval_tags": [
+          "science",
+          "ology",
+          "scientist",
+          "theory",
+          "pseudo-science",
+          "-tun",
+          "-tut",
+          "-tuyn",
+          "-tuin"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Noun Derivational Suffixes"
+        }
+      },
+      {
+        "id": "derivation.adjective_noun_to_adj_suffixes",
+        "title": "Noun-to-adjective suffixes encode relation, fullness, lack, and likeness",
+        "category": "derivation",
+        "subcategory": "adjective_suffixes",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 80,
+        "applies_to": {
+          "base_part_of_speech": "noun",
+          "target_part_of_speech": "adjective"
+        },
+        "rule": {
+          "description": "Noun-derived adjectives use -a for relating to/of, -aya or -ika for full of/-ful/-ous, -oya or -uka for lacking/-less/-free, and -yena for like/-ish/-y.",
+          "pseudocode": [
+            "if relation == 'relating_to': form = noun + 'a'",
+            "if relation == 'full_of': form = noun + one_of(['aya','ika'])",
+            "if relation == 'empty_of_or_without': form = noun + one_of(['oya','uka'])",
+            "if relation == 'like': form = noun + 'yena'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "dom → doma",
+            "english": "city → urban",
+            "analysis": "relational -a"
+          },
+          {
+            "mirad": "mil → milaya",
+            "english": "water → watery",
+            "analysis": "full of"
+          },
+          {
+            "mirad": "tes → tesoya",
+            "english": "meaning → meaningless",
+            "analysis": "without"
+          },
+          {
+            "mirad": "tot → totyena",
+            "english": "god → godlike",
+            "analysis": "likeness"
+          }
+        ],
+        "retrieval_tags": [
+          "adjective derivation",
+          "noun to adjective",
+          "-a",
+          "-aya",
+          "-ika",
+          "-oya",
+          "-uka",
+          "-yena"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Adjectival Derivative Endings"
+        }
+      },
+      {
+        "id": "derivation.adjective_verb_participles_ea_wa_oa_ua",
+        "title": "Verb-to-adjective endings form participles and potential meanings",
+        "category": "derivation",
+        "subcategory": "verbal_adjectives",
+        "direction": [
+          "mirad_to_english",
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "base_part_of_speech": "verb",
+          "target_part_of_speech": "adjective"
+        },
+        "rule": {
+          "description": "Verb-derived adjectives use -ea for active/present -ing, -yea for tending to/-ive, -wa for passive/past -ed, -oa for about to/apt to, and -ua for able/potentially causing.",
+          "pseudocode": [
+            "if meaning == active_present_participle: form = verb_stem + 'ea'",
+            "if meaning == tendency: form = verb_stem + 'yea'",
+            "if meaning == passive_past_participle: form = verb_stem + 'wa'",
+            "if meaning == about_to: form = verb_stem + 'oa'",
+            "if meaning == able_or_potential: form = verb_stem + 'ua'"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tej- → tejea",
+            "english": "live → living/alive",
+            "analysis": "-ea"
+          },
+          {
+            "mirad": "dal- → dalyea",
+            "english": "talk → talkative",
+            "analysis": "-yea"
+          },
+          {
+            "mirad": "dal- → dalwa",
+            "english": "talk → spoken",
+            "analysis": "-wa"
+          },
+          {
+            "mirad": "toj- → tojoa",
+            "english": "die → moribund",
+            "analysis": "about to"
+          },
+          {
+            "mirad": "tojb- → tojbua",
+            "english": "kill → lethal",
+            "analysis": "potential/capable of killing"
+          }
+        ],
+        "retrieval_tags": [
+          "participle",
+          "verbal adjective",
+          "-ea",
+          "-yea",
+          "-wa",
+          "-oa",
+          "-ua",
+          "ing",
+          "ed",
+          "able"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Adjectival Derivative Endings"
+        }
+      }
+    ],
+    "translation_special_cases": [
+      {
+        "id": "translation.general_concepts_no_article",
+        "title": "Do not use ha for general abstractions, languages, countries, or names",
+        "category": "translation_rule",
+        "subcategory": "articles",
+        "direction": [
+          "english_to_mirad"
+        ],
+        "priority": 85,
+        "applies_to": {
+          "english_feature": "definite_article",
+          "semantic_class": [
+            "general_abstraction",
+            "language",
+            "country",
+            "proper_name"
+          ]
+        },
+        "rule": {
+          "description": "General concepts such as life, love, and freedom do not take ha unless referring to a specific instance. Names of languages, countries, and persons are already specific and normally do not take ha.",
+          "pseudocode": [
+            "if noun.is_general_abstraction and not specifically_modified:",
+            "    omit 'ha'",
+            "if noun.is_language_or_country_or_person_name:",
+            "    omit 'ha' unless contrastively specified"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tej",
+            "english": "life",
+            "analysis": "general abstraction, no ha"
+          },
+          {
+            "mirad": "Ferad",
+            "english": "French",
+            "analysis": "language name, no ha"
+          },
+          {
+            "mirad": "ha tej ho at bayse",
+            "english": "the life that I have",
+            "analysis": "specific abstraction takes ha"
+          }
+        ],
+        "retrieval_tags": [
+          "article",
+          "ha",
+          "abstraction",
+          "language",
+          "country",
+          "proper noun",
+          "specificity"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Use of the Definite Article"
+        }
+      },
+      {
+        "id": "translation.english_a_an_omit",
+        "title": "Omit English indefinite a/an in Mirad",
+        "category": "translation_rule",
+        "subcategory": "articles",
+        "direction": [
+          "english_to_mirad"
+        ],
+        "priority": 95,
+        "applies_to": {
+          "english_feature": "indefinite_article"
+        },
+        "rule": {
+          "description": "Mirad has no indefinite article equivalent to English a/an. An unmarked noun is indefinite or general unless made definite by ha or another determiner.",
+          "pseudocode": [
+            "if english_np.article in ['a','an']:",
+            "    omit article in Mirad",
+            "    translate noun phrase normally"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "tam",
+            "english": "a house",
+            "analysis": "no indefinite article"
+          },
+          {
+            "mirad": "fitejawa tej",
+            "english": "a life well-lived",
+            "analysis": "indefinite abstraction, no article"
+          }
+        ],
+        "retrieval_tags": [
+          "a",
+          "an",
+          "indefinite article",
+          "omit article",
+          "noun phrase"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Modifying Nouns with the Definite Article"
+        }
+      },
+      {
+        "id": "translation.english_gender_default_neutral",
+        "title": "Default to gender-neutral forms unless gender is needed",
+        "category": "translation_rule",
+        "subcategory": "gender",
+        "direction": [
+          "english_to_mirad"
+        ],
+        "priority": 90,
+        "applies_to": {
+          "feature": "gender"
+        },
+        "rule": {
+          "description": "Mirad is gender-neutral by default. Use gender-specific nouns or pronouns only when English explicitly requires gender or when needed to distinguish referents.",
+          "pseudocode": [
+            "if gender_not_semantically_required and referent_can_be_neutral:",
+            "    use neutral form",
+            "else:",
+            "    apply w/y gender marking or lexical gendered form"
+          ]
+        },
+        "examples": [
+          {
+            "mirad": "it",
+            "english": "he/she",
+            "analysis": "neutral third-person animate"
+          },
+          {
+            "mirad": "tob",
+            "english": "person/human being",
+            "analysis": "neutral noun"
+          },
+          {
+            "mirad": "twob / toyb",
+            "english": "man / woman",
+            "analysis": "gender-specific when required"
+          }
+        ],
+        "retrieval_tags": [
+          "gender-neutral",
+          "he",
+          "she",
+          "man",
+          "woman",
+          "w",
+          "y",
+          "default neutral"
+        ],
+        "source": {
+          "document": "Mirad_grammer.pdf",
+          "section": "Gender / Pronouns"
+        }
+      }
+    ]
+  }
+}

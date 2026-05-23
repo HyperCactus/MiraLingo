@@ -42,6 +42,7 @@ Pronouns:
 Verbs:
 - Infinitive ends -er. Stem = infinitive minus -er.
 - Verbs never agree with person/number.
+- Simple active endings: -e present, -a past, -o future, -u hypothetical/imperative/subjunctive.
 - Simple active: stem + e present, a past, o future, u hypothetical/imperative/subjunctive.
   se = am/is/are; sa = was/were; so = will be; su = would be / Be!
   xe = do/does; xa = did; xo = will do; xu = would do / Do!
@@ -105,6 +106,81 @@ def _format_context_passages(passages: list) -> str:
     return "\n\n".join(passages)
 
 
+def _split_search_terms(value) -> list[str]:
+    """Parse DSPy text/list outputs into short retrieval terms."""
+    if not value:
+        return []
+    if isinstance(value, (list, tuple)):
+        raw_items = [str(v) for v in value]
+    else:
+        raw = str(value)
+        raw_items = []
+        for line in raw.replace(";", "\n").split("\n"):
+            raw_items.extend(part.strip() for part in line.split(","))
+    terms = []
+    for item in raw_items:
+        item = item.strip().strip("-•0123456789. )(")
+        if item and item.lower() not in {"none", "n/a", "na"}:
+            terms.append(item)
+    return terms
+
+
+def _format_rule_context(rules: list[dict]) -> str:
+    """Format retrieved structured grammar rules for the translator prompt."""
+    if not rules:
+        return ""
+    blocks = []
+    for item in rules:
+        rule = item.get("rule", item)
+        examples = rule.get("examples") or []
+        ex_lines = []
+        for ex in examples[:3]:
+            if isinstance(ex, dict):
+                mirad = ex.get("mirad", "")
+                english = ex.get("english", "")
+                analysis = ex.get("analysis", "")
+                ex_lines.append(f"- Mirad: {mirad} | English: {english} | Note: {analysis}".strip())
+            else:
+                ex_lines.append(f"- {ex}")
+        blocks.append(
+            "\n".join(
+                [
+                    f"Rule ID: {rule.get('id', '')}",
+                    f"Description: {rule.get('description', '')}",
+                    f"Pseudocode: {rule.get('pseudocode', '')}",
+                    "Examples:",
+                    *(ex_lines or ["- none"]),
+                ]
+            )
+        )
+    return "\n\n".join(blocks)
+
+
+def _extract_rule_ids(rules: list[dict]) -> list[str]:
+    ids = []
+    for item in rules or []:
+        rule = item.get("rule", item)
+        rid = rule.get("id") or item.get("metadata", {}).get("rule_id")
+        if rid and rid not in ids:
+            ids.append(str(rid))
+    return ids
+
+
+class TranslationAnalysisSignature(dspy.Signature):
+    """Analyze text before translation.
+
+    Identify normalized input structure, grammar-rule search terms, and vocabulary
+    search terms. Keep search terms concise and aligned with Mirad grammar concepts
+    such as verb tense, progressive aspect, possession, comparison, pronouns,
+    word order, negation, questions, clauses, prepositions, and noun phrases.
+    """
+    source_text = dspy.InputField(desc="Text to translate")
+    direction = dspy.InputField(desc="Translation direction: en_to_mir or mir_to_en")
+    normalized_structure = dspy.OutputField(desc="Normalized structural analysis of the input sentence(s)")
+    grammar_search_terms = dspy.OutputField(desc="Comma-separated grammar concepts/rules to retrieve")
+    vocabulary_search_terms = dspy.OutputField(desc="Comma-separated words/phrases to look up in the lexicon")
+
+
 class EnglishToMiradSignature(dspy.Signature):
     """Translate English text to Mirad.
 
@@ -116,17 +192,20 @@ class EnglishToMiradSignature(dspy.Signature):
     dictionary provides a specific word. If the dictionary says "house → tam",
     output "tam", not "dom" or any other root.
 
-    Use the provided context passages (grammar and thesaurus excerpts) to
-    inform grammar, word order, and idiom choices. If the word equivalents or
-    context passages are empty, rely on the grammar rules above.
+    Use the provided structured grammar rules and vocabulary context to
+    inform grammar, word order, and idiom choices. Grammar rules are retrieved
+    by semantic similarity over rule retrieval_tags and include rule IDs.
 
-    OUTPUT ONLY THE MIRAD TRANSLATION. No commentary, no explanations, no
-    confidence notes, no dictionary excerpts. Just the Mirad text.
+    OUTPUT THE MIRAD TRANSLATION, then a second line exactly like:
+    USED_RULE_IDS: id.one, id.two
+    If no retrieved rules were used, write USED_RULE_IDS: none.
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
     english_text = dspy.InputField(desc="English text to translate")
+    normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved grammar and thesaurus passages relevant to the translation")
+    context_passages = dspy.InputField(desc="Retrieved structured grammar rules and thesaurus passages relevant to the translation")
     mirad_text = dspy.OutputField(desc="Translated text in Mirad")
+    used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
 
 
 class CritiqueSignature(dspy.Signature):
@@ -244,16 +323,75 @@ class MiradToEnglishSignature(dspy.Signature):
     {grammar_rules}
 
     Use the provided word equivalents (Mirad→English dictionary lookups) whenever
-    possible. Use the provided context passages (grammar and thesaurus excerpts) to
-    inform grammar, word order, and translation choices. If the word equivalents or
-    context passages are empty, rely on the grammar rules above.
+    possible. Use the provided structured grammar rules and vocabulary context to
+    inform grammar, word order, and translation choices. Grammar rules are retrieved
+    by semantic similarity over rule retrieval_tags and include rule IDs.
 
-    OUTPUT ONLY THE ENGLISH TRANSLATION. No commentary, no explanations. Just the English text.
+    OUTPUT THE ENGLISH TRANSLATION, then a second line exactly like:
+    USED_RULE_IDS: id.one, id.two
+    If no retrieved rules were used, write USED_RULE_IDS: none.
     """.format(grammar_rules=_MIRAD_TO_ENGLISH_RULES)
     mirad_text = dspy.InputField(desc="Mirad text to translate")
+    normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: Mirad→English word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved grammar and thesaurus passages relevant to the translation")
+    context_passages = dspy.InputField(desc="Retrieved structured grammar rules and thesaurus passages relevant to the translation")
     english_text = dspy.OutputField(desc="Translated text in English")
+    used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
+
+
+class StructuredRetrievalMixin:
+    """Shared analysis + retrieval helpers for both translation directions."""
+
+    def _ensure_structured_pipeline(self):
+        if not hasattr(self, "analyze"):
+            self.analyze = dspy.ChainOfThought(TranslationAnalysisSignature)
+
+    def _fallback_terms(self, text: str) -> list[str]:
+        words = [w.strip().strip('.,!?;:"\'-()[]{}') for w in text.split()]
+        words = [w for w in words if w]
+        return words[:12]
+
+    def _analyze_text(self, text: str, direction: str) -> tuple[str, list[str], list[str]]:
+        self._ensure_structured_pipeline()
+        try:
+            analysis = self.analyze(source_text=text, direction=direction)
+            normalized = str(getattr(analysis, "normalized_structure", "") or "")
+            grammar_terms = _split_search_terms(getattr(analysis, "grammar_search_terms", ""))
+            vocab_terms = _split_search_terms(getattr(analysis, "vocabulary_search_terms", ""))
+        except Exception:
+            normalized = f"Source text: {text}"
+            grammar_terms = []
+            vocab_terms = []
+
+        fallback = self._fallback_terms(text)
+        if not grammar_terms:
+            grammar_terms = fallback
+        if not vocab_terms:
+            vocab_terms = fallback
+        return normalized, grammar_terms, vocab_terms
+
+    def _retrieve_context_for_terms(self, grammar_terms: list[str], direction: str) -> tuple[list[str], list[dict]]:
+        passages: list[str] = []
+        rules_by_id: dict[str, dict] = {}
+        seen_passages: set[str] = set()
+        for term in grammar_terms[:6]:
+            ctx_pred = self.context_retrieve(query=f"{direction} {term}")
+            for item in getattr(ctx_pred, "grammar_rules", []) or []:
+                rid = item.get("rule", {}).get("id") or item.get("metadata", {}).get("rule_id")
+                if rid and rid not in rules_by_id:
+                    rules_by_id[str(rid)] = item
+            for passage in getattr(ctx_pred, "passages", []) or []:
+                if passage not in seen_passages:
+                    seen_passages.add(passage)
+                    passages.append(passage)
+        return passages, list(rules_by_id.values())
+
+    def _parse_used_rule_ids(self, value, fallback_rules: list[dict]) -> list[str]:
+        text = str(value or "").strip()
+        if not text or text.lower() in {"none", "n/a", "na"}:
+            return _extract_rule_ids(fallback_rules)
+        ids = _split_search_terms(text.replace("USED_RULE_IDS:", ""))
+        return ids or _extract_rule_ids(fallback_rules)
 
 
 class MiradLexiconReverseLookup(dspy.Module):
@@ -280,7 +418,7 @@ class MiradLexiconReverseLookup(dspy.Module):
         return dspy.Prediction(word_equivalents=word_equivalents)
 
 
-class MiradToEnglishModule(dspy.Module):
+class MiradToEnglishModule(StructuredRetrievalMixin, dspy.Module):
     """DSPy Module for Mirad→English translation with lexicon lookup and RAG retrieval.
 
     Mir→En counterpart to TranslatorModule. Takes mirad_text as input and internally:
@@ -316,10 +454,13 @@ class MiradToEnglishModule(dspy.Module):
         signature compatibility (these are used when provided by DSPy demos; if
         empty the module computes them internally from the lexicon and ChromaDB).
         """
-        # Use provided context if non-empty (from DSPy few-shot demos);
-        # otherwise compute internally.
+        normalized_structure, grammar_terms, vocab_terms = self._analyze_text(mirad_text, "mir_to_en")
+
+        # Use provided context if non-empty (from DSPy demos); otherwise compute
+        # internally from analysis-derived vocabulary terms.
         if not word_equivalents:
-            word_eq_pred = self.lexicon_lookup(mirad_text=mirad_text)
+            lookup_text = " ".join(vocab_terms) if vocab_terms else mirad_text
+            word_eq_pred = self.lexicon_lookup(mirad_text=lookup_text)
             word_equivalents_dict = word_eq_pred.word_equivalents
             word_equivalents = "\n".join(
                 f"{mi} → {en}" for mi, en in sorted(word_equivalents_dict.items())
@@ -333,9 +474,9 @@ class MiradToEnglishModule(dspy.Module):
                     mi, en = line.split(" → ", 1)
                     word_equivalents_dict[mi.strip()] = en.strip()
 
+        grammar_rules = []
         if not context_passages:
-            ctx_pred = self.context_retrieve(query=mirad_text)
-            context_passages_list = list(ctx_pred.passages)
+            context_passages_list, grammar_rules = self._retrieve_context_for_terms(grammar_terms, "mir_to_en")
             context_passages = _format_context_passages(context_passages_list)
         else:
             # Context already provided; split on double-newline to match format
@@ -345,17 +486,23 @@ class MiradToEnglishModule(dspy.Module):
 
         prediction = self.generate(
             mirad_text=mirad_text,
+            normalized_structure=normalized_structure,
             word_equivalents=word_equivalents,
             context_passages=context_passages,
         )
+        used_rule_ids = self._parse_used_rule_ids(getattr(prediction, "used_rule_ids", ""), grammar_rules)
         return dspy.Prediction(
             english_text=prediction.english_text,
+            used_rule_ids=used_rule_ids,
+            normalized_structure=normalized_structure,
+            grammar_search_terms=grammar_terms,
+            vocabulary_search_terms=vocab_terms,
             word_equivalents=word_equivalents_dict,
             context=context_passages_list,
         )
 
 
-class MultiHopTranslatorModule(dspy.Module):
+class MultiHopTranslatorModule(StructuredRetrievalMixin, dspy.Module):
     """Translation module with multi-hop retrieval.
 
     Instead of a single retrieval pass, this module:
@@ -396,6 +543,7 @@ class MultiHopTranslatorModule(dspy.Module):
     def forward(self, english_text: str) -> dspy.Prediction:
         """Translate with multi-hop retrieval."""
         # Hop 1: Initial retrieval
+        normalized_structure, grammar_terms, vocab_terms = self._analyze_text(english_text, "en_to_mir")
         we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
 
         # Additional hops: LM generates follow-up queries for more context
@@ -444,11 +592,17 @@ class MultiHopTranslatorModule(dspy.Module):
         # Generate translation with all accumulated context
         prediction = self.generate(
             english_text=english_text,
+            normalized_structure=normalized_structure,
             word_equivalents=we_str,
             context_passages=ctx_str,
         )
+        used_rule_ids = self._parse_used_rule_ids(getattr(prediction, "used_rule_ids", ""), [])
         return dspy.Prediction(
             mirad_text=prediction.mirad_text,
+            used_rule_ids=used_rule_ids,
+            normalized_structure=normalized_structure,
+            grammar_search_terms=grammar_terms,
+            vocabulary_search_terms=vocab_terms,
             word_equivalents=word_equivalents,
             context=all_context_passages,
         )
@@ -479,11 +633,11 @@ class MiradLexiconLookup(dspy.Module):
 
 
 class MiradContextRetrieve(dspy.Retrieve):
-    """DSPy-traceable retrieval module for Mirad grammar and thesaurus context.
+    """DSPy-traceable retrieval module for structured Mirad grammar rules and thesaurus context.
 
-    Subclasses dspy.Retrieve so it participates in optimizer tracing.
-    Wraps ChromaDB grammar + thesaurus retrieval into the standard
-    Retrieve interface: input=query string, output=list of passage strings.
+    Grammar retrieval uses semantic similarity between the query and embedded
+    retrieval_tags from nirad_grammer_rules.json. Returned passages include
+    structured rule payloads and a `grammar_rules` attribute with raw rule data.
     """
 
     def __init__(self, k: int = 5):
@@ -491,24 +645,32 @@ class MiradContextRetrieve(dspy.Retrieve):
         self._k = k
 
     def forward(self, query: str) -> dspy.Prediction:
-        """Retrieve grammar and thesaurus chunks for the given query.
-
-        Returns a dspy.Prediction with a `passages` attribute (list of strings).
-        """
+        """Retrieve structured grammar rules and thesaurus chunks for the query."""
         from mirad_translator.retrieval import retrieve_all
         try:
             result = retrieve_all(query, top_k=self._k)
             passages = []
-            for section in ("grammar", "thesaurus"):
-                for item in result.get(section, []):
-                    src = item.get("metadata", {}).get("source_section", section)
+            grammar_rules = []
+            for item in result.get("grammar", []):
+                if "rule" in item:
+                    grammar_rules.append(item)
+                else:
+                    src = item.get("metadata", {}).get("source_section", "grammar")
                     passages.append(f"[{src}] {item['text']}")
+            rule_text = _format_rule_context(grammar_rules)
+            if rule_text:
+                passages.append(f"[grammar_rules]\n{rule_text}")
+            for item in result.get("thesaurus", []):
+                src = item.get("metadata", {}).get("source_section", "thesaurus")
+                passages.append(f"[{src}] {item['text']}")
         except Exception:
             passages = []
-        return dspy.Prediction(passages=passages)
+            grammar_rules = []
+        return dspy.Prediction(passages=passages, grammar_rules=grammar_rules)
 
 
-class TranslatorModule(dspy.Module):
+
+class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
     """DSPy Module for English→Mirad translation with lexicon lookup and RAG retrieval.
 
     The module takes only ``english_text`` as input and internally:
@@ -566,10 +728,13 @@ class TranslatorModule(dspy.Module):
         The raw Mirad output is post-processed (by default) to fix known
         particle errors and normalize formatting.
         """
+        normalized_structure, grammar_terms, vocab_terms = self._analyze_text(english_text, "en_to_mir")
+
         # Use provided context if non-empty (from DSPy few-shot demos);
-        # otherwise compute internally.
+        # otherwise compute internally from analysis-derived vocabulary terms.
         if not word_equivalents:
-            we_pred = self.lexicon_lookup(english_text=english_text)
+            lookup_text = " ".join(vocab_terms) if vocab_terms else english_text
+            we_pred = self.lexicon_lookup(english_text=lookup_text)
             word_equivalents_dict = we_pred.word_equivalents
             we_str = _format_word_equivalents(word_equivalents_dict)
         else:
@@ -582,9 +747,9 @@ class TranslatorModule(dspy.Module):
                     en, mi = line.split(" → ", 1)
                     word_equivalents_dict[en.strip()] = mi.strip()
 
+        grammar_rules = []
         if not context_passages:
-            ctx_pred = self.context_retrieve(query=english_text)
-            context_passages_list = list(ctx_pred.passages)
+            context_passages_list, grammar_rules = self._retrieve_context_for_terms(grammar_terms, "en_to_mir")
             ctx_str = _format_context_passages(context_passages_list)
         else:
             context_passages_list = [
@@ -594,10 +759,12 @@ class TranslatorModule(dspy.Module):
 
         prediction = self.generate(
             english_text=english_text,
+            normalized_structure=normalized_structure,
             word_equivalents=we_str,
             context_passages=ctx_str,
         )
         raw_text = prediction.mirad_text
+        used_rule_ids = self._parse_used_rule_ids(getattr(prediction, "used_rule_ids", ""), grammar_rules)
         if self._use_postprocessor:
             from mirad_translator.postprocess import postprocess_mirad
             mirad_text = postprocess_mirad(raw_text)
@@ -606,6 +773,10 @@ class TranslatorModule(dspy.Module):
         return dspy.Prediction(
             mirad_text=mirad_text,
             raw_mirad_text=raw_text if self._use_postprocessor else None,
+            used_rule_ids=used_rule_ids,
+            normalized_structure=normalized_structure,
+            grammar_search_terms=grammar_terms,
+            vocabulary_search_terms=vocab_terms,
             word_equivalents=word_equivalents_dict,
             context=context_passages_list,
         )
@@ -735,6 +906,12 @@ def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_pe
             min_similarity=min_similarity,
         )
 
+    # Compiled artifacts may contain predictors compiled against the old signature.
+    # Refresh the predictor so the structured pipeline fields are always present.
+    module.generate = dspy.ChainOfThought(EnglishToMiradSignature)
+    if not hasattr(module, "analyze"):
+        module.analyze = dspy.ChainOfThought(TranslationAnalysisSignature)
+
     return module
 
 
@@ -778,6 +955,12 @@ def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, t
             max_total_pairs=max_total_pairs,
             min_similarity=min_similarity,
         )
+
+    # Compiled artifacts may contain predictors compiled against the old signature.
+    # Refresh the predictor so structured-pipeline fields are always present.
+    module.generate = dspy.ChainOfThought(MiradToEnglishSignature)
+    if not hasattr(module, "analyze"):
+        module.analyze = dspy.ChainOfThought(TranslationAnalysisSignature)
 
     return module
 
@@ -931,7 +1114,7 @@ def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_r
         use_compiled=use_compiled,
         semantic_lexicon=semantic_lexicon,
     )
-    prediction = translator(english_text=english_text)
+    prediction = translator.forward(english_text=english_text)
     return (
         prediction.mirad_text,
         prediction.word_equivalents,

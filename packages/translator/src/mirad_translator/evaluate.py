@@ -120,8 +120,8 @@ def load_evaluation_set(csv_path: Optional[str] = None) -> list[dspy.Example]:
     with open(path, encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            english = row["English"].strip()
-            mirad = row["Mirad"].strip()
+            english = (row.get("English") or row.get("english") or "").strip()
+            mirad = (row.get("Mirad") or row.get("mirad") or "").strip()
             if english and mirad:
                 examples.append(
                     dspy.Example(
@@ -172,6 +172,52 @@ def normalized_match_metric(example: dspy.Example, prediction: dspy.Prediction, 
         return re.sub(r"\s+", " ", s).strip()
 
     return 1.0 if strip_punct(gold) == strip_punct(pred) else 0.0
+
+
+class RoundTripSemanticRetentionSignature(dspy.Signature):
+    """Score whether round-trip English preserves original English meaning.
+
+    Compare only English text to English text. Penalize factual drift even when
+    wording is topically similar: subject/object swaps, tense loss, quantifier
+    changes, negation changes, deictic changes, missing arguments, and added facts.
+    Return a numeric score from 0.0 to 1.0 where 1.0 means full semantic retention.
+    """
+    original_english = dspy.InputField(desc="Original English source sentence/text")
+    roundtrip_english = dspy.InputField(desc="English produced after English→Mirad→English round trip")
+    retention_score = dspy.OutputField(desc="Float from 0.0 to 1.0 for meaning retention")
+    rationale = dspy.OutputField(desc="Brief explanation of meaning changes or preservation")
+
+
+class RoundTripSemanticRetentionMetric(dspy.Module):
+    """DSPy metric module for English→Mirad→English meaning retention."""
+
+    def __init__(self):
+        super().__init__()
+        self.score_retention = dspy.ChainOfThought(RoundTripSemanticRetentionSignature)
+
+    def forward(self, original_english: str, roundtrip_english: str) -> dspy.Prediction:
+        prediction = self.score_retention(
+            original_english=original_english,
+            roundtrip_english=roundtrip_english,
+        )
+        raw_score = getattr(prediction, "retention_score", 0.0)
+        try:
+            score = float(str(raw_score).strip().split()[0])
+        except Exception:
+            score = 0.0
+        score = max(0.0, min(1.0, score))
+        return dspy.Prediction(
+            retention_score=score,
+            rationale=getattr(prediction, "rationale", ""),
+        )
+
+
+def roundtrip_semantic_retention_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """DSPy-compatible metric for original English vs round-trip English."""
+    original = getattr(example, "original_english", getattr(example, "english_text", ""))
+    roundtrip = getattr(prediction, "roundtrip_english", getattr(prediction, "english_text", ""))
+    metric = RoundTripSemanticRetentionMetric()
+    return metric(original_english=original, roundtrip_english=roundtrip).retention_score
 
 
 # ---------------------------------------------------------------------------
@@ -696,8 +742,8 @@ def load_reverse_evaluation_set(csv_path: Optional[str] = None) -> list[dspy.Exa
     with open(path, encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            english = row["English"].strip()
-            mirad = row["Mirad"].strip()
+            english = (row.get("English") or row.get("english") or "").strip()
+            mirad = (row.get("Mirad") or row.get("mirad") or "").strip()
             if english and mirad:
                 examples.append(
                     dspy.Example(

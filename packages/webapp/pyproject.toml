@@ -9,6 +9,19 @@ description = "Mirad language learning web application."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.23",
+]
+
+[project.optional-dependencies]
+test = [
+    "httpx>=0.24",
+    "pytest>=8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mirad_webapp"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
