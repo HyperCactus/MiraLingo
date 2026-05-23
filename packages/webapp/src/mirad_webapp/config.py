@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 
 _TRUE_VALUES = {"1", "true", "yes", "on"}
@@ -16,6 +17,7 @@ class Settings:
     environment: str = "development"
     enable_local_admin: bool = True
     session_secret: str = "miralingo-dev-session-secret"
+    phrase_csv_path: Path = Path("data/phrases/english-mirad-sentence-pairs.csv")
 
     @property
     def local_admin_bootstrap_enabled(self) -> bool:
@@ -34,8 +36,12 @@ def load_settings() -> Settings:
         os.getenv("MIRALINGO_ENABLE_LOCAL_ADMIN", "true").strip().lower() in _TRUE_VALUES
     )
     session_secret = os.getenv("MIRALINGO_SESSION_SECRET", "miralingo-dev-session-secret")
+    phrase_csv_path = Path(
+        os.getenv("MIRALINGO_PHRASE_CSV_PATH", "data/phrases/english-mirad-sentence-pairs.csv")
+    )
     return Settings(
         environment=environment,
         enable_local_admin=enable_local_admin,
         session_secret=session_secret,
+        phrase_csv_path=phrase_csv_path,
     )

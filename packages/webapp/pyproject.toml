@@ -21,6 +21,9 @@ test = [
     "pytest>=8",
 ]
 
+[project.scripts]
+miralingo-content-import = "mirad_webapp.content_cli:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/mirad_webapp"]
 
