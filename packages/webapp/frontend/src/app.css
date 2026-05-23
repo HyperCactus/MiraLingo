@@ -153,7 +153,9 @@ input:focus-visible {
   outline-offset: 3px;
 }
 
-.primary-action:disabled {
+.primary-action:disabled,
+.secondary-action:disabled,
+.audio-button:disabled {
   cursor: wait;
   opacity: 0.72;
   transform: none;
@@ -325,6 +327,7 @@ input:focus-visible {
 
 .practice-header,
 .answer-row,
+.audio-row,
 .card-meta {
   display: flex;
   flex-wrap: wrap;
@@ -380,6 +383,56 @@ input:focus-visible {
   font-weight: 900;
 }
 
+.audio-row {
+  justify-content: flex-start;
+  border: 1px solid rgba(37, 95, 91, 0.12);
+  border-radius: 1.1rem;
+  padding: 0.7rem;
+  background: rgba(217, 239, 232, 0.48);
+}
+
+.audio-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.65rem;
+  border: 1px solid rgba(37, 95, 91, 0.28);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  color: #173d3a;
+  background: #fffaf2;
+  font-weight: 900;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.audio-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(37, 95, 91, 0.48);
+  box-shadow: 0 10px 20px rgba(37, 95, 91, 0.12);
+}
+
+.audio-button:focus-visible {
+  outline: 3px solid rgba(154, 91, 19, 0.35);
+  outline-offset: 3px;
+}
+
+.audio-row .status-message,
+.audio-row .error-message {
+  flex: 1 1 15rem;
+}
+
+.audio-diagnostic {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  opacity: 0.86;
+}
+
 .diagnostic-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -417,6 +470,16 @@ input:focus-visible {
   .status-grid,
   .diagnostic-grid {
     grid-template-columns: 1fr;
+  }
+
+  .audio-row {
+    align-items: stretch;
+  }
+
+  .audio-button,
+  .audio-row .status-message,
+  .audio-row .error-message {
+    width: 100%;
   }
 
   h1 {

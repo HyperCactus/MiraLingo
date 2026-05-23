@@ -30,6 +30,43 @@
   let practiceQueue = null;
   let currentCard = null;
   let answerSubmitting = false;
+  let audioState = "idle";
+  let audioMessage = "";
+  let audioDiagnostic = "";
+  let audioBlobUrl = "";
+  let activeAudio = null;
+  let lastAudioCardId = null;
+
+  const resetAudioState = () => {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio = null;
+    }
+    if (audioBlobUrl) {
+      URL.revokeObjectURL(audioBlobUrl);
+      audioBlobUrl = "";
+    }
+    audioState = "idle";
+    audioMessage = "";
+    audioDiagnostic = "";
+  };
+
+  const friendlyAudioError = (payload, status) => {
+    if (status === 401 || payload?.error === "unauthenticated") {
+      return "Your session expired. Log in again to hear this card.";
+    }
+    if (payload?.detail) return payload.detail;
+    if (payload?.error === "mbrola_unavailable") return "Mirad audio is unavailable on this server.";
+    if (payload?.error === "voice_unavailable") return "The Mirad de6 voice is not installed on this server.";
+    if (payload?.error === "unknown_card") return "That practice card is no longer available. Refresh the queue.";
+    return "Audio is unavailable for this card right now.";
+  };
+
+  const formatAudioDiagnostic = (payload) => {
+    const detail = payload?.diagnostic ?? payload?.detail ?? payload?.error;
+    const backend = payload?.backend ? `backend=${payload.backend}` : "backend=unknown";
+    return detail ? `${backend}: ${detail}` : backend;
+  };
 
   const friendlyAuthError = (payload, fallback) => {
     if (payload?.detail) return payload.detail;
@@ -115,17 +152,20 @@
     try {
       await fetch("/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
     } finally {
+      resetAudioState();
       user = null;
       password = "";
       authState = "anonymous";
       practiceState = "idle";
       practiceQueue = null;
       currentCard = null;
+      lastAudioCardId = null;
       practiceError = "";
     }
   }
 
   async function loadPracticeQueue() {
+    resetAudioState();
     practiceState = "loading";
     practiceError = "";
     try {
@@ -134,16 +174,19 @@
       if (!response.ok || payload.ok === false) {
         practiceQueue = payload;
         currentCard = null;
+        lastAudioCardId = null;
         practiceState = "error";
         practiceError = friendlyPracticeError(payload, "Practice queue is unavailable. Try again after checking the server.");
         return;
       }
       practiceQueue = payload;
       currentCard = payload.cards?.[0] ?? null;
+      lastAudioCardId = currentCard?.id ?? null;
       practiceState = currentCard ? "ready" : "empty";
     } catch (_error) {
       practiceState = "error";
       currentCard = null;
+      lastAudioCardId = null;
       practiceError = "Could not reach practice APIs. Check that the web server is running.";
     }
   }
@@ -174,6 +217,48 @@
     } finally {
       answerSubmitting = false;
     }
+  }
+
+  async function playCardAudio() {
+    if (!currentCard || audioState === "loading") return;
+    audioState = "loading";
+    audioMessage = "Preparing Mirad audio…";
+    audioDiagnostic = "";
+    try {
+      const response = await fetch(`/practice/audio/${encodeURIComponent(currentCard.id)}`, {
+        headers: { Accept: "audio/wav, application/json" },
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      if (!response.ok || contentType.includes("application/json")) {
+        const payload = await readJson(response);
+        audioState = response.status === 401 ? "error" : "unavailable";
+        audioMessage = friendlyAudioError(payload, response.status);
+        audioDiagnostic = formatAudioDiagnostic(payload);
+        return;
+      }
+
+      const blob = await response.blob();
+      if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+      const nextBlobUrl = URL.createObjectURL(blob);
+      audioBlobUrl = nextBlobUrl;
+      activeAudio = new Audio(nextBlobUrl);
+      activeAudio.addEventListener("ended", () => {
+        audioState = "idle";
+        audioMessage = "Audio finished.";
+      });
+      await activeAudio.play();
+      audioState = "playing";
+      audioMessage = "Playing Mirad audio.";
+    } catch (_error) {
+      audioState = "error";
+      audioMessage = "Could not play audio. Check the server, then try again.";
+      audioDiagnostic = "network_or_browser_playback";
+    }
+  }
+
+  $: if ((currentCard?.id ?? null) !== lastAudioCardId) {
+    resetAudioState();
+    lastAudioCardId = currentCard?.id ?? null;
   }
 
   loadCurrentUser();
@@ -244,6 +329,26 @@
               <summary>Show Mirad answer</summary>
               <p>{currentCard.answer}</p>
             </details>
+            <div class="audio-row" aria-label="Mirad answer audio">
+              <button
+                class="audio-button"
+                type="button"
+                aria-label="Play Mirad answer audio"
+                disabled={audioState === "loading"}
+                on:click={playCardAudio}
+              >
+                <span aria-hidden="true">🔊</span>
+                {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
+              </button>
+              {#if audioMessage}
+                <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
+                  {audioMessage}
+                  {#if audioDiagnostic}
+                    <span class="audio-diagnostic">{audioDiagnostic}</span>
+                  {/if}
+                </p>
+              {/if}
+            </div>
             <dl class="diagnostic-grid" aria-label="Practice diagnostics">
               <div>
                 <dt>event_count</dt>
