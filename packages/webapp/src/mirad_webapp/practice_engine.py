@@ -123,6 +123,113 @@ def answer_summary(cards: list[dict[str, Any]], events: list[dict[str, Any]], ca
     }
 
 
+def build_practice_progress(
+    *, cards: list[dict[str, Any]], events: list[dict[str, Any]] | None, now: datetime | None = None
+) -> dict[str, Any]:
+    """Aggregate bounded session practice events into API-facing progress diagnostics."""
+    current = _as_aware_datetime(now)
+    normalized_cards = [_normalize_card(card) for card in cards]
+    valid_events = _normalize_events(events or [])
+    stats = _stats_by_card(valid_events)
+    recent_accuracy = _recent_accuracy(valid_events)
+    weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
+
+    by_type = {"word": _empty_type_stats(), "phrase": _empty_type_stats()}
+    for event in valid_events:
+        card_type = event["card_type"] if event["card_type"] in by_type else "other"
+        by_type.setdefault(card_type, _empty_type_stats())
+        _increment_type_stats(by_type[card_type], event["correct"])
+
+    per_card: list[dict[str, Any]] = []
+    states: dict[str, list[str]] = {"weak": [], "mastered": [], "stale": [], "new": []}
+    for card in normalized_cards:
+        card_stats = stats.get(card["id"], _empty_stats())
+        reason = _scheduler_reason(card_stats, current, weak_recent)
+        state = _progress_state(reason)
+        states[state].append(card["id"])
+        per_card.append(
+            {
+                "id": card["id"],
+                "type": card["type"],
+                "prompt": card["english"],
+                "attempts": card_stats["attempts"],
+                "correct": card_stats["correct"],
+                "incorrect": card_stats["incorrect"],
+                "accuracy": None if card_stats["attempts"] == 0 else card_stats["correct"] / card_stats["attempts"],
+                "scheduler_reason": reason,
+                "mastery": _mastery_payload(card_stats),
+                "recency": _recency_payload(card_stats, current),
+                "state": state,
+            }
+        )
+
+    correct = sum(1 for event in valid_events if event["correct"])
+    incorrect = len(valid_events) - correct
+    latest = valid_events[-1] if valid_events else {}
+    return {
+        "ok": True,
+        "phase": "practice_progress",
+        "card_count": len(normalized_cards),
+        "event_count": len(valid_events),
+        "total": len(valid_events),
+        "correct": correct,
+        "incorrect": incorrect,
+        "accuracy": None if not valid_events else correct / len(valid_events),
+        "per_type": {card_type: _finalize_type_stats(type_stats) for card_type, type_stats in by_type.items()},
+        "per_card": per_card,
+        "latest_event": _latest_event_summary(latest),
+        "weak_count": len(states["weak"]),
+        "mastered_count": len(states["mastered"]),
+        "stale_count": len(states["stale"]),
+        "new_count": len(states["new"]),
+        "weak_cards": states["weak"],
+        "mastered_cards": states["mastered"],
+        "stale_cards": states["stale"],
+        "new_cards": states["new"],
+    }
+
+
+def _empty_type_stats() -> dict[str, Any]:
+    return {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None}
+
+
+def _increment_type_stats(stats: dict[str, Any], correct: bool) -> None:
+    stats["attempts"] += 1
+    stats["correct"] += 1 if correct else 0
+    stats["incorrect"] += 0 if correct else 1
+
+
+def _finalize_type_stats(stats: dict[str, Any]) -> dict[str, Any]:
+    attempts = stats["attempts"]
+    return {
+        "attempts": attempts,
+        "correct": stats["correct"],
+        "incorrect": stats["incorrect"],
+        "accuracy": None if attempts == 0 else stats["correct"] / attempts,
+    }
+
+
+def _latest_event_summary(event: dict[str, Any]) -> dict[str, Any] | None:
+    if not event:
+        return None
+    return {
+        "card_id": event.get("card_id"),
+        "card_type": event.get("card_type"),
+        "correct": event.get("correct"),
+        "answered_at": event.get("answered_at"),
+    }
+
+
+def _progress_state(reason: str) -> str:
+    if reason == "weak_recent_performance":
+        return "weak"
+    if reason == "stale_mastered_review":
+        return "stale"
+    if reason == "mastered_recent":
+        return "mastered"
+    return "new"
+
+
 def _normalize_card(card: dict[str, Any]) -> dict[str, str]:
     typed = {"type": str(card.get("type") or "card"), "english": str(card.get("english") or ""), "mirad": str(card.get("mirad") or "")}
     typed["id"] = str(card.get("id") or stable_card_id(typed))

@@ -15,7 +15,7 @@ from .auth import SESSION_USER_KEY, authenticate_local_admin, serialize_user, us
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
-from .practice import answer_summary, build_practice_queue, record_practice_answer
+from .practice import answer_summary, build_practice_progress, build_practice_queue, record_practice_answer
 
 APP_NAME = "MiraLingo"
 
@@ -164,6 +164,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             cards=result.cards,
             events=practice_events_from_session(request),
             limit=limit,
+        )
+        return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+
+    @app.get("/practice/progress", tags=["practice"])
+    def practice_progress(request: Request) -> JSONResponse:
+        """Return progress diagnostics for the authenticated session's bounded practice history."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "practice_progress",
+                    "detail": "Login is required to request practice progress.",
+                },
+            )
+        try:
+            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+        except CardContentSourceMissingError as exc:
+            payload = error_to_payload(exc)
+            payload["practice_phase"] = "practice_progress"
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=payload)
+        except CardContentImportError as exc:
+            payload = error_to_payload(exc)
+            payload["practice_phase"] = "practice_progress"
+            return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
+
+        payload = build_practice_progress(
+            cards=result.cards,
+            events=practice_events_from_session(request),
         )
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
