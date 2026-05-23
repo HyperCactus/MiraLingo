@@ -11,7 +11,15 @@ from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 
 from .audio import AudioFailure, synthesize_card_audio
-from .auth import SESSION_USER_KEY, authenticate_local_admin, serialize_user, user_from_session
+from .auth import (
+    LOCAL_ADMIN_USERNAME,
+    SESSION_USER_KEY,
+    AccountStore,
+    authenticate_local_admin,
+    registered_login_error,
+    serialize_user,
+    user_from_session,
+)
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
@@ -38,11 +46,22 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RegisterRequest(BaseModel):
+    """Password-bearing registration request body.
+
+    Do not log or echo instances of this model because it contains credentials.
+    """
+
+    username: str
+    password: str
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Create the MiraLingo API application."""
     runtime_settings = settings or load_settings()
     app = FastAPI(title=f"{APP_NAME} API")
     app.add_middleware(SessionMiddleware, secret_key=runtime_settings.session_secret)
+    app.state.account_store = AccountStore()
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -107,9 +126,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             content={"authenticated": True, "user": user.public_dict()},
         )
 
+    @app.post("/auth/register", tags=["auth"])
+    def register(request: Request, registration: RegisterRequest) -> JSONResponse:
+        """Register a learner account in the process-local account store and log it in."""
+        account_store: AccountStore = request.app.state.account_store
+        user, error_payload, error_status = account_store.register(
+            username=registration.username,
+            password=registration.password,
+        )
+        if user is None:
+            return JSONResponse(status_code=error_status or 400, content=error_payload or {})
+
+        request.session[SESSION_USER_KEY] = serialize_user(user)
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"authenticated": True, "user": user.public_dict()},
+        )
+
     @app.post("/auth/login", tags=["auth"])
     def login(request: Request, credentials: LoginRequest) -> JSONResponse:
-        """Log in through the guarded development local-admin bootstrap."""
+        """Log in as either a registered learner or the guarded development local admin."""
+        account_store: AccountStore = request.app.state.account_store
+        if credentials.username.strip().lower() != LOCAL_ADMIN_USERNAME:
+            registered_user = account_store.authenticate(
+                username=credentials.username,
+                password=credentials.password,
+            )
+            if registered_user is None:
+                error_payload, error_status = registered_login_error()
+                return JSONResponse(status_code=error_status, content=error_payload)
+
+            request.session[SESSION_USER_KEY] = serialize_user(registered_user)
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"authenticated": True, "user": registered_user.public_dict()},
+            )
+
         user, error_payload, error_status = authenticate_local_admin(
             username=credentials.username,
             password=credentials.password,
