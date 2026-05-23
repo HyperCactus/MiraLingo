@@ -65,7 +65,8 @@ def record_practice_answer(
     cards: list[dict[str, Any]],
     events: list[dict[str, Any]] | None,
     card_id: str,
-    submitted_answer: str,
+    submitted_answer: str = "",
+    correct: bool | None = None,
     now: datetime | None = None,
 ) -> list[dict[str, Any]] | dict[str, Any]:
     """Validate and append a JSON-serializable practice event, or return a structured error."""
@@ -85,12 +86,13 @@ def record_practice_answer(
     card = cards_by_id[card_id]
     submitted = str(submitted_answer).strip()
     expected = card["mirad"]
+    is_correct = bool(correct) if correct is not None else _normalize_text(submitted) == _normalize_text(expected)
     event = {
         "card_id": card["id"],
         "card_type": card["type"],
         "submitted_answer": submitted,
         "expected_answer": expected,
-        "correct": _normalize_text(submitted) == _normalize_text(expected),
+        "correct": is_correct,
         "answered_at": current.isoformat(),
     }
     return (valid_events + [event])[-MAX_EVENTS:]
@@ -101,6 +103,12 @@ def answer_summary(cards: list[dict[str, Any]], events: list[dict[str, Any]], ca
     queue = build_practice_queue(cards=cards, events=events, now=now, limit=len(cards))
     selected = next((card for card in queue["cards"] if card["id"] == card_id), None) or {}
     latest = next((event for event in reversed(_normalize_events(events)) if event["card_id"] == card_id), {})
+    latest_summary = {
+        "card_id": latest.get("card_id"),
+        "card_type": latest.get("card_type"),
+        "correct": latest.get("correct"),
+        "answered_at": latest.get("answered_at"),
+    }
     return {
         "ok": True,
         "phase": "practice_answer",
@@ -110,6 +118,8 @@ def answer_summary(cards: list[dict[str, Any]], events: list[dict[str, Any]], ca
         "event_count": queue["event_count"],
         "scheduler_reason": selected.get("scheduler_reason"),
         "mastery": selected.get("mastery"),
+        "recency": selected.get("recency"),
+        "latest_event": latest_summary,
     }
 
 
