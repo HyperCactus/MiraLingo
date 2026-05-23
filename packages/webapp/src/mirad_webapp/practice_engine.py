@@ -13,13 +13,26 @@ _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
 _ID_RE = re.compile(r"[^a-z0-9]+")
 
+ENGLISH_TO_MIRAD = "english_to_mirad"
+MIRAD_TO_ENGLISH = "mirad_to_english"
+_DIRECTION_SUFFIXES = {
+    ENGLISH_TO_MIRAD: "english-to-mirad",
+    MIRAD_TO_ENGLISH: "mirad-to-english",
+}
+_SUFFIX_TO_DIRECTION = {suffix: direction for direction, suffix in _DIRECTION_SUFFIXES.items()}
+
 
 def stable_card_id(card: dict[str, Any]) -> str:
-    """Derive a stable id from card type and normalized English content."""
+    """Derive a stable base id from card type and normalized English content."""
     card_type = str(card.get("type") or "card").strip().casefold() or "card"
     english = _normalize_text(card.get("english") or card.get("prompt") or "")
     slug = _ID_RE.sub("-", english).strip("-") or "untitled"
     return f"{card_type}:{slug}"
+
+
+def direction_item_id(base_card_id: str, direction: str) -> str:
+    """Return the deterministic direction-aware practice item id."""
+    return f"{base_card_id}#{_DIRECTION_SUFFIXES[direction]}"
 
 
 def build_practice_queue(
@@ -27,33 +40,31 @@ def build_practice_queue(
 ) -> dict[str, Any]:
     """Return a bounded, diagnostic practice queue without mutating session state."""
     current = _as_aware_datetime(now)
-    normalized_cards = [_normalize_card(card) for card in cards]
+    practice_items = _expand_practice_items(cards)
     valid_events = _normalize_events(events or [])
     stats = _stats_by_card(valid_events)
     recent_accuracy = _recent_accuracy(valid_events)
     weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
 
     ranked: list[tuple[int, int, dict[str, Any]]] = []
-    for index, card in enumerate(normalized_cards):
-        card_stats = stats.get(card["id"], _empty_stats())
+    for index, item in enumerate(practice_items):
+        card_stats = stats.get(item["id"], _empty_stats())
         reason = _scheduler_reason(card_stats, current, weak_recent)
-        item = {
-            "id": card["id"],
-            "type": card["type"],
-            "prompt": card["english"],
-            "answer": card["mirad"],
+        queue_item = {
+            **item,
             "scheduler_reason": reason,
             "mastery": _mastery_payload(card_stats),
             "recency": _recency_payload(card_stats, current),
         }
-        ranked.append((_rank(reason, card_stats, current), index, item))
+        ranked.append((_rank(reason, card_stats, current), index, queue_item))
 
     ordered = _interleave_same_priority_cards(ranked)
     bounded_limit = max(0, min(int(limit), len(ordered)))
     return {
         "ok": True,
         "phase": "practice_queue",
-        "card_count": len(normalized_cards),
+        "card_count": len(practice_items),
+        "base_card_count": len(_normalize_base_cards(cards)),
         "event_count": len(valid_events),
         "limit": bounded_limit,
         "cards": ordered[:bounded_limit],
@@ -72,8 +83,9 @@ def record_practice_answer(
     """Validate and append a JSON-serializable practice event, or return a structured error."""
     current = _as_aware_datetime(now)
     valid_events = _normalize_events(events or [])
-    cards_by_id = {_normalize_card(card)["id"]: _normalize_card(card) for card in cards}
-    if card_id not in cards_by_id:
+    items_by_id, legacy_aliases = _practice_item_maps(cards)
+    resolved_id = _resolve_practice_item_id(card_id, items_by_id, legacy_aliases)
+    if resolved_id is None:
         return {
             "ok": False,
             "error": "unknown_card",
@@ -83,13 +95,15 @@ def record_practice_answer(
             "detail": "Practice card was not found in the configured content source.",
         }
 
-    card = cards_by_id[card_id]
+    item = items_by_id[resolved_id]
     submitted = str(submitted_answer).strip()
-    expected = card["mirad"]
+    expected = item["answer"]
     is_correct = bool(correct) if correct is not None else _normalize_text(submitted) == _normalize_text(expected)
     event = {
-        "card_id": card["id"],
-        "card_type": card["type"],
+        "card_id": item["id"],
+        "base_card_id": item["base_card_id"],
+        "direction": item["direction"],
+        "card_type": item["type"],
         "submitted_answer": submitted,
         "expected_answer": expected,
         "correct": is_correct,
@@ -100,20 +114,19 @@ def record_practice_answer(
 
 def answer_summary(cards: list[dict[str, Any]], events: list[dict[str, Any]], card_id: str, now: datetime | None = None) -> dict[str, Any]:
     """Return API-facing diagnostics for the latest answer."""
-    queue = build_practice_queue(cards=cards, events=events, now=now, limit=len(cards))
-    selected = next((card for card in queue["cards"] if card["id"] == card_id), None) or {}
-    latest = next((event for event in reversed(_normalize_events(events)) if event["card_id"] == card_id), {})
-    latest_summary = {
-        "card_id": latest.get("card_id"),
-        "card_type": latest.get("card_type"),
-        "correct": latest.get("correct"),
-        "answered_at": latest.get("answered_at"),
-    }
+    items_by_id, legacy_aliases = _practice_item_maps(cards)
+    resolved_id = _resolve_practice_item_id(card_id, items_by_id, legacy_aliases) or str(card_id)
+    queue = build_practice_queue(cards=cards, events=events, now=now, limit=len(items_by_id))
+    selected = next((card for card in queue["cards"] if card["id"] == resolved_id), None) or {}
+    latest = next((event for event in reversed(_normalize_events(events)) if event["card_id"] == resolved_id), {})
+    latest_summary = _latest_event_summary(latest)
     return {
         "ok": True,
         "phase": "practice_answer",
-        "card_id": card_id,
-        "card_type": latest.get("card_type"),
+        "card_id": resolved_id,
+        "base_card_id": latest.get("base_card_id") or selected.get("base_card_id"),
+        "direction": latest.get("direction") or selected.get("direction"),
+        "card_type": latest.get("card_type") or selected.get("type"),
         "correct": latest.get("correct"),
         "event_count": queue["event_count"],
         "scheduler_reason": selected.get("scheduler_reason"),
@@ -128,30 +141,32 @@ def build_practice_progress(
 ) -> dict[str, Any]:
     """Aggregate bounded session practice events into API-facing progress diagnostics."""
     current = _as_aware_datetime(now)
-    normalized_cards = [_normalize_card(card) for card in cards]
+    practice_items = _expand_practice_items(cards)
     valid_events = _normalize_events(events or [])
     stats = _stats_by_card(valid_events)
     recent_accuracy = _recent_accuracy(valid_events)
     weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
 
     by_type = {"word": _empty_type_stats(), "phrase": _empty_type_stats()}
+    by_direction = {ENGLISH_TO_MIRAD: _empty_type_stats(), MIRAD_TO_ENGLISH: _empty_type_stats()}
     for event in valid_events:
         card_type = event["card_type"] if event["card_type"] in by_type else "other"
         by_type.setdefault(card_type, _empty_type_stats())
         _increment_type_stats(by_type[card_type], event["correct"])
+        direction = event.get("direction") if event.get("direction") in by_direction else "unknown"
+        by_direction.setdefault(direction, _empty_type_stats())
+        _increment_type_stats(by_direction[direction], event["correct"])
 
     per_card: list[dict[str, Any]] = []
     states: dict[str, list[str]] = {"weak": [], "mastered": [], "stale": [], "new": []}
-    for card in normalized_cards:
-        card_stats = stats.get(card["id"], _empty_stats())
+    for item in practice_items:
+        card_stats = stats.get(item["id"], _empty_stats())
         reason = _scheduler_reason(card_stats, current, weak_recent)
         state = _progress_state(reason)
-        states[state].append(card["id"])
+        states[state].append(item["id"])
         per_card.append(
             {
-                "id": card["id"],
-                "type": card["type"],
-                "prompt": card["english"],
+                **item,
                 "attempts": card_stats["attempts"],
                 "correct": card_stats["correct"],
                 "incorrect": card_stats["incorrect"],
@@ -169,13 +184,15 @@ def build_practice_progress(
     return {
         "ok": True,
         "phase": "practice_progress",
-        "card_count": len(normalized_cards),
+        "card_count": len(practice_items),
+        "base_card_count": len(_normalize_base_cards(cards)),
         "event_count": len(valid_events),
         "total": len(valid_events),
         "correct": correct,
         "incorrect": incorrect,
         "accuracy": None if not valid_events else correct / len(valid_events),
         "per_type": {card_type: _finalize_type_stats(type_stats) for card_type, type_stats in by_type.items()},
+        "per_direction": {direction: _finalize_type_stats(type_stats) for direction, type_stats in by_direction.items()},
         "per_card": per_card,
         "latest_event": _latest_event_summary(latest),
         "weak_count": len(states["weak"]),
@@ -189,31 +206,75 @@ def build_practice_progress(
     }
 
 
-def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Order scheduler ranks while mixing card types within equal-priority buckets.
+def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for card in _normalize_base_cards(cards):
+        items.append(_practice_item(card, ENGLISH_TO_MIRAD))
+        items.append(_practice_item(card, MIRAD_TO_ENGLISH))
+    return items
 
-    Import sources are block-oriented (all phrases, then default words), but the
-    learning UI presents only a small queue. Interleaving same-rank cards keeps a
-    new session visibly mixed without changing weak/stale/mastered priority.
-    """
+
+def _practice_item(card: dict[str, str], direction: str) -> dict[str, str]:
+    if direction == ENGLISH_TO_MIRAD:
+        prompt_language = "english"
+        answer_language = "mirad"
+        prompt = card["english"]
+        answer = card["mirad"]
+    else:
+        prompt_language = "mirad"
+        answer_language = "english"
+        prompt = card["mirad"]
+        answer = card["english"]
+
+    return {
+        "id": direction_item_id(card["id"], direction),
+        "base_card_id": card["id"],
+        "audio_card_id": card["id"],
+        "type": card["type"],
+        "direction": direction,
+        "prompt_language": prompt_language,
+        "answer_language": answer_language,
+        "prompt": prompt,
+        "answer": answer,
+        "english_text": card["english"],
+        "mirad_text": card["mirad"],
+    }
+
+
+def _practice_item_maps(cards: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
+    items = _expand_practice_items(cards)
+    by_id = {item["id"]: item for item in items}
+    legacy_aliases = {item["base_card_id"]: item["id"] for item in items if item["direction"] == ENGLISH_TO_MIRAD}
+    return by_id, legacy_aliases
+
+
+def _resolve_practice_item_id(card_id: str, items_by_id: dict[str, dict[str, Any]], legacy_aliases: dict[str, str]) -> str | None:
+    normalized = str(card_id or "").strip()
+    if normalized in items_by_id:
+        return normalized
+    return legacy_aliases.get(normalized)
+
+
+def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Order scheduler ranks while mixing card types and directions within equal-priority buckets."""
     by_rank: dict[int, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
     for rank, index, item in ranked:
         by_rank[rank].append((index, item))
 
     ordered: list[dict[str, Any]] = []
     for rank in sorted(by_rank):
-        by_type: dict[str, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
-        type_order: list[str] = []
+        by_group: dict[tuple[str, str], list[tuple[int, dict[str, Any]]]] = defaultdict(list)
+        group_order: list[tuple[str, str]] = []
         for index, item in sorted(by_rank[rank], key=lambda row: row[0]):
-            card_type = item["type"]
-            if card_type not in by_type:
-                type_order.append(card_type)
-            by_type[card_type].append((index, item))
+            group = (item["type"], item["direction"])
+            if group not in by_group:
+                group_order.append(group)
+            by_group[group].append((index, item))
 
-        while any(by_type.values()):
-            for card_type in type_order:
-                if by_type[card_type]:
-                    ordered.append(by_type[card_type].pop(0)[1])
+        while any(by_group.values()):
+            for group in group_order:
+                if by_group[group]:
+                    ordered.append(by_group[group].pop(0)[1])
     return ordered
 
 
@@ -242,6 +303,8 @@ def _latest_event_summary(event: dict[str, Any]) -> dict[str, Any] | None:
         return None
     return {
         "card_id": event.get("card_id"),
+        "base_card_id": event.get("base_card_id"),
+        "direction": event.get("direction"),
         "card_type": event.get("card_type"),
         "correct": event.get("correct"),
         "answered_at": event.get("answered_at"),
@@ -258,8 +321,18 @@ def _progress_state(reason: str) -> str:
     return "new"
 
 
+def _normalize_base_cards(cards: list[dict[str, Any]]) -> list[dict[str, str]]:
+    normalized: list[dict[str, str]] = []
+    for card in cards:
+        typed = _normalize_card(card)
+        if not typed["english"] or not typed["mirad"]:
+            continue
+        normalized.append(typed)
+    return normalized
+
+
 def _normalize_card(card: dict[str, Any]) -> dict[str, str]:
-    typed = {"type": str(card.get("type") or "card"), "english": str(card.get("english") or ""), "mirad": str(card.get("mirad") or "")}
+    typed = {"type": str(card.get("type") or "card"), "english": str(card.get("english") or "").strip(), "mirad": str(card.get("mirad") or "").strip()}
     typed["id"] = str(card.get("id") or stable_card_id(typed))
     return typed
 
@@ -272,8 +345,14 @@ def _normalize_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         answered_at = _parse_datetime(event.get("answered_at"))
         if answered_at is None:
             continue
+        raw_card_id = str(event["card_id"])
+        direction = _normalize_direction(event.get("direction"), raw_card_id)
+        base_card_id = str(event.get("base_card_id") or _base_card_id_from_event(raw_card_id))
+        card_id = raw_card_id if "#" in raw_card_id else direction_item_id(base_card_id, direction)
         normalized.append({
-            "card_id": str(event["card_id"]),
+            "card_id": card_id,
+            "base_card_id": base_card_id,
+            "direction": direction,
             "card_type": str(event.get("card_type") or "card"),
             "submitted_answer": str(event.get("submitted_answer") or ""),
             "expected_answer": str(event.get("expected_answer") or ""),
@@ -281,6 +360,20 @@ def _normalize_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "answered_at": answered_at.isoformat(),
         })
     return normalized
+
+
+def _normalize_direction(value: Any, card_id: str) -> str:
+    raw = str(value or "").strip()
+    if raw in _DIRECTION_SUFFIXES:
+        return raw
+    if "#" in card_id:
+        suffix = card_id.rsplit("#", maxsplit=1)[1]
+        return _SUFFIX_TO_DIRECTION.get(suffix, ENGLISH_TO_MIRAD)
+    return ENGLISH_TO_MIRAD
+
+
+def _base_card_id_from_event(card_id: str) -> str:
+    return card_id.split("#", maxsplit=1)[0]
 
 
 def _stats_by_card(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:

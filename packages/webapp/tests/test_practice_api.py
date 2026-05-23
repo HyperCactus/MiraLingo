@@ -55,19 +55,28 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
     payload = response.json()
     assert payload["ok"] is True
     assert payload["phase"] == "practice_queue"
-    assert payload["card_count"] == 4
+    assert payload["card_count"] == 8
+    assert payload["base_card_count"] == 4
     assert payload["event_count"] == 0
     assert payload["limit"] == 3
     assert [card["scheduler_reason"] for card in payload["cards"]] == ["new_item", "new_item", "new_item"]
     assert payload["cards"][0] == {
-        "id": "phrase:hello-world",
+        "id": "phrase:hello-world#english-to-mirad",
+        "base_card_id": "phrase:hello-world",
+        "audio_card_id": "phrase:hello-world",
         "type": "phrase",
+        "direction": "english_to_mirad",
+        "prompt_language": "english",
+        "answer_language": "mirad",
         "prompt": "hello world",
         "answer": "ha world",
+        "english_text": "hello world",
+        "mirad_text": "ha world",
         "scheduler_reason": "new_item",
         "mastery": {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None},
         "recency": {"last_seen_at": None, "age_seconds": None},
     }
+    assert payload["cards"][1]["direction"] == "mirad_to_english"
 
 
 def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_card(monkeypatch, tmp_path: Path) -> None:
@@ -88,18 +97,21 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
     submit_payload = submit.json()
     assert submit_payload["ok"] is True
     assert submit_payload["phase"] == "practice_answer"
-    assert submit_payload["card_id"] == "word:the"
+    assert submit_payload["card_id"] == "word:the#english-to-mirad"
+    assert submit_payload["base_card_id"] == "word:the"
+    assert submit_payload["direction"] == "english_to_mirad"
     assert submit_payload["card_type"] == "word"
     assert submit_payload["correct"] is False
     assert submit_payload["event_count"] == 1
     assert submit_payload["scheduler_reason"] == "weak_recent_performance"
     assert submit_payload["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
-    assert submit_payload["latest_event"]["card_id"] == "word:the"
+    assert submit_payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
+    assert submit_payload["latest_event"]["direction"] == "english_to_mirad"
     assert submit_payload["latest_event"]["correct"] is False
 
     assert queue.status_code == 200
     assert queue.json()["event_count"] == 1
-    assert queue.json()["cards"][0]["id"] == "word:the"
+    assert queue.json()["cards"][0]["id"] == "word:the#english-to-mirad"
     assert queue.json()["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
 

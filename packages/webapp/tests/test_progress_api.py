@@ -65,7 +65,8 @@ def test_practice_progress_starts_empty_after_login(monkeypatch, tmp_path: Path)
     payload = response.json()
     assert payload["ok"] is True
     assert payload["phase"] == "practice_progress"
-    assert payload["card_count"] == 4
+    assert payload["card_count"] == 8
+    assert payload["base_card_count"] == 4
     assert payload["event_count"] == 0
     assert payload["total"] == 0
     assert payload["correct"] == 0
@@ -79,8 +80,17 @@ def test_practice_progress_starts_empty_after_login(monkeypatch, tmp_path: Path)
     assert payload["weak_count"] == 0
     assert payload["mastered_count"] == 0
     assert payload["stale_count"] == 0
-    assert payload["new_count"] == 4
-    assert set(payload["new_cards"]) == {"phrase:hello-world", "phrase:good-morning", "word:the", "word:be"}
+    assert payload["new_count"] == 8
+    assert set(payload["new_cards"]) == {
+        "phrase:hello-world#english-to-mirad",
+        "phrase:hello-world#mirad-to-english",
+        "phrase:good-morning#english-to-mirad",
+        "phrase:good-morning#mirad-to-english",
+        "word:the#english-to-mirad",
+        "word:the#mirad-to-english",
+        "word:be#english-to-mirad",
+        "word:be#mirad-to-english",
+    }
     assert payload["per_card"][0]["scheduler_reason"] == "new_item"
     assert payload["per_card"][0]["mastery"] == {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None}
 
@@ -105,20 +115,23 @@ def test_practice_progress_reflects_correct_and_incorrect_word_and_phrase_answer
     assert payload["accuracy"] == 0.5
     assert payload["per_type"]["phrase"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0}
     assert payload["per_type"]["word"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
-    assert payload["latest_event"]["card_id"] == "word:the"
+    assert payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
+    assert payload["latest_event"]["base_card_id"] == "word:the"
+    assert payload["latest_event"]["direction"] == "english_to_mirad"
     assert payload["latest_event"]["card_type"] == "word"
     assert payload["latest_event"]["correct"] is False
     assert payload["weak_count"] == 1
     assert payload["mastered_count"] == 1
-    assert payload["new_count"] == 2
-    assert payload["weak_cards"] == ["word:the"]
-    assert payload["mastered_cards"] == ["phrase:hello-world"]
+    assert payload["new_count"] == 6
+    assert payload["weak_cards"] == ["word:the#english-to-mirad"]
+    assert payload["mastered_cards"] == ["phrase:hello-world#english-to-mirad"]
 
     cards = {card["id"]: card for card in payload["per_card"]}
-    assert cards["word:the"]["scheduler_reason"] == "weak_recent_performance"
-    assert cards["word:the"]["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
-    assert cards["phrase:hello-world"]["scheduler_reason"] == "mastered_recent"
-    assert cards["phrase:hello-world"]["mastery"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0}
+    assert cards["word:the#english-to-mirad"]["scheduler_reason"] == "weak_recent_performance"
+    assert cards["word:the#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
+    assert cards["word:the#mirad-to-english"]["mastery"]["attempts"] == 0
+    assert cards["phrase:hello-world#english-to-mirad"]["scheduler_reason"] == "mastered_recent"
+    assert cards["phrase:hello-world#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0}
 
 
 def test_practice_progress_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:
@@ -168,10 +181,16 @@ def test_progress_aggregation_ignores_malformed_events_and_bounds_history() -> N
     assert payload["incorrect"] == 0
     assert payload["per_type"]["word"] == {"attempts": MAX_EVENTS, "correct": MAX_EVENTS, "incorrect": 0, "accuracy": 1.0}
     assert payload["latest_event"] == {
-        "card_id": "word:the",
+        "card_id": "word:the#english-to-mirad",
+        "base_card_id": "word:the",
+        "direction": "english_to_mirad",
         "card_type": "word",
         "correct": True,
         "answered_at": "2026-05-23T12:03:24+00:00",
     }
-    assert payload["mastered_cards"] == ["word:the"]
-    assert payload["new_cards"] == ["phrase:hello-world"]
+    assert payload["mastered_cards"] == ["word:the#english-to-mirad"]
+    assert set(payload["new_cards"]) == {
+        "phrase:hello-world#english-to-mirad",
+        "phrase:hello-world#mirad-to-english",
+        "word:the#mirad-to-english",
+    }

@@ -102,24 +102,26 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     queue_payload = initial_queue.json()
     assert queue_payload["ok"] is True
     assert queue_payload["phase"] == "practice_queue"
-    assert queue_payload["card_count"] == 4
+    assert queue_payload["card_count"] == 8
+    assert queue_payload["base_card_count"] == 4
     assert queue_payload["event_count"] == 0
     assert {card["type"] for card in queue_payload["cards"]} == {"phrase", "word"}
+    assert {card["direction"] for card in queue_payload["cards"]} == {"english_to_mirad", "mirad_to_english"}
     assert [card["id"] for card in queue_payload["cards"]] == [
-        "phrase:hello-world",
-        "word:the",
-        "phrase:good-morning",
-        "word:be",
+        "phrase:hello-world#english-to-mirad",
+        "phrase:hello-world#mirad-to-english",
+        "word:the#english-to-mirad",
+        "word:the#mirad-to-english",
     ]
 
     current_card = queue_payload["cards"][0]
-    audio = client.get(f"/practice/audio/{current_card['id']}")
+    audio = client.get(f"/practice/audio/{current_card['audio_card_id']}")
     assert audio.status_code == 200
     assert audio.headers["content-type"].startswith("audio/wav")
     assert audio.headers["cache-control"] == "no-store"
     assert audio.headers["x-miralingo-audio-phase"] == "audio_synthesis"
     assert audio.headers["x-miralingo-audio-backend"] == "mbrola"
-    assert audio.headers["x-miralingo-card-id"] == current_card["id"]
+    assert audio.headers["x-miralingo-card-id"] == current_card["audio_card_id"]
     assert audio.content.startswith(b"RIFF")
 
     correct = client.post("/practice/answers", json={"card_id": current_card["id"], "answer": current_card["answer"]})
@@ -135,7 +137,7 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert reprioritized_queue.status_code == 200
     reprioritized_payload = reprioritized_queue.json()
     assert reprioritized_payload["event_count"] == 2
-    assert reprioritized_payload["cards"][0]["id"] == "word:the"
+    assert reprioritized_payload["cards"][0]["id"] == "word:the#english-to-mirad"
     assert reprioritized_payload["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
     progress = client.get("/practice/progress")
@@ -150,17 +152,18 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert progress_payload["accuracy"] == 0.5
     assert progress_payload["per_type"]["phrase"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0}
     assert progress_payload["per_type"]["word"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
-    assert progress_payload["latest_event"]["card_id"] == "word:the"
+    assert progress_payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
+    assert progress_payload["latest_event"]["direction"] == "english_to_mirad"
     assert progress_payload["latest_event"]["card_type"] == "word"
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
     assert progress_payload["mastered_count"] == 1
     assert progress_payload["stale_count"] == 0
-    assert progress_payload["new_count"] == 2
-    assert progress_payload["weak_cards"] == ["word:the"]
+    assert progress_payload["new_count"] == 6
+    assert progress_payload["weak_cards"] == ["word:the#english-to-mirad"]
     assert progress_payload["mastered_cards"] == [current_card["id"]]
     per_card = {card["id"]: card for card in progress_payload["per_card"]}
-    assert per_card["word:the"]["state"] == "weak"
+    assert per_card["word:the#english-to-mirad"]["state"] == "weak"
     assert per_card[current_card["id"]]["state"] == "mastered"
 
     unknown_answer = client.post("/practice/answers", json={"card_id": "word:missing", "correct": False})
@@ -180,7 +183,7 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert client.get("/auth/current-user").status_code == 401
 
     post_logout_progress = client.get("/practice/progress")
-    post_logout_audio = client.get(f"/practice/audio/{current_card['id']}")
+    post_logout_audio = client.get(f"/practice/audio/{current_card['audio_card_id']}")
     post_logout_queue = client.get("/practice/queue")
     post_logout_answer = client.post("/practice/answers", json={"card_id": current_card["id"], "correct": True})
     assert post_logout_progress.status_code == 401

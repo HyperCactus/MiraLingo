@@ -224,7 +224,7 @@
       }
       practiceQueue = payload;
       currentCard = payload.cards?.[0] ?? null;
-      lastAudioCardId = currentCard?.id ?? null;
+      lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
       practiceState = currentCard ? "ready" : "empty";
       await loadPracticeProgress();
     } catch (_error) {
@@ -270,7 +270,8 @@
     audioMessage = "Preparing Mirad audio…";
     audioDiagnostic = "";
     try {
-      const response = await fetch(`/practice/audio/${encodeURIComponent(currentCard.id)}`, {
+      const audioCardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
+      const response = await fetch(`/practice/audio/${encodeURIComponent(audioCardId)}`, {
         headers: { Accept: "audio/wav, application/json" },
       });
       const contentType = response.headers.get("content-type") ?? "";
@@ -301,9 +302,9 @@
     }
   }
 
-  $: if ((currentCard?.id ?? null) !== lastAudioCardId) {
+  $: if ((currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null) !== lastAudioCardId) {
     resetAudioState();
-    lastAudioCardId = currentCard?.id ?? null;
+    lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
   }
 
   loadCurrentUser();
@@ -429,10 +430,10 @@
               <span>{currentCard.type}</span>
               <span>Reason: {currentCard.scheduler_reason}</span>
             </div>
-            <p class="prompt-label">English prompt</p>
+            <p class="prompt-label">{currentCard.prompt_language === "mirad" ? "Mirad prompt" : "English prompt"}</p>
             <p class="prompt-text">{currentCard.prompt}</p>
             <details>
-              <summary>Show Mirad answer</summary>
+              <summary>Show {currentCard.answer_language === "mirad" ? "Mirad" : "English"} answer</summary>
               <p>{currentCard.answer}</p>
             </details>
             <div class="audio-row" aria-label="Mirad answer audio">
@@ -456,6 +457,10 @@
               {/if}
             </div>
             <dl class="diagnostic-grid" aria-label="Practice diagnostics">
+              <div>
+                <dt>direction</dt>
+                <dd>{currentCard.direction}</dd>
+              </div>
               <div>
                 <dt>event_count</dt>
                 <dd>{practiceQueue?.event_count ?? 0}</dd>

@@ -50,7 +50,7 @@ def test_s03_logged_in_user_can_request_queue_submit_answer_and_see_adaptation(m
 
     assert adapted_queue.status_code == 200
     assert adapted_queue.json()["event_count"] == 1
-    assert adapted_queue.json()["cards"][0]["id"] == "word:the"
+    assert adapted_queue.json()["cards"][0]["id"] == "word:the#english-to-mirad"
     assert adapted_queue.json()["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
 
@@ -103,4 +103,5 @@ def test_s03_frontend_source_contains_practice_fetch_and_submit_affordances() ->
     assert "No practice cards are available" in frontend_source
     assert "scheduler_reason" in authenticated_branch
     assert "event_count" in authenticated_branch
+    assert "direction" in authenticated_branch
     assert "Practice queue" not in logged_out_branch
