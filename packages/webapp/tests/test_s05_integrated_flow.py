@@ -107,8 +107,8 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert {card["type"] for card in queue_payload["cards"]} == {"phrase", "word"}
     assert [card["id"] for card in queue_payload["cards"]] == [
         "phrase:hello-world",
-        "phrase:good-morning",
         "word:the",
+        "phrase:good-morning",
         "word:be",
     ]
 

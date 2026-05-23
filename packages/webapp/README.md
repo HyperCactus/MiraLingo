@@ -142,6 +142,86 @@ curl -i -b /tmp/miralingo.cookies \
 
 CI and deterministic pytest coverage mock the MBROLA backend. The focused audio tests verify WAV success headers plus negative states for missing binary, missing `de6` voice, backend import failure, unknown card, invalid/path-like ids, missing content source, authentication failure, and synthesis failure without requiring a system MBROLA install.
 
+## S05 Final Runtime UAT Flow
+
+Use this end-to-end flow to prove the logged-out welcome, local admin login, mixed word/phrase practice, audio diagnostics, and progress statistics still work together after code changes.
+
+### 1. Start the backend
+
+From the repository root, include all package sources used by the web app, TTS backend, and translator-backed word cards:
+
+```bash
+PYTHONPATH=packages/webapp/src:packages/tts/src:packages/translator/src \
+  MIRALINGO_ENV=development \
+  MIRALINGO_ENABLE_LOCAL_ADMIN=true \
+  python -m uvicorn mirad_webapp.api:app --reload --app-dir packages/webapp/src
+```
+
+The backend should listen on `http://127.0.0.1:8000`. If audio playback is required rather than diagnostics-only UAT, install the local MBROLA runtime and `de6` voice before starting the server. Missing MBROLA or `de6` is acceptable for local smoke testing only when the API/UI show the structured unavailable diagnostic described in the S04 table.
+
+### 2. Start the Svelte frontend
+
+In a second shell from the repository root, install dependencies from the checked-in lockfile only if `packages/webapp/frontend/node_modules` is absent, then start Vite:
+
+```bash
+if [ ! -d packages/webapp/frontend/node_modules ]; then
+  npm install --prefix packages/webapp/frontend
+fi
+npm --prefix packages/webapp/frontend run dev -- --host 127.0.0.1
+```
+
+Do not commit `node_modules`. Open the Vite URL, normally `http://127.0.0.1:5173`, and confirm:
+
+1. Logged-out visitors see **Welcome to MiraLingo** and the local admin login card.
+2. Signing in as `admin` / `admin` succeeds only in development mode and clears the password field.
+3. The authenticated panel shows a mixed practice queue with both `word` and `phrase` card types when the configured content source is available.
+4. **I knew it** and **I missed it** submit answers, disable while in flight, refresh the queue, and update session progress without polling.
+5. **Hear Mirad answer** either plays a WAV response or shows a structured unavailable diagnostic such as `mbrola_unavailable` or `mbrola_voice_unavailable`; those diagnostics indicate local runtime setup, not an app failure.
+6. **Practice stats** changes after submitted answers, including attempts, correct/incorrect counts, accuracy, per-type summaries, latest answer, and weak/mastered/new/stale badges.
+7. Logging out returns to the welcome screen and removes practice/progress/audio state.
+
+### 3. Inspect authenticated APIs with a cookie jar
+
+```bash
+curl -c /tmp/miralingo.cookies -b /tmp/miralingo.cookies \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin"}' \
+  http://127.0.0.1:8000/auth/login
+
+curl -b /tmp/miralingo.cookies \
+  'http://127.0.0.1:8000/practice/queue?limit=4'
+
+curl -b /tmp/miralingo.cookies \
+  -H 'Content-Type: application/json' \
+  -d '{"card_id":"phrase:hello-world","correct":true}' \
+  http://127.0.0.1:8000/practice/answers
+
+curl -b /tmp/miralingo.cookies \
+  -H 'Content-Type: application/json' \
+  -d '{"card_id":"word:the","correct":false}' \
+  http://127.0.0.1:8000/practice/answers
+
+curl -b /tmp/miralingo.cookies \
+  http://127.0.0.1:8000/practice/progress
+
+curl -i -b /tmp/miralingo.cookies \
+  -H 'Accept: audio/wav, application/json' \
+  http://127.0.0.1:8000/practice/audio/phrase:hello-world
+```
+
+A successful `/practice/progress` payload has `ok: true`, `phase: practice_progress`, `event_count`, `total`, `correct`, `incorrect`, `accuracy`, `per_card`, `per_type`, `latest_event`, `weak_count`, `mastered_count`, `stale_count`, and `new_count`. `per_type` contains `word` and `phrase` summaries with `attempts`, `correct`, `incorrect`, and `accuracy`; `per_card` entries expose each card id/type plus attempts, correctness totals, accuracy, latest event metadata, and scheduler state. Logged-out progress requests return `401` with `error: unauthenticated` and `phase: practice_progress`.
+
+### 4. Final verification commands
+
+Run deterministic tests and the production frontend build from the repository root:
+
+```bash
+PYTHONPATH=packages/webapp/src:packages/tts/src:packages/translator/src python -m pytest packages/webapp/tests -q
+npm --prefix packages/webapp/frontend run build
+```
+
+The pytest regression covers unauthenticated progress/audio, development-only admin login, production refusal of local admin, missing audio runtime diagnostics, missing content source diagnostics, mixed practice events, and the static progress/audio UI contracts. The production build proves the Svelte entrypoint compiles without depending on the Vite dev server.
+
 ## S02 Card Content Import Preview
 
 S02 adds a deterministic, non-mutating MiraLingo card content import preview. It imports public learning content from two local sources:

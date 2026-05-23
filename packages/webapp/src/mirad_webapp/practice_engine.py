@@ -33,7 +33,7 @@ def build_practice_queue(
     recent_accuracy = _recent_accuracy(valid_events)
     weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
 
-    ranked: list[tuple[int, str, dict[str, Any]]] = []
+    ranked: list[tuple[int, int, dict[str, Any]]] = []
     for index, card in enumerate(normalized_cards):
         card_stats = stats.get(card["id"], _empty_stats())
         reason = _scheduler_reason(card_stats, current, weak_recent)
@@ -46,17 +46,17 @@ def build_practice_queue(
             "mastery": _mastery_payload(card_stats),
             "recency": _recency_payload(card_stats, current),
         }
-        ranked.append((_rank(reason, card_stats, current), f"{index:06d}:{card['id']}", item))
+        ranked.append((_rank(reason, card_stats, current), index, item))
 
-    ranked.sort(key=lambda row: (row[0], row[1]))
-    bounded_limit = max(0, min(int(limit), len(ranked)))
+    ordered = _interleave_same_priority_cards(ranked)
+    bounded_limit = max(0, min(int(limit), len(ordered)))
     return {
         "ok": True,
         "phase": "practice_queue",
         "card_count": len(normalized_cards),
         "event_count": len(valid_events),
         "limit": bounded_limit,
-        "cards": [row[2] for row in ranked[:bounded_limit]],
+        "cards": ordered[:bounded_limit],
     }
 
 
@@ -187,6 +187,34 @@ def build_practice_progress(
         "stale_cards": states["stale"],
         "new_cards": states["new"],
     }
+
+
+def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Order scheduler ranks while mixing card types within equal-priority buckets.
+
+    Import sources are block-oriented (all phrases, then default words), but the
+    learning UI presents only a small queue. Interleaving same-rank cards keeps a
+    new session visibly mixed without changing weak/stale/mastered priority.
+    """
+    by_rank: dict[int, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
+    for rank, index, item in ranked:
+        by_rank[rank].append((index, item))
+
+    ordered: list[dict[str, Any]] = []
+    for rank in sorted(by_rank):
+        by_type: dict[str, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
+        type_order: list[str] = []
+        for index, item in sorted(by_rank[rank], key=lambda row: row[0]):
+            card_type = item["type"]
+            if card_type not in by_type:
+                type_order.append(card_type)
+            by_type[card_type].append((index, item))
+
+        while any(by_type.values()):
+            for card_type in type_order:
+                if by_type[card_type]:
+                    ordered.append(by_type[card_type].pop(0)[1])
+    return ordered
 
 
 def _empty_type_stats() -> dict[str, Any]:
