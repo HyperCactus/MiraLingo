@@ -52,6 +52,8 @@ def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
     assert "friendlyAudioError(payload, response.status)" in frontend_source
     assert "formatAudioDiagnostic(payload)" in frontend_source
     assert "Your session expired. Log in again to hear this card." in frontend_source
+    assert 'payload?.error === "mbrola_voice_unavailable"' in frontend_source
+    assert "The Mirad de6 voice is not installed on this server." in frontend_source
     assert "Could not play audio. Check the server, then try again." in frontend_source
     assert 'role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}' in frontend_source
 

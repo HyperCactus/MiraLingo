@@ -57,7 +57,7 @@
     }
     if (payload?.detail) return payload.detail;
     if (payload?.error === "mbrola_unavailable") return "Mirad audio is unavailable on this server.";
-    if (payload?.error === "voice_unavailable") return "The Mirad de6 voice is not installed on this server.";
+    if (payload?.error === "mbrola_voice_unavailable") return "The Mirad de6 voice is not installed on this server.";
     if (payload?.error === "unknown_card") return "That practice card is no longer available. Refresh the queue.";
     return "Audio is unavailable for this card right now.";
   };

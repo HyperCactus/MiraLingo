@@ -10,6 +10,7 @@ Implemented in this package:
 - Signed-cookie session state that stores only password-free user fields plus bounded per-session practice events.
 - Guarded local admin bootstrap (`admin` / `admin`) that works only when development settings enable it.
 - Authenticated adaptive practice APIs at `/practice/queue` and `/practice/answers`.
+- Authenticated MBROLA-backed Mirad answer audio at `/practice/audio/{card_id}` with structured unavailable diagnostics.
 - Svelte welcome screen for anonymous users and an authenticated practice panel for the local admin session.
 
 Future slices will add richer Mirad pronunciation, translation, vocabulary, and progress workflows using the engines in sibling packages.
@@ -80,6 +81,67 @@ curl -b /tmp/miralingo.cookies -H 'Content-Type: application/json' \
 
 Practice responses are deliberately diagnostic. Queue payloads include `ok`, `phase`, `event_count`, `cards[].scheduler_reason`, `cards[].mastery`, and `cards[].recency`. Answer payloads include `ok`, `phase`, `card_id`, `card_type`, `correct`, `event_count`, `scheduler_reason`, `mastery`, `recency`, and `latest_event`. Error paths return structured phases for unauthenticated, missing-content, invalid-payload, and unknown-card cases without echoing credentials.
 
+## S04 Mirad Answer Audio Diagnostics
+
+S04 adds an authenticated card-bound audio endpoint for MiraLingo practice cards:
+
+```text
+GET /practice/audio/{card_id}
+```
+
+The endpoint accepts only a stable practice `card_id` from configured card content, resolves that card server-side, and synthesizes the card's Mirad answer. It never accepts arbitrary text, client-selected output paths, or request-controlled filesystem paths. The frontend speaker control requests this endpoint only after the user clicks **Hear Mirad answer** on the current card.
+
+Successful responses are raw WAV audio:
+
+| Signal | Expected value |
+|---|---|
+| HTTP status | `200` |
+| `Content-Type` | `audio/wav` |
+| `Cache-Control` | `no-store` |
+| `X-MiraLingo-Audio-Phase` | `audio_synthesis` |
+| `X-MiraLingo-Audio-Backend` | `mbrola` |
+| `X-MiraLingo-Card-Id` | Requested stable card id |
+
+Unavailable and error responses are JSON and are intentionally distinct so operators can tell dependency problems from auth/content/card problems:
+
+| HTTP status | `error` | Meaning | Operator action |
+|---|---|---|---|
+| `401` | `unauthenticated` | No active session cookie. | Log in again; do not troubleshoot MBROLA first. |
+| `404` | `source_missing` | Configured phrase CSV/content source is missing. | Check `MIRALINGO_PHRASE_CSV_PATH` or the default data file. |
+| `404` | `unknown_card` | The requested card is not in the configured practice content. | Refresh the queue and verify card import output. |
+| `422` | `invalid_card_id` | Card id is blank or path-like. | Use a stable id from `/practice/queue`; do not pass paths. |
+| `422` | `invalid_card_payload` | The card has no Mirad answer to synthesize. | Fix card import/content data. |
+| `503` | `audio_backend_unavailable` | The Python MBROLA backend import failed. | Verify `packages/tts/src` is on `PYTHONPATH` or the package is installed. |
+| `503` | `mbrola_unavailable` | The `mbrola` binary is missing from `PATH`. | Install MBROLA locally. |
+| `503` | `mbrola_voice_unavailable` | The `de6` voice database is missing. | Install the `de6` MBROLA voice package. |
+| `502` | `audio_synthesis_failed` | MBROLA was present but synthesis failed. | Inspect the `detail` field for the safe exception summary. |
+
+All JSON audio failures include `ok: false`, `phase: audio_synthesis`, `backend: mbrola`, `card_id`, and a stacktrace-free `detail`. They must not return credentials.
+
+Local Debian/Ubuntu MBROLA setup for real audio playback:
+
+```bash
+sudo apt install mbrola mbrola-de6
+PYTHONPATH=packages/webapp/src:packages/tts/src:packages/translator/src \
+  MIRALINGO_ENV=development \
+  MIRALINGO_ENABLE_LOCAL_ADMIN=true \
+  python -m uvicorn mirad_webapp.api:app --reload --app-dir packages/webapp/src
+```
+
+Useful authenticated inspection flow:
+
+```bash
+curl -c /tmp/miralingo.cookies -b /tmp/miralingo.cookies \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin"}' \
+  http://127.0.0.1:8000/auth/login
+curl -i -b /tmp/miralingo.cookies \
+  -H 'Accept: audio/wav, application/json' \
+  http://127.0.0.1:8000/practice/audio/phrase:hello-world
+```
+
+CI and deterministic pytest coverage mock the MBROLA backend. The focused audio tests verify WAV success headers plus negative states for missing binary, missing `de6` voice, backend import failure, unknown card, invalid/path-like ids, missing content source, authentication failure, and synthesis failure without requiring a system MBROLA install.
+
 ## S02 Card Content Import Preview
 
 S02 adds a deterministic, non-mutating MiraLingo card content import preview. It imports public learning content from two local sources:
@@ -131,10 +193,10 @@ Failure payloads keep diagnostics explicit without stacktrace parsing. Missing p
 Run the full deterministic webapp regression from the repository root:
 
 ```bash
-PYTHONPATH=packages/webapp/src:packages/translator/src python -m pytest packages/webapp/tests -q
+PYTHONPATH=packages/webapp/src:packages/tts/src:packages/translator/src python -m pytest packages/webapp/tests -q
 ```
 
-This verifies the S01 auth/app shell contracts, S02 importer/CLI/API preview contracts, and S03 authenticated adaptive practice API/frontend source contracts.
+This verifies the S01 auth/app shell contracts, S02 importer/CLI/API preview contracts, S03 authenticated adaptive practice API/frontend source contracts, and S04 authenticated MBROLA audio API/frontend diagnostics. Audio tests mock synthesis, so this command does not require a local `mbrola` binary or `de6` voice package.
 
 The S01 flow coverage in `packages/webapp/tests/test_s01_flow.py` verifies:
 
@@ -147,6 +209,11 @@ The S01 flow coverage in `packages/webapp/tests/test_s01_flow.py` verifies:
 
 ## Failure Modes
 
+- **Audio backend import unavailable:** `/practice/audio/{card_id}` returns JSON with `error: audio_backend_unavailable`, `phase: audio_synthesis`, `backend: mbrola`, and the card id; run with `packages/tts/src` on `PYTHONPATH` or install the TTS package.
+- **MBROLA binary missing:** authenticated audio returns HTTP 503 with `error: mbrola_unavailable`; install `mbrola` and verify it is on `PATH`.
+- **MBROLA de6 voice missing:** authenticated audio returns HTTP 503 with `error: mbrola_voice_unavailable`; install the `mbrola-de6` package and verify `/usr/share/mbrola/de6/de6` exists.
+- **MBROLA synthesis failure:** authenticated audio returns HTTP 502 with `error: audio_synthesis_failed` and safe diagnostic detail, not a traceback.
+- **Audio card/content/auth errors:** unauthenticated audio is `401 unauthenticated`, missing phrase CSV is `404 source_missing`, unknown card ids are `404 unknown_card`, and blank/path-like card ids are `422 invalid_card_id`; these are not MBROLA install problems.
 - **Practice API unavailable or answer rejected:** the authenticated practice panel shows an actionable alert and avoids exposing credentials or raw stack traces.
 - **Practice content missing or empty:** queue errors mention content configuration; empty queues show that cards must be imported first.
 - **Repeated answer clicks:** practice answer buttons are disabled while submission is in flight, preventing duplicate events for the same click.
@@ -163,7 +230,7 @@ S01 authentication is a local development bootstrap backed by signed cookies and
 
 ## Negative Tests
 
-Negative coverage lives in `packages/webapp/tests/test_auth.py`, `packages/webapp/tests/test_s01_flow.py`, and `packages/webapp/tests/test_s03_flow.py`:
+Negative coverage lives in `packages/webapp/tests/test_auth.py`, `packages/webapp/tests/test_s01_flow.py`, `packages/webapp/tests/test_s03_flow.py`, `packages/webapp/tests/test_audio_api.py`, and `packages/webapp/tests/test_audio_ui_static.py`:
 
 - Invalid `admin` password returns `invalid_credentials` without password echo.
 - Logged-out `/auth/current-user` returns explicit HTTP 401 JSON.
@@ -172,4 +239,6 @@ Negative coverage lives in `packages/webapp/tests/test_auth.py`, `packages/webap
 - Malformed login body returns HTTP 422 and leaves the session anonymous.
 - Practice queue and answer submission require auth and return structured unauthenticated diagnostics.
 - Unknown practice cards return structured `unknown_card` diagnostics without credential echo.
-- Frontend source keeps practice UI in the authenticated branch, includes both correctness controls, surfaces queue errors, and disables controls while submitting.
+- Audio API success tests assert authenticated `audio/wav` responses, no-store caching, and `X-MiraLingo-Audio-*` headers with mocked MBROLA synthesis.
+- Audio API negative tests distinguish unauthenticated sessions, unknown cards, missing content source, backend import failure, missing `mbrola` binary, missing `de6` voice, synthesis failure, and invalid/path-like card ids.
+- Audio frontend static tests assert the speaker control is accessible, requests the encoded card-bound endpoint, handles JSON unavailable/error payloads visibly, revokes stale blob URLs, and resets audio state on queue refresh, card change, and logout.
