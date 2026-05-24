@@ -393,10 +393,6 @@
           <dt>Role</dt>
           <dd>{user?.role ?? "admin"}</dd>
         </div>
-        <div>
-          <dt>Queue events</dt>
-          <dd>{practiceQueue?.event_count ?? 0}</dd>
-        </div>
       </dl>
 
       <section class="practice-panel" aria-labelledby="practice-heading">
