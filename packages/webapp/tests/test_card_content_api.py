@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import sys
+import types
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -8,6 +10,17 @@ from fastapi.testclient import TestClient
 from mirad_webapp.api import create_app
 from mirad_webapp.config import Settings
 from mirad_webapp.content_cli import main as content_cli_main
+
+
+def _install_fake_wordfreq(monkeypatch, words: list[str] | None = None) -> None:
+    module = types.ModuleType("wordfreq")
+
+    def top_n_list(lang: str, n: int) -> list[str]:
+        assert lang == "en"
+        return (words or ["the", "be", "absent"])[:n]
+
+    module.top_n_list = top_n_list  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "wordfreq", module)
 
 
 def _write_phrase_csv(path: Path) -> Path:
@@ -22,6 +35,7 @@ def _write_phrase_csv(path: Path) -> Path:
 
 
 def test_content_import_preview_returns_structured_counts(monkeypatch, tmp_path: Path) -> None:
+    _install_fake_wordfreq(monkeypatch)
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
 
     def fake_lookup(english_word: str) -> str | None:
@@ -44,6 +58,7 @@ def test_content_import_preview_returns_structured_counts(monkeypatch, tmp_path:
     assert payload["counts"]["word"]["imported"] == 2
     assert payload["counts"]["word"]["missed"]["lexicon_miss"] == 1
     assert payload["sources"]["phrase_csv"] == str(phrase_csv)
+    assert payload["sources"]["word_candidates"] == "wordfreq:en"
 
 
 def test_content_import_preview_rejects_path_tampering_and_invalid_limit(tmp_path: Path) -> None:
@@ -75,6 +90,7 @@ def test_content_import_preview_missing_source_returns_structured_error(tmp_path
 
 
 def test_content_cli_prints_deterministic_counts(monkeypatch, capsys, tmp_path: Path) -> None:
+    _install_fake_wordfreq(monkeypatch, ["the", "absent"])
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
 
     def fake_lookup(english_word: str) -> str | None:

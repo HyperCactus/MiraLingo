@@ -13,6 +13,7 @@ dependencies = [
     "fastapi>=0.100",
     "itsdangerous>=2.1",
     "uvicorn[standard]>=0.23",
+    "wordfreq>=3.1",
 ]
 
 [project.optional-dependencies]

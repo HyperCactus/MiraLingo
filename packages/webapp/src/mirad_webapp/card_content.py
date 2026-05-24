@@ -101,7 +101,7 @@ def import_card_content(
 
     _import_phrases(phrase_path, state)
 
-    candidates = _resolve_word_candidates(
+    candidates, word_candidate_source = _resolve_word_candidates(
         word_candidates=word_candidates,
         word_candidate_provider=word_candidate_provider,
         word_limit=word_limit,
@@ -112,7 +112,7 @@ def import_card_content(
     return CardContentImportResult(
         cards=state.cards,
         counts=counts,
-        sources={"phrase_csv": str(phrase_path), "word_candidates": None},
+        sources={"phrase_csv": str(phrase_path), "word_candidates": word_candidate_source},
     )
 
 
@@ -186,17 +186,22 @@ def _resolve_word_candidates(
     word_candidates: Iterable[str] | None,
     word_candidate_provider: WordCandidateProvider | None,
     word_limit: int,
-) -> list[str]:
+) -> tuple[list[str], str]:
     if word_limit < 0:
         raise ValueError("word_limit must be non-negative")
     try:
         if word_candidates is not None:
             candidates = word_candidates
+            source = "injected"
         elif word_candidate_provider is not None:
             candidates = word_candidate_provider()
+            source = "injected"
         else:
-            candidates = _default_word_candidates()
-        return list(candidates)[:word_limit]
+            candidates = _default_word_candidates(word_limit)
+            source = "wordfreq:en"
+        return list(candidates)[:word_limit], source
+    except CardContentImportError:
+        raise
     except Exception as exc:  # pragma: no cover - defensive provider wrapper
         raise CardContentImportError(
             f"Word candidate provider failed during word_candidates: {type(exc).__name__}: {exc}",
@@ -254,26 +259,33 @@ def _default_lexicon_lookup(english: str) -> str | None:
     return lookup_word(english_word=english)
 
 
-def _default_word_candidates() -> list[str]:
-    """Return a small deterministic fallback candidate list.
+def _default_word_candidates(word_limit: int) -> list[str]:
+    """Return ranked common-English word candidates from ``wordfreq``.
 
-    The translator package exposes frequency scoring utilities but no canonical
-    vocabulary stream yet.  Keep the default bounded and stable; production CLI
-    or API callers may inject a fuller wordfreq-ranked provider.
+    Import ``wordfreq`` at call time so deterministic tests can monkeypatch the
+    provider and so API/CLI failures surface as structured importer diagnostics
+    instead of silently falling back to placeholder content.
     """
 
-    return [
-        "the",
-        "be",
-        "to",
-        "of",
-        "and",
-        "a",
-        "in",
-        "that",
-        "have",
-        "I",
-    ]
+    try:
+        from wordfreq import top_n_list
+    except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - environment dependent
+        raise CardContentImportError(
+            f"Default word candidate provider unavailable: {exc}",
+            code="provider_unavailable",
+            phase="word_candidates",
+            source_type="wordfreq",
+        ) from exc
+
+    if not callable(top_n_list):
+        raise CardContentImportError(
+            "Default word candidate provider unavailable: wordfreq.top_n_list is not callable",
+            code="provider_unavailable",
+            phase="word_candidates",
+            source_type="wordfreq",
+        )
+
+    return list(top_n_list("en", word_limit))
 
 
 __all__ = [
