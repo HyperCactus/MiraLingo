@@ -83,9 +83,19 @@ def _assert_no_secret_or_stacktrace(payload: dict[str, Any]) -> None:
     assert "salt" not in rendered
 
 
-def _count_rows(database_path: Path, table: str, *, username: str) -> int:
+def _rows_for_user(database_path: Path, table: str, *, username: str) -> list[sqlite3.Row]:
+    order_by = {
+        "shown_cards": "id",
+        "answer_events": "id",
+        "users": "username",
+        "user_settings": "username",
+    }[table]
     with sqlite3.connect(database_path) as connection:
-        return int(connection.execute(f"SELECT COUNT(*) FROM {table} WHERE username = ?", (username,)).fetchone()[0])
+        connection.row_factory = sqlite3.Row
+        return connection.execute(
+            f"SELECT * FROM {table} WHERE username = ? ORDER BY {order_by}",
+            (username,),
+        ).fetchall()
 
 
 def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progress_and_account_deletion(
@@ -161,14 +171,18 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
 
     updated_settings = client.put("/settings", json={"theme": "dark", "tts_speed": 0.8})
     assert updated_settings.status_code == 200
-    assert updated_settings.json()["settings"] == {
-        "theme": "dark",
-        "tts_speed": 0.8,
-        "voice": {
-            "id": "de6",
-            "label": "Mirad de6",
-            "provider": "mbrola",
-            "mutable": False,
+    assert updated_settings.json() == {
+        "ok": True,
+        "phase": "settings_update",
+        "settings": {
+            "theme": "dark",
+            "tts_speed": 0.8,
+            "voice": {
+                "id": "de6",
+                "label": "Mirad de6",
+                "provider": "mbrola",
+                "mutable": False,
+            },
         },
     }
 
@@ -180,8 +194,16 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert relogin.status_code == 200
     persisted_settings = recreated.get("/settings")
     assert persisted_settings.status_code == 200
-    assert persisted_settings.json()["settings"]["theme"] == "dark"
-    assert persisted_settings.json()["settings"]["tts_speed"] == 0.8
+    assert persisted_settings.json()["settings"] == {
+        "theme": "dark",
+        "tts_speed": 0.8,
+        "voice": {
+            "id": "de6",
+            "label": "Mirad de6",
+            "provider": "mbrola",
+            "mutable": False,
+        },
+    }
 
     mixed_queue = recreated.get("/practice/queue?mode=mixed&limit=6")
     assert mixed_queue.status_code == 200
@@ -190,6 +212,8 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert mixed_payload["phase"] == "practice_queue"
     assert mixed_payload["mode"] == "mixed"
     assert mixed_payload["mode_detail"] == "default_mixed"
+    assert mixed_payload["repeat_gap"] == 10
+    assert mixed_payload["repeat_gap_satisfied"] is False
     assert mixed_payload["limit"] == 6
     assert mixed_payload["card_count"] == 8
     assert mixed_payload["base_card_count"] == 4
@@ -211,7 +235,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     revision_before_answers = recreated.get("/practice/queue?mode=revision&limit=10")
     assert revision_before_answers.status_code == 200
     assert revision_before_answers.json()["mode"] == "revision"
-    assert revision_before_answers.json()["mode_detail"] == "stale_only"
+    assert revision_before_answers.json()["mode_detail"] == "empty_pool"
     assert revision_before_answers.json()["cards"] == []
 
     build_vocab_before_answers = recreated.get("/practice/queue?mode=build_vocabulary&limit=10")
@@ -219,6 +243,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     build_vocab_before_payload = build_vocab_before_answers.json()
     assert build_vocab_before_payload["mode"] == "build_vocabulary"
     assert build_vocab_before_payload["mode_detail"] == "new_words_only"
+    assert build_vocab_before_payload["event_count"] == 0
     assert {card["base_card_id"] for card in build_vocab_before_payload["cards"]} == {"word:the", "word:be"}
     assert all(card["type"] == "word" for card in build_vocab_before_payload["cards"])
 
@@ -287,6 +312,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
     assert progress_payload["mastered_count"] == 1
+    assert progress_payload["weak_count"] + progress_payload["mastered_count"] + progress_payload["stale_count"] + progress_payload["new_count"] == progress_payload["card_count"]
     assert word_card["id"] in progress_payload["weak_cards"]
     assert phrase_card["id"] in progress_payload["mastered_cards"]
 
@@ -296,16 +322,33 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert build_vocab_after_payload["mode"] == "build_vocabulary"
     assert build_vocab_after_payload["event_count"] == 2
     assert {card["base_card_id"] for card in build_vocab_after_payload["cards"]} == {"word:be"}
-    assert [card["id"] for card in build_vocab_after_payload["cards"]] == [
+    assert {card["id"] for card in build_vocab_after_payload["cards"]} == {
         "word:be#english-to-mirad",
         "word:be#mirad-to-english",
-    ]
+    }
 
     revision_after_answers = recreated.get("/practice/queue?mode=revision&limit=10")
     assert revision_after_answers.status_code == 200
     assert revision_after_answers.json()["mode"] == "revision"
+    assert revision_after_answers.json()["mode_detail"] == "empty_pool"
     assert revision_after_answers.json()["event_count"] == 2
     assert revision_after_answers.json()["cards"] == []
+
+    shown_rows_before_delete = _rows_for_user(settings.database_path, "shown_cards", username=LEARNER_USERNAME)
+    answer_rows_before_delete = _rows_for_user(settings.database_path, "answer_events", username=LEARNER_USERNAME)
+    settings_rows_before_delete = _rows_for_user(settings.database_path, "user_settings", username=LEARNER_USERNAME)
+    user_rows_before_delete = _rows_for_user(settings.database_path, "users", username=LEARNER_USERNAME)
+
+    assert len(shown_rows_before_delete) == 12
+    assert len(answer_rows_before_delete) == 2
+    assert len(settings_rows_before_delete) == 1
+    assert len(user_rows_before_delete) == 1
+    assert settings_rows_before_delete[0]["theme"] == "dark"
+    assert settings_rows_before_delete[0]["tts_speed"] == 0.8
+    assert {row["card_type"] for row in shown_rows_before_delete} == {"word", "phrase"}
+    assert {row["direction"] for row in shown_rows_before_delete} == {"english_to_mirad", "mirad_to_english"}
+    assert [row["card_id"] for row in answer_rows_before_delete] == [phrase_card["id"], word_card["id"]]
+    assert [row["correct"] for row in answer_rows_before_delete] == [1, 0]
 
     bad_deletion = recreated.request(
         "DELETE",
@@ -338,7 +381,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert unavailable_payload["phase"] == "audio_synthesis"
     assert unavailable_payload["backend"] == "mbrola"
     assert unavailable_payload["card_id"] == phrase_card["audio_card_id"]
-    assert "MbrolaNotFoundError" in unavailable_payload["detail"]
+    assert unavailable_payload["detail"] == "MbrolaNotFoundError: mbrola binary not found on PATH"
     _assert_no_secret_or_stacktrace(unavailable_payload)
 
     deleted = recreated.request(
@@ -371,11 +414,11 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         "authenticated": False,
         "error": "invalid_credentials",
         "phase": "auth_login",
-        "detail": "Username or password is incorrect.",
+        "detail": "Invalid username or password.",
     }
     _assert_no_secret_or_stacktrace(relogin_after_delete.json())
 
-    assert _count_rows(settings.database_path, "users", username=LEARNER_USERNAME) == 0
-    assert _count_rows(settings.database_path, "user_settings", username=LEARNER_USERNAME) == 0
-    assert _count_rows(settings.database_path, "shown_cards", username=LEARNER_USERNAME) == 0
-    assert _count_rows(settings.database_path, "answer_events", username=LEARNER_USERNAME) == 0
+    assert _rows_for_user(settings.database_path, "users", username=LEARNER_USERNAME) == []
+    assert _rows_for_user(settings.database_path, "user_settings", username=LEARNER_USERNAME) == []
+    assert _rows_for_user(settings.database_path, "shown_cards", username=LEARNER_USERNAME) == []
+    assert _rows_for_user(settings.database_path, "answer_events", username=LEARNER_USERNAME) == []
