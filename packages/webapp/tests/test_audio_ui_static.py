@@ -44,6 +44,17 @@ def test_audio_success_path_uses_blob_url_and_revokes_stale_urls() -> None:
     assert "new Audio(" not in frontend_source.split("loadCurrentUser();", maxsplit=1)[1]
 
 
+def test_audio_playback_rate_uses_persisted_speed_with_safe_default() -> None:
+    frontend_source = _source()
+
+    assert 'tts_speed: 0.8,' in frontend_source
+    assert 'const effectiveTtsSpeed = () => coerceSpeed(persistedSettings?.tts_speed);' in frontend_source
+    assert 'const ttsSpeed = effectiveTtsSpeed();' in frontend_source
+    assert 'activeAudio.playbackRate = ttsSpeed;' in frontend_source
+    assert 'Audio uses your saved {speedLabel(effectiveTtsSpeed())} learner speed preference.' in frontend_source
+    assert 'Playing Mirad audio at ${speedLabel(ttsSpeed)}.' in frontend_source
+
+
 def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
     frontend_source = _source()
 
@@ -55,6 +66,8 @@ def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
     assert "Your session expired. Log in again to hear this card." in frontend_source
     assert 'payload?.error === "mbrola_voice_unavailable"' in frontend_source
     assert "The Mirad de6 voice is not installed on this server." in frontend_source
+    assert 'audioDiagnostic = `playback_rate_unavailable requested=${speedLabel(ttsSpeed)}`;' in frontend_source
+    assert 'audioDiagnostic = audioDiagnostic || "network_or_browser_playback";' in frontend_source
     assert "Could not play audio. Check the server, then try again." in frontend_source
     assert 'role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}' in frontend_source
 
@@ -62,12 +75,12 @@ def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
 def test_audio_state_resets_on_queue_refresh_card_change_and_logout() -> None:
     frontend_source = _source()
 
-    load_queue_body = frontend_source.split("async function loadPracticeQueue()", maxsplit=1)[1].split("async function submitPracticeAnswer", maxsplit=1)[0]
-    logout_body = frontend_source.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeQueue", maxsplit=1)[0]
+    load_queue_body = frontend_source.split("async function loadPracticeQueue(mode = activePracticeMode)", maxsplit=1)[1].split("async function openPracticeMode", maxsplit=1)[0]
+    logout_body = frontend_source.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeQueue(mode = activePracticeMode)", maxsplit=1)[0]
 
     assert "resetAudioState();" in load_queue_body
-    assert "resetAudioState();" in logout_body
-    assert "lastAudioCardId = null;" in logout_body
+    assert "resetPracticeSurface();" in logout_body
+    assert "resetSettingsSurface();" in logout_body
     assert '$: if ((currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null) !== lastAudioCardId)' in frontend_source
     assert "lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;" in frontend_source
 

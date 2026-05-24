@@ -42,7 +42,7 @@ def test_settings_section_contains_user_facing_controls_and_labels() -> None:
     assert "Default TTS speed" in source
     assert "Current Mirad voice" in source
     assert "Delete current account" in source
-    assert "Type DELETE to confirm" in source
+    assert "Type the exact confirmation phrase to enable deletion" in source
     assert "Save settings" in source
     assert "Single available voice" in source
 

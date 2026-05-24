@@ -44,7 +44,7 @@ def _seed_practice_rows(client: TestClient) -> None:
 def test_account_delete_requires_authenticated_session(tmp_path: Path) -> None:
     client = TestClient(create_app(_settings(tmp_path)))
 
-    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "DELETE"})
+    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "mira DELETE"})
 
     assert response.status_code == 401
     assert response.json() == {
@@ -60,15 +60,23 @@ def test_account_delete_rejects_wrong_confirmation_and_preserves_session(tmp_pat
     client = TestClient(create_app(_settings(tmp_path, database_path)))
     _register(client, "mira")
 
-    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "KEEP"})
+    wrong_phrase = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "KEEP"})
+    wrong_username = client.request("DELETE", "/auth/account", json={"username": "sara", "confirmation": "mira DELETE"})
     current_user = client.get("/auth/current-user")
 
-    assert response.status_code == 400
-    assert response.json() == {
+    assert wrong_phrase.status_code == 400
+    assert wrong_phrase.json() == {
         "ok": False,
         "error": "invalid_confirmation",
         "phase": "account_delete",
-        "detail": "Account deletion requires confirmation='DELETE' and the current username.",
+        "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
+    }
+    assert wrong_username.status_code == 400
+    assert wrong_username.json() == {
+        "ok": False,
+        "error": "invalid_confirmation",
+        "phase": "account_delete",
+        "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
     }
     assert current_user.status_code == 200
     with sqlite3.connect(database_path) as connection:
@@ -80,7 +88,7 @@ def test_account_delete_rejects_local_admin_and_preserves_bootstrap_login(tmp_pa
     login = client.post("/auth/login", json={"username": "admin", "password": "admin"})
     assert login.status_code == 200
 
-    response = client.request("DELETE", "/auth/account", json={"username": "admin", "confirmation": "DELETE"})
+    response = client.request("DELETE", "/auth/account", json={"username": "admin", "confirmation": "admin DELETE"})
 
     assert response.status_code == 403
     assert response.json() == {
@@ -118,7 +126,7 @@ def test_account_delete_cascades_owned_rows_clears_session_and_keeps_other_learn
     response = deleting_client.request(
         "DELETE",
         "/auth/account",
-        json={"username": "mira", "confirmation": "DELETE"},
+        json={"username": "mira", "confirmation": "mira DELETE"},
     )
 
     assert response.status_code == 200
@@ -155,7 +163,7 @@ def test_account_delete_storage_failure_returns_phase_specific_json(tmp_path: Pa
         raise StorageError(phase="account_delete", detail="Could not delete account.")
 
     app.state.storage.delete_user_account = fail_delete
-    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "DELETE"})
+    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "mira DELETE"})
 
     assert response.status_code == 503
     assert response.json() == {

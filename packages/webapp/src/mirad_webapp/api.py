@@ -297,14 +297,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "detail": "The local admin account cannot be deleted.",
                 },
             )
-        if payload.confirmation != "DELETE" or normalize_username(payload.username) != user.username:
+        expected_confirmation = f"{user.username} DELETE"
+        if payload.confirmation.strip() != expected_confirmation or normalize_username(payload.username) != user.username:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={
                     "ok": False,
                     "error": "invalid_confirmation",
                     "phase": "account_delete",
-                    "detail": "Account deletion requires confirmation='DELETE' and the current username.",
+                    "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
                 },
             )
         storage: MiraLingoStorage = request.app.state.storage

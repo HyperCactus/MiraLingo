@@ -82,6 +82,7 @@
   let user = null;
   let errorMessage = "";
   let isSubmitting = false;
+  let authStatusMessage = "";
 
   let activeSection = "menu";
   let activePracticeMode = "mixed";
@@ -123,6 +124,7 @@
   let deleteAccountStatus = "";
   let deleteAccountUsername = "";
   let deleteAccountConfirmation = "";
+  const deleteAccountConfirmHelpId = "delete-account-confirm-help";
 
   const resetAudioState = () => {
     if (activeAudio) {
@@ -230,7 +232,7 @@
     if (payload?.error === "unauthenticated") return "Your session expired. Log in again before deleting this account.";
     if (payload?.error === "protected_account") return "The local admin account cannot be deleted from Settings.";
     if (payload?.error === "invalid_confirmation") {
-      return "Type your current username and the word DELETE before deleting this account.";
+      return "Type the exact confirmation phrase shown below before deleting this account.";
     }
     if (payload?.detail) return payload.detail;
     return fallback;
@@ -287,9 +289,16 @@
     return "System";
   };
   const speedLabel = (speed) => `${Number(speed).toFixed(1)}x`;
+  const effectiveTtsSpeed = () => coerceSpeed(persistedSettings?.tts_speed);
   const settingsStatusClass = (state) => (state === "error" ? "error-message" : "status-message");
   const settingsStatusRole = (state) => (state === "error" ? "alert" : "status");
   const canDeleteCurrentAccount = () => (user?.username ?? "") !== "admin";
+  const deleteAccountConfirmationPhrase = () => `${user?.username ?? ""} DELETE`.trim();
+  const canSubmitAccountDeletion = () =>
+    canDeleteCurrentAccount() &&
+    deleteAccountUsername.trim() === (user?.username ?? "") &&
+    deleteAccountConfirmation.trim() === deleteAccountConfirmationPhrase() &&
+    deleteAccountState !== "submitting";
 
   function resolvedTheme(theme) {
     if (theme === "dark") return "dark";
@@ -443,9 +452,14 @@
     }
   }
 
+  function clearAuthMessages() {
+    errorMessage = "";
+    authStatusMessage = "";
+  }
+
   async function submitLogin() {
     isSubmitting = true;
-    errorMessage = "";
+    clearAuthMessages();
     try {
       const response = await fetch("/auth/login", {
         method: "POST",
@@ -482,7 +496,7 @@
 
   async function submitRegistration() {
     isSubmitting = true;
-    errorMessage = "";
+    clearAuthMessages();
     try {
       const response = await fetch("/auth/register", {
         method: "POST",
@@ -518,22 +532,27 @@
     }
   }
 
+  function clearAuthenticatedAppState(statusMessage = "") {
+    resetPracticeSurface();
+    resetAnalyticsSurface();
+    resetSettingsSurface();
+    user = null;
+    username = "admin";
+    password = "";
+    registerUsername = "";
+    registerPassword = "";
+    authState = "anonymous";
+    activeSection = "menu";
+    activePracticeMode = "mixed";
+    authStatusMessage = statusMessage;
+  }
+
   async function logout() {
-    errorMessage = "";
+    clearAuthMessages();
     try {
       await fetch("/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
     } finally {
-      resetPracticeSurface();
-      resetAnalyticsSurface();
-      resetSettingsSurface();
-      user = null;
-      username = "admin";
-      password = "";
-      registerUsername = "";
-      registerPassword = "";
-      authState = "anonymous";
-      activeSection = "menu";
-      activePracticeMode = "mixed";
+      clearAuthenticatedAppState();
     }
   }
 
@@ -663,7 +682,7 @@
   }
 
   async function submitDeleteAccount() {
-    if (deleteAccountState === "submitting" || !user?.username) return;
+    if (deleteAccountState === "submitting" || !user?.username || !canSubmitAccountDeletion()) return;
 
     deleteAccountState = "submitting";
     deleteAccountError = "";
@@ -691,15 +710,7 @@
       deleteAccountState = "done";
       deleteAccountStatus = `Deleted account ${payload.deleted_username ?? user.username}.`;
       deleteAccountError = "";
-      resetPracticeSurface();
-      resetAnalyticsSurface();
-      resetSettingsSurface();
-      user = null;
-      password = "";
-      registerPassword = "";
-      authState = "anonymous";
-      activeSection = "menu";
-      activePracticeMode = "mixed";
+      clearAuthenticatedAppState(`Deleted account ${payload.deleted_username ?? user.username}. You can create a new learner account or log in again.`);
     } catch (_error) {
       deleteAccountState = "error";
       deleteAccountError = "Could not reach account deletion. Confirm the server and try again.";
@@ -763,6 +774,7 @@
     audioState = "loading";
     audioMessage = "Preparing Mirad audio…";
     audioDiagnostic = "";
+    const ttsSpeed = effectiveTtsSpeed();
     try {
       const audioCardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
       const response = await fetch(`/practice/audio/${encodeURIComponent(audioCardId)}`, {
@@ -782,18 +794,22 @@
       const nextBlobUrl = URL.createObjectURL(blob);
       audioBlobUrl = nextBlobUrl;
       activeAudio = new Audio(nextBlobUrl);
-      activeAudio.playbackRate = coerceSpeed(settingsForm.tts_speed);
+      try {
+        activeAudio.playbackRate = ttsSpeed;
+      } catch (_error) {
+        audioDiagnostic = `playback_rate_unavailable requested=${speedLabel(ttsSpeed)}`;
+      }
       activeAudio.addEventListener("ended", () => {
         audioState = "idle";
-        audioMessage = `Audio finished at ${speedLabel(settingsForm.tts_speed)}.`;
+        audioMessage = `Audio finished at ${speedLabel(ttsSpeed)}.`;
       });
       await activeAudio.play();
       audioState = "playing";
-      audioMessage = `Playing Mirad audio at ${speedLabel(settingsForm.tts_speed)}.`;
+      audioMessage = `Playing Mirad audio at ${speedLabel(ttsSpeed)}.`;
     } catch (_error) {
       audioState = "error";
       audioMessage = "Could not play audio. Check the server, then try again.";
-      audioDiagnostic = "network_or_browser_playback";
+      audioDiagnostic = audioDiagnostic || "network_or_browser_playback";
     }
   }
 
@@ -935,7 +951,7 @@
                   <span aria-hidden="true">🔊</span>
                   {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
                 </button>
-                <p class="audio-speed-note">Audio uses your current {speedLabel(settingsForm.tts_speed)} learner speed preference.</p>
+                <p class="audio-speed-note">Audio uses your saved {speedLabel(effectiveTtsSpeed())} learner speed preference.</p>
                 {#if audioMessage}
                   <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
                     {audioMessage}
@@ -1235,8 +1251,9 @@
               <p class="eyebrow">Danger zone</p>
               <h3 id="danger-zone-heading">Delete current account</h3>
               <p class="settings-copy">
-                Delete only the currently signed-in learner account after explicit confirmation. This also removes saved settings and practice history rows for that learner.
+                Delete only the currently signed-in learner account after explicit confirmation. This permanently removes this learner account, saved settings, shown-card history, and recorded answers.
               </p>
+              <p class="danger-note">Current account deletion is irreversible.</p>
             </div>
 
             {#if deleteAccountStatus}
@@ -1257,20 +1274,22 @@
                   name="delete-account-username"
                 />
 
-                <label class="settings-field" for="delete-account-confirmation">Type DELETE to confirm</label>
+                <label class="settings-field" for="delete-account-confirmation">Type the exact confirmation phrase to enable deletion</label>
                 <input
                   id="delete-account-confirmation"
                   class="settings-input"
                   bind:value={deleteAccountConfirmation}
                   name="delete-account-confirmation"
+                  aria-describedby={deleteAccountConfirmHelpId}
+                  placeholder={deleteAccountConfirmationPhrase()}
                 />
 
-                <p class="settings-meta" role="status">
-                  You must confirm the current username ({user?.username}) and type DELETE before the account is removed.
+                <p class="settings-meta" id={deleteAccountConfirmHelpId} role="status">
+                  Enter the current username ({user?.username}) above, then type the exact confirmation phrase <strong>{deleteAccountConfirmationPhrase()}</strong> before deletion is enabled.
                 </p>
 
                 <div class="settings-actions">
-                  <button class="danger-action" type="submit" disabled={deleteAccountState === "submitting"}>
+                  <button class="danger-action" type="submit" disabled={!canSubmitAccountDeletion() || deleteAccountState === "submitting"}>
                     {deleteAccountState === "submitting" ? "Deleting…" : "Delete current account"}
                   </button>
                 </div>
@@ -1314,6 +1333,9 @@
           </div>
           {#if authState === "checking"}
             <p class="status-message" role="status">Checking current session…</p>
+          {/if}
+          {#if authStatusMessage}
+            <p class="status-message" role="status">{authStatusMessage}</p>
           {/if}
           {#if errorMessage && authState === "registration-failed"}
             <p class="error-message" role="alert">{errorMessage}</p>

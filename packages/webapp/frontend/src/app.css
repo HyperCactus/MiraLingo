@@ -825,6 +825,16 @@ summary:focus-visible,
   background: var(--danger-bg);
 }
 
+.danger-note {
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
+.delete-account-form {
+  gap: 1rem;
+}
+
 @media (max-width: 980px) {
   .menu-grid,
   .analytics-grid,
