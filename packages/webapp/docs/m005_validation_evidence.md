@@ -10,6 +10,9 @@ M005 validation should be performed against the milestone roadmap success criter
 
 - Canonical milestone scope source: `.gsd/milestones/M005/M005-ROADMAP.md`
 - Final integrated acceptance summary: `.gsd/milestones/M005/slices/S07/S07-SUMMARY.md`
+- Root requirements that appear adjacent to this milestone but do not expand its acceptance contract:
+  - `R001` in `.gsd/REQUIREMENTS.md` is already validated tokenizer scope (`tokenize('At tixe Mirad.')`) and remains satisfied outside the M005 learner-practice UX surface.
+  - `R009` in `.gsd/REQUIREMENTS.md` is already validated legacy-orthography rejection scope (`UnsupportedLegacyOrthographyError` for accented input) and remains satisfied outside the M005 learner-practice UX surface.
 - Tracked deterministic proof sources for validation:
   - `packages/webapp/tests/test_m005_final_learner_flow.py`
   - `packages/webapp/tests/test_m005_frontend_assembly_static.py`
@@ -19,17 +22,22 @@ M005 validation should be performed against the milestone roadmap success criter
 
 This posture keeps milestone validation evidence-based:
 
-- roadmap success criteria are the acceptance contract;
+- roadmap success criteria are the M005 acceptance contract;
+- R001 and R009 preserve their validated root-requirement status, but they do not enlarge M005 behavior beyond the completed roadmap slices;
 - S01-S07 provide the shipped behavior and prior slice evidence;
 - this document only indexes where that proof lives;
 - future validation should cite package-local docs/tests/build output, not `.gsd/` internals, when explaining why a criterion passed or failed.
+
+## Validation remediation note
+
+This file is round-1 validation evidence remediation for M005. It reconciles requirement scope and strengthens validator-facing audio/UAT references without weakening, mutating, or re-litigating the completed slice claims from S01-S07.
 
 ## Acceptance coverage matrix
 
 | M005 success criterion | Primary proof | Supporting proof | Validation notes |
 |---|---|---|---|
 | Logged-in user reaches a main menu and can enter Continue Practice, Revision, Build Vocabulary, Analytics, Settings, or Log Out. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts authenticated menu labels and `activeSection` routing for `menu`, `practice`, `revision`, `build_vocabulary`, `analytics`, and `settings`. | `packages/webapp/tests/test_m005_final_learner_flow.py` covers registration/login and queue access for mixed, revision, and build-vocabulary modes. `packages/webapp/docs/m005_s07_uat.md` sections 2, 3, 8, 9, 11, 12, and 14 describe the visible learner walkthrough. | Deterministic proof exists for both UI contract markers and authenticated API flow. |
-| Practice screen supports typed answer submit and Give Up, reveals correct answer, plays success/failure feedback, records events, and excludes analytics clutter. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts typed answer normalization, `/practice/answers` payload wiring, Give Up incorrect-recording path, `Correct` / `Not quite` result text, reveal copy, expected/submitted answer fields, and guards against client-computed correctness. | `packages/webapp/tests/test_m005_final_learner_flow.py` proves correct and wrong answers record backend events and update `/practice/progress`. `packages/webapp/docs/m005_s07_uat.md` sections 4, 5, 6, and 7 document typed correct, wrong, blank, and Give Up checks. | Audible success/failure remains browser/UAT-visible rather than fully committed E2E automation; API/static coverage proves event recording and diagnostic surfaces. |
+| Practice screen supports typed answer submit and Give Up, reveals correct answer, plays success/failure feedback, records events, and excludes analytics clutter. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts typed answer normalization, `/practice/answers` payload wiring, Give Up incorrect-recording path, `Correct` / `Not quite` result text, reveal copy, expected/submitted answer fields, and guards against client-computed correctness. | `packages/webapp/tests/test_m005_final_learner_flow.py` proves correct and wrong answers record backend events and update `/practice/progress`. `packages/webapp/docs/m005_s07_uat.md` sections 4, 5, 6, 7, and 10 document typed correct, wrong, blank, Give Up, and success-or-diagnostic audio checks. | Audible success/failure remains browser/UAT-visible rather than fully committed E2E automation; API/static coverage proves event recording, feedback surfaces, and backend diagnostics. |
 | Queue modes enforce mixed, stale-only, and new-word-only behavior with ten-card base repeat gap where possible. | `packages/webapp/tests/test_m005_final_learner_flow.py` asserts `mixed`, `revision`, and `build_vocabulary` queue mode payloads, `mode_detail`, queue membership, and `repeat_gap == 10`. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts the frontend issues the correct queue requests for all three modes. `packages/webapp/docs/m005_s07_uat.md` sections 3, 8, and 9 describe user-visible mode checks. | Revision-mode emptiness and build-vocabulary filtering are explicitly covered; the criterion is not inferred from prose alone. |
 | Settings persist theme, default 0.8x TTS speed, and current single voice option; account deletion is confirmed and safely cascaded. | `packages/webapp/tests/test_m005_final_learner_flow.py` asserts default settings payload, successful settings update, persistence across new client login, and delete-account rejection/success plus cascade cleanup of `users`, `user_settings`, `shown_cards`, and `answer_events`. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts settings load/save wiring, visible voice metadata, exact delete-confirmation phrase handling, and `DELETE /auth/account` request shape. `packages/webapp/docs/m005_s07_uat.md` sections 12 and 15 document reload/login persistence and deletion walkthroughs. | This criterion has both deterministic storage/API proof and user-visible UAT instructions. |
 | Futuristic blue light/dark UI and repaired landing page meet static and accessibility-oriented checks. | `packages/webapp/tests/test_m005_frontend_assembly_static.py` asserts landing copy (`Welcome to MiraLingo`, `Wikibooks grammar`), safe external link attributes, dark-theme selectors, responsive breakpoints, `:focus-visible`, and major layout hooks. | `packages/webapp/docs/m005_s07_uat.md` section 1 documents the logged-out landing and external grammar link verification. `npm --prefix packages/webapp/frontend run build` proves the frontend compiles as shipped. | Validation should treat this as static/build-backed UI evidence, with browser walkthrough confirming the public landing surface. |
@@ -83,14 +91,14 @@ Primary evidence:
 - `packages/webapp/tests/test_m005_final_learner_flow.py`
   - default settings show theme `system`, `tts_speed` `0.8`, and a single immutable MBROLA voice;
   - updated settings persist across a recreated client session;
-  - audio success returns WAV bytes and diagnostic headers;
-  - audio unavailable returns structured `503` JSON with `error == "mbrola_unavailable"`;
+  - audio success returns WAV bytes and diagnostic headers (`content-type: audio/wav`, `x-miralingo-audio-phase: audio_synthesis`, `x-miralingo-audio-backend: mbrola`, saved speed/voice headers);
+  - audio unavailable returns structured `503` JSON with `error == "mbrola_unavailable"` and backend detail rather than a crash;
   - bad deletion confirmation is rejected without deleting the account;
   - successful deletion clears session and removes learner-owned rows.
 - `packages/webapp/tests/test_m005_frontend_assembly_static.py`
-  - asserts settings load/save request shapes, visible voice metadata labels, audio diagnostic/status roles, playback-rate fallback messaging, and exact delete-confirmation helpers.
+  - asserts settings load/save request shapes, visible voice metadata labels, audio diagnostic/status roles, success/failure feedback copy, playback-rate fallback messaging, and exact delete-confirmation helpers.
 - `packages/webapp/docs/m005_s07_uat.md`
-  - documents manual audio observation limits, settings persistence walkthrough, deletion mismatch negative case, and successful deletion flow.
+  - documents manual audio observation limits, success-or-diagnostic audio acceptance, settings persistence walkthrough, deletion mismatch negative case, and successful deletion flow.
 
 ### Landing page, theme, and public link repair
 
@@ -122,7 +130,7 @@ It explicitly captures or requests evidence for:
 - learner registration/login and authenticated menu;
 - Continue Practice, Revision, and Build Vocabulary navigation;
 - typed correct answer, wrong answer, blank answer, and Give Up reveal flow;
-- audio button state plus success-or-diagnostic behavior;
+- audio button state plus success-or-diagnostic behavior, including the acceptable `mbrola_unavailable` host-runtime fallback;
 - analytics/progress status;
 - settings persistence across reload/login;
 - Iconify matched-icon and forced fallback/offline behavior;
@@ -130,6 +138,8 @@ It explicitly captures or requests evidence for:
 - account deletion mismatch and successful deletion.
 
 The mechanical guard for the UAT artifact is `packages/webapp/tests/verify_m005_s07_uat_doc.py`, which fails if required sections or phrases disappear.
+
+Together, `packages/webapp/docs/m005_s07_uat.md`, `packages/webapp/tests/verify_m005_s07_uat_doc.py`, `packages/webapp/tests/test_m005_final_learner_flow.py`, and `packages/webapp/tests/test_m005_frontend_assembly_static.py` provide the integrated-UAT evidence stack this validator should cite instead of claiming deterministic audible browser automation that the repository does not ship.
 
 ## Observability and diagnostics surfaces
 
@@ -146,11 +156,13 @@ These are the concrete surfaces a validator can inspect when an acceptance area 
   - authenticated totals, accuracy, per-type summaries, latest event, and weak/mastered/new/stale counts.
 - `/practice/audio/<card-id>`
   - deterministic WAV headers on success;
-  - structured `503` JSON diagnostics on MBROLA-unavailable path.
+  - structured `503` JSON diagnostics on MBROLA-unavailable path, including `error: mbrola_unavailable`;
 - Frontend visible diagnostics asserted by static tests and documented by UAT:
   - `role="status"` surfaces;
   - `role="alert"` surfaces;
+  - `Correct` / `Not quite` practice feedback;
   - `Audio uses your saved ... learner speed preference`;
+  - playback-rate fallback and audio diagnostic text;
   - `Iconify status: ...`;
   - settings and account-deletion error/status copy.
 - Safe SQLite inspection surfaces documented by UAT:

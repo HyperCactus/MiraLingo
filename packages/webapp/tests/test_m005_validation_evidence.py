@@ -50,6 +50,9 @@ REQUIRED_TERMS = {
         "persist",
         "/practice/audio/",
         "/settings",
+        "mbrola_unavailable",
+        "Audio uses your saved",
+        "playback-rate fallback",
     ],
     "account-deletion": [
         "delete-account",
@@ -88,12 +91,22 @@ REQUIRED_TERMS = {
         "Automation limits",
         "manual",
         "browser",
+        "Validation remediation note",
+        "round-1 validation evidence remediation",
     ],
     "verification-commands": [
         "PYTHONPATH=packages/webapp/src python3 -m pytest packages/webapp/tests/test_m005_final_learner_flow.py -q",
         "PYTHONPATH=packages/webapp/src python3 -m pytest packages/webapp/tests/test_m005_frontend_assembly_static.py -q",
         "PYTHONPATH=packages/webapp/src python3 packages/webapp/tests/verify_m005_s07_uat_doc.py",
         "npm --prefix packages/webapp/frontend run build",
+    ],
+    "scope-reconciliation": [
+        "R001",
+        "R009",
+        "tokenizer",
+        "legacy-orthography",
+        "roadmap success criteria",
+        "root-requirement status",
     ],
 }
 
