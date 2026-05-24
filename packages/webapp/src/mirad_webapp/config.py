@@ -18,6 +18,7 @@ class Settings:
     enable_local_admin: bool = True
     session_secret: str = "miralingo-dev-session-secret"
     phrase_csv_path: Path = Path("data/phrases/english-mirad-sentence-pairs.csv")
+    database_path: Path = Path(".miralingo/miralingo.sqlite3")
 
     @property
     def local_admin_bootstrap_enabled(self) -> bool:
@@ -39,9 +40,11 @@ def load_settings() -> Settings:
     phrase_csv_path = Path(
         os.getenv("MIRALINGO_PHRASE_CSV_PATH", "data/phrases/english-mirad-sentence-pairs.csv")
     )
+    database_path = Path(os.getenv("MIRALINGO_DATABASE_PATH", ".miralingo/miralingo.sqlite3"))
     return Settings(
         environment=environment,
         enable_local_admin=enable_local_admin,
         session_secret=session_secret,
         phrase_csv_path=phrase_csv_path,
+        database_path=database_path,
     )
