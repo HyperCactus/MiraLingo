@@ -334,7 +334,8 @@ input:focus-visible {
 .practice-header,
 .answer-row,
 .audio-row,
-.card-meta {
+.card-meta,
+.answer-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -455,6 +456,75 @@ input:focus-visible {
   letter-spacing: -0.06em;
 }
 
+.answer-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.answer-field {
+  color: #173d3a;
+  font-weight: 800;
+}
+
+.answer-input {
+  width: 100%;
+  border: 1px solid rgba(37, 95, 91, 0.22);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  color: #172026;
+  background: #fff;
+}
+
+.answer-input:disabled {
+  opacity: 0.8;
+  background: #f2eee6;
+}
+
+.answer-actions {
+  justify-content: flex-start;
+}
+
+.answer-result-panel {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid rgba(37, 95, 91, 0.14);
+  border-radius: 1.2rem;
+  padding: 1rem;
+  background: rgba(217, 239, 232, 0.32);
+}
+
+.answer-result-copy h3 {
+  margin: 0;
+  color: #172026;
+  font-size: 1.4rem;
+}
+
+.answer-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.answer-result-grid div {
+  border-radius: 1rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.answer-result-grid dt {
+  color: #65727e;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.answer-result-grid dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+  color: #172026;
+  font-weight: 800;
+}
+
 .practice-card details {
   border-radius: 1rem;
   padding: 0.8rem 1rem;
@@ -554,17 +624,21 @@ input:focus-visible {
   .status-grid,
   .diagnostic-grid,
   .progress-summary,
-  .progress-breakdown {
+  .progress-breakdown,
+  .answer-result-grid {
     grid-template-columns: 1fr;
   }
 
-  .audio-row {
+  .audio-row,
+  .answer-actions {
     align-items: stretch;
   }
 
   .audio-button,
   .audio-row .status-message,
-  .audio-row .error-message {
+  .audio-row .error-message,
+  .answer-actions .primary-action,
+  .answer-actions .secondary-action {
     width: 100%;
   }
 

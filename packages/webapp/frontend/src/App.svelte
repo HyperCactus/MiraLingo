@@ -32,9 +32,10 @@
   let practiceQueue = null;
   let currentCard = null;
   let answerSubmitting = false;
-  let progressState = "idle";
-  let progressError = "";
-  let practiceProgress = null;
+  let typedAnswer = "";
+  let answerError = "";
+  let answerResult = null;
+  let activeCardId = null;
   let audioState = "idle";
   let audioMessage = "";
   let audioDiagnostic = "";
@@ -54,6 +55,12 @@
     audioState = "idle";
     audioMessage = "";
     audioDiagnostic = "";
+  };
+
+  const resetAnswerState = () => {
+    typedAnswer = "";
+    answerError = "";
+    answerResult = null;
   };
 
   const friendlyAudioError = (payload, status) => {
@@ -90,14 +97,6 @@
     return fallback;
   };
 
-  const friendlyProgressError = (payload, status) => {
-    if (status === 401 || payload?.error === "unauthenticated") {
-      return "Your session expired. Log in again to view progress.";
-    }
-    if (payload?.error === "source_missing") return "Progress is unavailable until practice content is configured.";
-    return "Progress is unavailable right now. Practice controls still work; try refreshing progress after your next answer.";
-  };
-
   const languageLabel = (language) => {
     const normalized = String(language ?? "").trim().toLowerCase();
     if (normalized === "mirad") return "Mirad";
@@ -114,15 +113,7 @@
 
   const promptLabel = (card) => `${languageLabel(card?.prompt_language)} prompt`;
   const answerLabel = (card) => `${languageLabel(card?.answer_language)} answer`;
-
-  const formatAccuracy = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
-  const formatCount = (value) => (typeof value === "number" ? value : 0);
-  const formatLatestAnswer = (event) => {
-    if (!event) return "No answers yet";
-    const type = event.card_type ?? "card";
-    const result = event.correct ? "correct" : "incorrect";
-    return `${type} ${event.card_id ?? "unknown"}: ${result}`;
-  };
+  const answerInputLabel = (card) => `Type the ${languageLabel(card?.answer_language)} answer`;
 
   async function readJson(response) {
     try {
@@ -225,6 +216,7 @@
       await fetch("/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
     } finally {
       resetAudioState();
+      resetAnswerState();
       user = null;
       username = "admin";
       password = "";
@@ -234,30 +226,9 @@
       practiceState = "idle";
       practiceQueue = null;
       currentCard = null;
+      activeCardId = null;
       lastAudioCardId = null;
       practiceError = "";
-      progressState = "idle";
-      progressError = "";
-      practiceProgress = null;
-    }
-  }
-
-  async function loadPracticeProgress() {
-    progressState = "loading";
-    progressError = "";
-    try {
-      const response = await fetch("/practice/progress", { headers: { Accept: "application/json" } });
-      const payload = await readJson(response);
-      if (!response.ok || payload.ok !== true) {
-        progressState = "error";
-        progressError = friendlyProgressError(payload, response.status);
-        return;
-      }
-      practiceProgress = payload;
-      progressState = payload.event_count > 0 ? "ready" : "empty";
-    } catch (_error) {
-      progressState = "error";
-      progressError = "Progress is unavailable right now. Practice controls still work; try refreshing progress after your next answer.";
     }
   }
 
@@ -266,35 +237,37 @@
     practiceState = "loading";
     practiceError = "";
     try {
-      const response = await fetch("/practice/queue?limit=3", { headers: { Accept: "application/json" } });
+      const response = await fetch("/practice/queue?mode=mixed&limit=3", { headers: { Accept: "application/json" } });
       const payload = await readJson(response);
       if (!response.ok || payload.ok === false) {
         practiceQueue = payload;
         currentCard = null;
+        activeCardId = null;
         lastAudioCardId = null;
+        resetAnswerState();
         practiceState = "error";
         practiceError = friendlyPracticeError(payload, "Practice queue is unavailable. Try again after checking the server.");
-        await loadPracticeProgress();
         return;
       }
       practiceQueue = payload;
       currentCard = payload.cards?.[0] ?? null;
-      lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
       practiceState = currentCard ? "ready" : "empty";
-      await loadPracticeProgress();
     } catch (_error) {
       practiceState = "error";
+      practiceQueue = null;
       currentCard = null;
+      activeCardId = null;
       lastAudioCardId = null;
+      resetAnswerState();
       practiceError = "Could not reach practice APIs. Check that the web server is running.";
-      await loadPracticeProgress();
     }
   }
 
-  async function submitPracticeAnswer(correct) {
+  async function recordPracticeAnswer(payloadBody) {
     if (!currentCard || answerSubmitting) return;
     answerSubmitting = true;
     practiceError = "";
+    answerError = "";
     try {
       const response = await fetch("/practice/answers", {
         method: "POST",
@@ -302,21 +275,43 @@
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ card_id: currentCard.id, correct }),
+        body: JSON.stringify(payloadBody),
       });
       const payload = await readJson(response);
       if (!response.ok || payload.ok === false) {
-        practiceState = "error";
+        practiceState = "ready";
         practiceError = friendlyPracticeError(payload, "Answer rejected. Refresh the queue and try again.");
         return;
       }
-      await loadPracticeQueue();
+      answerResult = payload;
     } catch (_error) {
-      practiceState = "error";
+      practiceState = "ready";
       practiceError = "Could not submit the practice answer. Check the server and try again.";
     } finally {
       answerSubmitting = false;
     }
+  }
+
+  async function submitTypedPracticeAnswer() {
+    const normalizedAnswer = typedAnswer.trim();
+    answerError = "";
+    practiceError = "";
+    if (!normalizedAnswer) {
+      answerError = `Type a ${languageLabel(currentCard?.answer_language)} answer before submitting.`;
+      return;
+    }
+    await recordPracticeAnswer({ card_id: currentCard.id, answer: normalizedAnswer });
+  }
+
+  async function submitGiveUp() {
+    answerError = "";
+    practiceError = "";
+    await recordPracticeAnswer({ card_id: currentCard.id, correct: false });
+  }
+
+  async function advancePracticeCard() {
+    if (practiceState === "loading" || answerSubmitting) return;
+    await loadPracticeQueue();
   }
 
   async function playCardAudio() {
@@ -357,6 +352,11 @@
     }
   }
 
+  $: if (currentCard?.id !== activeCardId) {
+    activeCardId = currentCard?.id ?? null;
+    resetAnswerState();
+  }
+
   $: if ((currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null) !== lastAudioCardId) {
     resetAudioState();
     lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
@@ -380,8 +380,8 @@
         <p class="eyebrow">MiraLingo app home</p>
         <h1 id="home-heading">Welcome back, {user?.username ?? "admin"}.</h1>
         <p class="lede">
-          Request an adaptive Mirad practice queue, answer the current card, and watch the scheduler
-          prioritize weak or stale content from your session history.
+          Request an adaptive Mirad practice queue, type the answer you recall, and reveal the
+          backend-scored result without clutter from progress analytics.
         </p>
       </div>
       <dl class="status-grid" aria-label="Current session">
@@ -394,7 +394,7 @@
           <dd>{user?.role ?? "admin"}</dd>
         </div>
         <div>
-          <dt>Practice events</dt>
+          <dt>Queue events</dt>
           <dd>{practiceQueue?.event_count ?? 0}</dd>
         </div>
       </dl>
@@ -418,67 +418,6 @@
           <p class="error-message" role="alert">{practiceError}</p>
         {/if}
 
-        <section class="progress-panel" aria-labelledby="progress-heading">
-          <div class="progress-header">
-            <div>
-              <p class="eyebrow">Session progress</p>
-              <h2 id="progress-heading">Practice stats</h2>
-            </div>
-            <button class="secondary-action" type="button" on:click={loadPracticeProgress} disabled={progressState === "loading"}>
-              {progressState === "loading" ? "Refreshing…" : "Refresh progress"}
-            </button>
-          </div>
-
-          {#if progressState === "loading"}
-            <p class="status-message" role="status">Loading practice progress…</p>
-          {:else if progressError}
-            <p class="error-message" role="alert">{progressError}</p>
-          {:else if practiceProgress && progressState === "empty"}
-            <p class="status-message" role="status">No answers yet. Try the current card, then mark whether you knew it to build progress stats.</p>
-          {/if}
-
-          {#if practiceProgress}
-            <dl class="progress-summary" aria-label="Practice progress summary">
-              <div>
-                <dt>Attempts</dt>
-                <dd>{formatCount(practiceProgress.total)}</dd>
-              </div>
-              <div>
-                <dt>Correct</dt>
-                <dd>{formatCount(practiceProgress.correct)}</dd>
-              </div>
-              <div>
-                <dt>Incorrect</dt>
-                <dd>{formatCount(practiceProgress.incorrect)}</dd>
-              </div>
-              <div>
-                <dt>Accuracy</dt>
-                <dd>{formatAccuracy(practiceProgress.accuracy)}</dd>
-              </div>
-            </dl>
-            <dl class="progress-breakdown" aria-label="Progress by card type">
-              <div>
-                <dt>Words</dt>
-                <dd>{formatCount(practiceProgress.per_type?.word?.attempts)} attempts · {formatAccuracy(practiceProgress.per_type?.word?.accuracy)}</dd>
-              </div>
-              <div>
-                <dt>Phrases</dt>
-                <dd>{formatCount(practiceProgress.per_type?.phrase?.attempts)} attempts · {formatAccuracy(practiceProgress.per_type?.phrase?.accuracy)}</dd>
-              </div>
-              <div>
-                <dt>Latest answer</dt>
-                <dd>{formatLatestAnswer(practiceProgress.latest_event)}</dd>
-              </div>
-            </dl>
-            <ul class="progress-badges" aria-label="Scheduler progress indicators">
-              <li><strong>{formatCount(practiceProgress.weak_count)}</strong> weak</li>
-              <li><strong>{formatCount(practiceProgress.mastered_count)}</strong> mastered</li>
-              <li><strong>{formatCount(practiceProgress.new_count)}</strong> new</li>
-              <li><strong>{formatCount(practiceProgress.stale_count)}</strong> stale</li>
-            </ul>
-          {/if}
-        </section>
-
         {#if currentCard}
           <article class="practice-card" aria-label="Current practice card">
             <div class="card-meta">
@@ -488,10 +427,7 @@
             </div>
             <p class="prompt-label">{promptLabel(currentCard)}</p>
             <p class="prompt-text">{currentCard.prompt}</p>
-            <details>
-              <summary>Show {answerLabel(currentCard)}</summary>
-              <p>{currentCard.answer}</p>
-            </details>
+
             <div class="audio-row" aria-label="Mirad answer audio">
               <button
                 class="audio-button"
@@ -512,6 +448,75 @@
                 </p>
               {/if}
             </div>
+
+            <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
+              <label class="answer-field" for="typed-answer-input">
+                {answerInputLabel(currentCard)}
+              </label>
+              <input
+                id="typed-answer-input"
+                name="typed-answer"
+                class="answer-input"
+                aria-label="Type your answer"
+                autocomplete="off"
+                bind:value={typedAnswer}
+                disabled={answerSubmitting || answerResult !== null}
+              />
+              <div class="answer-actions" aria-label="Submit answer">
+                <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>
+                  {answerSubmitting ? "Submitting…" : "Submit answer"}
+                </button>
+                <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>
+                  Give up
+                </button>
+              </div>
+            </form>
+
+            {#if answerError}
+              <p class="error-message" role="alert">{answerError}</p>
+            {/if}
+
+            {#if answerResult}
+              <section class="answer-result-panel" aria-labelledby="answer-result-heading">
+                <div class="answer-result-copy">
+                  <p class="eyebrow">Answer result</p>
+                  <h3 id="answer-result-heading">{answerResult.correct ? "Correct" : "Not quite"}</h3>
+                  <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
+                    {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
+                  </p>
+                </div>
+                <dl class="answer-result-grid" aria-label="Answer reveal details">
+                  <div>
+                    <dt>expected_answer</dt>
+                    <dd>{answerResult.expected_answer ?? currentCard.answer}</dd>
+                  </div>
+                  <div>
+                    <dt>submitted_answer</dt>
+                    <dd>{answerResult.submitted_answer ?? "Give up"}</dd>
+                  </div>
+                  <div>
+                    <dt>correct</dt>
+                    <dd>{answerResult.correct ? "true" : "false"}</dd>
+                  </div>
+                  <div>
+                    <dt>scheduler_reason</dt>
+                    <dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd>
+                  </div>
+                  <div>
+                    <dt>latest_event</dt>
+                    <dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd>
+                  </div>
+                  <div>
+                    <dt>event_count</dt>
+                    <dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd>
+                  </div>
+                </dl>
+                <button class="primary-action" type="button" on:click={advancePracticeCard}>
+                  Continue
+                </button>
+              </section>
+            {/if}
+
             <dl class="diagnostic-grid" aria-label="Practice diagnostics">
               <div>
                 <dt>direction</dt>
@@ -519,29 +524,17 @@
               </div>
               <div>
                 <dt>event_count</dt>
-                <dd>{practiceQueue?.event_count ?? 0}</dd>
+                <dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd>
               </div>
               <div>
                 <dt>scheduler_reason</dt>
-                <dd>{currentCard.scheduler_reason}</dd>
+                <dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd>
               </div>
               <div>
-                <dt>Mastery</dt>
-                <dd>{currentCard.mastery?.correct ?? 0}/{currentCard.mastery?.attempts ?? 0} correct</dd>
-              </div>
-              <div>
-                <dt>Recency</dt>
-                <dd>{currentCard.recency?.last_seen_at ?? "new"}</dd>
+                <dt>phase</dt>
+                <dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd>
               </div>
             </dl>
-            <div class="answer-row" aria-label="Submit answer">
-              <button class="primary-action" type="button" disabled={answerSubmitting} on:click={() => submitPracticeAnswer(true)}>
-                {answerSubmitting ? "Submitting…" : "I knew it"}
-              </button>
-              <button class="secondary-action" type="button" disabled={answerSubmitting} on:click={() => submitPracticeAnswer(false)}>
-                I missed it
-              </button>
-            </div>
           </article>
         {/if}
       </section>
@@ -595,30 +588,30 @@
           </button>
         </form>
 
-      <form id="login-panel" class="login-card" aria-label="Local admin login" on:submit|preventDefault={submitLogin}>
-        <div>
-          <p class="eyebrow">Development sign in</p>
-          <h2>Local admin access</h2>
-          <p class="form-note">Use only for local development. Passwords are never echoed in errors.</p>
-        </div>
-        {#if authState === "checking"}
-          <p class="status-message" role="status">Checking current session…</p>
-        {/if}
-        {#if errorMessage && authState !== "registration-failed"}
-          <p class="error-message" role="alert">{errorMessage}</p>
-        {/if}
-        <label>
-          Username
-          <input autocomplete="username" bind:value={username} name="username" required />
-        </label>
-        <label>
-          Password
-          <input autocomplete="current-password" bind:value={password} name="password" required type="password" />
-        </label>
-        <button class="primary-action submit-action" disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Signing in…" : "Log in as local admin"}
-        </button>
-      </form>
+        <form id="login-panel" class="login-card" aria-label="Local admin login" on:submit|preventDefault={submitLogin}>
+          <div>
+            <p class="eyebrow">Development sign in</p>
+            <h2>Local admin access</h2>
+            <p class="form-note">Use only for local development. Passwords are never echoed in errors.</p>
+          </div>
+          {#if authState === "checking"}
+            <p class="status-message" role="status">Checking current session…</p>
+          {/if}
+          {#if errorMessage && authState !== "registration-failed"}
+            <p class="error-message" role="alert">{errorMessage}</p>
+          {/if}
+          <label>
+            Username
+            <input autocomplete="username" bind:value={username} name="username" required />
+          </label>
+          <label>
+            Password
+            <input autocomplete="current-password" bind:value={password} name="password" required type="password" />
+          </label>
+          <button class="primary-action submit-action" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Signing in…" : "Log in as local admin"}
+          </button>
+        </form>
       </div>
     </section>
 
