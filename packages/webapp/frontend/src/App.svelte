@@ -49,17 +49,30 @@
     },
     {
       title: "Settings",
-      description: "See the placeholder for theme, TTS speed, voice display, and account deletion controls arriving in S04.",
+      description: "Review saved theme, 0.8x speech speed, current voice metadata, and confirmed account deletion controls.",
       actionLabel: "Open settings",
       section: "settings",
     },
     {
       title: "Log Out",
-      description: "End this browser session and clear practice, answer, audio, and analytics state.",
+      description: "End this browser session and clear practice, answer, audio, analytics, and settings state.",
       actionLabel: "Log Out",
       action: "logout",
     },
   ];
+
+  const DEFAULT_SETTINGS = {
+    theme: "system",
+    tts_speed: 0.8,
+    voice: {
+      id: "de6",
+      label: "Mirad de6",
+      provider: "mbrola",
+      mutable: false,
+    },
+  };
+
+  const SETTINGS_SPEED_OPTIONS = [0.7, 0.8, 0.9, 1.0, 1.1];
 
   let username = "admin";
   let password = "";
@@ -93,6 +106,23 @@
   let analyticsState = "idle";
   let analyticsError = "";
   let analyticsPayload = null;
+
+  let settingsState = "idle";
+  let settingsError = "";
+  let settingsStatus = "";
+  let settingsPhase = "settings_get";
+  let settingsLoadedForUser = null;
+  let settingsForm = {
+    theme: DEFAULT_SETTINGS.theme,
+    tts_speed: DEFAULT_SETTINGS.tts_speed,
+  };
+  let persistedSettings = structuredClone(DEFAULT_SETTINGS);
+
+  let deleteAccountState = "idle";
+  let deleteAccountError = "";
+  let deleteAccountStatus = "";
+  let deleteAccountUsername = "";
+  let deleteAccountConfirmation = "";
 
   const resetAudioState = () => {
     if (activeAudio) {
@@ -129,6 +159,24 @@
     analyticsState = "idle";
     analyticsError = "";
     analyticsPayload = null;
+  };
+
+  const resetSettingsSurface = () => {
+    settingsState = "idle";
+    settingsError = "";
+    settingsStatus = "";
+    settingsPhase = "settings_get";
+    settingsLoadedForUser = null;
+    settingsForm = {
+      theme: DEFAULT_SETTINGS.theme,
+      tts_speed: DEFAULT_SETTINGS.tts_speed,
+    };
+    persistedSettings = structuredClone(DEFAULT_SETTINGS);
+    deleteAccountState = "idle";
+    deleteAccountError = "";
+    deleteAccountStatus = "";
+    deleteAccountUsername = "";
+    deleteAccountConfirmation = "";
   };
 
   const friendlyAudioError = (payload, status) => {
@@ -169,6 +217,22 @@
     if (payload?.detail) return payload.detail;
     if (payload?.error === "unauthenticated") return "Your session expired. Log in again to inspect analytics.";
     if (payload?.error === "source_missing") return "Analytics is unavailable until phrase or word content is configured.";
+    return fallback;
+  };
+
+  const friendlySettingsError = (payload, fallback) => {
+    if (payload?.error === "unauthenticated") return "Your session expired. Log in again to manage settings.";
+    if (payload?.detail) return payload.detail;
+    return fallback;
+  };
+
+  const friendlyDeleteAccountError = (payload, fallback) => {
+    if (payload?.error === "unauthenticated") return "Your session expired. Log in again before deleting this account.";
+    if (payload?.error === "protected_account") return "The local admin account cannot be deleted from Settings.";
+    if (payload?.error === "invalid_confirmation") {
+      return "Type your current username and the word DELETE before deleting this account.";
+    }
+    if (payload?.detail) return payload.detail;
     return fallback;
   };
 
@@ -217,6 +281,80 @@
     if (activePracticeMode === "build_vocabulary") return "Vocabulary builder";
     return "Adaptive session";
   };
+  const currentThemeLabel = (theme) => {
+    if (theme === "light") return "Light";
+    if (theme === "dark") return "Dark";
+    return "System";
+  };
+  const speedLabel = (speed) => `${Number(speed).toFixed(1)}x`;
+  const settingsStatusClass = (state) => (state === "error" ? "error-message" : "status-message");
+  const settingsStatusRole = (state) => (state === "error" ? "alert" : "status");
+  const canDeleteCurrentAccount = () => (user?.username ?? "") !== "admin";
+
+  function resolvedTheme(theme) {
+    if (theme === "dark") return "dark";
+    if (theme === "light") return "light";
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  }
+
+  function applyTheme(theme) {
+    if (typeof document === "undefined") return;
+    const normalizedTheme = ["light", "dark", "system"].includes(theme) ? theme : DEFAULT_SETTINGS.theme;
+    const nextResolvedTheme = resolvedTheme(normalizedTheme);
+    document.documentElement.dataset.themePreference = normalizedTheme;
+    document.documentElement.dataset.theme = nextResolvedTheme;
+    document.documentElement.style.colorScheme = nextResolvedTheme;
+    document.body?.setAttribute("data-theme", nextResolvedTheme);
+  }
+
+  function coerceTheme(theme) {
+    return ["light", "dark", "system"].includes(theme) ? theme : DEFAULT_SETTINGS.theme;
+  }
+
+  function coerceSpeed(ttsSpeed) {
+    const numeric = Number(ttsSpeed);
+    return Number.isFinite(numeric) && numeric > 0 && numeric <= 2 ? Number(numeric.toFixed(1)) : DEFAULT_SETTINGS.tts_speed;
+  }
+
+  function coerceVoice(voice) {
+    const label = typeof voice?.label === "string" && voice.label.trim() ? voice.label.trim() : DEFAULT_SETTINGS.voice.label;
+    const id = typeof voice?.id === "string" && voice.id.trim() ? voice.id.trim() : DEFAULT_SETTINGS.voice.id;
+    const provider =
+      typeof voice?.provider === "string" && voice.provider.trim()
+        ? voice.provider.trim()
+        : DEFAULT_SETTINGS.voice.provider;
+    return {
+      id,
+      label,
+      provider,
+      mutable: false,
+    };
+  }
+
+  function coerceSettingsPayload(payload) {
+    const settings = payload?.settings ?? payload ?? {};
+    return {
+      theme: coerceTheme(settings?.theme),
+      tts_speed: coerceSpeed(settings?.tts_speed),
+      voice: coerceVoice(settings?.voice),
+    };
+  }
+
+  function syncSettingsForm(nextSettings, { statusMessage = "", state = "ready", phase = "settings_get" } = {}) {
+    const safeSettings = coerceSettingsPayload(nextSettings);
+    persistedSettings = safeSettings;
+    settingsForm = {
+      theme: safeSettings.theme,
+      tts_speed: safeSettings.tts_speed,
+    };
+    settingsState = state;
+    settingsPhase = phase;
+    settingsError = "";
+    settingsStatus = statusMessage;
+  }
 
   async function readJson(response) {
     try {
@@ -232,6 +370,50 @@
     activeSection = "menu";
   }
 
+  async function loadSettings({ force = false } = {}) {
+    if (authState !== "authenticated" || !user?.username) return;
+    if (!force && settingsLoadedForUser === user.username && settingsState !== "idle") return;
+
+    settingsState = "loading";
+    settingsPhase = "settings_get";
+    settingsError = "";
+    settingsStatus = "Loading saved settings…";
+    try {
+      const response = await fetch("/settings", {
+        headers: { Accept: "application/json" },
+      });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        settingsLoadedForUser = user.username;
+        const safeSettings = coerceSettingsPayload(DEFAULT_SETTINGS);
+        persistedSettings = safeSettings;
+        settingsForm = {
+          theme: safeSettings.theme,
+          tts_speed: safeSettings.tts_speed,
+        };
+        settingsState = "error";
+        settingsPhase = payload?.phase ?? "settings_get";
+        settingsError = friendlySettingsError(payload, "Could not load saved settings. Safe defaults are shown below.");
+        settingsStatus = "";
+        return;
+      }
+      syncSettingsForm(payload, { state: "ready", phase: payload?.phase ?? "settings_get" });
+      settingsLoadedForUser = user.username;
+    } catch (_error) {
+      settingsLoadedForUser = user.username;
+      const safeSettings = coerceSettingsPayload(DEFAULT_SETTINGS);
+      persistedSettings = safeSettings;
+      settingsForm = {
+        theme: safeSettings.theme,
+        tts_speed: safeSettings.tts_speed,
+      };
+      settingsState = "error";
+      settingsPhase = "settings_get";
+      settingsError = "Could not reach saved settings. Safe defaults are shown below.";
+      settingsStatus = "";
+    }
+  }
+
   async function loadCurrentUser() {
     errorMessage = "";
     try {
@@ -245,13 +427,18 @@
         activeSection = "menu";
         resetPracticeSurface();
         resetAnalyticsSurface();
+        resetSettingsSurface();
+        deleteAccountUsername = payload.user?.username ?? "";
+        await loadSettings({ force: true });
         return;
       }
       user = null;
       authState = "anonymous";
+      resetSettingsSurface();
     } catch (_error) {
       user = null;
       authState = "anonymous";
+      resetSettingsSurface();
       errorMessage = "Could not reach MiraLingo auth. Check that the web server is running.";
     }
   }
@@ -281,6 +468,9 @@
       activeSection = "menu";
       resetPracticeSurface();
       resetAnalyticsSurface();
+      resetSettingsSurface();
+      deleteAccountUsername = payload.user?.username ?? "";
+      await loadSettings({ force: true });
     } catch (_error) {
       user = null;
       authState = "login-failed";
@@ -316,6 +506,9 @@
       activeSection = "menu";
       resetPracticeSurface();
       resetAnalyticsSurface();
+      resetSettingsSurface();
+      deleteAccountUsername = payload.user?.username ?? "";
+      await loadSettings({ force: true });
     } catch (_error) {
       user = null;
       authState = "registration-failed";
@@ -332,6 +525,7 @@
     } finally {
       resetPracticeSurface();
       resetAnalyticsSurface();
+      resetSettingsSurface();
       user = null;
       username = "admin";
       password = "";
@@ -407,7 +601,7 @@
       analyticsState = "error";
       analyticsError = "Could not reach progress analytics. Check that the web server is running.";
     }
-}
+  }
 
   async function openAnalytics() {
     activeSection = "analytics";
@@ -416,10 +610,101 @@
     await loadAnalytics();
   }
 
-  function openSettings() {
+  async function openSettings() {
     activeSection = "settings";
     resetAudioState();
     resetAnswerState();
+    deleteAccountUsername = user?.username ?? deleteAccountUsername;
+    await loadSettings();
+  }
+
+  async function saveSettings() {
+    if (settingsState === "saving") return;
+
+    settingsState = "saving";
+    settingsPhase = "settings_update";
+    settingsError = "";
+    settingsStatus = "Saving your learner settings…";
+
+    const payloadBody = {
+      theme: coerceTheme(settingsForm.theme),
+      tts_speed: coerceSpeed(settingsForm.tts_speed),
+    };
+
+    try {
+      const response = await fetch("/settings", {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payloadBody),
+      });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        settingsState = "error";
+        settingsPhase = payload?.phase ?? "settings_update";
+        settingsError = friendlySettingsError(payload, "Could not save learner settings. Your unsaved selections are still visible.");
+        settingsStatus = "";
+        return;
+      }
+      syncSettingsForm(payload, {
+        state: "ready",
+        phase: payload?.phase ?? "settings_update",
+        statusMessage: "Settings saved. Theme and speech speed will persist for this account.",
+      });
+      settingsLoadedForUser = user?.username ?? settingsLoadedForUser;
+    } catch (_error) {
+      settingsState = "error";
+      settingsPhase = "settings_update";
+      settingsError = "Could not save learner settings. Your unsaved selections are still visible.";
+      settingsStatus = "";
+    }
+  }
+
+  async function submitDeleteAccount() {
+    if (deleteAccountState === "submitting" || !user?.username) return;
+
+    deleteAccountState = "submitting";
+    deleteAccountError = "";
+    deleteAccountStatus = "Deleting this learner account…";
+
+    try {
+      const response = await fetch("/auth/account", {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: deleteAccountUsername,
+          confirmation: deleteAccountConfirmation,
+        }),
+      });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        deleteAccountState = "error";
+        deleteAccountError = friendlyDeleteAccountError(payload, "Could not delete this account right now.");
+        deleteAccountStatus = "";
+        return;
+      }
+      deleteAccountState = "done";
+      deleteAccountStatus = `Deleted account ${payload.deleted_username ?? user.username}.`;
+      deleteAccountError = "";
+      resetPracticeSurface();
+      resetAnalyticsSurface();
+      resetSettingsSurface();
+      user = null;
+      password = "";
+      registerPassword = "";
+      authState = "anonymous";
+      activeSection = "menu";
+      activePracticeMode = "mixed";
+    } catch (_error) {
+      deleteAccountState = "error";
+      deleteAccountError = "Could not reach account deletion. Confirm the server and try again.";
+      deleteAccountStatus = "";
+    }
   }
 
   async function recordPracticeAnswer(payloadBody) {
@@ -497,13 +782,14 @@
       const nextBlobUrl = URL.createObjectURL(blob);
       audioBlobUrl = nextBlobUrl;
       activeAudio = new Audio(nextBlobUrl);
+      activeAudio.playbackRate = coerceSpeed(settingsForm.tts_speed);
       activeAudio.addEventListener("ended", () => {
         audioState = "idle";
-        audioMessage = "Audio finished.";
+        audioMessage = `Audio finished at ${speedLabel(settingsForm.tts_speed)}.`;
       });
       await activeAudio.play();
       audioState = "playing";
-      audioMessage = "Playing Mirad audio.";
+      audioMessage = `Playing Mirad audio at ${speedLabel(settingsForm.tts_speed)}.`;
     } catch (_error) {
       audioState = "error";
       audioMessage = "Could not play audio. Check the server, then try again.";
@@ -538,6 +824,8 @@
     resetAudioState();
     lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
   }
+
+  $: applyTheme(settingsForm.theme);
 
   loadCurrentUser();
 </script>
@@ -583,6 +871,9 @@
               <p class="eyebrow">Authenticated home</p>
               <h2 id="menu-heading">Main menu</h2>
             </div>
+            {#if settingsStatus}
+              <p class="settings-inline-status status-message" role="status">{settingsStatus}</p>
+            {/if}
           </div>
           <div class="menu-grid">
             {#each menuSections as item}
@@ -600,9 +891,8 @@
         </section>
       {/if}
 
-      {#if activeSection === "practice"}
+      {#if activeSection === "practice" || activeSection === "revision" || activeSection === "build_vocabulary"}
         <section class="practice-panel" aria-labelledby="practice-heading">
-          <!-- Practice queue -->
           <div class="practice-header">
             <div>
               <p class="eyebrow">{practiceEyebrow()}</p>
@@ -645,6 +935,7 @@
                   <span aria-hidden="true">🔊</span>
                   {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
                 </button>
+                <p class="audio-speed-note">Audio uses your current {speedLabel(settingsForm.tts_speed)} learner speed preference.</p>
                 {#if audioMessage}
                   <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
                     {audioMessage}
@@ -746,192 +1037,6 @@
         </section>
       {/if}
 
-      {#if activeSection === "revision"}
-        <section class="practice-panel" aria-labelledby="practice-heading">
-          <div class="practice-header">
-            <div>
-              <p class="eyebrow">{practiceEyebrow()}</p>
-              <h2 id="practice-heading">{practiceTitle()}</h2>
-            </div>
-            <div class="menu-actions">
-              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
-              <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
-                {practiceState === "loading" ? "Loading…" : "Refresh queue"}
-              </button>
-            </div>
-          </div>
-
-          {#if practiceState === "loading"}
-            <p class="status-message" role="status">Loading practice queue…</p>
-          {:else if practiceState === "empty"}
-            <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
-          {:else if practiceError}
-            <p class="error-message" role="alert">{practiceError}</p>
-          {/if}
-
-          {#if currentCard}
-            <article class="practice-card" aria-label="Current practice card">
-              <div class="card-meta">
-                <span>{currentCard.type}</span>
-                <span>Direction: {directionLabel(currentCard)}</span>
-                <span>Reason: {currentCard.scheduler_reason}</span>
-              </div>
-              <p class="prompt-label">{promptLabel(currentCard)}</p>
-              <p class="prompt-text">{currentCard.prompt}</p>
-
-              <div class="audio-row" aria-label="Mirad answer audio">
-                <button class="audio-button" type="button" aria-label="Play Mirad answer audio" disabled={audioState === "loading"} on:click={playCardAudio}>
-                  <span aria-hidden="true">🔊</span>
-                  {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
-                </button>
-                {#if audioMessage}
-                  <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
-                    {audioMessage}
-                    {#if audioDiagnostic}
-                      <span class="audio-diagnostic">{audioDiagnostic}</span>
-                    {/if}
-                  </p>
-                {/if}
-              </div>
-
-              <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
-                <label class="answer-field" for="typed-answer-input-revision">{answerInputLabel(currentCard)}</label>
-                <input id="typed-answer-input-revision" name="typed-answer" class="answer-input" aria-label="Type your answer" autocomplete="off" bind:value={typedAnswer} disabled={answerSubmitting || answerResult !== null} />
-                <div class="answer-actions" aria-label="Submit answer">
-                  <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>{answerSubmitting ? "Submitting…" : "Submit answer"}</button>
-                  <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>Give up</button>
-                </div>
-              </form>
-
-              {#if answerError}
-                <p class="error-message" role="alert">{answerError}</p>
-              {/if}
-
-              {#if answerResult}
-                <section class="answer-result-panel" aria-labelledby="answer-result-heading-revision">
-                  <div class="answer-result-copy">
-                    <p class="eyebrow">Answer result</p>
-                    <h3 id="answer-result-heading-revision">{answerResult.correct ? "Correct" : "Not quite"}</h3>
-                    <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
-                      {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
-                    </p>
-                  </div>
-                  <dl class="answer-result-grid" aria-label="Answer reveal details">
-                    <div><dt>expected_answer</dt><dd>{answerResult.expected_answer ?? currentCard.answer}</dd></div>
-                    <div><dt>submitted_answer</dt><dd>{answerResult.submitted_answer ?? "Give up"}</dd></div>
-                    <div><dt>correct</dt><dd>{answerResult.correct ? "true" : "false"}</dd></div>
-                    <div><dt>scheduler_reason</dt><dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
-                    <div><dt>latest_event</dt><dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd></div>
-                    <div><dt>event_count</dt><dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
-                  </dl>
-                  <button class="primary-action" type="button" on:click={advancePracticeCard}>Continue</button>
-                </section>
-              {/if}
-
-              <dl class="diagnostic-grid" aria-label="Practice diagnostics">
-                <div><dt>direction</dt><dd>{currentCard.direction}</dd></div>
-                <div><dt>event_count</dt><dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
-                <div><dt>scheduler_reason</dt><dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
-                <div><dt>phase</dt><dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd></div>
-              </dl>
-            </article>
-          {/if}
-        </section>
-      {/if}
-
-      {#if activeSection === "build_vocabulary"}
-        <section class="practice-panel" aria-labelledby="practice-heading">
-          <div class="practice-header">
-            <div>
-              <p class="eyebrow">{practiceEyebrow()}</p>
-              <h2 id="practice-heading">{practiceTitle()}</h2>
-            </div>
-            <div class="menu-actions">
-              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
-              <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
-                {practiceState === "loading" ? "Loading…" : "Refresh queue"}
-              </button>
-            </div>
-          </div>
-
-          {#if practiceState === "loading"}
-            <p class="status-message" role="status">Loading practice queue…</p>
-          {:else if practiceState === "empty"}
-            <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
-          {:else if practiceError}
-            <p class="error-message" role="alert">{practiceError}</p>
-          {/if}
-
-          {#if currentCard}
-            <article class="practice-card" aria-label="Current practice card">
-              <div class="card-meta">
-                <span>{currentCard.type}</span>
-                <span>Direction: {directionLabel(currentCard)}</span>
-                <span>Reason: {currentCard.scheduler_reason}</span>
-              </div>
-              <p class="prompt-label">{promptLabel(currentCard)}</p>
-              <p class="prompt-text">{currentCard.prompt}</p>
-
-              <div class="audio-row" aria-label="Mirad answer audio">
-                <button class="audio-button" type="button" aria-label="Play Mirad answer audio" disabled={audioState === "loading"} on:click={playCardAudio}>
-                  <span aria-hidden="true">🔊</span>
-                  {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
-                </button>
-                {#if audioMessage}
-                  <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
-                    {audioMessage}
-                    {#if audioDiagnostic}
-                      <span class="audio-diagnostic">{audioDiagnostic}</span>
-                    {/if}
-                  </p>
-                {/if}
-              </div>
-
-              <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
-                <label class="answer-field" for="typed-answer-input-vocabulary">{answerInputLabel(currentCard)}</label>
-                <input id="typed-answer-input-vocabulary" name="typed-answer" class="answer-input" aria-label="Type your answer" autocomplete="off" bind:value={typedAnswer} disabled={answerSubmitting || answerResult !== null} />
-                <div class="answer-actions" aria-label="Submit answer">
-                  <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>{answerSubmitting ? "Submitting…" : "Submit answer"}</button>
-                  <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>Give up</button>
-                </div>
-              </form>
-
-              {#if answerError}
-                <p class="error-message" role="alert">{answerError}</p>
-              {/if}
-
-              {#if answerResult}
-                <section class="answer-result-panel" aria-labelledby="answer-result-heading-vocabulary">
-                  <div class="answer-result-copy">
-                    <p class="eyebrow">Answer result</p>
-                    <h3 id="answer-result-heading-vocabulary">{answerResult.correct ? "Correct" : "Not quite"}</h3>
-                    <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
-                      {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
-                    </p>
-                  </div>
-                  <dl class="answer-result-grid" aria-label="Answer reveal details">
-                    <div><dt>expected_answer</dt><dd>{answerResult.expected_answer ?? currentCard.answer}</dd></div>
-                    <div><dt>submitted_answer</dt><dd>{answerResult.submitted_answer ?? "Give up"}</dd></div>
-                    <div><dt>correct</dt><dd>{answerResult.correct ? "true" : "false"}</dd></div>
-                    <div><dt>scheduler_reason</dt><dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
-                    <div><dt>latest_event</dt><dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd></div>
-                    <div><dt>event_count</dt><dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
-                  </dl>
-                  <button class="primary-action" type="button" on:click={advancePracticeCard}>Continue</button>
-                </section>
-              {/if}
-
-              <dl class="diagnostic-grid" aria-label="Practice diagnostics">
-                <div><dt>direction</dt><dd>{currentCard.direction}</dd></div>
-                <div><dt>event_count</dt><dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
-                <div><dt>scheduler_reason</dt><dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
-                <div><dt>phase</dt><dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd></div>
-              </dl>
-            </article>
-          {/if}
-        </section>
-      {/if}
-
       {#if activeSection === "analytics"}
         <section class="analytics-panel" aria-labelledby="analytics-heading">
           <div class="practice-header">
@@ -1014,17 +1119,168 @@
       {/if}
 
       {#if activeSection === "settings"}
-        <section class="analytics-panel" aria-labelledby="settings-heading">
+        <section class="settings-panel" aria-labelledby="settings-heading">
           <div class="practice-header">
             <div>
-              <p class="eyebrow">Placeholder settings</p>
+              <p class="eyebrow">Learner preferences</p>
               <h2 id="settings-heading">Settings</h2>
             </div>
-            <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+            <div class="menu-actions">
+              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+              <button class="secondary-action" type="button" on:click={() => loadSettings({ force: true })} disabled={settingsState === "loading" || settingsState === "saving"}>
+                {settingsState === "loading" ? "Loading…" : "Reload settings"}
+              </button>
+            </div>
           </div>
-          <p class="status-message" role="status">
-            Settings arrives in S04 with theme, TTS speed, voice display, and account deletion controls.
-          </p>
+
+          {#if settingsStatus}
+            <p class={settingsStatusClass(settingsState)} role={settingsStatusRole(settingsState)}>
+              Settings status ({settingsPhase}): {settingsStatus}
+            </p>
+          {/if}
+          {#if settingsError}
+            <p class="error-message" role="alert">
+              Settings error ({settingsPhase}): {settingsError}
+            </p>
+          {/if}
+
+          <form class="settings-form" aria-label="Learner settings form" on:submit|preventDefault={saveSettings}>
+            <section class="settings-card" aria-labelledby="appearance-heading">
+              <div>
+                <p class="eyebrow">Appearance</p>
+                <h3 id="appearance-heading">Theme</h3>
+                <p class="settings-copy">
+                  Pick how MiraLingo should look for this learner account. System keeps following your device preference.
+                </p>
+              </div>
+              <fieldset class="theme-fieldset">
+                <legend>Choose theme</legend>
+                <label class="toggle-card">
+                  <input bind:group={settingsForm.theme} name="theme" type="radio" value="system" />
+                  <span>System</span>
+                  <small>Follow device preference</small>
+                </label>
+                <label class="toggle-card">
+                  <input bind:group={settingsForm.theme} name="theme" type="radio" value="light" />
+                  <span>Light</span>
+                  <small>Bright learner workspace</small>
+                </label>
+                <label class="toggle-card">
+                  <input bind:group={settingsForm.theme} name="theme" type="radio" value="dark" />
+                  <span>Dark</span>
+                  <small>Lower-glare learner workspace</small>
+                </label>
+              </fieldset>
+              <p class="settings-meta" role="status">Current saved theme: {currentThemeLabel(persistedSettings.theme)}</p>
+            </section>
+
+            <section class="settings-card" aria-labelledby="audio-settings-heading">
+              <div>
+                <p class="eyebrow">Audio</p>
+                <h3 id="audio-settings-heading">Speech speed</h3>
+                <p class="settings-copy">
+                  Choose the default playback speed for Mirad audio. New accounts start at 0.8x to keep speech intelligible.
+                </p>
+              </div>
+              <label class="settings-field" for="tts-speed-select">
+                Default TTS speed
+              </label>
+              <select id="tts-speed-select" bind:value={settingsForm.tts_speed} class="settings-select" name="tts-speed">
+                {#each SETTINGS_SPEED_OPTIONS as option}
+                  <option value={option}>{speedLabel(option)}</option>
+                {/each}
+              </select>
+              <p class="settings-meta" role="status">
+                Current saved speed: {speedLabel(persistedSettings.tts_speed)} · Default for fresh learners: 0.8x
+              </p>
+            </section>
+
+            <section class="settings-card" aria-labelledby="voice-heading">
+              <div>
+                <p class="eyebrow">Voice</p>
+                <h3 id="voice-heading">Current Mirad voice</h3>
+                <p class="settings-copy">
+                  MiraLingo currently offers one fixed synthesis voice. It is shown honestly here but cannot be changed yet.
+                </p>
+              </div>
+              <dl class="voice-grid" aria-label="Current voice metadata">
+                <div>
+                  <dt>Voice label</dt>
+                  <dd>{persistedSettings.voice.label}</dd>
+                </div>
+                <div>
+                  <dt>Voice id</dt>
+                  <dd>{persistedSettings.voice.id}</dd>
+                </div>
+                <div>
+                  <dt>Provider</dt>
+                  <dd>{persistedSettings.voice.provider}</dd>
+                </div>
+                <div>
+                  <dt>Selection</dt>
+                  <dd>{persistedSettings.voice.mutable ? "Adjustable" : "Single available voice"}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <div class="settings-actions">
+              <button class="primary-action" type="submit" disabled={settingsState === "saving" || settingsState === "loading"}>
+                {settingsState === "saving" ? "Saving…" : "Save settings"}
+              </button>
+            </div>
+          </form>
+
+          <section class="settings-card danger-zone" aria-labelledby="danger-zone-heading">
+            <div>
+              <p class="eyebrow">Danger zone</p>
+              <h3 id="danger-zone-heading">Delete current account</h3>
+              <p class="settings-copy">
+                Delete only the currently signed-in learner account after explicit confirmation. This also removes saved settings and practice history rows for that learner.
+              </p>
+            </div>
+
+            {#if deleteAccountStatus}
+              <p class="status-message" role="status">Account deletion status: {deleteAccountStatus}</p>
+            {/if}
+            {#if deleteAccountError}
+              <p class="error-message" role="alert">Account deletion error: {deleteAccountError}</p>
+            {/if}
+
+            {#if canDeleteCurrentAccount()}
+              <form class="delete-account-form" aria-label="Delete current account form" on:submit|preventDefault={submitDeleteAccount}>
+                <label class="settings-field" for="delete-account-username">Current username</label>
+                <input
+                  id="delete-account-username"
+                  class="settings-input"
+                  bind:value={deleteAccountUsername}
+                  autocomplete="username"
+                  name="delete-account-username"
+                />
+
+                <label class="settings-field" for="delete-account-confirmation">Type DELETE to confirm</label>
+                <input
+                  id="delete-account-confirmation"
+                  class="settings-input"
+                  bind:value={deleteAccountConfirmation}
+                  name="delete-account-confirmation"
+                />
+
+                <p class="settings-meta" role="status">
+                  You must confirm the current username ({user?.username}) and type DELETE before the account is removed.
+                </p>
+
+                <div class="settings-actions">
+                  <button class="danger-action" type="submit" disabled={deleteAccountState === "submitting"}>
+                    {deleteAccountState === "submitting" ? "Deleting…" : "Delete current account"}
+                  </button>
+                </div>
+              </form>
+            {:else}
+              <p class="status-message" role="status">
+                Account deletion is disabled for the local admin bootstrap user.
+              </p>
+            {/if}
+          </section>
         </section>
       {/if}
     </section>
