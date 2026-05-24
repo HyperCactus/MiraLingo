@@ -99,6 +99,9 @@ REQUIRED_TERMS = {
         "PYTHONPATH=packages/webapp/src python3 -m pytest packages/webapp/tests/test_m005_frontend_assembly_static.py -q",
         "PYTHONPATH=packages/webapp/src python3 packages/webapp/tests/verify_m005_s07_uat_doc.py",
         "npm --prefix packages/webapp/frontend run build",
+        "packages/webapp/tests/test_m005_final_learner_flow.py",
+        "packages/webapp/tests/test_m005_frontend_assembly_static.py",
+        "packages/webapp/tests/verify_m005_s07_uat_doc.py",
     ],
     "scope-reconciliation": [
         "R001",
@@ -107,6 +110,28 @@ REQUIRED_TERMS = {
         "legacy-orthography",
         "roadmap success criteria",
         "root-requirement status",
+        "outside the M005 learner-practice UX surface",
+    ],
+    "validation-remediation-round-1": [
+        "Validation remediation note",
+        "round-1 validation evidence remediation",
+        "round-1",
+        "audio/UAT references",
+    ],
+    "frontend-feedback-status": [
+        "Correct",
+        "Not quite",
+        "success/failure feedback",
+        "role=\"status\"",
+        "role=\"alert\"",
+        "playback-rate fallback",
+        "Audio uses your saved",
+    ],
+    "integrated-uat-evidence": [
+        "packages/webapp/docs/m005_s07_uat.md",
+        "tracked browser/manual acceptance artifact",
+        "integrated-UAT evidence stack",
+        "browser/manual evidence capture",
     ],
 }
 
