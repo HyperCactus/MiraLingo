@@ -9,8 +9,15 @@ from pathlib import Path
 from secrets import compare_digest, token_bytes
 from typing import Any
 
-from .auth import AuthUser, LEARNER_ROLE, _hash_password, normalize_username, validate_registration_inputs
+from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_USERNAME, _hash_password, normalize_username, validate_registration_inputs
 from .practice import MAX_EVENTS
+
+SUPPORTED_THEMES = ("light", "dark", "system")
+DEFAULT_THEME = "system"
+DEFAULT_TTS_SPEED = 0.8
+DEFAULT_VOICE_ID = "de6"
+DEFAULT_VOICE_LABEL = "Mirad de6"
+DEFAULT_VOICE_PROVIDER = "mbrola"
 
 
 class StorageError(RuntimeError):
@@ -91,6 +98,28 @@ class AnswerEventRecord:
             "expected_answer": self.expected_answer,
             "correct": self.correct,
             "answered_at": self.answered_at,
+        }
+
+
+@dataclass(frozen=True)
+class UserSettingsRecord:
+    """Durable learner settings plus fixed voice metadata."""
+
+    username: str
+    theme: str = DEFAULT_THEME
+    tts_speed: float = DEFAULT_TTS_SPEED
+    voice_id: str = DEFAULT_VOICE_ID
+
+    def public_dict(self) -> dict[str, Any]:
+        return {
+            "theme": self.theme,
+            "tts_speed": self.tts_speed,
+            "voice": {
+                "id": self.voice_id,
+                "label": DEFAULT_VOICE_LABEL,
+                "provider": DEFAULT_VOICE_PROVIDER,
+                "mutable": False,
+            },
         }
 
 
@@ -356,6 +385,86 @@ class MiraLingoStorage:
             raise StorageError(phase="practice_progress", detail="Could not list shown cards.") from exc
         return list(reversed([record for row in rows if (record := _shown_card_from_row(row)) is not None]))
 
+    def get_user_settings(self, *, username: str) -> UserSettingsRecord:
+        """Return one learner's durable settings, creating defaults on first access."""
+        normalized_username = _require_username(username, phase="settings_get")
+        try:
+            with self._connect("settings_get") as connection:
+                self._ensure_user_settings_row(connection, normalized_username)
+                row = connection.execute(
+                    """
+                    SELECT username, theme, tts_speed, voice_id
+                    FROM user_settings
+                    WHERE username = ?
+                    """,
+                    (normalized_username,),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="settings_get", detail="Could not read settings.") from exc
+
+        if row is None:
+            return UserSettingsRecord(username=normalized_username)
+        return UserSettingsRecord(
+            username=str(row["username"]),
+            theme=str(row["theme"] or DEFAULT_THEME),
+            tts_speed=float(row["tts_speed"]),
+            voice_id=str(row["voice_id"] or DEFAULT_VOICE_ID),
+        )
+
+    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float) -> UserSettingsRecord:
+        """Create or update durable learner settings for supported theme/speed values."""
+        normalized_username = _require_username(username, phase="settings_update")
+        normalized_theme = _require_theme(theme, phase="settings_update")
+        normalized_speed = _require_tts_speed(tts_speed, phase="settings_update")
+        try:
+            with self._connect("settings_update") as connection:
+                self._ensure_user_settings_row(connection, normalized_username)
+                connection.execute(
+                    """
+                    UPDATE user_settings
+                    SET theme = ?, tts_speed = ?, voice_id = ?
+                    WHERE username = ?
+                    """,
+                    (normalized_theme, normalized_speed, DEFAULT_VOICE_ID, normalized_username),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="settings_update", detail="Could not update settings.") from exc
+        return UserSettingsRecord(
+            username=normalized_username,
+            theme=normalized_theme,
+            tts_speed=normalized_speed,
+            voice_id=DEFAULT_VOICE_ID,
+        )
+
+    def delete_user_account(self, *, username: str) -> bool:
+        """Delete a learner account and owned rows via foreign-key cascades."""
+        normalized_username = _require_username(username, phase="account_delete")
+        if normalized_username == LOCAL_ADMIN_USERNAME:
+            raise StorageError(
+                phase="account_delete",
+                detail="The local admin account cannot be deleted.",
+                error="protected_account",
+            )
+        try:
+            with self._connect("account_delete") as connection:
+                deleted = connection.execute(
+                    "DELETE FROM users WHERE username = ?",
+                    (normalized_username,),
+                ).rowcount
+        except sqlite3.Error as exc:
+            raise StorageError(phase="account_delete", detail="Could not delete account.") from exc
+        return bool(deleted)
+
+    def _ensure_user_settings_row(self, connection: sqlite3.Connection, username: str) -> None:
+        connection.execute(
+            """
+            INSERT INTO user_settings (username, theme, tts_speed, voice_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(username) DO NOTHING
+            """,
+            (username, DEFAULT_THEME, DEFAULT_TTS_SPEED, DEFAULT_VOICE_ID),
+        )
+
     def _initialize_schema(self) -> None:
         try:
             self.database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -399,6 +508,14 @@ class MiraLingoStorage:
                         FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
                     );
 
+                    CREATE TABLE IF NOT EXISTS user_settings (
+                        username TEXT PRIMARY KEY,
+                        theme TEXT NOT NULL DEFAULT 'system' CHECK(theme IN ('light', 'dark', 'system')),
+                        tts_speed REAL NOT NULL DEFAULT 0.8 CHECK(tts_speed > 0 AND tts_speed <= 2.0),
+                        voice_id TEXT NOT NULL DEFAULT 'de6',
+                        FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
                     CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
                     CREATE INDEX IF NOT EXISTS idx_shown_cards_user_time ON shown_cards(username, shown_at);
                     CREATE INDEX IF NOT EXISTS idx_shown_cards_user_card ON shown_cards(username, card_id);
@@ -408,6 +525,7 @@ class MiraLingoStorage:
                 )
                 _ensure_column(connection, "shown_cards", "prompt_language", "TEXT NOT NULL DEFAULT ''")
                 _ensure_column(connection, "shown_cards", "answer_language", "TEXT NOT NULL DEFAULT ''")
+                _ensure_column(connection, "user_settings", "voice_id", "TEXT NOT NULL DEFAULT 'de6'")
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc
         except OSError as exc:
@@ -443,6 +561,31 @@ def _require_username(username: str, *, phase: str) -> str:
     if normalized is None:
         raise StorageError(phase=phase, detail="A non-blank username is required.", error="invalid_username")
     return normalized
+
+
+def _require_theme(theme: str, *, phase: str) -> str:
+    normalized = str(theme or "").strip().lower()
+    if normalized not in SUPPORTED_THEMES:
+        raise StorageError(phase=phase, detail="Theme must be one of: light, dark, system.", error="invalid_theme")
+    return normalized
+
+
+def _require_tts_speed(tts_speed: float, *, phase: str) -> float:
+    try:
+        numeric = float(tts_speed)
+    except (TypeError, ValueError) as exc:
+        raise StorageError(
+            phase=phase,
+            detail="TTS speed must be a number between 0 and 2.0.",
+            error="invalid_tts_speed",
+        ) from exc
+    if numeric <= 0 or numeric > 2.0:
+        raise StorageError(
+            phase=phase,
+            detail="TTS speed must be a number between 0 and 2.0.",
+            error="invalid_tts_speed",
+        )
+    return numeric
 
 
 def _utcnow_iso() -> str:

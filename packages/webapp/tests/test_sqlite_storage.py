@@ -241,6 +241,69 @@ def test_storage_errors_carry_stable_phase_payloads(tmp_path: Path) -> None:
     }
 
 
+def test_storage_user_settings_default_update_and_delete_cascade(tmp_path: Path) -> None:
+    database_path = tmp_path / "settings.sqlite3"
+    storage = MiraLingoStorage(database_path)
+    assert storage.register_account(username="mira", password="correct-password")[0] is not None
+    assert storage.register_account(username="sara", password="correct-password")[0] is not None
+
+    defaults = storage.get_user_settings(username="mira")
+    updated = storage.upsert_user_settings(username="mira", theme="dark", tts_speed=0.9)
+    storage.record_card_shown(
+        username="mira",
+        card_id="phrase:hello-world#english-to-mirad",
+        base_card_id="phrase:hello-world",
+        direction="english_to_mirad",
+        card_type="phrase",
+        shown_at=NOW,
+    )
+    storage.append_answer_event(
+        username="mira",
+        card_id="phrase:hello-world#english-to-mirad",
+        base_card_id="phrase:hello-world",
+        direction="english_to_mirad",
+        card_type="phrase",
+        submitted_answer="ha world",
+        expected_answer="ha world",
+        correct=True,
+        answered_at=NOW,
+    )
+    storage.upsert_user_settings(username="sara", theme="light", tts_speed=1.0)
+
+    assert defaults.public_dict() == {
+        "theme": "system",
+        "tts_speed": 0.8,
+        "voice": {"id": "de6", "label": "Mirad de6", "provider": "mbrola", "mutable": False},
+    }
+    assert updated.public_dict()["theme"] == "dark"
+    assert updated.public_dict()["tts_speed"] == 0.9
+    assert storage.delete_user_account(username="mira") is True
+    assert storage.delete_user_account(username="ghost") is False
+
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM users WHERE username = 'mira'").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM user_settings WHERE username = 'mira'").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM shown_cards WHERE username = 'mira'").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM answer_events WHERE username = 'mira'").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM users WHERE username = 'sara'").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM user_settings WHERE username = 'sara'").fetchone()[0] == 1
+
+
+def test_delete_user_account_rejects_local_admin(tmp_path: Path) -> None:
+    storage = MiraLingoStorage(tmp_path / "settings.sqlite3")
+    storage.ensure_session_user(username="admin", role="admin", phase="settings_get")
+
+    with pytest.raises(StorageError) as exc_info:
+        storage.delete_user_account(username="admin")
+
+    assert exc_info.value.public_payload() == {
+        "ok": False,
+        "error": "protected_account",
+        "phase": "account_delete",
+        "detail": "The local admin account cannot be deleted.",
+    }
+
+
 def test_storage_init_error_uses_storage_init_phase(tmp_path: Path) -> None:
     database_directory = tmp_path / "directory.sqlite3"
     database_directory.mkdir()

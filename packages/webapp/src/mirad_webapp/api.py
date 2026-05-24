@@ -7,7 +7,7 @@ from typing import Any, Literal
 from fastapi import FastAPI, Query, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.sessions import SessionMiddleware
 
 from .audio import AudioFailure, synthesize_card_audio
@@ -15,6 +15,7 @@ from .auth import (
     LOCAL_ADMIN_USERNAME,
     SESSION_USER_KEY,
     authenticate_local_admin,
+    normalize_username,
     registered_login_error,
     serialize_user,
     user_from_session,
@@ -54,6 +55,24 @@ class RegisterRequest(BaseModel):
 
     username: str
     password: str
+
+
+class UserSettingsUpdateRequest(BaseModel):
+    """Validated learner settings update payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    theme: Literal["light", "dark", "system"]
+    tts_speed: float = Field(gt=0, le=2.0)
+
+
+class DeleteAccountRequest(BaseModel):
+    """Destructive account deletion confirmation payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    username: str
+    confirmation: str
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -138,6 +157,60 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             content={"authenticated": True, "user": user.public_dict()},
         )
 
+    @app.get("/settings", tags=["settings"])
+    def get_settings(request: Request) -> JSONResponse:
+        """Return durable learner settings for the authenticated session."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "settings_get",
+                    "detail": "Login is required to view settings.",
+                },
+            )
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            storage.ensure_session_user(username=user.username, role=user.role, phase="settings_get")
+            settings_record = storage.get_user_settings(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"ok": True, "phase": "settings_get", "settings": settings_record.public_dict()},
+        )
+
+    @app.put("/settings", tags=["settings"])
+    def update_settings(request: Request, payload: UserSettingsUpdateRequest) -> JSONResponse:
+        """Persist durable learner settings for the authenticated session."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "settings_update",
+                    "detail": "Login is required to update settings.",
+                },
+            )
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            storage.ensure_session_user(username=user.username, role=user.role, phase="settings_update")
+            settings_record = storage.upsert_user_settings(
+                username=user.username,
+                theme=payload.theme,
+                tts_speed=payload.tts_speed,
+            )
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"ok": True, "phase": "settings_update", "settings": settings_record.public_dict()},
+        )
+
     @app.post("/auth/register", tags=["auth"])
     def register(request: Request, registration: RegisterRequest) -> JSONResponse:
         """Register a learner account in durable SQLite storage and log it in."""
@@ -199,6 +272,57 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         """Clear the active session."""
         request.session.pop(SESSION_USER_KEY, None)
         return {"authenticated": False}
+
+    @app.delete("/auth/account", tags=["auth"])
+    def delete_account(request: Request, payload: DeleteAccountRequest) -> JSONResponse:
+        """Delete the current learner account after explicit confirmation."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "account_delete",
+                    "detail": "Login is required to delete the current account.",
+                },
+            )
+        if user.username == LOCAL_ADMIN_USERNAME:
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={
+                    "ok": False,
+                    "error": "protected_account",
+                    "phase": "account_delete",
+                    "detail": "The local admin account cannot be deleted.",
+                },
+            )
+        if payload.confirmation != "DELETE" or normalize_username(payload.username) != user.username:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={
+                    "ok": False,
+                    "error": "invalid_confirmation",
+                    "phase": "account_delete",
+                    "detail": "Account deletion requires confirmation='DELETE' and the current username.",
+                },
+            )
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            storage.delete_user_account(username=user.username)
+        except StorageError as exc:
+            status_code = status.HTTP_403_FORBIDDEN if exc.error == "protected_account" else status.HTTP_503_SERVICE_UNAVAILABLE
+            return storage_failure_response(exc, status_code=status_code)
+        request.session.pop(SESSION_USER_KEY, None)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "ok": True,
+                "phase": "account_delete",
+                "deleted_username": user.username,
+                "authenticated": False,
+            },
+        )
 
     @app.get("/practice/queue", tags=["practice"])
     def practice_queue(
@@ -296,7 +420,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 },
             )
         try:
+            request.app.state.storage.ensure_session_user(username=user.username, role=user.role, phase="audio_synthesis")
+            settings_record = request.app.state.storage.get_user_settings(username=user.username)
             result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+        except StorageError as exc:
+            return storage_failure_response(exc)
         except CardContentSourceMissingError as exc:
             payload = error_to_payload(exc)
             payload.update({"phase": "audio_synthesis", "backend": "mbrola", "card_id": card_id})
@@ -315,6 +443,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "X-MiraLingo-Audio-Phase": audio_result.diagnostics["phase"],
             "X-MiraLingo-Audio-Backend": audio_result.diagnostics["backend"],
             "X-MiraLingo-Card-Id": audio_result.diagnostics["card_id"],
+            "X-MiraLingo-TTS-Speed": str(settings_record.tts_speed),
+            "X-MiraLingo-Voice-Id": settings_record.voice_id,
         }
         return Response(
             content=audio_result.wav_bytes,
