@@ -38,6 +38,19 @@ REQUIRED_COMPLETED_PHRASES = {
     "S09": ["browser UAT", "audio", "progress", "Completed evidence"],
 }
 
+REQUIRED_RECONCILIATION_PHRASES = [
+    "## Requirement Scope Reconciliation",
+    "zero Active requirements",
+    "validated non-webapp tokenizer requirements",
+    "R001 is already validated tokenizer behavior",
+    "R009 is already validated tokenizer rejection",
+    "tokenizer foundation",
+    "no M004 webapp slice owns or revalidates R001",
+    "no M004 webapp slice owns or revalidates R009",
+    "does not invent new requirement identifiers",
+    "M004 validation maps the milestone acceptance criteria",
+]
+
 PLACEHOLDER_RE = re.compile(r"\b(TBD|TODO|FIXME|XXX)\b", re.IGNORECASE)
 
 
@@ -81,6 +94,9 @@ def test_m004_scope_boundary_contract_tracks_s07_s08_s09_completion() -> None:
 
     for slice_id, phrases in REQUIRED_COMPLETED_PHRASES.items():
         row = _row_for_slice(text, slice_id)
+        assert "pending remediation" not in row.lower(), (
+            f"{slice_id} row regressed to pending remediation instead of completed evidence: {row}"
+        )
         for phrase in phrases:
             assert phrase.lower() in row.lower(), f"Missing {phrase!r} in {slice_id} completed row: {row}"
 
@@ -88,23 +104,23 @@ def test_m004_scope_boundary_contract_tracks_s07_s08_s09_completion() -> None:
 def test_m004_scope_boundary_contract_has_no_stale_s07_s09_pending_wording() -> None:
     text = _read_contract().lower()
 
-    assert "pending remediation" not in text
-    assert "s07 must" not in text
-    assert "s08 must" not in text
-    assert "s09 must" not in text
+    assert "pending remediation" not in text, "Scope contract still contains stale pending-remediation wording"
+    assert "s07 must" not in text, "S07 should be completed evidence, not future remediation"
+    assert "s08 must" not in text, "S08 should be completed evidence, not future remediation"
+    assert "s09 must" not in text, "S09 should be completed evidence, not future remediation"
 
 
 def test_m004_scope_boundary_contract_states_requirement_source_truth() -> None:
     text = _read_contract()
 
-    assert "no Active requirements" in text
-    assert "R001" in text
-    assert "R009" in text
-    assert "non-webapp tokenizer requirements" in text
-    assert "does not invent new requirement identifiers" in text
-    assert "Requirement Scope Reconciliation" in text
-    assert "foundation" in text
-    assert "M004 webapp ownership" in text
+    for phrase in REQUIRED_RECONCILIATION_PHRASES:
+        assert phrase in text, f"Missing requirement reconciliation source-truth phrase: {phrase!r}"
+
+    assert text.count("R001") >= 3, "R001 must be named in status, reconciliation, and validation rules"
+    assert text.count("R009") >= 3, "R009 must be named in status, reconciliation, and validation rules"
+    assert "M004 validation should cover the milestone acceptance criteria" in text, (
+        "M004 validation must map acceptance criteria instead of synthetic requirement IDs"
+    )
 
 
 def test_m004_scope_boundary_contract_has_no_placeholder_tokens() -> None:
