@@ -110,13 +110,14 @@ def test_s03_frontend_source_contains_practice_fetch_and_submit_affordances() ->
     authenticated_branch = frontend_source.split('{#if authState === "authenticated"}', maxsplit=1)[1].split("{:else}", maxsplit=1)[0]
     logged_out_branch = frontend_source.split("{:else}", maxsplit=1)[1]
 
-    assert "fetch(\"/practice/queue" in frontend_source
+    assert 'let queueUrl = "/practice/queue?mode=mixed&limit=3";' in frontend_source
+    assert 'fetch(queueUrl, { headers: { Accept: "application/json" } })' in frontend_source
     assert "fetch(\"/practice/answers" in frontend_source
-    assert "Practice queue" in authenticated_branch
+    assert "{practiceTitle()}" in authenticated_branch
     assert "Submit answer" in authenticated_branch
-    assert "I knew it" in authenticated_branch
-    assert "I missed it" in authenticated_branch
-    assert "disabled={answerSubmitting}" in authenticated_branch
+    assert "Type your answer" in authenticated_branch
+    assert "Give up" in authenticated_branch
+    assert "disabled={answerSubmitting || answerResult !== null}" in authenticated_branch
     assert "Your session expired" in frontend_source
     assert "No practice cards are available" in frontend_source
     assert "scheduler_reason" in authenticated_branch

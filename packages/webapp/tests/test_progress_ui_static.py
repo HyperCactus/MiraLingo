@@ -21,7 +21,7 @@ def _logged_out_branch() -> str:
 
 
 def _primary_practice_section() -> str:
-    return _authenticated_branch().split('{#if activeSection === "practice"}', maxsplit=1)[1].split('{#if activeSection === "revision"}', maxsplit=1)[0]
+    return _authenticated_branch().split('{#if activeSection === "practice" || activeSection === "revision" || activeSection === "build_vocabulary"}', maxsplit=1)[1].split('{#if activeSection === "analytics"}', maxsplit=1)[0]
 
 
 def _function_block(source: str, function_name: str) -> str:
@@ -47,7 +47,7 @@ def test_authenticated_practice_loop_renders_flashcard_not_progress_dashboard() 
     primary_practice_section = _primary_practice_section()
 
     assert 'class="practice-panel" aria-labelledby="practice-heading"' in primary_practice_section
-    assert "Practice queue" in primary_practice_section
+    assert "{practiceTitle()}" in primary_practice_section
     assert "Refresh queue" in primary_practice_section
     assert "Practice stats" not in primary_practice_section
     assert "Session progress" not in primary_practice_section

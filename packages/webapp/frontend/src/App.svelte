@@ -77,6 +77,13 @@
 
   const SETTINGS_SPEED_OPTIONS = [0.7, 0.8, 0.9, 1.0, 1.1];
 
+  const ICONIFY_STOPWORDS = new Set(["the", "a", "an", "to", "of", "and", "for", "in", "on", "at", "my", "your"]);
+  const ICONIFY_ALLOWED_COLLECTIONS = new Set(["mdi", "ph", "tabler", "solar", "lucide", "healthicons", "fluent-emoji-flat"]);
+  const ICONIFY_ICON_NAME_PATTERN = /^[a-z0-9-]+:[a-z0-9-]+$/;
+  const ICONIFY_TIMEOUT_MS = 2500;
+  const ICONIFY_SEARCH_LIMIT = 6;
+  const iconCache = new Map();
+
   let username = "admin";
   let password = "";
   let registerUsername = "";
@@ -99,6 +106,15 @@
   let answerError = "";
   let answerResult = null;
   let activeCardId = null;
+
+  let iconStatus = "idle";
+  let iconError = "";
+  let iconDiagnostic = "";
+  let iconImageUrl = "";
+  let iconAlt = "";
+  let iconFallbackGlyph = "◌";
+  let iconMetadata = null;
+  let iconLookupKey = "";
 
   let audioState = "idle";
   let audioMessage = "";
@@ -149,6 +165,17 @@
     answerResult = null;
   };
 
+  const resetIconState = () => {
+    iconStatus = "idle";
+    iconError = "";
+    iconDiagnostic = "";
+    iconImageUrl = "";
+    iconAlt = "";
+    iconFallbackGlyph = "◌";
+    iconMetadata = null;
+    iconLookupKey = "";
+  };
+
   const resetPracticeSurface = () => {
     resetAudioState();
     resetAnswerState();
@@ -158,6 +185,7 @@
     currentCard = null;
     activeCardId = null;
     lastAudioCardId = null;
+    resetIconState();
   };
 
   const resetAnalyticsSurface = () => {
@@ -258,6 +286,155 @@
   const promptLabel = (card) => `${languageLabel(card?.prompt_language)} prompt`;
   const answerLabel = (card) => `${languageLabel(card?.answer_language)} answer`;
   const answerInputLabel = (card) => `Type the ${languageLabel(card?.answer_language)} answer`;
+  const stableIconCardKey = (card) =>
+    `${card?.audio_card_id ?? card?.base_card_id ?? card?.id ?? "card"}:${String(card?.prompt ?? "").trim().toLowerCase()}`;
+  const iconFallbackGlyphForCard = (card) => (card?.type === "phrase" ? "❐" : "◌");
+
+  function extractIconKeywords(card) {
+    const prompt = String(card?.prompt ?? "").toLowerCase();
+    const typeHint = String(card?.type ?? "").toLowerCase();
+    const directionHint = String(card?.direction ?? "").toLowerCase();
+    const keywords = `${prompt} ${typeHint} ${directionHint}`
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean)
+      .filter((token) => !ICONIFY_STOPWORDS.has(token))
+      .filter((token) => token.length > 1)
+      .slice(0, 3);
+    return keywords;
+  }
+
+  function isAllowedIconName(name) {
+    if (!ICONIFY_ICON_NAME_PATTERN.test(name)) return false;
+    const [collection, icon] = name.split(":");
+    return ICONIFY_ALLOWED_COLLECTIONS.has(collection) && Boolean(icon);
+  }
+
+  function iconSvgUrl(iconName) {
+    const [collection, icon] = iconName.split(":");
+    // data:image/svg+xml fallbacks stay disabled here; we only render encoded Iconify SVG URLs in <img>.
+    return `https://api.iconify.design/${encodeURIComponent(collection)}/${encodeURIComponent(icon)}.svg?color=%231d4ed8`;
+  }
+
+  function applyIconState(nextState) {
+    iconStatus = nextState.status;
+    iconError = nextState.error ?? "";
+    iconDiagnostic = nextState.diagnostic ?? "";
+    iconImageUrl = nextState.iconImageUrl ?? "";
+    iconAlt = nextState.iconAlt ?? "";
+    iconFallbackGlyph = nextState.fallbackGlyph ?? "◌";
+    iconMetadata = nextState.metadata ?? null;
+    iconLookupKey = nextState.lookupKey ?? "";
+  }
+
+  function fallbackIconState(card, lookupKey, reason, diagnostic = "") {
+    return {
+      status: "fallback",
+      error: "",
+      diagnostic,
+      iconImageUrl: "",
+      iconAlt: "",
+      fallbackGlyph: iconFallbackGlyphForCard(card),
+      lookupKey,
+      metadata: { reason, lookupKey, prompt: card?.prompt ?? "", type: card?.type ?? "unknown" },
+    };
+  }
+
+  function errorIconState(card, lookupKey, reason, diagnostic = "") {
+    return {
+      status: "error",
+      error: reason,
+      diagnostic,
+      iconImageUrl: "",
+      iconAlt: "",
+      fallbackGlyph: iconFallbackGlyphForCard(card),
+      lookupKey,
+      metadata: { reason, lookupKey, prompt: card?.prompt ?? "", type: card?.type ?? "unknown" },
+    };
+  }
+
+  async function loadCardIcon(card) {
+    if (!card) {
+      resetIconState();
+      return;
+    }
+
+    const lookupKey = stableIconCardKey(card);
+    const keywords = extractIconKeywords(card);
+
+    applyIconState({
+      status: "loading",
+      error: "",
+      diagnostic: keywords.length ? `keywords=${keywords.join(",")}` : "",
+      iconImageUrl: "",
+      iconAlt: "",
+      fallbackGlyph: iconFallbackGlyphForCard(card),
+      lookupKey,
+      metadata: { lookupKey, prompt: card.prompt ?? "", keywords, type: card.type ?? "unknown" },
+    });
+
+    if (!keywords.length) {
+      iconStatus = "fallback";
+      const fallbackState = fallbackIconState(card, lookupKey, "No icon keywords", "prompt keywords empty after filtering");
+      iconCache.set(lookupKey, fallbackState);
+      applyIconState(fallbackState);
+      return;
+    }
+
+    if (iconCache.has(lookupKey)) {
+      applyIconState(iconCache.get(lookupKey));
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), ICONIFY_TIMEOUT_MS);
+
+    try {
+      const query = encodeURIComponent(keywords.join(" "));
+      const response = await fetch(`https://api.iconify.design/search?query=${query}&limit=${ICONIFY_SEARCH_LIMIT}`, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      });
+      const payload = await readJson(response);
+      const icons = Array.isArray(payload?.icons) ? payload.icons : [];
+      const matchedIcon = icons.find((name) => isAllowedIconName(name));
+
+      let nextState;
+      if (!response.ok) {
+        nextState = errorIconState(card, lookupKey, "Iconify lookup failed", `status=${response.status}`);
+      } else if (!Array.isArray(payload?.icons)) {
+        nextState = fallbackIconState(card, lookupKey, "No icon results", "missing icons array");
+      } else if (!matchedIcon) {
+        nextState = fallbackIconState(card, lookupKey, "No icon results", `icons=${icons.length}`);
+      } else {
+        nextState = {
+          status: "matched",
+          error: "",
+          diagnostic: `matched=${matchedIcon}`,
+          iconImageUrl: iconSvgUrl(matchedIcon),
+          iconAlt: `${card.prompt} icon`,
+          fallbackGlyph: iconFallbackGlyphForCard(card),
+          lookupKey,
+          metadata: { lookupKey, iconName: matchedIcon, keywords, prompt: card.prompt ?? "", type: card.type ?? "unknown" },
+        };
+      }
+
+      iconCache.set(lookupKey, nextState);
+      if (stableIconCardKey(currentCard) === lookupKey) {
+        applyIconState(nextState);
+      }
+    } catch (error) {
+      const aborted = error?.name === "AbortError" || controller.signal.aborted;
+      const nextState = aborted
+        ? errorIconState(card, lookupKey, "Icon lookup timed out", "AbortError")
+        : errorIconState(card, lookupKey, "Icon lookup failed", error?.message ?? "request rejected");
+      iconCache.set(lookupKey, nextState);
+      if (stableIconCardKey(currentCard) === lookupKey) {
+        applyIconState(nextState);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
   const formatPercent = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "n/a");
   const formatCount = (value) => (typeof value === "number" ? value : "n/a");
   const hasAnalyticsSummary = (payload) =>
@@ -846,6 +1023,12 @@ async function loadAnalytics() {
     lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;
   }
 
+  $: if (currentCard?.id) {
+    loadCardIcon(currentCard);
+  } else {
+    resetIconState();
+  }
+
   $: applyTheme(settingsForm.theme);
 
   loadCurrentUser();
@@ -943,7 +1126,27 @@ async function loadAnalytics() {
                 <span>Reason: {currentCard.scheduler_reason}</span>
               </div>
               <p class="prompt-label">{promptLabel(currentCard)}</p>
-              <p class="prompt-text">{currentCard.prompt}</p>
+              <div class="card-icon-row">
+                <div class={`card-icon-frame card-icon-${iconStatus}`} aria-hidden={iconStatus === "matched" ? "false" : "true"}>
+                  {#if iconStatus === "matched" && iconImageUrl}
+                    <img class="card-icon-image" src={iconImageUrl} alt={iconAlt} />
+                  {/if}
+                  {#if iconStatus !== "matched" || !iconImageUrl}
+                    <span class="card-icon-fallback">{iconFallbackGlyph}</span>
+                  {/if}
+                </div>
+                <div class="card-icon-copy">
+                  <p class="prompt-text">{currentCard.prompt}</p>
+                  <p class="icon-status" role="status">
+                    Iconify status: {iconStatus}
+                    {#if iconError}
+                      <span class="icon-diagnostic"> · {iconError}</span>
+                    {:else if iconDiagnostic}
+                      <span class="icon-diagnostic"> · {iconDiagnostic}</span>
+                    {/if}
+                  </p>
+                </div>
+              </div>
 
               <div class="audio-row" aria-label="Mirad answer audio">
                 <button

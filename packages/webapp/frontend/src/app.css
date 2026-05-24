@@ -703,6 +703,69 @@ summary:focus-visible,
   letter-spacing: -0.06em;
 }
 
+.card-icon-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.card-icon-copy {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.card-icon-frame {
+  display: grid;
+  place-items: center;
+  width: clamp(4rem, 9vw, 5.5rem);
+  height: clamp(4rem, 9vw, 5.5rem);
+  border-radius: 1.35rem;
+  border: 1px solid var(--border-accent);
+  background: linear-gradient(180deg, rgba(191, 219, 254, 0.38), rgba(255, 255, 255, 0.88));
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.12);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .card-icon-frame {
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.28), rgba(15, 23, 42, 0.9));
+}
+
+.card-icon-matched {
+  border-color: var(--border-strong);
+}
+
+.card-icon-fallback,
+.card-icon-image {
+  width: 72%;
+  height: 72%;
+}
+
+.card-icon-image {
+  object-fit: contain;
+}
+
+.card-icon-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--accent-strong);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 900;
+}
+
+.icon-status {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.icon-diagnostic {
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
 .answer-form,
 .settings-form,
 .delete-account-form {
@@ -949,6 +1012,15 @@ summary:focus-visible,
   .practice-header,
   .settings-actions {
     align-items: stretch;
+  }
+
+  .card-icon-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-icon-frame {
+    width: 4.5rem;
+    height: 4.5rem;
   }
 
   .primary-action,

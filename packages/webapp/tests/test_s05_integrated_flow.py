@@ -106,12 +106,12 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert queue_payload["base_card_count"] == 4
     assert queue_payload["event_count"] == 0
     assert {card["type"] for card in queue_payload["cards"]} == {"phrase", "word"}
-    assert {card["direction"] for card in queue_payload["cards"]} == {"english_to_mirad", "mirad_to_english"}
+    assert {card["direction"] for card in queue_payload["cards"]} == {"english_to_mirad"}
     assert [card["id"] for card in queue_payload["cards"]] == [
         "phrase:hello-world#english-to-mirad",
-        "phrase:hello-world#mirad-to-english",
         "word:the#english-to-mirad",
-        "word:the#mirad-to-english",
+        "phrase:good-morning#english-to-mirad",
+        "word:be#english-to-mirad",
     ]
 
     current_card = queue_payload["cards"][0]
@@ -230,10 +230,10 @@ def test_s05_browser_visible_source_affordances_exist() -> None:
         "Learner registration",
         "Practice queue",
         "Hear Mirad answer",
-        "Practice stats",
-        "Practice progress summary",
-        "Progress by card type",
-        "Latest answer",
-        "Log out",
+        "Analytics",
+        "Progress diagnostics",
+        "Build Vocabulary",
+        "Settings",
+        "Log Out",
     ]:
         assert expected_label in source

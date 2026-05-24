@@ -35,7 +35,7 @@ def test_frontend_welcome_text_is_present() -> None:
     assert "Welcome to MiraLingo" in contents
     assert "Mirad pronunciation, translation, and vocabulary" in contents
     assert "Create account" in contents
-    assert "../../README.md" in contents
+    assert "Mirad writing notes" in contents
 
 
 def test_frontend_auth_states_and_error_copy_are_wired() -> None:
@@ -73,19 +73,21 @@ def test_frontend_registration_source_affordance_is_wired() -> None:
 
     contents = app_source.read_text(encoding="utf-8")
     logged_out_branch = contents.split("{:else}", maxsplit=1)[1]
-    logout_body = contents.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeProgress", maxsplit=1)[0]
+    logout_body = contents.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeQueue", maxsplit=1)[0]
 
     assert 'async function submitRegistration()' in contents
     assert 'fetch("/auth/register", {' in contents
     assert '"Content-Type": "application/json"' in contents
     assert 'body: JSON.stringify({ username: registerUsername, password: registerPassword })' in contents
-    assert 'await loadPracticeQueue();' in contents.split("async function submitRegistration()", maxsplit=1)[1].split("async function logout", maxsplit=1)[0]
+    registration_body = contents.split("async function submitRegistration()", maxsplit=1)[1].split("async function logout", maxsplit=1)[0]
+    assert 'activeSection = "menu"' in registration_body
+    assert 'await loadSettings({ force: true });' in registration_body
     assert 'aria-label="Learner registration"' in logged_out_branch
     assert 'autocomplete="new-password"' in logged_out_branch
     assert 'Passwords are never echoed in errors.' in logged_out_branch
-    assert 'registerUsername = "";' in logout_body
-    assert 'registerPassword = "";' in logout_body
-    assert 'username = "admin";' in logout_body
+    assert 'clearAuthenticatedAppState();' in logout_body
+    assert 'resetPracticeSurface();' in logout_body
+    assert 'resetSettingsSurface();' in logout_body
 
 
 def test_frontend_practice_direction_labels_are_helper_based() -> None:
@@ -101,6 +103,6 @@ def test_frontend_practice_direction_labels_are_helper_based() -> None:
     assert 'return "practice";' in contents
     assert 'Direction: {directionLabel(currentCard)}' in authenticated_branch
     assert '{promptLabel(currentCard)}' in authenticated_branch
-    assert 'Show {answerLabel(currentCard)}' in authenticated_branch
+    assert '{answerInputLabel(currentCard)}' in authenticated_branch
     assert 'English prompt' not in authenticated_branch
     assert 'Show Mirad answer' not in authenticated_branch
