@@ -24,7 +24,7 @@ def _login(client: TestClient) -> None:
 
 
 def test_practice_queue_requires_authenticated_session(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
     client = TestClient(app)
 
     response = client.get("/practice/queue")
@@ -45,7 +45,7 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
     client = TestClient(app)
     _login(client)
 
@@ -86,7 +86,7 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
     client = TestClient(app)
     _login(client)
 
@@ -116,7 +116,7 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
 
 
 def test_practice_answer_requires_authenticated_session(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
     client = TestClient(app)
 
     response = client.post("/practice/answers", json={"card_id": "phrase:hello-world", "correct": True})
@@ -133,7 +133,7 @@ def test_practice_answer_requires_authenticated_session(tmp_path: Path) -> None:
 def test_practice_answer_unknown_card_returns_404_without_appending_event(monkeypatch, tmp_path: Path) -> None:
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: None)
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
     client = TestClient(app)
     _login(client)
 
@@ -154,7 +154,7 @@ def test_practice_answer_unknown_card_returns_404_without_appending_event(monkey
 
 
 def test_practice_invalid_limit_returns_practice_validation_payload(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
     client = TestClient(app)
     _login(client)
 
@@ -171,7 +171,7 @@ def test_practice_invalid_limit_returns_practice_validation_payload(tmp_path: Pa
 
 def test_practice_queue_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:
     missing_csv = tmp_path / "missing.csv"
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=missing_csv))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=missing_csv))
     client = TestClient(app)
     _login(client)
 

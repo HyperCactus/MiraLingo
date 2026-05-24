@@ -65,7 +65,7 @@ def _app_with_deterministic_cards(monkeypatch: Any, tmp_path: Path):
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
     _install_fake_mbrola(monkeypatch, {"ha world", "gud morgen", "te", "bi"})
-    return create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv))
+    return create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv, database_path=tmp_path / "miralingo.sqlite3"))
 
 
 def _signed_session_cookie(secret: str, payload: dict[str, Any]) -> str:

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from mirad_webapp.api import create_app
@@ -10,8 +12,14 @@ def assert_no_secret_material(response_text: str, *secrets: str) -> None:
     assert "password_hash" not in response_text
 
 
-def test_local_admin_can_login_in_development() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def _settings(tmp_path: Path, **overrides) -> Settings:
+    values = {"environment": "development", "enable_local_admin": True, "database_path": tmp_path / "miralingo.sqlite3"}
+    values.update(overrides)
+    return Settings(**values)
+
+
+def test_local_admin_can_login_in_development(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
 
     response = client.post("/auth/login", json={"username": "admin", "password": "admin"})
 
@@ -29,8 +37,8 @@ def test_local_admin_can_login_in_development() -> None:
     }
 
 
-def test_register_logs_in_learner_then_logout_and_login_restore_session() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_register_logs_in_learner_then_logout_and_login_restore_session(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     password = "learner-password-1"
 
     registration = client.post("/auth/register", json={"username": " Mira ", "password": password})
@@ -63,8 +71,8 @@ def test_register_logs_in_learner_then_logout_and_login_restore_session() -> Non
     assert_no_secret_material(login.text, password)
 
 
-def test_registration_validation_errors_do_not_create_sessions_or_accounts() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_registration_validation_errors_do_not_create_sessions_or_accounts(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
 
     missing_password = client.post("/auth/register", json={"username": "mira"})
     assert missing_password.status_code == 422
@@ -99,8 +107,8 @@ def test_registration_validation_errors_do_not_create_sessions_or_accounts() -> 
     }
 
 
-def test_duplicate_registration_is_rejected_without_replacing_password() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_duplicate_registration_is_rejected_without_replacing_password(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     original_password = "original-password"
     duplicate_password = "duplicate-password"
     assert (
@@ -126,8 +134,8 @@ def test_duplicate_registration_is_rejected_without_replacing_password() -> None
     assert original_login.status_code == 200
 
 
-def test_reserved_admin_registration_is_rejected() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_reserved_admin_registration_is_rejected(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     password = "learner-password-1"
 
     response = client.post("/auth/register", json={"username": " admin ", "password": password})
@@ -142,8 +150,8 @@ def test_reserved_admin_registration_is_rejected() -> None:
     assert_no_secret_material(response.text, password)
 
 
-def test_wrong_registered_user_password_returns_structured_error_without_secret_echo() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_wrong_registered_user_password_returns_structured_error_without_secret_echo(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     assert (
         client.post("/auth/register", json={"username": "mira", "password": "correct-password"}).status_code
         == 201
@@ -162,8 +170,8 @@ def test_wrong_registered_user_password_returns_structured_error_without_secret_
     assert_no_secret_material(response.text, "wrong-password", "correct-password")
 
 
-def test_registered_user_login_works_when_local_admin_bootstrap_is_disabled() -> None:
-    client = TestClient(create_app(Settings(environment="production", enable_local_admin=True)))
+def test_registered_user_login_works_when_local_admin_bootstrap_is_disabled(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path, environment="production", enable_local_admin=True)))
     password = "learner-password-1"
 
     assert client.post("/auth/register", json={"username": "mira", "password": password}).status_code == 201
@@ -184,8 +192,8 @@ def test_registered_user_login_works_when_local_admin_bootstrap_is_disabled() ->
     }
 
 
-def test_invalid_credentials_return_structured_error_without_echoing_password() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_invalid_credentials_return_structured_error_without_echoing_password(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
 
     response = client.post("/auth/login", json={"username": "admin", "password": "wrong"})
 
@@ -199,8 +207,8 @@ def test_invalid_credentials_return_structured_error_without_echoing_password() 
     assert "wrong" not in response.text
 
 
-def test_current_user_reports_logged_out_without_session() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_current_user_reports_logged_out_without_session(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
 
     response = client.get("/auth/current-user")
 
@@ -212,8 +220,8 @@ def test_current_user_reports_logged_out_without_session() -> None:
     }
 
 
-def test_local_admin_login_refused_when_development_bootstrap_disabled() -> None:
-    client = TestClient(create_app(Settings(environment="production", enable_local_admin=True)))
+def test_local_admin_login_refused_when_development_bootstrap_disabled(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path, environment="production", enable_local_admin=True)))
 
     response = client.post("/auth/login", json={"username": "admin", "password": "admin"})
 
@@ -226,8 +234,8 @@ def test_local_admin_login_refused_when_development_bootstrap_disabled() -> None
     assert "password" not in response.text
 
 
-def test_logout_clears_authenticated_session() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_logout_clears_authenticated_session(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     assert client.post("/auth/login", json={"username": "admin", "password": "admin"}).status_code == 200
 
     logout = client.post("/auth/logout")
@@ -238,8 +246,8 @@ def test_logout_clears_authenticated_session() -> None:
     assert current_user.status_code == 401
 
 
-def test_logout_clears_access_to_practice_endpoints_for_registered_user() -> None:
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True)))
+def test_logout_clears_access_to_practice_endpoints_for_registered_user(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
     assert (
         client.post("/auth/register", json={"username": "mira", "password": "learner-password-1"}).status_code
         == 201

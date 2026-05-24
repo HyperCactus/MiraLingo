@@ -14,7 +14,6 @@ from .audio import AudioFailure, synthesize_card_audio
 from .auth import (
     LOCAL_ADMIN_USERNAME,
     SESSION_USER_KEY,
-    AccountStore,
     authenticate_local_admin,
     registered_login_error,
     serialize_user,
@@ -24,6 +23,7 @@ from .card_content import CardContentImportError, CardContentSourceMissingError,
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
 from .practice import answer_summary, build_practice_progress, build_practice_queue, record_practice_answer
+from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
 
@@ -61,7 +61,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     runtime_settings = settings or load_settings()
     app = FastAPI(title=f"{APP_NAME} API")
     app.add_middleware(SessionMiddleware, secret_key=runtime_settings.session_secret)
-    app.state.account_store = AccountStore()
+    app.state.storage = MiraLingoStorage(runtime_settings.database_path)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -82,6 +82,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def health() -> dict[str, str]:
         """Return process-local health for smoke tests and operators."""
         return {"status": "ok", "service": "mirad-webapp"}
+
+    def storage_failure_response(exc: StorageError, status_code: int = status.HTTP_503_SERVICE_UNAVAILABLE) -> JSONResponse:
+        """Return a stable storage diagnostic without secret-bearing request fields."""
+        return JSONResponse(status_code=status_code, content=exc.public_payload())
+
+    def answer_events_for_user(username: str, phase: str) -> list[dict[str, Any]]:
+        storage: MiraLingoStorage = app.state.storage
+        return [record.practice_event() for record in storage.list_answer_events(username=username, phase=phase)]
+
+    def ensure_practice_storage_user(user_phase: str, username: str, role: str) -> None:
+        storage: MiraLingoStorage = app.state.storage
+        storage.ensure_session_user(username=username, role=role, phase=user_phase)
 
     @app.get("/content/import/preview", tags=["content"])
     def content_import_preview(
@@ -128,12 +140,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/auth/register", tags=["auth"])
     def register(request: Request, registration: RegisterRequest) -> JSONResponse:
-        """Register a learner account in the process-local account store and log it in."""
-        account_store: AccountStore = request.app.state.account_store
-        user, error_payload, error_status = account_store.register(
-            username=registration.username,
-            password=registration.password,
-        )
+        """Register a learner account in durable SQLite storage and log it in."""
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            user, error_payload, error_status = storage.register_account(
+                username=registration.username,
+                password=registration.password,
+            )
+        except StorageError as exc:
+            return storage_failure_response(exc)
         if user is None:
             return JSONResponse(status_code=error_status or 400, content=error_payload or {})
 
@@ -146,12 +161,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/auth/login", tags=["auth"])
     def login(request: Request, credentials: LoginRequest) -> JSONResponse:
         """Log in as either a registered learner or the guarded development local admin."""
-        account_store: AccountStore = request.app.state.account_store
+        storage: MiraLingoStorage = request.app.state.storage
         if credentials.username.strip().lower() != LOCAL_ADMIN_USERNAME:
-            registered_user = account_store.authenticate(
-                username=credentials.username,
-                password=credentials.password,
-            )
+            try:
+                registered_user = storage.authenticate_account(
+                    username=credentials.username,
+                    password=credentials.password,
+                )
+            except StorageError as exc:
+                return storage_failure_response(exc)
             if registered_user is None:
                 error_payload, error_status = registered_login_error()
                 return JSONResponse(status_code=error_status, content=error_payload)
@@ -182,11 +200,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         request.session.pop(SESSION_USER_KEY, None)
         return {"authenticated": False}
 
-    def practice_events_from_session(request: Request) -> list[dict[str, Any]]:
-        """Return bounded practice events, treating corrupted session data as empty."""
-        events = request.session.get("practice_events", [])
-        return events if isinstance(events, list) else []
-
     @app.get("/practice/queue", tags=["practice"])
     def practice_queue(request: Request, limit: int = Query(default=10, ge=1, le=50)) -> JSONResponse:
         """Return an adaptive practice queue for the authenticated session."""
@@ -212,11 +225,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload["practice_phase"] = "practice_queue"
             return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
 
-        payload = build_practice_queue(
-            cards=result.cards,
-            events=practice_events_from_session(request),
-            limit=limit,
-        )
+        try:
+            ensure_practice_storage_user("practice_queue", user.username, user.role)
+            events = answer_events_for_user(user.username, "practice_queue")
+            payload = build_practice_queue(
+                cards=result.cards,
+                events=events,
+                limit=limit,
+            )
+            request.app.state.storage.record_cards_shown(username=user.username, cards=payload["cards"])
+        except StorageError as exc:
+            return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     @app.get("/practice/progress", tags=["practice"])
@@ -244,10 +263,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload["practice_phase"] = "practice_progress"
             return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
 
-        payload = build_practice_progress(
-            cards=result.cards,
-            events=practice_events_from_session(request),
-        )
+        try:
+            ensure_practice_storage_user("practice_progress", user.username, user.role)
+            events = answer_events_for_user(user.username, "practice_progress")
+            payload = build_practice_progress(
+                cards=result.cards,
+                events=events,
+            )
+        except StorageError as exc:
+            return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     @app.get("/practice/audio/{card_id:path}", tags=["practice"])
@@ -296,7 +320,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/practice/answers", tags=["practice"])
     @app.post("/practice/answer", tags=["practice"], include_in_schema=False)
     def practice_answer(request: Request, submission: PracticeAnswerRequest) -> JSONResponse:
-        """Record one practice answer in the signed session."""
+        """Record one practice answer in durable SQLite storage."""
         user = user_from_session(request.session.get(SESSION_USER_KEY))
         if user is None:
             return JSONResponse(
@@ -319,19 +343,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload["practice_phase"] = "practice_answer"
             return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
 
-        prior_events = practice_events_from_session(request)
-        updated_events = record_practice_answer(
-            cards=result.cards,
-            events=prior_events,
-            card_id=submission.card_id,
-            submitted_answer=submission.answer or "",
-            correct=submission.correct,
-        )
-        if isinstance(updated_events, dict) and updated_events.get("ok") is False:
-            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=updated_events)
+        try:
+            ensure_practice_storage_user("practice_answer", user.username, user.role)
+            prior_events = answer_events_for_user(user.username, "practice_answer")
+            updated_events = record_practice_answer(
+                cards=result.cards,
+                events=prior_events,
+                card_id=submission.card_id,
+                submitted_answer=submission.answer or "",
+                correct=submission.correct,
+            )
+            if isinstance(updated_events, dict) and updated_events.get("ok") is False:
+                return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=updated_events)
 
-        request.session["practice_events"] = updated_events
-        payload = answer_summary(result.cards, updated_events, submission.card_id)
+            latest_event = updated_events[-1]
+            request.app.state.storage.append_answer_event(username=user.username, **latest_event)
+            durable_events = answer_events_for_user(user.username, "practice_answer")
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        payload = answer_summary(result.cards, durable_events, submission.card_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     return app

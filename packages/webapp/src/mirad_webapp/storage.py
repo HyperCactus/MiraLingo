@@ -36,6 +36,8 @@ class ShownCardRecord:
     base_card_id: str
     direction: str
     card_type: str
+    prompt_language: str
+    answer_language: str
     shown_at: str
 
     def public_dict(self) -> dict[str, str]:
@@ -45,6 +47,8 @@ class ShownCardRecord:
             "base_card_id": self.base_card_id,
             "direction": self.direction,
             "card_type": self.card_type,
+            "prompt_language": self.prompt_language,
+            "answer_language": self.answer_language,
             "shown_at": self.shown_at,
         }
 
@@ -159,6 +163,63 @@ class MiraLingoStorage:
             return None
         return AuthUser(username=str(row["username"]), role=str(row["role"] or LEARNER_ROLE))
 
+    def ensure_session_user(self, *, username: str, role: str, phase: str) -> AuthUser:
+        """Ensure a session-authenticated user exists for practice foreign keys.
+
+        Registered learners already have a users row. Local development admin
+        sessions are not registered through learner auth, so this method creates a
+        non-authenticating profile row only when needed for durable practice rows.
+        """
+        normalized_username = _require_username(username, phase=phase)
+        salt = token_bytes(16)
+        password_hash = token_bytes(32)
+        try:
+            with self._connect(phase) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO users (username, role, salt, password_hash, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(username) DO NOTHING
+                    """,
+                    (normalized_username, str(role or LEARNER_ROLE), salt, password_hash, _utcnow_iso()),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not prepare user practice storage.") from exc
+        return AuthUser(username=normalized_username, role=str(role or LEARNER_ROLE))
+
+    def record_cards_shown(self, *, username: str, cards: list[dict[str, Any]]) -> list[ShownCardRecord]:
+        """Persist a queue response's shown cards in one short transaction."""
+        normalized_username = _require_username(username, phase="practice_queue")
+        timestamp = _utcnow_iso()
+        rows: list[tuple[str, str, str, str, str, str, str, str]] = []
+        for card in cards:
+            rows.append(
+                (
+                    normalized_username,
+                    str(card.get("id") or ""),
+                    str(card.get("base_card_id") or ""),
+                    str(card.get("direction") or ""),
+                    str(card.get("type") or ""),
+                    str(card.get("prompt_language") or ""),
+                    str(card.get("answer_language") or ""),
+                    timestamp,
+                )
+            )
+        try:
+            with self._connect("practice_queue") as connection:
+                connection.executemany(
+                    """
+                    INSERT INTO shown_cards
+                        (username, card_id, base_card_id, direction, card_type,
+                         prompt_language, answer_language, shown_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    rows,
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_queue", detail="Could not record shown cards.") from exc
+        return [ShownCardRecord(*row) for row in rows]
+
     def record_card_shown(
         self,
         *,
@@ -167,6 +228,8 @@ class MiraLingoStorage:
         base_card_id: str,
         direction: str,
         card_type: str,
+        prompt_language: str = "",
+        answer_language: str = "",
         shown_at: datetime | str | None = None,
     ) -> ShownCardRecord:
         """Persist that one practice card was shown to a learner."""
@@ -178,6 +241,8 @@ class MiraLingoStorage:
             str(base_card_id),
             str(direction),
             str(card_type),
+            str(prompt_language),
+            str(answer_language),
             timestamp,
         )
         try:
@@ -185,8 +250,9 @@ class MiraLingoStorage:
                 connection.execute(
                     """
                     INSERT INTO shown_cards
-                        (username, card_id, base_card_id, direction, card_type, shown_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                        (username, card_id, base_card_id, direction, card_type,
+                         prompt_language, answer_language, shown_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     values,
                 )
@@ -246,12 +312,14 @@ class MiraLingoStorage:
             answered_at=values[8],
         )
 
-    def list_answer_events(self, *, username: str, limit: int = MAX_EVENTS) -> list[AnswerEventRecord]:
+    def list_answer_events(
+        self, *, username: str, limit: int = MAX_EVENTS, phase: str = "practice_progress"
+    ) -> list[AnswerEventRecord]:
         """Return newest bounded answer events in chronological order, skipping malformed rows."""
-        normalized_username = _require_username(username, phase="practice_progress")
+        normalized_username = _require_username(username, phase=phase)
         bounded_limit = _bounded_limit(limit)
         try:
-            with self._connect("practice_progress") as connection:
+            with self._connect(phase) as connection:
                 rows = connection.execute(
                     """
                     SELECT username, card_id, base_card_id, direction, card_type,
@@ -264,7 +332,7 @@ class MiraLingoStorage:
                     (normalized_username, bounded_limit),
                 ).fetchall()
         except sqlite3.Error as exc:
-            raise StorageError(phase="practice_progress", detail="Could not list answer events.") from exc
+            raise StorageError(phase=phase, detail="Could not list answer events.") from exc
         return list(reversed([record for row in rows if (record := _answer_event_from_row(row)) is not None]))
 
     def list_shown_cards(self, *, username: str, limit: int = MAX_EVENTS) -> list[ShownCardRecord]:
@@ -275,7 +343,8 @@ class MiraLingoStorage:
             with self._connect("practice_progress") as connection:
                 rows = connection.execute(
                     """
-                    SELECT username, card_id, base_card_id, direction, card_type, shown_at
+                    SELECT username, card_id, base_card_id, direction, card_type,
+                           prompt_language, answer_language, shown_at
                     FROM shown_cards
                     WHERE username = ?
                     ORDER BY shown_at DESC, id DESC
@@ -310,6 +379,8 @@ class MiraLingoStorage:
                         base_card_id TEXT NOT NULL,
                         direction TEXT NOT NULL,
                         card_type TEXT NOT NULL,
+                        prompt_language TEXT NOT NULL DEFAULT '',
+                        answer_language TEXT NOT NULL DEFAULT '',
                         shown_at TEXT NOT NULL,
                         FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
                     );
@@ -335,6 +406,8 @@ class MiraLingoStorage:
                     CREATE INDEX IF NOT EXISTS idx_answer_events_user_card ON answer_events(username, card_id);
                     """
                 )
+                _ensure_column(connection, "shown_cards", "prompt_language", "TEXT NOT NULL DEFAULT ''")
+                _ensure_column(connection, "shown_cards", "answer_language", "TEXT NOT NULL DEFAULT ''")
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc
         except OSError as exc:
@@ -348,6 +421,12 @@ class MiraLingoStorage:
             return connection
         except sqlite3.Error as exc:
             raise StorageError(phase=phase, detail="Could not open SQLite storage.") from exc
+
+
+def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    existing = {str(row[1]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in existing:
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def _username_unavailable_payload() -> dict[str, Any]:
@@ -432,6 +511,8 @@ def _shown_card_from_row(row: sqlite3.Row) -> ShownCardRecord | None:
         base_card_id = str(row["base_card_id"])
         direction = str(row["direction"])
         card_type = str(row["card_type"])
+        prompt_language = str(row["prompt_language"] if "prompt_language" in row.keys() else "")
+        answer_language = str(row["answer_language"] if "answer_language" in row.keys() else "")
         shown_at = str(row["shown_at"])
     except (KeyError, TypeError, ValueError):
         return None
@@ -443,5 +524,7 @@ def _shown_card_from_row(row: sqlite3.Row) -> ShownCardRecord | None:
         base_card_id=base_card_id,
         direction=direction,
         card_type=card_type,
+        prompt_language=prompt_language,
+        answer_language=answer_language,
         shown_at=shown_at,
     )

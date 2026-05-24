@@ -31,7 +31,7 @@ def _app_with_cards(monkeypatch, tmp_path: Path):
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    return create_app(Settings(session_secret="test-secret", phrase_csv_path=phrase_csv))
+    return create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
 
 
 def _login(client: TestClient) -> None:
@@ -136,7 +136,7 @@ def test_practice_progress_reflects_correct_and_incorrect_word_and_phrase_answer
 
 def test_practice_progress_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:
     missing_csv = tmp_path / "missing.csv"
-    app = create_app(Settings(session_secret="test-secret", phrase_csv_path=missing_csv))
+    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=missing_csv))
     client = TestClient(app)
     _login(client)
 
