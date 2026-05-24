@@ -22,16 +22,26 @@ def test_build_practice_queue_expands_words_and_phrases_into_both_directions() -
 
     assert queue["ok"] is True
     assert queue["phase"] == "practice_queue"
+    assert queue["mode"] == "mixed"
+    assert queue["mode_detail"] == "default_mixed"
+    assert queue["repeat_gap"] == 10
+    assert queue["repeat_gap_satisfied"] is False
     assert queue["card_count"] == 8
     assert queue["base_card_count"] == 4
     assert queue["event_count"] == 0
     assert queue["limit"] == 5
     assert [card["id"] for card in queue["cards"]] == [
         "phrase:hello-world#english-to-mirad",
-        "phrase:hello-world#mirad-to-english",
         "word:the#english-to-mirad",
-        "word:the#mirad-to-english",
         "phrase:good-morning#english-to-mirad",
+        "word:be#english-to-mirad",
+        "phrase:hello-world#mirad-to-english",
+    ]
+    assert [card["base_card_id"] for card in queue["cards"][:4]] == [
+        "phrase:hello-world",
+        "word:the",
+        "phrase:good-morning",
+        "word:be",
     ]
 
     english_to_mirad = queue["cards"][0]
@@ -51,7 +61,7 @@ def test_build_practice_queue_expands_words_and_phrases_into_both_directions() -
         "mastery": {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None},
         "recency": {"last_seen_at": None, "age_seconds": None},
     }
-    mirad_to_english = queue["cards"][1]
+    mirad_to_english = next(card for card in queue["cards"] if card["id"] == "phrase:hello-world#mirad-to-english")
     assert mirad_to_english["direction"] == "mirad_to_english"
     assert mirad_to_english["prompt_language"] == "mirad"
     assert mirad_to_english["answer_language"] == "english"
@@ -85,6 +95,12 @@ def test_incorrect_answer_records_direction_event_and_prioritizes_only_that_item
     cards = {card["id"]: card for card in queue["cards"]}
 
     assert queue["cards"][0]["id"] == "word:the#mirad-to-english"
+    assert [card["base_card_id"] for card in queue["cards"]] == [
+        "word:the",
+        "phrase:hello-world",
+        "word:be",
+        "phrase:good-morning",
+    ]
     assert cards["word:the#mirad-to-english"]["scheduler_reason"] == "weak_recent_performance"
     assert cards["word:the#mirad-to-english"]["mastery"] == {
         "attempts": 1,
@@ -92,8 +108,10 @@ def test_incorrect_answer_records_direction_event_and_prioritizes_only_that_item
         "incorrect": 1,
         "accuracy": 0.0,
     }
-    assert cards["word:the#english-to-mirad"]["scheduler_reason"] == "new_item_gated_by_weak_recent_performance"
-    assert cards["word:the#english-to-mirad"]["mastery"]["attempts"] == 0
+    full_queue = build_practice_queue(cards=CARDS, events=events, now=NOW + timedelta(minutes=1), limit=8)
+    full_cards = {card["id"]: card for card in full_queue["cards"]}
+    assert full_cards["word:the#english-to-mirad"]["scheduler_reason"] == "new_item_gated_by_weak_recent_performance"
+    assert full_cards["word:the#english-to-mirad"]["mastery"]["attempts"] == 0
 
 
 def test_mirad_to_english_exact_answer_comparison_uses_english_expected_answer() -> None:
@@ -222,6 +240,10 @@ def test_empty_card_list_returns_empty_queue() -> None:
     assert queue == {
         "ok": True,
         "phase": "practice_queue",
+        "mode": "mixed",
+        "mode_detail": "empty_pool",
+        "repeat_gap": 10,
+        "repeat_gap_satisfied": False,
         "card_count": 0,
         "base_card_count": 0,
         "event_count": 0,
@@ -312,3 +334,212 @@ def test_session_history_is_trimmed_to_latest_200_events() -> None:
     assert len(result) == MAX_EVENTS
     assert result[0]["answered_at"] == "2026-05-23T12:00:06+00:00"
     assert result[-1]["card_id"] == "word:be#english-to-mirad"
+
+
+def _mode_cards() -> list[dict[str, str]]:
+    return [
+        {"id": "phrase:greeting", "type": "phrase", "english": "good day", "mirad": "gud dey"},
+        {"id": "word:alpha", "type": "word", "english": "alpha", "mirad": "alfa"},
+        {"id": "word:bravo", "type": "word", "english": "bravo", "mirad": "brava"},
+        {"id": "word:charlie", "type": "word", "english": "charlie", "mirad": "charli"},
+        {"id": "word:delta", "type": "word", "english": "delta", "mirad": "delta"},
+    ]
+
+
+def _repeat_gap_cards(count: int) -> list[dict[str, str]]:
+    return [
+        {
+            "id": f"word:{index:02d}",
+            "type": "word",
+            "english": f"english {index:02d}",
+            "mirad": f"mirad {index:02d}",
+        }
+        for index in range(1, count + 1)
+    ]
+
+
+def _event(
+    card_id: str,
+    *,
+    correct: bool,
+    answered_at: datetime,
+    base_card_id: str | None = None,
+    direction: str | None = None,
+    card_type: str = "word",
+    submitted_answer: str = "x",
+    expected_answer: str = "x",
+) -> dict[str, object]:
+    resolved_direction = direction or card_id.rsplit("#", maxsplit=1)[1].replace("-", "_")
+    resolved_base_card_id = base_card_id or card_id.split("#", maxsplit=1)[0]
+    return {
+        "card_id": card_id,
+        "base_card_id": resolved_base_card_id,
+        "direction": resolved_direction,
+        "card_type": card_type,
+        "submitted_answer": submitted_answer,
+        "expected_answer": expected_answer,
+        "correct": correct,
+        "answered_at": answered_at.isoformat(),
+    }
+
+
+def test_build_practice_queue_default_mode_reports_mode_and_repeat_gap_diagnostics() -> None:
+    cards = _mode_cards()
+    events = [
+        _event(
+            "word:alpha#english-to-mirad",
+            correct=True,
+            answered_at=NOW - timedelta(days=20),
+            expected_answer="alfa",
+            submitted_answer="alfa",
+        ),
+        _event(
+            "word:alpha#english-to-mirad",
+            correct=True,
+            answered_at=NOW - timedelta(days=19, minutes=59),
+            expected_answer="alfa",
+            submitted_answer="alfa",
+        ),
+        _event(
+            "word:bravo#english-to-mirad",
+            correct=False,
+            answered_at=NOW - timedelta(minutes=5),
+            expected_answer="brava",
+            submitted_answer="wrong",
+        ),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=6, mode="mixed")
+
+    assert queue["ok"] is True
+    assert queue["phase"] == "practice_queue"
+    assert queue["mode"] == "mixed"
+    assert queue["mode_detail"] == "default_mixed"
+    assert queue["repeat_gap"] == 10
+    assert queue["repeat_gap_satisfied"] is False
+    assert queue["base_card_count"] == 5
+    assert queue["card_count"] == 10
+    assert queue["event_count"] == 3
+    assert queue["cards"][0]["id"] == "word:bravo#english-to-mirad"
+    assert queue["cards"][0]["scheduler_reason"] == "weak_recent_performance"
+    assert queue["cards"][1]["id"] == "word:alpha#english-to-mirad"
+    assert queue["cards"][1]["scheduler_reason"] == "stale_mastered_review"
+
+
+def test_revision_mode_returns_only_stale_mastered_review_items() -> None:
+    cards = _mode_cards()
+    events = [
+        _event(
+            "word:alpha#english-to-mirad",
+            correct=True,
+            answered_at=NOW - timedelta(days=20),
+            expected_answer="alfa",
+            submitted_answer="alfa",
+        ),
+        _event(
+            "word:alpha#english-to-mirad",
+            correct=True,
+            answered_at=NOW - timedelta(days=19, minutes=59),
+            expected_answer="alfa",
+            submitted_answer="alfa",
+        ),
+        _event(
+            "word:bravo#english-to-mirad",
+            correct=False,
+            answered_at=NOW - timedelta(minutes=5),
+            expected_answer="brava",
+            submitted_answer="wrong",
+        ),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=10, mode="revision")
+
+    assert queue["mode"] == "revision"
+    assert queue["mode_detail"] == "stale_only"
+    assert queue["event_count"] == 3
+    assert queue["cards"]
+    assert {card["scheduler_reason"] for card in queue["cards"]} == {"stale_mastered_review"}
+    assert {card["id"] for card in queue["cards"]} == {"word:alpha#english-to-mirad"}
+
+
+def test_build_vocabulary_mode_returns_only_new_word_items_without_prior_events() -> None:
+    cards = _mode_cards()
+    events = [
+        _event(
+            "word:charlie#english-to-mirad",
+            correct=True,
+            answered_at=NOW - timedelta(hours=2),
+            expected_answer="charli",
+            submitted_answer="charli",
+        ),
+        _event(
+            "phrase:greeting#english-to-mirad",
+            correct=False,
+            answered_at=NOW - timedelta(hours=1),
+            base_card_id="phrase:greeting",
+            card_type="phrase",
+            expected_answer="gud dey",
+            submitted_answer="wrong",
+        ),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=10, mode="build_vocabulary")
+
+    assert queue["mode"] == "build_vocabulary"
+    assert queue["mode_detail"] == "new_words_only"
+    assert queue["cards"]
+    assert {card["type"] for card in queue["cards"]} == {"word"}
+    assert {card["scheduler_reason"] for card in queue["cards"]} == {"new_item"}
+    assert {card["base_card_id"] for card in queue["cards"]} == {"word:alpha", "word:bravo", "word:delta"}
+    assert all(card["base_card_id"] != "word:charlie" for card in queue["cards"])
+    assert all(card["base_card_id"] != "phrase:greeting" for card in queue["cards"])
+
+
+def test_mixed_mode_avoids_repeating_base_card_before_ten_others_when_pool_allows() -> None:
+    cards = _repeat_gap_cards(11)
+
+    queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=22, mode="mixed")
+
+    base_card_ids = [card["base_card_id"] for card in queue["cards"]]
+    first_base_ids = base_card_ids[:11]
+
+    assert queue["mode"] == "mixed"
+    assert queue["repeat_gap"] == 10
+    assert queue["repeat_gap_satisfied"] is True
+    assert len(first_base_ids) == 11
+    assert len(set(first_base_ids)) == 11
+    for index, base_card_id in enumerate(base_card_ids):
+        later_positions = [later for later in range(index + 1, len(base_card_ids)) if base_card_ids[later] == base_card_id]
+        if later_positions:
+            assert later_positions[0] - index > 10
+
+
+def test_empty_pool_in_mode_reports_repeat_gap_fallback_without_crashing() -> None:
+    queue = build_practice_queue(cards=[], events=[], now=NOW, limit=5, mode="revision")
+
+    assert queue == {
+        "ok": True,
+        "phase": "practice_queue",
+        "mode": "revision",
+        "mode_detail": "empty_pool",
+        "repeat_gap": 10,
+        "repeat_gap_satisfied": False,
+        "card_count": 0,
+        "base_card_count": 0,
+        "event_count": 0,
+        "limit": 0,
+        "cards": [],
+    }
+
+
+def test_small_pool_reports_repeat_gap_unsatisfied_but_still_returns_queue() -> None:
+    cards = _repeat_gap_cards(3)
+
+    queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=6, mode="mixed")
+
+    assert queue["mode"] == "mixed"
+    assert queue["mode_detail"] == "default_mixed"
+    assert queue["repeat_gap"] == 10
+    assert queue["repeat_gap_satisfied"] is False
+    assert queue["cards"]
+    assert [card["base_card_id"] for card in queue["cards"][:3]] == ["word:01", "word:02", "word:03"]

@@ -11,7 +11,13 @@ MAX_EVENTS = 200
 STALE_AFTER_SECONDS = 14 * 24 * 60 * 60
 _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
+_REPEAT_GAP = 10
 _ID_RE = re.compile(r"[^a-z0-9]+")
+
+MIXED_MODE = "mixed"
+REVISION_MODE = "revision"
+BUILD_VOCABULARY_MODE = "build_vocabulary"
+_VALID_QUEUE_MODES = {MIXED_MODE, REVISION_MODE, BUILD_VOCABULARY_MODE}
 
 ENGLISH_TO_MIRAD = "english_to_mirad"
 MIRAD_TO_ENGLISH = "mirad_to_english"
@@ -36,15 +42,26 @@ def direction_item_id(base_card_id: str, direction: str) -> str:
 
 
 def build_practice_queue(
-    *, cards: list[dict[str, Any]], events: list[dict[str, Any]] | None, now: datetime | None = None, limit: int = 10
+    *,
+    cards: list[dict[str, Any]],
+    events: list[dict[str, Any]] | None,
+    now: datetime | None = None,
+    limit: int = 10,
+    mode: str = MIXED_MODE,
 ) -> dict[str, Any]:
     """Return a bounded, diagnostic practice queue without mutating session state."""
+    normalized_mode = _normalize_queue_mode(mode)
+    if normalized_mode is None:
+        return _invalid_queue_mode_result(mode)
+
     current = _as_aware_datetime(now)
+    base_cards = _normalize_base_cards(cards)
     practice_items = _expand_practice_items(cards)
     valid_events = _normalize_events(events or [])
     stats = _stats_by_card(valid_events)
     recent_accuracy = _recent_accuracy(valid_events)
     weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
+    base_cards_with_history = {event["base_card_id"] for event in valid_events}
 
     ranked: list[tuple[int, int, dict[str, Any]]] = []
     for index, item in enumerate(practice_items):
@@ -59,15 +76,25 @@ def build_practice_queue(
         ranked.append((_rank(reason, card_stats, current), index, queue_item))
 
     ordered = _interleave_same_priority_cards(ranked)
-    bounded_limit = max(0, min(int(limit), len(ordered)))
+    filtered, mode_detail = _filter_queue_for_mode(ordered, normalized_mode, base_cards_with_history)
+    spaced, repeat_gap_satisfied = _apply_repeat_gap(filtered, repeat_gap=_REPEAT_GAP)
+    bounded_limit = max(0, min(int(limit), len(spaced)))
+    if not spaced and not filtered:
+        repeat_gap_satisfied = False
+        mode_detail = "empty_pool"
+
     return {
         "ok": True,
         "phase": "practice_queue",
+        "mode": normalized_mode,
+        "mode_detail": mode_detail,
+        "repeat_gap": _REPEAT_GAP,
+        "repeat_gap_satisfied": repeat_gap_satisfied,
         "card_count": len(practice_items),
-        "base_card_count": len(_normalize_base_cards(cards)),
+        "base_card_count": len(base_cards),
         "event_count": len(valid_events),
         "limit": bounded_limit,
-        "cards": ordered[:bounded_limit],
+        "cards": spaced[:bounded_limit],
     }
 
 
@@ -248,6 +275,41 @@ def _practice_item_maps(cards: list[dict[str, Any]]) -> tuple[dict[str, dict[str
     return by_id, legacy_aliases
 
 
+def _normalize_queue_mode(mode: Any) -> str | None:
+    normalized = str(mode or MIXED_MODE).strip().casefold()
+    return normalized if normalized in _VALID_QUEUE_MODES else None
+
+
+def _invalid_queue_mode_result(mode: Any) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "phase": "practice_queue",
+        "error": "invalid_mode",
+        "mode": str(mode or ""),
+        "allowed_modes": sorted(_VALID_QUEUE_MODES),
+        "detail": "Practice mode must be one of mixed, revision, or build_vocabulary.",
+    }
+
+
+def _filter_queue_for_mode(
+    ordered: list[dict[str, Any]], mode: str, base_cards_with_history: set[str]
+) -> tuple[list[dict[str, Any]], str]:
+    if mode == REVISION_MODE:
+        return [item for item in ordered if item["scheduler_reason"] == "stale_mastered_review"], "stale_only"
+    if mode == BUILD_VOCABULARY_MODE:
+        return [
+            {
+                **item,
+                "scheduler_reason": "new_item" if item["scheduler_reason"] == "new_item_gated_by_weak_recent_performance" else item["scheduler_reason"],
+            }
+            for item in ordered
+            if item["type"] == "word"
+            and item["base_card_id"] not in base_cards_with_history
+            and item["scheduler_reason"] in {"new_item", "new_item_gated_by_weak_recent_performance"}
+        ], "new_words_only"
+    return ordered, "default_mixed"
+
+
 def _resolve_practice_item_id(card_id: str, items_by_id: dict[str, dict[str, Any]], legacy_aliases: dict[str, str]) -> str | None:
     normalized = str(card_id or "").strip()
     if normalized in items_by_id:
@@ -276,6 +338,31 @@ def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]
                 if by_group[group]:
                     ordered.append(by_group[group].pop(0)[1])
     return ordered
+
+
+def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int) -> tuple[list[dict[str, Any]], bool]:
+    if not items:
+        return [], False
+
+    pending = list(items)
+    scheduled: list[dict[str, Any]] = []
+    recent_base_ids: list[str] = []
+    repeat_gap_satisfied = True
+
+    while pending:
+        blocked_bases = set(recent_base_ids[-repeat_gap:])
+        candidate_index = next((index for index, item in enumerate(pending) if item["base_card_id"] not in blocked_bases), None)
+        if candidate_index is None:
+            repeat_gap_satisfied = False
+            candidate_index = 0
+        chosen = pending.pop(candidate_index)
+        scheduled.append(chosen)
+        recent_base_ids.append(chosen["base_card_id"])
+
+    if len({item["base_card_id"] for item in items}) <= repeat_gap:
+        repeat_gap_satisfied = False
+
+    return scheduled, repeat_gap_satisfied
 
 
 def _empty_type_stats() -> dict[str, Any]:
