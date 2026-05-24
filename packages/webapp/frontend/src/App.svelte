@@ -21,6 +21,8 @@
 
   let username = "admin";
   let password = "";
+  let registerUsername = "";
+  let registerPassword = "";
   let authState = "checking";
   let user = null;
   let errorMessage = "";
@@ -96,6 +98,23 @@
     return "Progress is unavailable right now. Practice controls still work; try refreshing progress after your next answer.";
   };
 
+  const languageLabel = (language) => {
+    const normalized = String(language ?? "").trim().toLowerCase();
+    if (normalized === "mirad") return "Mirad";
+    if (normalized === "english") return "English";
+    return "practice";
+  };
+
+  const directionLabel = (card) => {
+    const prompt = languageLabel(card?.prompt_language);
+    const answer = languageLabel(card?.answer_language);
+    if (prompt === "practice" || answer === "practice") return card?.direction ?? "practice direction";
+    return `${prompt} to ${answer}`;
+  };
+
+  const promptLabel = (card) => `${languageLabel(card?.prompt_language)} prompt`;
+  const answerLabel = (card) => `${languageLabel(card?.answer_language)} answer`;
+
   const formatAccuracy = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
   const formatCount = (value) => (typeof value === "number" ? value : 0);
   const formatLatestAnswer = (event) => {
@@ -167,6 +186,39 @@
     }
   }
 
+  async function submitRegistration() {
+    isSubmitting = true;
+    errorMessage = "";
+    try {
+      const response = await fetch("/auth/register", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: registerUsername, password: registerPassword }),
+      });
+      const payload = await readJson(response);
+      if (!response.ok || !payload.authenticated) {
+        user = null;
+        authState = "registration-failed";
+        errorMessage = friendlyAuthError(payload, "Registration failed. Choose another username and try again.");
+        return;
+      }
+      user = payload.user;
+      password = "";
+      registerPassword = "";
+      authState = "authenticated";
+      await loadPracticeQueue();
+    } catch (_error) {
+      user = null;
+      authState = "registration-failed";
+      errorMessage = "Could not reach MiraLingo registration. Check that the web server is running.";
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
   async function logout() {
     errorMessage = "";
     try {
@@ -174,7 +226,10 @@
     } finally {
       resetAudioState();
       user = null;
+      username = "admin";
       password = "";
+      registerUsername = "";
+      registerPassword = "";
       authState = "anonymous";
       practiceState = "idle";
       practiceQueue = null;
@@ -428,12 +483,13 @@
           <article class="practice-card" aria-label="Current practice card">
             <div class="card-meta">
               <span>{currentCard.type}</span>
+              <span>Direction: {directionLabel(currentCard)}</span>
               <span>Reason: {currentCard.scheduler_reason}</span>
             </div>
-            <p class="prompt-label">{currentCard.prompt_language === "mirad" ? "Mirad prompt" : "English prompt"}</p>
+            <p class="prompt-label">{promptLabel(currentCard)}</p>
             <p class="prompt-text">{currentCard.prompt}</p>
             <details>
-              <summary>Show {currentCard.answer_language === "mirad" ? "Mirad" : "English"} answer</summary>
+              <summary>Show {answerLabel(currentCard)}</summary>
               <p>{currentCard.answer}</p>
             </details>
             <div class="audio-row" aria-label="Mirad answer audio">
@@ -504,16 +560,40 @@
           the tools in this repository.
         </p>
         <div class="action-row" aria-label="Primary actions">
-          <a class="primary-action" href="#login-panel">Log in</a>
-          <a class="secondary-action" href="mailto:admin@example.invalid?subject=MiraLingo%20account">
-            Create account
-          </a>
+          <a class="primary-action" href="#register-panel">Create account</a>
+          <a class="secondary-action" href="#login-panel">Log in as local admin</a>
         </div>
         <p class="helper-text">
-          Account creation is not open yet. In development, use the guarded local admin bootstrap when
-          enabled by backend settings.
+          Create a learner account for this browser session, or keep using the guarded local admin bootstrap
+          when it is enabled by backend settings.
         </p>
       </div>
+
+      <div class="auth-stack" aria-label="MiraLingo authentication options">
+        <form id="register-panel" class="login-card" aria-label="Learner registration" on:submit|preventDefault={submitRegistration}>
+          <div>
+            <p class="eyebrow">Self-service sign up</p>
+            <h2>Create learner account</h2>
+            <p class="form-note">Registration logs you in immediately for this server session. Passwords are never echoed in errors.</p>
+          </div>
+          {#if authState === "checking"}
+            <p class="status-message" role="status">Checking current session…</p>
+          {/if}
+          {#if errorMessage && authState === "registration-failed"}
+            <p class="error-message" role="alert">{errorMessage}</p>
+          {/if}
+          <label>
+            Username
+            <input autocomplete="username" bind:value={registerUsername} name="register-username" required />
+          </label>
+          <label>
+            Password
+            <input autocomplete="new-password" bind:value={registerPassword} name="register-password" required type="password" />
+          </label>
+          <button class="primary-action submit-action" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Creating account…" : "Create account"}
+          </button>
+        </form>
 
       <form id="login-panel" class="login-card" aria-label="Local admin login" on:submit|preventDefault={submitLogin}>
         <div>
@@ -524,7 +604,7 @@
         {#if authState === "checking"}
           <p class="status-message" role="status">Checking current session…</p>
         {/if}
-        {#if errorMessage}
+        {#if errorMessage && authState !== "registration-failed"}
           <p class="error-message" role="alert">{errorMessage}</p>
         {/if}
         <label>
@@ -539,6 +619,7 @@
           {isSubmitting ? "Signing in…" : "Log in as local admin"}
         </button>
       </form>
+      </div>
     </section>
 
     <section class="learn-more" aria-labelledby="learn-more-heading">

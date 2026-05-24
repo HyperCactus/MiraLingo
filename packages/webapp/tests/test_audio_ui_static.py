@@ -11,10 +11,11 @@ def _source() -> str:
     return FRONTEND_APP.read_text(encoding="utf-8")
 
 
-def test_audio_control_fetches_card_bound_encoded_endpoint() -> None:
+def test_audio_control_fetches_mirad_audio_identifier_endpoint() -> None:
     frontend_source = _source()
 
-    assert "fetch(`/practice/audio/${encodeURIComponent(currentCard.id)}`" in frontend_source
+    assert "const audioCardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;" in frontend_source
+    assert "fetch(`/practice/audio/${encodeURIComponent(audioCardId)}`" in frontend_source
     assert 'headers: { Accept: "audio/wav, application/json" }' in frontend_source
     assert "if (!currentCard || audioState === \"loading\") return;" in frontend_source
 
@@ -67,8 +68,8 @@ def test_audio_state_resets_on_queue_refresh_card_change_and_logout() -> None:
     assert "resetAudioState();" in load_queue_body
     assert "resetAudioState();" in logout_body
     assert "lastAudioCardId = null;" in logout_body
-    assert '$: if ((currentCard?.id ?? null) !== lastAudioCardId)' in frontend_source
-    assert "lastAudioCardId = currentCard?.id ?? null;" in frontend_source
+    assert '$: if ((currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null) !== lastAudioCardId)' in frontend_source
+    assert "lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;" in frontend_source
 
 
 def test_audio_styles_include_compact_mobile_row() -> None:

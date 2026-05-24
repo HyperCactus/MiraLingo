@@ -226,6 +226,8 @@ def test_s05_browser_visible_source_affordances_exist() -> None:
         "Welcome to MiraLingo",
         "Local admin access",
         "Log in as local admin",
+        "Create learner account",
+        "Learner registration",
         "Practice queue",
         "Hear Mirad answer",
         "Practice stats",

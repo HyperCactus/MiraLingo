@@ -172,6 +172,11 @@ input:focus-visible {
   margin: 1rem 0 0;
 }
 
+.auth-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .login-card {
   display: grid;
   align-content: start;
