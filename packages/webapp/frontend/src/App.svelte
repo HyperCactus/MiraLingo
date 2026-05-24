@@ -3,19 +3,22 @@
 
   const docsLinks = [
     {
-      href: "../../README.md",
-      label: "Project roadmap",
-      description: "See how MiraLingo fits into the Mirad tools monorepo.",
+      href: "https://en.wikibooks.org/wiki/Mirad_Grammar",
+      label: "Wikibooks grammar",
+      description: "Study the public Mirad Grammar reference on Wikibooks while you practice in MiraLingo.",
+      external: true,
     },
     {
-      href: "../README.md",
-      label: "Web app scope",
-      description: "Review the planned pronunciation, translation, and vocabulary loops.",
+      href: "https://www.mirad.org/",
+      label: "Mirad language overview",
+      description: "Read the public introduction to the Mirad language before starting pronunciation or recall practice.",
+      external: true,
     },
     {
-      href: "../../packages/translator/README.md",
-      label: "Translator engine",
-      description: "Learn about the Mirad translation components behind practice flows.",
+      href: "https://www.omniglot.com/conscripts/mirad.htm",
+      label: "Mirad writing notes",
+      description: "Browse a public overview of Mirad background and writing details for extra learner context.",
+      external: true,
     },
   ];
 
@@ -1385,7 +1388,12 @@
       <h2 id="learn-more-heading">Mirad and MiraLingo docs</h2>
       <div class="link-grid">
         {#each docsLinks as link}
-          <a href={link.href}>
+          <a
+            href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noreferrer" : undefined}
+            aria-label={`${link.label}: ${link.description}`}
+          >
             <strong>{link.label}</strong>
             <span>{link.description}</span>
           </a>
