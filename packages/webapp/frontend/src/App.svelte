@@ -19,6 +19,48 @@
     },
   ];
 
+  const menuSections = [
+    {
+      title: "Continue Practice",
+      description: "Resume the mixed queue with typed recall, answer reveal, and local queue diagnostics.",
+      actionLabel: "Open mixed queue",
+      section: "practice",
+      mode: "mixed",
+    },
+    {
+      title: "Revision",
+      description: "Focus on stale mastered review items that need another pass.",
+      actionLabel: "Open revision queue",
+      section: "revision",
+      mode: "revision",
+    },
+    {
+      title: "Build Vocabulary",
+      description: "Pull new-item-focused cards to expand active Mirad vocabulary.",
+      actionLabel: "Open vocabulary queue",
+      section: "build_vocabulary",
+      mode: "build_vocabulary",
+    },
+    {
+      title: "Analytics",
+      description: "Inspect progress percentage, accuracy, and weak cards away from the practice card surface.",
+      actionLabel: "Open analytics",
+      section: "analytics",
+    },
+    {
+      title: "Settings",
+      description: "See the placeholder for theme, TTS speed, voice display, and account deletion controls arriving in S04.",
+      actionLabel: "Open settings",
+      section: "settings",
+    },
+    {
+      title: "Log Out",
+      description: "End this browser session and clear practice, answer, audio, and analytics state.",
+      actionLabel: "Log Out",
+      action: "logout",
+    },
+  ];
+
   let username = "admin";
   let password = "";
   let registerUsername = "";
@@ -27,6 +69,10 @@
   let user = null;
   let errorMessage = "";
   let isSubmitting = false;
+
+  let activeSection = "menu";
+  let activePracticeMode = "mixed";
+
   let practiceState = "idle";
   let practiceError = "";
   let practiceQueue = null;
@@ -36,12 +82,17 @@
   let answerError = "";
   let answerResult = null;
   let activeCardId = null;
+
   let audioState = "idle";
   let audioMessage = "";
   let audioDiagnostic = "";
   let audioBlobUrl = "";
   let activeAudio = null;
   let lastAudioCardId = null;
+
+  let analyticsState = "idle";
+  let analyticsError = "";
+  let analyticsPayload = null;
 
   const resetAudioState = () => {
     if (activeAudio) {
@@ -61,6 +112,23 @@
     typedAnswer = "";
     answerError = "";
     answerResult = null;
+  };
+
+  const resetPracticeSurface = () => {
+    resetAudioState();
+    resetAnswerState();
+    practiceState = "idle";
+    practiceError = "";
+    practiceQueue = null;
+    currentCard = null;
+    activeCardId = null;
+    lastAudioCardId = null;
+  };
+
+  const resetAnalyticsSurface = () => {
+    analyticsState = "idle";
+    analyticsError = "";
+    analyticsPayload = null;
   };
 
   const friendlyAudioError = (payload, status) => {
@@ -97,6 +165,13 @@
     return fallback;
   };
 
+  const friendlyAnalyticsError = (payload, fallback) => {
+    if (payload?.detail) return payload.detail;
+    if (payload?.error === "unauthenticated") return "Your session expired. Log in again to inspect analytics.";
+    if (payload?.error === "source_missing") return "Analytics is unavailable until phrase or word content is configured.";
+    return fallback;
+  };
+
   const languageLabel = (language) => {
     const normalized = String(language ?? "").trim().toLowerCase();
     if (normalized === "mirad") return "Mirad";
@@ -114,6 +189,34 @@
   const promptLabel = (card) => `${languageLabel(card?.prompt_language)} prompt`;
   const answerLabel = (card) => `${languageLabel(card?.answer_language)} answer`;
   const answerInputLabel = (card) => `Type the ${languageLabel(card?.answer_language)} answer`;
+  const formatPercent = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "n/a");
+  const formatCount = (value) => (typeof value === "number" ? value : "n/a");
+  const hasAnalyticsSummary = (payload) =>
+    Boolean(
+      payload &&
+        [
+          payload.event_count,
+          payload.total,
+          payload.correct,
+          payload.incorrect,
+          payload.weak_count,
+          payload.mastered_count,
+          payload.stale_count,
+          payload.new_count,
+          payload.latest_event,
+          payload.per_card?.length,
+        ].some((value) => value !== undefined && value !== null),
+    );
+  const practiceTitle = () => {
+    if (activeSection === "revision") return "Revision queue";
+    if (activeSection === "build_vocabulary") return "Build vocabulary queue";
+    return "Practice queue";
+  };
+  const practiceEyebrow = () => {
+    if (activePracticeMode === "revision") return "Revision session";
+    if (activePracticeMode === "build_vocabulary") return "Vocabulary builder";
+    return "Adaptive session";
+  };
 
   async function readJson(response) {
     try {
@@ -121,6 +224,12 @@
     } catch (_error) {
       return {};
     }
+  }
+
+  function goToMenu() {
+    resetAudioState();
+    resetAnswerState();
+    activeSection = "menu";
   }
 
   async function loadCurrentUser() {
@@ -133,7 +242,9 @@
       if (response.ok && payload.authenticated) {
         user = payload.user;
         authState = "authenticated";
-        await loadPracticeQueue();
+        activeSection = "menu";
+        resetPracticeSurface();
+        resetAnalyticsSurface();
         return;
       }
       user = null;
@@ -167,7 +278,9 @@
       user = payload.user;
       password = "";
       authState = "authenticated";
-      await loadPracticeQueue();
+      activeSection = "menu";
+      resetPracticeSurface();
+      resetAnalyticsSurface();
     } catch (_error) {
       user = null;
       authState = "login-failed";
@@ -200,7 +313,9 @@
       password = "";
       registerPassword = "";
       authState = "authenticated";
-      await loadPracticeQueue();
+      activeSection = "menu";
+      resetPracticeSurface();
+      resetAnalyticsSurface();
     } catch (_error) {
       user = null;
       authState = "registration-failed";
@@ -215,29 +330,29 @@
     try {
       await fetch("/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
     } finally {
-      resetAudioState();
-      resetAnswerState();
+      resetPracticeSurface();
+      resetAnalyticsSurface();
       user = null;
       username = "admin";
       password = "";
       registerUsername = "";
       registerPassword = "";
       authState = "anonymous";
-      practiceState = "idle";
-      practiceQueue = null;
-      currentCard = null;
-      activeCardId = null;
-      lastAudioCardId = null;
-      practiceError = "";
+      activeSection = "menu";
+      activePracticeMode = "mixed";
     }
   }
 
-  async function loadPracticeQueue() {
+  async function loadPracticeQueue(mode = activePracticeMode) {
     resetAudioState();
+    resetAnswerState();
     practiceState = "loading";
     practiceError = "";
     try {
-      const response = await fetch("/practice/queue?mode=mixed&limit=3", { headers: { Accept: "application/json" } });
+      let queueUrl = "/practice/queue?mode=mixed&limit=3";
+      if (mode === "revision") queueUrl = "/practice/queue?mode=revision&limit=3";
+      if (mode === "build_vocabulary") queueUrl = "/practice/queue?mode=build_vocabulary&limit=3";
+      const response = await fetch(queueUrl, { headers: { Accept: "application/json" } });
       const payload = await readJson(response);
       if (!response.ok || payload.ok === false) {
         practiceQueue = payload;
@@ -261,6 +376,50 @@
       resetAnswerState();
       practiceError = "Could not reach practice APIs. Check that the web server is running.";
     }
+  }
+
+  async function openPracticeMode(mode) {
+    activePracticeMode = mode;
+    activeSection = mode === "revision" ? "revision" : mode === "build_vocabulary" ? "build_vocabulary" : "practice";
+    resetAnalyticsSurface();
+    resetPracticeSurface();
+    await loadPracticeQueue(mode);
+  }
+
+  async function loadAnalytics() {
+    analyticsState = "loading";
+    analyticsError = "";
+    try {
+      const response = await fetch("/practice/progress", {
+        headers: { Accept: "application/json" },
+      });
+      const payload = await readJson(response);
+      if (!response.ok || payload.ok === false) {
+        analyticsPayload = payload;
+        analyticsState = "error";
+        analyticsError = friendlyAnalyticsError(payload, "Analytics is unavailable right now.");
+        return;
+      }
+      analyticsPayload = payload;
+      analyticsState = "ready";
+    } catch (_error) {
+      analyticsPayload = null;
+      analyticsState = "error";
+      analyticsError = "Could not reach progress analytics. Check that the web server is running.";
+    }
+}
+
+  async function openAnalytics() {
+    activeSection = "analytics";
+    resetAudioState();
+    resetAnswerState();
+    await loadAnalytics();
+  }
+
+  function openSettings() {
+    activeSection = "settings";
+    resetAudioState();
+    resetAnswerState();
   }
 
   async function recordPracticeAnswer(payloadBody) {
@@ -352,6 +511,24 @@
     }
   }
 
+  function activateMenuItem(item) {
+    if (item.action === "logout") {
+      logout();
+      return;
+    }
+    if (item.section === "analytics") {
+      openAnalytics();
+      return;
+    }
+    if (item.section === "settings") {
+      openSettings();
+      return;
+    }
+    if (item.mode) {
+      openPracticeMode(item.mode);
+    }
+  }
+
   $: if (currentCard?.id !== activeCardId) {
     activeCardId = currentCard?.id ?? null;
     resetAnswerState();
@@ -380,8 +557,8 @@
         <p class="eyebrow">MiraLingo app home</p>
         <h1 id="home-heading">Welcome back, {user?.username ?? "admin"}.</h1>
         <p class="lede">
-          Request an adaptive Mirad practice queue, type the answer you recall, and reveal the
-          backend-scored result without clutter from progress analytics.
+          Choose a focused section from the main menu, keep the practice card uncluttered, and reach
+          analytics only when you want progress diagnostics.
         </p>
       </div>
       <dl class="status-grid" aria-label="Current session">
@@ -393,149 +570,463 @@
           <dt>Role</dt>
           <dd>{user?.role ?? "admin"}</dd>
         </div>
+        <div>
+          <dt>Section</dt>
+          <dd>{activeSection}</dd>
+        </div>
       </dl>
 
-      <section class="practice-panel" aria-labelledby="practice-heading">
-        <div class="practice-header">
-          <div>
-            <p class="eyebrow">Adaptive session</p>
-            <h2 id="practice-heading">Practice queue</h2>
+      {#if activeSection === "menu"}
+        <section class="main-menu" aria-labelledby="menu-heading">
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">Authenticated home</p>
+              <h2 id="menu-heading">Main menu</h2>
+            </div>
           </div>
-          <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
-            {practiceState === "loading" ? "Loading…" : "Refresh queue"}
-          </button>
-        </div>
-
-        {#if practiceState === "loading"}
-          <p class="status-message" role="status">Loading practice queue…</p>
-        {:else if practiceState === "empty"}
-          <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
-        {:else if practiceError}
-          <p class="error-message" role="alert">{practiceError}</p>
-        {/if}
-
-        {#if currentCard}
-          <article class="practice-card" aria-label="Current practice card">
-            <div class="card-meta">
-              <span>{currentCard.type}</span>
-              <span>Direction: {directionLabel(currentCard)}</span>
-              <span>Reason: {currentCard.scheduler_reason}</span>
-            </div>
-            <p class="prompt-label">{promptLabel(currentCard)}</p>
-            <p class="prompt-text">{currentCard.prompt}</p>
-
-            <div class="audio-row" aria-label="Mirad answer audio">
-              <button
-                class="audio-button"
-                type="button"
-                aria-label="Play Mirad answer audio"
-                disabled={audioState === "loading"}
-                on:click={playCardAudio}
-              >
-                <span aria-hidden="true">🔊</span>
-                {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
-              </button>
-              {#if audioMessage}
-                <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
-                  {audioMessage}
-                  {#if audioDiagnostic}
-                    <span class="audio-diagnostic">{audioDiagnostic}</span>
-                  {/if}
-                </p>
-              {/if}
-            </div>
-
-            <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
-              <label class="answer-field" for="typed-answer-input">
-                {answerInputLabel(currentCard)}
-              </label>
-              <input
-                id="typed-answer-input"
-                name="typed-answer"
-                class="answer-input"
-                aria-label="Type your answer"
-                autocomplete="off"
-                bind:value={typedAnswer}
-                disabled={answerSubmitting || answerResult !== null}
-              />
-              <div class="answer-actions" aria-label="Submit answer">
-                <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>
-                  {answerSubmitting ? "Submitting…" : "Submit answer"}
-                </button>
-                <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>
-                  Give up
-                </button>
-              </div>
-            </form>
-
-            {#if answerError}
-              <p class="error-message" role="alert">{answerError}</p>
-            {/if}
-
-            {#if answerResult}
-              <section class="answer-result-panel" aria-labelledby="answer-result-heading">
-                <div class="answer-result-copy">
-                  <p class="eyebrow">Answer result</p>
-                  <h3 id="answer-result-heading">{answerResult.correct ? "Correct" : "Not quite"}</h3>
-                  <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
-                    {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
-                  </p>
+          <div class="menu-grid">
+            {#each menuSections as item}
+              <article class="menu-card">
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                 </div>
-                <dl class="answer-result-grid" aria-label="Answer reveal details">
-                  <div>
-                    <dt>expected_answer</dt>
-                    <dd>{answerResult.expected_answer ?? currentCard.answer}</dd>
-                  </div>
-                  <div>
-                    <dt>submitted_answer</dt>
-                    <dd>{answerResult.submitted_answer ?? "Give up"}</dd>
-                  </div>
-                  <div>
-                    <dt>correct</dt>
-                    <dd>{answerResult.correct ? "true" : "false"}</dd>
-                  </div>
-                  <div>
-                    <dt>scheduler_reason</dt>
-                    <dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd>
-                  </div>
-                  <div>
-                    <dt>latest_event</dt>
-                    <dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd>
-                  </div>
-                  <div>
-                    <dt>event_count</dt>
-                    <dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd>
-                  </div>
-                </dl>
-                <button class="primary-action" type="button" on:click={advancePracticeCard}>
-                  Continue
+                <button class={item.action === "logout" ? "secondary-action" : "primary-action"} type="button" on:click={() => activateMenuItem(item)}>
+                  {item.actionLabel}
                 </button>
-              </section>
-            {/if}
+              </article>
+            {/each}
+          </div>
+        </section>
+      {/if}
 
-            <dl class="diagnostic-grid" aria-label="Practice diagnostics">
-              <div>
-                <dt>direction</dt>
-                <dd>{currentCard.direction}</dd>
+      {#if activeSection === "practice"}
+        <section class="practice-panel" aria-labelledby="practice-heading">
+          <!-- Practice queue -->
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">{practiceEyebrow()}</p>
+              <h2 id="practice-heading">{practiceTitle()}</h2>
+            </div>
+            <div class="menu-actions">
+              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+              <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
+                {practiceState === "loading" ? "Loading…" : "Refresh queue"}
+              </button>
+            </div>
+          </div>
+
+          {#if practiceState === "loading"}
+            <p class="status-message" role="status">Loading practice queue…</p>
+          {:else if practiceState === "empty"}
+            <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
+          {:else if practiceError}
+            <p class="error-message" role="alert">{practiceError}</p>
+          {/if}
+
+          {#if currentCard}
+            <article class="practice-card" aria-label="Current practice card">
+              <div class="card-meta">
+                <span>{currentCard.type}</span>
+                <span>Direction: {directionLabel(currentCard)}</span>
+                <span>Reason: {currentCard.scheduler_reason}</span>
               </div>
+              <p class="prompt-label">{promptLabel(currentCard)}</p>
+              <p class="prompt-text">{currentCard.prompt}</p>
+
+              <div class="audio-row" aria-label="Mirad answer audio">
+                <button
+                  class="audio-button"
+                  type="button"
+                  aria-label="Play Mirad answer audio"
+                  disabled={audioState === "loading"}
+                  on:click={playCardAudio}
+                >
+                  <span aria-hidden="true">🔊</span>
+                  {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
+                </button>
+                {#if audioMessage}
+                  <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
+                    {audioMessage}
+                    {#if audioDiagnostic}
+                      <span class="audio-diagnostic">{audioDiagnostic}</span>
+                    {/if}
+                  </p>
+                {/if}
+              </div>
+
+              <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
+                <label class="answer-field" for="typed-answer-input">
+                  {answerInputLabel(currentCard)}
+                </label>
+                <input
+                  id="typed-answer-input"
+                  name="typed-answer"
+                  class="answer-input"
+                  aria-label="Type your answer"
+                  autocomplete="off"
+                  bind:value={typedAnswer}
+                  disabled={answerSubmitting || answerResult !== null}
+                />
+                <div class="answer-actions" aria-label="Submit answer">
+                  <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>
+                    {answerSubmitting ? "Submitting…" : "Submit answer"}
+                  </button>
+                  <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>
+                    Give up
+                  </button>
+                </div>
+              </form>
+
+              {#if answerError}
+                <p class="error-message" role="alert">{answerError}</p>
+              {/if}
+
+              {#if answerResult}
+                <section class="answer-result-panel" aria-labelledby="answer-result-heading">
+                  <div class="answer-result-copy">
+                    <p class="eyebrow">Answer result</p>
+                    <h3 id="answer-result-heading">{answerResult.correct ? "Correct" : "Not quite"}</h3>
+                    <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
+                      {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
+                    </p>
+                  </div>
+                  <dl class="answer-result-grid" aria-label="Answer reveal details">
+                    <div>
+                      <dt>expected_answer</dt>
+                      <dd>{answerResult.expected_answer ?? currentCard.answer}</dd>
+                    </div>
+                    <div>
+                      <dt>submitted_answer</dt>
+                      <dd>{answerResult.submitted_answer ?? "Give up"}</dd>
+                    </div>
+                    <div>
+                      <dt>correct</dt>
+                      <dd>{answerResult.correct ? "true" : "false"}</dd>
+                    </div>
+                    <div>
+                      <dt>scheduler_reason</dt>
+                      <dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd>
+                    </div>
+                    <div>
+                      <dt>latest_event</dt>
+                      <dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd>
+                    </div>
+                    <div>
+                      <dt>event_count</dt>
+                      <dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd>
+                    </div>
+                  </dl>
+                  <button class="primary-action" type="button" on:click={advancePracticeCard}>
+                    Continue
+                  </button>
+                </section>
+              {/if}
+
+              <dl class="diagnostic-grid" aria-label="Practice diagnostics">
+                <div>
+                  <dt>direction</dt>
+                  <dd>{currentCard.direction}</dd>
+                </div>
+                <div>
+                  <dt>event_count</dt>
+                  <dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd>
+                </div>
+                <div>
+                  <dt>scheduler_reason</dt>
+                  <dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd>
+                </div>
+                <div>
+                  <dt>phase</dt>
+                  <dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd>
+                </div>
+              </dl>
+            </article>
+          {/if}
+        </section>
+      {/if}
+
+      {#if activeSection === "revision"}
+        <section class="practice-panel" aria-labelledby="practice-heading">
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">{practiceEyebrow()}</p>
+              <h2 id="practice-heading">{practiceTitle()}</h2>
+            </div>
+            <div class="menu-actions">
+              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+              <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
+                {practiceState === "loading" ? "Loading…" : "Refresh queue"}
+              </button>
+            </div>
+          </div>
+
+          {#if practiceState === "loading"}
+            <p class="status-message" role="status">Loading practice queue…</p>
+          {:else if practiceState === "empty"}
+            <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
+          {:else if practiceError}
+            <p class="error-message" role="alert">{practiceError}</p>
+          {/if}
+
+          {#if currentCard}
+            <article class="practice-card" aria-label="Current practice card">
+              <div class="card-meta">
+                <span>{currentCard.type}</span>
+                <span>Direction: {directionLabel(currentCard)}</span>
+                <span>Reason: {currentCard.scheduler_reason}</span>
+              </div>
+              <p class="prompt-label">{promptLabel(currentCard)}</p>
+              <p class="prompt-text">{currentCard.prompt}</p>
+
+              <div class="audio-row" aria-label="Mirad answer audio">
+                <button class="audio-button" type="button" aria-label="Play Mirad answer audio" disabled={audioState === "loading"} on:click={playCardAudio}>
+                  <span aria-hidden="true">🔊</span>
+                  {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
+                </button>
+                {#if audioMessage}
+                  <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
+                    {audioMessage}
+                    {#if audioDiagnostic}
+                      <span class="audio-diagnostic">{audioDiagnostic}</span>
+                    {/if}
+                  </p>
+                {/if}
+              </div>
+
+              <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
+                <label class="answer-field" for="typed-answer-input-revision">{answerInputLabel(currentCard)}</label>
+                <input id="typed-answer-input-revision" name="typed-answer" class="answer-input" aria-label="Type your answer" autocomplete="off" bind:value={typedAnswer} disabled={answerSubmitting || answerResult !== null} />
+                <div class="answer-actions" aria-label="Submit answer">
+                  <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>{answerSubmitting ? "Submitting…" : "Submit answer"}</button>
+                  <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>Give up</button>
+                </div>
+              </form>
+
+              {#if answerError}
+                <p class="error-message" role="alert">{answerError}</p>
+              {/if}
+
+              {#if answerResult}
+                <section class="answer-result-panel" aria-labelledby="answer-result-heading-revision">
+                  <div class="answer-result-copy">
+                    <p class="eyebrow">Answer result</p>
+                    <h3 id="answer-result-heading-revision">{answerResult.correct ? "Correct" : "Not quite"}</h3>
+                    <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
+                      {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
+                    </p>
+                  </div>
+                  <dl class="answer-result-grid" aria-label="Answer reveal details">
+                    <div><dt>expected_answer</dt><dd>{answerResult.expected_answer ?? currentCard.answer}</dd></div>
+                    <div><dt>submitted_answer</dt><dd>{answerResult.submitted_answer ?? "Give up"}</dd></div>
+                    <div><dt>correct</dt><dd>{answerResult.correct ? "true" : "false"}</dd></div>
+                    <div><dt>scheduler_reason</dt><dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
+                    <div><dt>latest_event</dt><dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd></div>
+                    <div><dt>event_count</dt><dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
+                  </dl>
+                  <button class="primary-action" type="button" on:click={advancePracticeCard}>Continue</button>
+                </section>
+              {/if}
+
+              <dl class="diagnostic-grid" aria-label="Practice diagnostics">
+                <div><dt>direction</dt><dd>{currentCard.direction}</dd></div>
+                <div><dt>event_count</dt><dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
+                <div><dt>scheduler_reason</dt><dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
+                <div><dt>phase</dt><dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd></div>
+              </dl>
+            </article>
+          {/if}
+        </section>
+      {/if}
+
+      {#if activeSection === "build_vocabulary"}
+        <section class="practice-panel" aria-labelledby="practice-heading">
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">{practiceEyebrow()}</p>
+              <h2 id="practice-heading">{practiceTitle()}</h2>
+            </div>
+            <div class="menu-actions">
+              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+              <button class="secondary-action" type="button" on:click={loadPracticeQueue} disabled={practiceState === "loading" || answerSubmitting}>
+                {practiceState === "loading" ? "Loading…" : "Refresh queue"}
+              </button>
+            </div>
+          </div>
+
+          {#if practiceState === "loading"}
+            <p class="status-message" role="status">Loading practice queue…</p>
+          {:else if practiceState === "empty"}
+            <p class="status-message" role="status">No practice cards are available yet. Import phrase or word content first.</p>
+          {:else if practiceError}
+            <p class="error-message" role="alert">{practiceError}</p>
+          {/if}
+
+          {#if currentCard}
+            <article class="practice-card" aria-label="Current practice card">
+              <div class="card-meta">
+                <span>{currentCard.type}</span>
+                <span>Direction: {directionLabel(currentCard)}</span>
+                <span>Reason: {currentCard.scheduler_reason}</span>
+              </div>
+              <p class="prompt-label">{promptLabel(currentCard)}</p>
+              <p class="prompt-text">{currentCard.prompt}</p>
+
+              <div class="audio-row" aria-label="Mirad answer audio">
+                <button class="audio-button" type="button" aria-label="Play Mirad answer audio" disabled={audioState === "loading"} on:click={playCardAudio}>
+                  <span aria-hidden="true">🔊</span>
+                  {audioState === "loading" ? "Preparing audio…" : audioState === "playing" ? "Playing…" : "Hear Mirad answer"}
+                </button>
+                {#if audioMessage}
+                  <p class={audioState === "error" || audioState === "unavailable" ? "error-message" : "status-message"} role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}>
+                    {audioMessage}
+                    {#if audioDiagnostic}
+                      <span class="audio-diagnostic">{audioDiagnostic}</span>
+                    {/if}
+                  </p>
+                {/if}
+              </div>
+
+              <form class="answer-form" aria-label="Typed recall answer form" on:submit|preventDefault={submitTypedPracticeAnswer}>
+                <label class="answer-field" for="typed-answer-input-vocabulary">{answerInputLabel(currentCard)}</label>
+                <input id="typed-answer-input-vocabulary" name="typed-answer" class="answer-input" aria-label="Type your answer" autocomplete="off" bind:value={typedAnswer} disabled={answerSubmitting || answerResult !== null} />
+                <div class="answer-actions" aria-label="Submit answer">
+                  <button class="primary-action" type="submit" disabled={answerSubmitting || answerResult !== null}>{answerSubmitting ? "Submitting…" : "Submit answer"}</button>
+                  <button class="secondary-action" type="button" disabled={answerSubmitting || answerResult !== null} on:click={submitGiveUp}>Give up</button>
+                </div>
+              </form>
+
+              {#if answerError}
+                <p class="error-message" role="alert">{answerError}</p>
+              {/if}
+
+              {#if answerResult}
+                <section class="answer-result-panel" aria-labelledby="answer-result-heading-vocabulary">
+                  <div class="answer-result-copy">
+                    <p class="eyebrow">Answer result</p>
+                    <h3 id="answer-result-heading-vocabulary">{answerResult.correct ? "Correct" : "Not quite"}</h3>
+                    <p class={answerResult.correct ? "status-message" : "error-message"} role="status">
+                      {answerResult.correct ? "Nice recall — backend marked this correct." : "The correct answer is revealed below."}
+                    </p>
+                  </div>
+                  <dl class="answer-result-grid" aria-label="Answer reveal details">
+                    <div><dt>expected_answer</dt><dd>{answerResult.expected_answer ?? currentCard.answer}</dd></div>
+                    <div><dt>submitted_answer</dt><dd>{answerResult.submitted_answer ?? "Give up"}</dd></div>
+                    <div><dt>correct</dt><dd>{answerResult.correct ? "true" : "false"}</dd></div>
+                    <div><dt>scheduler_reason</dt><dd>{answerResult.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
+                    <div><dt>latest_event</dt><dd>{answerResult.latest_event ? `${answerResult.latest_event.card_id}: ${answerResult.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd></div>
+                    <div><dt>event_count</dt><dd>{answerResult.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
+                  </dl>
+                  <button class="primary-action" type="button" on:click={advancePracticeCard}>Continue</button>
+                </section>
+              {/if}
+
+              <dl class="diagnostic-grid" aria-label="Practice diagnostics">
+                <div><dt>direction</dt><dd>{currentCard.direction}</dd></div>
+                <div><dt>event_count</dt><dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd></div>
+                <div><dt>scheduler_reason</dt><dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd></div>
+                <div><dt>phase</dt><dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd></div>
+              </dl>
+            </article>
+          {/if}
+        </section>
+      {/if}
+
+      {#if activeSection === "analytics"}
+        <section class="analytics-panel" aria-labelledby="analytics-heading">
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">Progress diagnostics</p>
+              <h2 id="analytics-heading">Analytics</h2>
+            </div>
+            <div class="menu-actions">
+              <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+              <button class="secondary-action" type="button" on:click={loadAnalytics} disabled={analyticsState === "loading"}>
+                {analyticsState === "loading" ? "Loading…" : "Refresh analytics"}
+              </button>
+            </div>
+          </div>
+
+          {#if analyticsState === "loading"}
+            <p class="status-message" role="status">Analytics status: loading progress diagnostics…</p>
+          {:else if analyticsError}
+            <p class="error-message" role="alert">Analytics error: {analyticsError}</p>
+          {:else if analyticsPayload && hasAnalyticsSummary(analyticsPayload)}
+            <p class="status-message" role="status">Progress status: {analyticsPayload.phase ?? analyticsPayload.practice_phase ?? "practice_progress"}</p>
+            <dl class="analytics-grid">
               <div>
                 <dt>event_count</dt>
-                <dd>{answerResult?.event_count ?? practiceQueue?.event_count ?? 0}</dd>
+                <dd>{formatCount(analyticsPayload.event_count) ?? 0}</dd>
               </div>
               <div>
-                <dt>scheduler_reason</dt>
-                <dd>{answerResult?.scheduler_reason ?? currentCard.scheduler_reason}</dd>
+                <dt>accuracy</dt>
+                <dd>{formatPercent(analyticsPayload.accuracy)}</dd>
               </div>
               <div>
-                <dt>phase</dt>
-                <dd>{answerResult?.phase ?? practiceQueue?.phase ?? "practice_queue"}</dd>
+                <dt>progress percentage</dt>
+                <dd>{analyticsPayload.total ? `${Math.round(((analyticsPayload.correct ?? 0) / analyticsPayload.total) * 100)}%` : "n/a"}</dd>
+              </div>
+              <div>
+                <dt>completion percentage</dt>
+                <dd>{analyticsPayload.total ? `${Math.round(((analyticsPayload.event_count ?? 0) / analyticsPayload.total) * 100)}%` : "n/a"}</dd>
+              </div>
+              <div>
+                <dt>weak cards</dt>
+                <dd>{formatCount(analyticsPayload.weak_count)}</dd>
+              </div>
+              <div>
+                <dt>mastered cards</dt>
+                <dd>{formatCount(analyticsPayload.mastered_count)}</dd>
+              </div>
+              <div>
+                <dt>stale cards</dt>
+                <dd>{formatCount(analyticsPayload.stale_count)}</dd>
+              </div>
+              <div>
+                <dt>new cards</dt>
+                <dd>{formatCount(analyticsPayload.new_count)}</dd>
               </div>
             </dl>
-          </article>
-        {/if}
-      </section>
+            <dl class="diagnostic-grid" aria-label="Analytics diagnostics">
+              <div>
+                <dt>scheduler_reason</dt>
+                <dd>{analyticsPayload.latest_event?.scheduler_reason ?? analyticsPayload.per_card?.[0]?.scheduler_reason ?? "none"}</dd>
+              </div>
+              <div>
+                <dt>latest_event</dt>
+                <dd>{analyticsPayload.latest_event ? `${analyticsPayload.latest_event.card_id}: ${analyticsPayload.latest_event.correct ? "correct" : "incorrect"}` : "none"}</dd>
+              </div>
+              <div>
+                <dt>word accuracy</dt>
+                <dd>{formatPercent(analyticsPayload.per_type?.word?.accuracy)}</dd>
+              </div>
+              <div>
+                <dt>phrase accuracy</dt>
+                <dd>{formatPercent(analyticsPayload.per_type?.phrase?.accuracy)}</dd>
+              </div>
+            </dl>
+          {:else}
+            <p class="status-message" role="status">
+              Analytics status: no progress diagnostics are available yet. Start or refresh practice, then return here.
+            </p>
+          {/if}
+        </section>
+      {/if}
 
-      <button class="secondary-action" type="button" on:click={logout}>Log out</button>
+      {#if activeSection === "settings"}
+        <section class="analytics-panel" aria-labelledby="settings-heading">
+          <div class="practice-header">
+            <div>
+              <p class="eyebrow">Placeholder settings</p>
+              <h2 id="settings-heading">Settings</h2>
+            </div>
+            <button class="secondary-action" type="button" on:click={goToMenu}>Back to menu</button>
+          </div>
+          <p class="status-message" role="status">
+            Settings arrives in S04 with theme, TTS speed, voice display, and account deletion controls.
+          </p>
+        </section>
+      {/if}
     </section>
   </main>
 {:else}
