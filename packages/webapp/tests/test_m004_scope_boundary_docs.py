@@ -10,6 +10,7 @@ DOC_PATH = Path(__file__).parents[1] / "docs" / "m004_scope_boundary_map.md"
 REQUIRED_HEADINGS = [
     "# M004 Scope and Boundary Map",
     "## Requirement Status",
+    "## Requirement Scope Reconciliation",
     "## Requirement Coverage by Slice",
     "## Scope Boundaries",
     "## Producer and Consumer Contracts",
@@ -31,10 +32,10 @@ REQUIRED_BOUNDARY_TERMS = [
     "out of scope",
 ]
 
-REQUIRED_REMEDIATION_PHRASES = {
-    "S07": ["registration", "bidirectional", "Pending remediation"],
-    "S08": ["wordfreq", "SQLite", "Pending remediation"],
-    "S09": ["browser UAT", "audio", "progress", "Pending remediation"],
+REQUIRED_COMPLETED_PHRASES = {
+    "S07": ["registration", "bidirectional", "Completed evidence"],
+    "S08": ["wordfreq", "SQLite", "Completed evidence"],
+    "S09": ["browser UAT", "audio", "progress", "Completed evidence"],
 }
 
 PLACEHOLDER_RE = re.compile(r"\b(TBD|TODO|FIXME|XXX)\b", re.IGNORECASE)
@@ -75,13 +76,22 @@ def test_m004_scope_boundary_contract_names_key_boundaries() -> None:
         assert term.lower() in text.lower(), f"Missing boundary term: {term}"
 
 
-def test_m004_scope_boundary_contract_tracks_s07_s08_s09_remediation() -> None:
+def test_m004_scope_boundary_contract_tracks_s07_s08_s09_completion() -> None:
     text = _read_contract()
 
-    for slice_id, phrases in REQUIRED_REMEDIATION_PHRASES.items():
+    for slice_id, phrases in REQUIRED_COMPLETED_PHRASES.items():
         row = _row_for_slice(text, slice_id)
         for phrase in phrases:
-            assert phrase.lower() in row.lower(), f"Missing {phrase!r} in {slice_id} remediation row: {row}"
+            assert phrase.lower() in row.lower(), f"Missing {phrase!r} in {slice_id} completed row: {row}"
+
+
+def test_m004_scope_boundary_contract_has_no_stale_s07_s09_pending_wording() -> None:
+    text = _read_contract().lower()
+
+    assert "pending remediation" not in text
+    assert "s07 must" not in text
+    assert "s08 must" not in text
+    assert "s09 must" not in text
 
 
 def test_m004_scope_boundary_contract_states_requirement_source_truth() -> None:
@@ -92,6 +102,9 @@ def test_m004_scope_boundary_contract_states_requirement_source_truth() -> None:
     assert "R009" in text
     assert "non-webapp tokenizer requirements" in text
     assert "does not invent new requirement identifiers" in text
+    assert "Requirement Scope Reconciliation" in text
+    assert "foundation" in text
+    assert "M004 webapp ownership" in text
 
 
 def test_m004_scope_boundary_contract_has_no_placeholder_tokens() -> None:
