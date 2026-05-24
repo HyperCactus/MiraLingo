@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import FastAPI, Query, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -201,7 +201,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"authenticated": False}
 
     @app.get("/practice/queue", tags=["practice"])
-    def practice_queue(request: Request, limit: int = Query(default=10, ge=1, le=50)) -> JSONResponse:
+    def practice_queue(
+        request: Request,
+        limit: int = Query(default=10, ge=1, le=50),
+        mode: Literal["mixed", "revision", "build_vocabulary"] = Query(default="mixed"),
+    ) -> JSONResponse:
         """Return an adaptive practice queue for the authenticated session."""
         user = user_from_session(request.session.get(SESSION_USER_KEY))
         if user is None:
@@ -232,6 +236,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 cards=result.cards,
                 events=events,
                 limit=limit,
+                mode=mode,
             )
             request.app.state.storage.record_cards_shown(username=user.username, cards=payload["cards"])
         except StorageError as exc:

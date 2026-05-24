@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import sqlite3
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from mirad_webapp.api import create_app
 from mirad_webapp.config import Settings
+from mirad_webapp.storage import StorageError
+
+
+NOW = datetime(2026, 5, 24, 12, 0, tzinfo=timezone.utc)
+STALE_AT = NOW - timedelta(days=15)
 
 
 def _write_phrase_csv(path: Path) -> Path:
@@ -18,16 +25,27 @@ def _write_phrase_csv(path: Path) -> Path:
     return path
 
 
+def _settings(tmp_path: Path) -> Settings:
+    return Settings(
+        session_secret="test-secret",
+        database_path=tmp_path / "miralingo.sqlite3",
+        phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv"),
+    )
+
+
+def _app(tmp_path: Path):
+    return create_app(_settings(tmp_path))
+
+
 def _login(client: TestClient) -> None:
     response = client.post("/auth/login", json={"username": "admin", "password": "admin"})
     assert response.status_code == 200
 
 
 def test_practice_queue_requires_authenticated_session(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
 
-    response = client.get("/practice/queue")
+    response = client.get("/practice/queue?mode=revision")
 
     assert response.status_code == 401
     assert response.json() == {
@@ -39,14 +57,11 @@ def test_practice_queue_requires_authenticated_session(tmp_path: Path) -> None:
 
 
 def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(monkeypatch, tmp_path: Path) -> None:
-    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
-
     def fake_lookup(english_word: str) -> str | None:
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
     _login(client)
 
     response = client.get("/practice/queue?limit=3")
@@ -55,6 +70,10 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
     payload = response.json()
     assert payload["ok"] is True
     assert payload["phase"] == "practice_queue"
+    assert payload["mode"] == "mixed"
+    assert payload["mode_detail"] == "default_mixed"
+    assert payload["repeat_gap"] == 10
+    assert payload["repeat_gap_satisfied"] is False
     assert payload["card_count"] == 8
     assert payload["base_card_count"] == 4
     assert payload["event_count"] == 0
@@ -76,18 +95,100 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
         "mastery": {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None},
         "recency": {"last_seen_at": None, "age_seconds": None},
     }
-    assert payload["cards"][1]["direction"] == "mirad_to_english"
+    assert len({card["base_card_id"] for card in payload["cards"]}) == 3
+    assert all(card["direction"] == "english_to_mirad" for card in payload["cards"])
+
+
+def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    app.state.storage.ensure_session_user(username="admin", role="admin", phase="practice_answer")
+    app.state.storage.append_answer_event(
+        username="admin",
+        card_id="word:the#english-to-mirad",
+        base_card_id="word:the",
+        direction="english_to_mirad",
+        card_type="word",
+        submitted_answer="te",
+        expected_answer="te",
+        correct=True,
+        answered_at=STALE_AT,
+    )
+    app.state.storage.append_answer_event(
+        username="admin",
+        card_id="word:the#mirad-to-english",
+        base_card_id="word:the",
+        direction="mirad_to_english",
+        card_type="word",
+        submitted_answer="the",
+        expected_answer="the",
+        correct=True,
+        answered_at=STALE_AT,
+    )
+    app.state.storage.append_answer_event(
+        username="admin",
+        card_id="word:be#english-to-mirad",
+        base_card_id="word:be",
+        direction="english_to_mirad",
+        card_type="word",
+        submitted_answer="bi",
+        expected_answer="bi",
+        correct=True,
+        answered_at=NOW,
+    )
+
+    response = client.get("/practice/queue?mode=revision&limit=10")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "revision"
+    assert payload["mode_detail"] == "stale_only"
+    assert payload["event_count"] == 3
+    assert [card["id"] for card in payload["cards"]] == [
+        "word:the#english-to-mirad",
+        "word:the#mirad-to-english",
+    ]
+    assert all(card["scheduler_reason"] == "stale_mastered_review" for card in payload["cards"])
+    assert payload["repeat_gap"] == 10
+    assert payload["repeat_gap_satisfied"] is False
+
+
+def test_practice_queue_build_vocabulary_mode_returns_only_new_word_base_cards(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    answered = client.post("/practice/answers", json={"card_id": "word:the", "correct": False})
+    assert answered.status_code == 200
+
+    response = client.get("/practice/queue?mode=build_vocabulary&limit=10")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "build_vocabulary"
+    assert payload["mode_detail"] == "new_words_only"
+    assert payload["event_count"] == 1
+    assert {card["base_card_id"] for card in payload["cards"]} == {"word:be"}
+    assert [card["id"] for card in payload["cards"]] == [
+        "word:be#english-to-mirad",
+        "word:be#mirad-to-english",
+    ]
+    assert all(card["type"] == "word" for card in payload["cards"])
+    assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
+    assert payload["repeat_gap"] == 10
+    assert payload["repeat_gap_satisfied"] is False
 
 
 def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_card(monkeypatch, tmp_path: Path) -> None:
-    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
-
     def fake_lookup(english_word: str) -> str | None:
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
     _login(client)
 
     submit = client.post("/practice/answers", json={"card_id": "word:the", "correct": False})
@@ -116,8 +217,7 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
 
 
 def test_practice_answer_requires_authenticated_session(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
 
     response = client.post("/practice/answers", json={"card_id": "phrase:hello-world", "correct": True})
 
@@ -131,10 +231,8 @@ def test_practice_answer_requires_authenticated_session(tmp_path: Path) -> None:
 
 
 def test_practice_answer_unknown_card_returns_404_without_appending_event(monkeypatch, tmp_path: Path) -> None:
-    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: None)
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=phrase_csv))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
     _login(client)
 
     response = client.post("/practice/answers", json={"card_id": "word:missing", "correct": False})
@@ -154,8 +252,7 @@ def test_practice_answer_unknown_card_returns_404_without_appending_event(monkey
 
 
 def test_practice_invalid_limit_returns_practice_validation_payload(tmp_path: Path) -> None:
-    app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=_write_phrase_csv(tmp_path / "phrases.csv")))
-    client = TestClient(app)
+    client = TestClient(_app(tmp_path))
     _login(client)
 
     response = client.get("/practice/queue?limit=0")
@@ -169,13 +266,41 @@ def test_practice_invalid_limit_returns_practice_validation_payload(tmp_path: Pa
     }
 
 
+def test_practice_invalid_mode_returns_practice_validation_and_does_not_record_cards(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    called = False
+
+    def fail_if_called(*, username: str, cards: list[dict]):
+        nonlocal called
+        called = True
+        raise AssertionError("record_cards_shown should not be called for invalid mode")
+
+    app.state.storage.record_cards_shown = fail_if_called
+    response = client.get("/practice/queue?mode=surprise")
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "ok": False,
+        "error": "invalid_practice_payload",
+        "phase": "practice_validation",
+        "detail": "Practice request payload or query parameters failed validation.",
+    }
+    assert called is False
+    with sqlite3.connect(tmp_path / "miralingo.sqlite3") as connection:
+        assert connection.execute("SELECT COUNT(*) FROM shown_cards").fetchone()[0] == 0
+
+
 def test_practice_queue_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:
     missing_csv = tmp_path / "missing.csv"
     app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=missing_csv))
     client = TestClient(app)
     _login(client)
 
-    response = client.get("/practice/queue")
+    response = client.get("/practice/queue?mode=mixed")
 
     assert response.status_code == 404
     payload = response.json()
@@ -185,3 +310,26 @@ def test_practice_queue_missing_content_source_returns_structured_payload(tmp_pa
     assert payload["source_type"] == "phrase_csv"
     assert payload["source_path"] == str(missing_csv)
     assert payload["practice_phase"] == "practice_queue"
+
+
+def test_practice_queue_storage_failure_does_not_claim_persistence(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    def fail_record(*, username: str, cards: list[dict]):
+        raise StorageError(phase="practice_queue", detail="Could not record shown cards.")
+
+    app.state.storage.record_cards_shown = fail_record
+    response = client.get("/practice/queue?mode=mixed&limit=1")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "ok": False,
+        "error": "storage_error",
+        "phase": "practice_queue",
+        "detail": "Could not record shown cards.",
+    }
+    with sqlite3.connect(tmp_path / "miralingo.sqlite3") as connection:
+        assert connection.execute("SELECT COUNT(*) FROM shown_cards").fetchone()[0] == 0

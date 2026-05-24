@@ -81,8 +81,9 @@ def test_queue_persists_shown_cards_with_direction_and_language_metadata(monkeyp
         "english",
         "mirad",
     )
-    assert rows[1][3] == "mirad_to_english"
-    assert rows[1][5:] == ("mirad", "english")
+    assert {row[3] for row in rows} == {"english_to_mirad"}
+    assert {row[5] for row in rows} == {"english"}
+    assert {row[6] for row in rows} == {"mirad"}
 
 
 def test_answer_events_survive_restart_and_progress_reports_correctness(monkeypatch, tmp_path: Path) -> None:
