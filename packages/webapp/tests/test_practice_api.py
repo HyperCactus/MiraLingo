@@ -251,6 +251,109 @@ def test_practice_answer_unknown_card_returns_404_without_appending_event(monkey
     assert queue.json()["event_count"] == 0
 
 
+def test_practice_answer_typed_submission_infers_correctness_and_persists_answers(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    response = client.post(
+        "/practice/answers",
+        json={"card_id": "word:the#english-to-mirad", "answer": "  te  "},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["ok"] is True
+    assert payload["phase"] == "practice_answer"
+    assert payload["card_id"] == "word:the#english-to-mirad"
+    assert payload["base_card_id"] == "word:the"
+    assert payload["direction"] == "english_to_mirad"
+    assert payload["card_type"] == "word"
+    assert payload["correct"] is True
+    assert payload["event_count"] == 1
+    assert payload["latest_event"] == {
+        "card_id": "word:the#english-to-mirad",
+        "base_card_id": "word:the",
+        "direction": "english_to_mirad",
+        "card_type": "word",
+        "correct": True,
+        "answered_at": payload["latest_event"]["answered_at"],
+    }
+
+    events = app.state.storage.list_answer_events(username="admin", phase="practice_answer")
+    assert len(events) == 1
+    assert events[0].submitted_answer == "te"
+    assert events[0].expected_answer == "te"
+    assert events[0].correct is True
+
+
+def test_practice_answer_typed_submission_records_wrong_answer_without_correct_flag(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    response = client.post(
+        "/practice/answers",
+        json={"card_id": "word:the#english-to-mirad", "answer": "wrong answer"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["ok"] is True
+    assert payload["phase"] == "practice_answer"
+    assert payload["correct"] is False
+    assert payload["scheduler_reason"] == "weak_recent_performance"
+    assert payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
+    assert payload["latest_event"]["correct"] is False
+
+    events = app.state.storage.list_answer_events(username="admin", phase="practice_answer")
+    assert len(events) == 1
+    assert events[0].submitted_answer == "wrong answer"
+    assert events[0].expected_answer == "te"
+    assert events[0].correct is False
+
+
+def test_practice_answer_invalid_payload_returns_structured_practice_validation(tmp_path: Path) -> None:
+    client = TestClient(_app(tmp_path))
+    _login(client)
+
+    response = client.post("/practice/answers", json={"answer": "te"})
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "ok": False,
+        "error": "invalid_practice_payload",
+        "phase": "practice_validation",
+        "detail": "Practice request payload or query parameters failed validation.",
+    }
+
+
+def test_practice_answer_storage_failure_returns_structured_practice_answer_payload(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    def fail_append(**_kwargs):
+        raise StorageError(phase="practice_answer", detail="Could not append practice answer.")
+
+    app.state.storage.append_answer_event = fail_append
+    response = client.post(
+        "/practice/answers",
+        json={"card_id": "word:the#english-to-mirad", "answer": "te"},
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "ok": False,
+        "error": "storage_error",
+        "phase": "practice_answer",
+        "detail": "Could not append practice answer.",
+    }
+
+
 def test_practice_invalid_limit_returns_practice_validation_payload(tmp_path: Path) -> None:
     client = TestClient(_app(tmp_path))
     _login(client)
