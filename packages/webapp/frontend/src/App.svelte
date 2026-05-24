@@ -555,11 +555,13 @@
     try {
       await fetch("/auth/logout", { method: "POST", headers: { Accept: "application/json" } });
     } finally {
+      resetPracticeSurface();
+      resetSettingsSurface();
       clearAuthenticatedAppState();
     }
   }
 
-  async function loadPracticeQueue(mode = activePracticeMode) {
+async function loadPracticeQueue(mode = activePracticeMode) {
     resetAudioState();
     resetAnswerState();
     practiceState = "loading";
@@ -602,7 +604,7 @@
     await loadPracticeQueue(mode);
   }
 
-  async function loadAnalytics() {
+async function loadAnalytics() {
     analyticsState = "loading";
     analyticsError = "";
     try {
@@ -623,7 +625,7 @@
       analyticsState = "error";
       analyticsError = "Could not reach progress analytics. Check that the web server is running.";
     }
-  }
+}
 
   async function openAnalytics() {
     activeSection = "analytics";
