@@ -28,7 +28,16 @@ def test_s03_logged_in_user_can_request_queue_submit_answer_and_see_adaptation(m
         return {"the": "te", "be": "bi"}.get(english_word)
 
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", fake_lookup)
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True, phrase_csv_path=phrase_csv)))
+    client = TestClient(
+        create_app(
+            Settings(
+                environment="development",
+                enable_local_admin=True,
+                phrase_csv_path=phrase_csv,
+                database_path=tmp_path / "miralingo.sqlite3",
+            )
+        )
+    )
 
     login = client.post("/auth/login", json={"username": "admin", "password": "admin"})
     first_queue = client.get("/practice/queue?limit=3")
@@ -57,7 +66,16 @@ def test_s03_logged_in_user_can_request_queue_submit_answer_and_see_adaptation(m
 def test_s03_negative_paths_are_structured_and_do_not_expose_credentials(monkeypatch, tmp_path: Path) -> None:
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv")
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te"}.get(english_word))
-    client = TestClient(create_app(Settings(environment="development", enable_local_admin=True, phrase_csv_path=phrase_csv)))
+    client = TestClient(
+        create_app(
+            Settings(
+                environment="development",
+                enable_local_admin=True,
+                phrase_csv_path=phrase_csv,
+                database_path=tmp_path / "miralingo.sqlite3",
+            )
+        )
+    )
 
     unauth_queue = client.get("/practice/queue")
     unauth_submit = client.post("/practice/answer", json={"card_id": "phrase:hello-world", "answer": "ha world"})

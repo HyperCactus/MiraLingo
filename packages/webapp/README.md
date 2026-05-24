@@ -7,7 +7,7 @@ MiraLingo is the local web application shell for learning Mirad. The S01 slice p
 Implemented in this package:
 
 - FastAPI backend with `/health`, `/auth/current-user`, `/auth/login`, and `/auth/logout` endpoints.
-- Signed-cookie session state that stores only password-free user fields plus bounded per-session practice events.
+- Signed-cookie session state that stores only password-free current-user identity; learner accounts, shown cards, and answer events are persisted in SQLite.
 - Guarded local admin bootstrap (`admin` / `admin`) that works only when development settings enable it.
 - Authenticated adaptive practice APIs at `/practice/queue` and `/practice/answers`.
 - Authenticated MBROLA-backed Mirad answer audio at `/practice/audio/{card_id}` with structured unavailable diagnostics.
@@ -24,8 +24,48 @@ The backend reads these environment variables:
 | `MIRALINGO_ENV` | `development` | Runtime environment. Local admin login is refused unless this is `development`. |
 | `MIRALINGO_ENABLE_LOCAL_ADMIN` | `true` | Enables the development-only `admin` / `admin` bootstrap when truthy. |
 | `MIRALINGO_SESSION_SECRET` | `miralingo-dev-session-secret` | Secret used to sign session cookies. Override outside throwaway local runs. |
+| `MIRALINGO_DATABASE_PATH` | `.miralingo/miralingo.sqlite3` | SQLite database path for durable learner accounts, shown cards, and answer events. Parent directories are created at startup. |
+| `MIRALINGO_PHRASE_CSV_PATH` | `data/phrases/english-mirad-sentence-pairs.csv` | Phrase card source used together with real wordfreq-ranked word cards. |
 
 Local admin bootstrap is intentionally unsuitable for production. A production-like run should set `MIRALINGO_ENV=production`, which returns a structured `local_admin_disabled` response for `/auth/login` even if the username and password are correct.
+
+## S08 SQLite Persistence and Wordfreq Cards
+
+S08 replaces the temporary practice/session stores with a SQLite-backed storage boundary and real ranked word-card sourcing. The default database path is controlled by `MIRALINGO_DATABASE_PATH`; if the variable is omitted, the backend creates `.miralingo/miralingo.sqlite3` relative to the process working directory. Use a throwaway path such as `/tmp/miralingo-dev.sqlite3` when reproducing persistence bugs so browser sessions and test runs do not share state accidentally.
+
+Signed cookies are intentionally small: they store only the current password-free user identity needed to authenticate a request. They do **not** store password hashes, salts, shown-card history, answer events, or submitted practice answers. Registered learner credentials and practice history live in SQLite instead.
+
+Word cards are generated from the real `wordfreq` dependency (`wordfreq.top_n_list('en', ...)`) and then filtered through the Mirad translator lexicon. Phrase cards still come from `MIRALINGO_PHRASE_CSV_PATH`. If word cards are missing, first verify that `wordfreq` is installed in the active webapp environment and that `packages/translator/src` is present on `PYTHONPATH` for local source runs.
+
+Safe SQLite inspection surfaces for future agents:
+
+| Table | Safe fields to inspect | Secret caution |
+|---|---|---|
+| `users` | `username`, `role`, `created_at` | Do not print or copy `salt` or `password_hash`. |
+| `shown_cards` | `username`, `card_id`, `base_card_id`, `direction`, `card_type`, `prompt_language`, `answer_language`, `shown_at` | Contains no credentials. |
+| `answer_events` | `username`, `card_id`, `base_card_id`, `direction`, `card_type`, `submitted_answer`, `expected_answer`, `correct`, `answered_at` | Contains learner-submitted answers but no passwords, salts, or hashes. |
+
+Example local diagnostics from the repository root:
+
+```bash
+MIRALINGO_DATABASE_PATH=/tmp/miralingo-dev.sqlite3 \
+PYTHONPATH=packages/webapp/src:packages/tts/src:packages/translator/src \
+  python -m uvicorn mirad_webapp.api:app --reload --app-dir packages/webapp/src
+
+python - <<'PY'
+import sqlite3
+from pathlib import Path
+path = Path('/tmp/miralingo-dev.sqlite3')
+with sqlite3.connect(path) as db:
+    for table in ('users', 'shown_cards', 'answer_events'):
+        count = db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
+        print(f'{table}: {count}')
+    print(db.execute('SELECT username, card_id, direction, card_type, shown_at FROM shown_cards ORDER BY id DESC LIMIT 5').fetchall())
+    print(db.execute('SELECT username, card_id, correct, answered_at FROM answer_events ORDER BY id DESC LIMIT 5').fetchall())
+PY
+```
+
+Storage failures are returned as stacktrace-free JSON with stable `phase` values such as `storage_init`, `auth_register`, `auth_login`, `practice_queue`, `practice_answer`, and `practice_progress`. These payloads must not include submitted passwords, password hashes, or salts.
 
 ## Backend Startup
 
