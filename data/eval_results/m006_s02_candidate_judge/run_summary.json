@@ -1,0 +1,53 @@
+{
+  "started_at": "2026-05-25T07:03:57.737652+00:00",
+  "completed_at": "2026-05-25T07:03:57.739267+00:00",
+  "dry_run": true,
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "api_preflight": {
+    "api_key_required": false,
+    "api_key_present": true,
+    "status": "not-required"
+  },
+  "devset_size": 12,
+  "direction_counts": {
+    "en_to_mir": 6,
+    "mir_to_en": 6
+  },
+  "estimated_total_calls": 48,
+  "estimated_cost_usd": 0.0,
+  "total_calls": 48,
+  "elapsed_ms": 0,
+  "failed_example_count": 0,
+  "failed_example_ids": [],
+  "successful_example_count": 12,
+  "passed_example_count": 12,
+  "passed_example_ids": [
+    "s01-001-en-to-mir-progressive-going-home",
+    "s01-002-en-to-mir-comparison-vyel",
+    "s01-003-en-to-mir-dummy-it-negation",
+    "s01-004-en-to-mir-object-order",
+    "s01-005-en-to-mir-subordinate-whether",
+    "s01-006-en-to-mir-possession-book",
+    "s01-007-mir-to-en-locative-be-home",
+    "s01-008-mir-to-en-distance-bi-here",
+    "s01-009-mir-to-en-question-school",
+    "s01-010-mir-to-en-weather-dummy-it",
+    "s01-011-mir-to-en-subordinate-van",
+    "s01-012-mir-to-en-pronoun-object-reference"
+  ],
+  "preflight": {
+    "ok": true,
+    "dry_run": true,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "devset_size": 12,
+    "max_examples": 15,
+    "explicit_override": false,
+    "candidates_per_example": 3,
+    "estimated_total_calls": 48,
+    "estimated_cost_usd": 0.0,
+    "direction_counts": {
+      "en_to_mir": 6,
+      "mir_to_en": 6
+    }
+  }
+}

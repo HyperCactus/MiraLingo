@@ -1,0 +1,1442 @@
+[
+  {
+    "id": "s01-001-en-to-mir-progressive-going-home",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "he or she was going home",
+    "expected": "It peya tam.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-001-en-to-mir-progressive-going-home",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "It peya tam.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "It peya tam.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+        "candidate_ids": [
+          "s01-001-en-to-mir-progressive-going-home-cand-01",
+          "s01-001-en-to-mir-progressive-going-home-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-001-en-to-mir-progressive-going-home",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "he or she was going home",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "he or she was going home",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+          "candidate_ids": [
+            "s01-001-en-to-mir-progressive-going-home-cand-01",
+            "s01-001-en-to-mir-progressive-going-home-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+        "candidate_ids": [
+          "s01-001-en-to-mir-progressive-going-home-cand-01",
+          "s01-001-en-to-mir-progressive-going-home-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-001-en-to-mir-progressive-going-home-cand-01",
+      "candidate_ids": [
+        "s01-001-en-to-mir-progressive-going-home-cand-01",
+        "s01-001-en-to-mir-progressive-going-home-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-002-en-to-mir-comparison-vyel",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "my house is bigger than yours",
+    "expected": "Ata tam se ga aga vyel etas.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-002-en-to-mir-comparison-vyel",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "Ata tam se ga aga vyel etas.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "Ata tam se ga aga vyel etas.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+        "candidate_ids": [
+          "s01-002-en-to-mir-comparison-vyel-cand-01",
+          "s01-002-en-to-mir-comparison-vyel-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-002-en-to-mir-comparison-vyel",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "my house is bigger than yours",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "my house is bigger than yours",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+          "candidate_ids": [
+            "s01-002-en-to-mir-comparison-vyel-cand-01",
+            "s01-002-en-to-mir-comparison-vyel-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+        "candidate_ids": [
+          "s01-002-en-to-mir-comparison-vyel-cand-01",
+          "s01-002-en-to-mir-comparison-vyel-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-002-en-to-mir-comparison-vyel-cand-01",
+      "candidate_ids": [
+        "s01-002-en-to-mir-comparison-vyel-cand-01",
+        "s01-002-en-to-mir-comparison-vyel-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-003-en-to-mir-dummy-it-negation",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "it is not fair to prejudge someone",
+    "expected": "Voy se yeva jayevder hes.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-003-en-to-mir-dummy-it-negation",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "Voy se yeva jayevder hes.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "Voy se yeva jayevder hes.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+        "candidate_ids": [
+          "s01-003-en-to-mir-dummy-it-negation-cand-01",
+          "s01-003-en-to-mir-dummy-it-negation-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-003-en-to-mir-dummy-it-negation",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "it is not fair to prejudge someone",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "it is not fair to prejudge someone",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+          "candidate_ids": [
+            "s01-003-en-to-mir-dummy-it-negation-cand-01",
+            "s01-003-en-to-mir-dummy-it-negation-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+        "candidate_ids": [
+          "s01-003-en-to-mir-dummy-it-negation-cand-01",
+          "s01-003-en-to-mir-dummy-it-negation-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-003-en-to-mir-dummy-it-negation-cand-01",
+      "candidate_ids": [
+        "s01-003-en-to-mir-dummy-it-negation-cand-01",
+        "s01-003-en-to-mir-dummy-it-negation-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-004-en-to-mir-object-order",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "give me that box",
+    "expected": "Buu at hua nyem.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-004-en-to-mir-object-order",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "Buu at hua nyem.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "Buu at hua nyem.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+        "candidate_ids": [
+          "s01-004-en-to-mir-object-order-cand-01",
+          "s01-004-en-to-mir-object-order-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-004-en-to-mir-object-order",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-004-en-to-mir-object-order-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "give me that box",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "give me that box",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+          "candidate_ids": [
+            "s01-004-en-to-mir-object-order-cand-01",
+            "s01-004-en-to-mir-object-order-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-004-en-to-mir-object-order-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+        "candidate_ids": [
+          "s01-004-en-to-mir-object-order-cand-01",
+          "s01-004-en-to-mir-object-order-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-004-en-to-mir-object-order-cand-01",
+      "candidate_ids": [
+        "s01-004-en-to-mir-object-order-cand-01",
+        "s01-004-en-to-mir-object-order-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-005-en-to-mir-subordinate-whether",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "I did not know whether he or she would come",
+    "expected": "At voy ta ven it upo.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-005-en-to-mir-subordinate-whether",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "At voy ta ven it upo.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "At voy ta ven it upo.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+        "candidate_ids": [
+          "s01-005-en-to-mir-subordinate-whether-cand-01",
+          "s01-005-en-to-mir-subordinate-whether-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-005-en-to-mir-subordinate-whether",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "I did not know whether he or she would come",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "I did not know whether he or she would come",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+          "candidate_ids": [
+            "s01-005-en-to-mir-subordinate-whether-cand-01",
+            "s01-005-en-to-mir-subordinate-whether-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+        "candidate_ids": [
+          "s01-005-en-to-mir-subordinate-whether-cand-01",
+          "s01-005-en-to-mir-subordinate-whether-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-005-en-to-mir-subordinate-whether-cand-01",
+      "candidate_ids": [
+        "s01-005-en-to-mir-subordinate-whether-cand-01",
+        "s01-005-en-to-mir-subordinate-whether-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-006-en-to-mir-possession-book",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "en_to_mir",
+    "input": "I did not see his or her book",
+    "expected": "At voy teata ita dyes.",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-006-en-to-mir-possession-book",
+      "direction": "en_to_mir",
+      "candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "At voy teata ita dyes.",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "At voy teata ita dyes.",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+        "candidate_ids": [
+          "s01-006-en-to-mir-possession-book-cand-01",
+          "s01-006-en-to-mir-possession-book-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-006-en-to-mir-possession-book",
+        "direction": "en_to_mir",
+        "candidate_id": "s01-006-en-to-mir-possession-book-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "I did not see his or her book",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "I did not see his or her book",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "fluency": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+          "candidate_ids": [
+            "s01-006-en-to-mir-possession-book-cand-01",
+            "s01-006-en-to-mir-possession-book-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "fluency": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-006-en-to-mir-possession-book-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+        "candidate_ids": [
+          "s01-006-en-to-mir-possession-book-cand-01",
+          "s01-006-en-to-mir-possession-book-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-006-en-to-mir-possession-book-cand-01",
+      "candidate_ids": [
+        "s01-006-en-to-mir-possession-book-cand-01",
+        "s01-006-en-to-mir-possession-book-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-007-mir-to-en-locative-be-home",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "At yexe be tam.",
+    "expected": "I work at home",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-007-mir-to-en-locative-be-home",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "I work at home",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "I work at home",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+        "candidate_ids": [
+          "s01-007-mir-to-en-locative-be-home-cand-01",
+          "s01-007-mir-to-en-locative-be-home-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-007-mir-to-en-locative-be-home",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-007-mir-to-en-locative-be-home-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "At yexe be tam.",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "At yexe be tam.",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+          "candidate_ids": [
+            "s01-007-mir-to-en-locative-be-home-cand-01",
+            "s01-007-mir-to-en-locative-be-home-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-007-mir-to-en-locative-be-home-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+        "candidate_ids": [
+          "s01-007-mir-to-en-locative-be-home-cand-01",
+          "s01-007-mir-to-en-locative-be-home-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-007-mir-to-en-locative-be-home-cand-01",
+      "candidate_ids": [
+        "s01-007-mir-to-en-locative-be-home-cand-01",
+        "s01-007-mir-to-en-locative-be-home-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-008-mir-to-en-distance-bi-here",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "Et sa gla yib bi him.",
+    "expected": "you were very far from here",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-008-mir-to-en-distance-bi-here",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "you were very far from here",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "you were very far from here",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+        "candidate_ids": [
+          "s01-008-mir-to-en-distance-bi-here-cand-01",
+          "s01-008-mir-to-en-distance-bi-here-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-008-mir-to-en-distance-bi-here",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "Et sa gla yib bi him.",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "Et sa gla yib bi him.",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+          "candidate_ids": [
+            "s01-008-mir-to-en-distance-bi-here-cand-01",
+            "s01-008-mir-to-en-distance-bi-here-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+        "candidate_ids": [
+          "s01-008-mir-to-en-distance-bi-here-cand-01",
+          "s01-008-mir-to-en-distance-bi-here-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-008-mir-to-en-distance-bi-here-cand-01",
+      "candidate_ids": [
+        "s01-008-mir-to-en-distance-bi-here-cand-01",
+        "s01-008-mir-to-en-distance-bi-here-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-009-mir-to-en-question-school",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "Duven et tyoyape tistam?",
+    "expected": "do you walk to school",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-009-mir-to-en-question-school",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "do you walk to school",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "do you walk to school",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+        "candidate_ids": [
+          "s01-009-mir-to-en-question-school-cand-01",
+          "s01-009-mir-to-en-question-school-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-009-mir-to-en-question-school",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-009-mir-to-en-question-school-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "Duven et tyoyape tistam?",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "Duven et tyoyape tistam?",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+          "candidate_ids": [
+            "s01-009-mir-to-en-question-school-cand-01",
+            "s01-009-mir-to-en-question-school-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-009-mir-to-en-question-school-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+        "candidate_ids": [
+          "s01-009-mir-to-en-question-school-cand-01",
+          "s01-009-mir-to-en-question-school-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-009-mir-to-en-question-school-cand-01",
+      "candidate_ids": [
+        "s01-009-mir-to-en-question-school-cand-01",
+        "s01-009-mir-to-en-question-school-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-010-mir-to-en-weather-dummy-it",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "Mamilo.",
+    "expected": "it will rain",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-010-mir-to-en-weather-dummy-it",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "it will rain",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "it will rain",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+        "candidate_ids": [
+          "s01-010-mir-to-en-weather-dummy-it-cand-01",
+          "s01-010-mir-to-en-weather-dummy-it-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-010-mir-to-en-weather-dummy-it",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "Mamilo.",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "Mamilo.",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+          "candidate_ids": [
+            "s01-010-mir-to-en-weather-dummy-it-cand-01",
+            "s01-010-mir-to-en-weather-dummy-it-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+        "candidate_ids": [
+          "s01-010-mir-to-en-weather-dummy-it-cand-01",
+          "s01-010-mir-to-en-weather-dummy-it-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-010-mir-to-en-weather-dummy-it-cand-01",
+      "candidate_ids": [
+        "s01-010-mir-to-en-weather-dummy-it-cand-01",
+        "s01-010-mir-to-en-weather-dummy-it-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-011-mir-to-en-subordinate-van",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "Se uva van iyt pia.",
+    "expected": "it is sad that she left",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-011-mir-to-en-subordinate-van",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "it is sad that she left",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "it is sad that she left",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+        "candidate_ids": [
+          "s01-011-mir-to-en-subordinate-van-cand-01",
+          "s01-011-mir-to-en-subordinate-van-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-011-mir-to-en-subordinate-van",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-011-mir-to-en-subordinate-van-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "Se uva van iyt pia.",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "Se uva van iyt pia.",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+          "candidate_ids": [
+            "s01-011-mir-to-en-subordinate-van-cand-01",
+            "s01-011-mir-to-en-subordinate-van-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-011-mir-to-en-subordinate-van-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+        "candidate_ids": [
+          "s01-011-mir-to-en-subordinate-van-cand-01",
+          "s01-011-mir-to-en-subordinate-van-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-011-mir-to-en-subordinate-van-cand-01",
+      "candidate_ids": [
+        "s01-011-mir-to-en-subordinate-van-cand-01",
+        "s01-011-mir-to-en-subordinate-van-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  },
+  {
+    "id": "s01-012-mir-to-en-pronoun-object-reference",
+    "status": "dry-run",
+    "phase": "dry_run",
+    "direction": "mir_to_en",
+    "input": "Yit xa has fi.",
+    "expected": "they did it well",
+    "candidate_count": 2,
+    "selected_candidate": {
+      "example_id": "s01-012-mir-to-en-pronoun-object-reference",
+      "direction": "mir_to_en",
+      "candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+      "candidate_rank": 1,
+      "candidate_count": 2,
+      "prediction": "they did it well",
+      "source": "dry-run-1",
+      "prompt_variant": "deterministic",
+      "retrieval_rule_ids": [],
+      "retrieval_context": [],
+      "raw_candidate_output": {
+        "text": "they did it well",
+        "mode": "dry-run"
+      },
+      "is_selected": true,
+      "is_rejected": false,
+      "rejection_reason": null,
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+        "candidate_ids": [
+          "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+          "s01-012-mir-to-en-pronoun-object-reference-cand-03"
+        ]
+      }
+    },
+    "rejected_candidates": [
+      {
+        "example_id": "s01-012-mir-to-en-pronoun-object-reference",
+        "direction": "mir_to_en",
+        "candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-03",
+        "candidate_rank": 2,
+        "candidate_count": 2,
+        "prediction": "Yit xa has fi.",
+        "source": "dry-run-3",
+        "prompt_variant": "deterministic",
+        "retrieval_rule_ids": [],
+        "retrieval_context": [],
+        "raw_candidate_output": {
+          "text": "Yit xa has fi.",
+          "mode": "dry-run"
+        },
+        "is_selected": false,
+        "is_rejected": true,
+        "rejection_reason": "Dry run retained only the first deterministic candidate.",
+        "criteria_scores": {
+          "semantic_fidelity": 0.98,
+          "grammar": 0.95,
+          "literalness": 0.94
+        },
+        "aggregate_score": 0.9566666666666667,
+        "judge_rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+        "raw_judge_output": {
+          "mode": "dry-run",
+          "selected_candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+          "candidate_ids": [
+            "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+            "s01-012-mir-to-en-pronoun-object-reference-cand-03"
+          ]
+        }
+      }
+    ],
+    "judge_summary": {
+      "selected_candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+      "confidence": 0.91,
+      "confidence_bucket": "high",
+      "passes_threshold": true,
+      "rationale": "Dry run selected the first deterministic candidate for auditable offline inspection.",
+      "criteria_scores": {
+        "semantic_fidelity": 0.98,
+        "grammar": 0.95,
+        "literalness": 0.94
+      },
+      "aggregate_score": 0.9566666666666667,
+      "rejected_candidates": [
+        {
+          "candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-03",
+          "reason": "Dry run retained only the first deterministic candidate."
+        }
+      ],
+      "raw_judge_output": {
+        "mode": "dry-run",
+        "selected_candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+        "candidate_ids": [
+          "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+          "s01-012-mir-to-en-pronoun-object-reference-cand-03"
+        ]
+      },
+      "candidate_count": 2
+    },
+    "raw_judge_output": {
+      "mode": "dry-run",
+      "selected_candidate_id": "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+      "candidate_ids": [
+        "s01-012-mir-to-en-pronoun-object-reference-cand-01",
+        "s01-012-mir-to-en-pronoun-object-reference-cand-03"
+      ]
+    },
+    "elapsed_ms": 0,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "estimated_calls": 4,
+    "estimated_cost_usd": 0.0,
+    "error": null
+  }
+]
