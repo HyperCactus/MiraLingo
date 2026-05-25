@@ -25,7 +25,7 @@ Mirad (formerly Unilingua) is an artificial constructed language designed by Nou
 | Package | Description | Status |
 |---------|-------------|--------|
 | [**packages/tts**](packages/tts/) | Phoneme-based TTS engine — tokenization, syllabification, stress, IPA, audio synthesis via eSpeak NG / Piper / MBROLA | Functional |
-| [**packages/translator**](packages/translator/) | Bidirectional English↔Mirad translation using local LLMs, DSPy optimization, RAG retrieval, and deterministic post-processing | Operational (≈67% accuracy) |
+| [**packages/translator**](packages/translator/) | Bidirectional English↔Mirad translation using DeepInfra DeepSeek-V4-Flash, DSPy, semantic lexicon lookup, structured grammar-rule retrieval, and deterministic post-processing | Active baseline: sentence-only eval, En→Mir ~20% true-valid, Mir→En ~80–90% true-valid |
 | [**packages/webapp**](packages/webapp/) | Interactive language-learning web application | Not yet started |
 
 Shared reference data (lexicon, grammar documents, evaluation results) lives in [`data/`](data/).
@@ -46,11 +46,15 @@ pip install -e packages/translator/
 # TTS: transcribe to IPA
 mirad-tts "Be yuboj, ha mir gonbio yansauna gabyuxea dalzeyn." --ipa
 
-# Translator: English → Mirad
+# Translator: English → Mirad (uses DeepInfra env from .env)
 python -c "
+import dspy
+from mirad_translator.evaluate import _make_deepinfra_lm
 from mirad_translator.translate import DefaultTranslator
-t = DefaultTranslator(num_context_passages=0)
-result = t.forward('Hello, how are you?')
+
+dspy.settings.configure(lm=_make_deepinfra_lm())
+t = DefaultTranslator()
+result = t.forward('you do not work at home')
 print(result.mirad_text)
 "
 ```
@@ -62,7 +66,8 @@ print(result.mirad_text)
 docker compose build tts
 docker compose run --rm tts mirad-tts "Be yuboj" --ipa
 
-# Start Ollama for local LLM inference
+# Optional local model services for experiments only
+# Default translator runtime uses DeepInfra, not Ollama.
 docker compose up -d ollama
 ```
 

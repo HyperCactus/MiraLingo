@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-05-25T12:12:51.287486+00:00",
+  "completed_at": "2026-05-25T12:25:14.398653+00:00",
+  "dry_run": false,
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "api_preflight": {
+    "api_key_required": true,
+    "api_key_present": true,
+    "status": "ok"
+  },
+  "devset_size": 30,
+  "direction_counts": {
+    "en_to_mir": 30,
+    "mir_to_en": 0
+  },
+  "estimated_total_calls": 30,
+  "estimated_cost_usd": 0.0,
+  "total_calls": 30,
+  "elapsed_ms": 743111,
+  "failed_example_count": 0,
+  "failed_example_ids": [],
+  "preflight": {
+    "ok": true,
+    "dry_run": false,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "devset_size": 30,
+    "max_examples": 30,
+    "explicit_override": true,
+    "estimated_calls_per_example": 1,
+    "estimated_total_calls": 30,
+    "estimated_cost_usd": 0.0,
+    "direction_counts": {
+      "en_to_mir": 30,
+      "mir_to_en": 0
+    }
+  }
+}

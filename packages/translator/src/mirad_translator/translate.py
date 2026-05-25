@@ -203,7 +203,7 @@ class EnglishToMiradSignature(dspy.Signature):
     english_text = dspy.InputField(desc="English text to translate")
     normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved structured grammar rules and thesaurus passages relevant to the translation")
+    context_passages = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
     mirad_text = dspy.OutputField(desc="Translated text in Mirad")
     used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
 
@@ -236,7 +236,7 @@ class CritiqueSignature(dspy.Signature):
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
     english_text = dspy.InputField(desc="Original English text")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
-    context_passages = dspy.InputField(desc="Grammar and thesaurus passages")
+    context_passages = dspy.InputField(desc="Structured grammar-rule passages")
     candidate_translation = dspy.InputField(desc="The candidate Mirad translation to review")
     pass_ = dspy.OutputField(desc="True if the translation is correct, False if there are issues")
     feedback = dspy.OutputField(desc="If pass_ is False, describe the specific errors and how to fix them")
@@ -257,7 +257,7 @@ class FixTranslationSignature(dspy.Signature):
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
     english_text = dspy.InputField(desc="English text to translate")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
-    context_passages = dspy.InputField(desc="Grammar and thesaurus passages")
+    context_passages = dspy.InputField(desc="Structured grammar-rule passages")
     previous_attempt = dspy.InputField(desc="The previous Mirad translation that had issues")
     feedback = dspy.InputField(desc="Specific feedback on what was wrong and how to fix it")
     mirad_text = dspy.OutputField(desc="Corrected Mirad translation")
@@ -334,7 +334,7 @@ class MiradToEnglishSignature(dspy.Signature):
     mirad_text = dspy.InputField(desc="Mirad text to translate")
     normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
     word_equivalents = dspy.InputField(desc="Dictionary lookups: Mirad→English word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved structured grammar rules and thesaurus passages relevant to the translation")
+    context_passages = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
     english_text = dspy.OutputField(desc="Translated text in English")
     used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
 
@@ -394,6 +394,14 @@ class StructuredRetrievalMixin:
         return ids or _extract_rule_ids(fallback_rules)
 
 
+def _clean_lookup_token(value: str) -> str:
+    return value.strip().strip('.,!?;:"\'-()[]{}').lower()
+
+
+def _join_candidates(candidates: list[str]) -> str:
+    return ", ".join(candidates)
+
+
 class MiradLexiconReverseLookup(dspy.Module):
     """DSPy-traceable reverse lexicon lookup module (Mirad→English).
 
@@ -406,15 +414,73 @@ class MiradLexiconReverseLookup(dspy.Module):
         self._db_path = db_path
 
     def forward(self, mirad_text: str) -> dspy.Prediction:
-        from mirad_translator.lexicon_db import lookup_mirad_word
+        from mirad_translator.lexicon_db import lookup_mirad_word_candidates
         words = mirad_text.split()
         word_equivalents = {}
         for w in words:
-            w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}')
+            w_clean = _clean_lookup_token(w)
             if w_clean:
-                english = lookup_mirad_word(db_path=self._db_path, mirad_word=w_clean)
-                if english:
-                    word_equivalents[w_clean] = english
+                english_candidates = lookup_mirad_word_candidates(db_path=self._db_path, mirad_word=w_clean)
+                if english_candidates:
+                    word_equivalents[w_clean] = _join_candidates(english_candidates)
+        return dspy.Prediction(word_equivalents=word_equivalents)
+
+
+class MiradSemanticReverseLexiconLookup(dspy.Module):
+    """Reverse lookup that enriches exact Mirad→English matches with semantic English neighbors.
+
+    The reverse path must first resolve Mirad tokens exactly, because the semantic
+    lexicon is indexed by English entries. Each exact English equivalent is then
+    used as the semantic query so the prompt receives nearby English↔Mirad
+    vocabulary without pulling broad thesaurus chunks into grammar context.
+    """
+
+    def __init__(self, db_path=None, top_k_per_word: int = 5, max_total_pairs: int = 50, min_similarity: float = 0.5):
+        super().__init__()
+        self._db_path = db_path
+        self._top_k_per_word = top_k_per_word
+        self._max_total_pairs = max_total_pairs
+        self._min_similarity = min_similarity
+
+    def forward(self, mirad_text: str) -> dspy.Prediction:
+        from mirad_translator.lexicon_db import lookup_mirad_word_candidates, lookup_word_candidates
+
+        words = mirad_text.split()
+        word_equivalents: dict[str, str] = {}
+        english_queries: list[str] = []
+        for word in words:
+            mirad_word = _clean_lookup_token(word)
+            if not mirad_word or mirad_word in word_equivalents:
+                continue
+            english_candidates = lookup_mirad_word_candidates(db_path=self._db_path, mirad_word=mirad_word)
+            if english_candidates:
+                word_equivalents[mirad_word] = _join_candidates(english_candidates)
+                english_queries.extend(english_candidates)
+
+        if english_queries:
+            try:
+                from mirad_translator.semantic_lexicon import semantic_lookup
+
+                for english_query in english_queries:
+                    for hit in semantic_lookup(
+                        english_query,
+                        top_k=self._top_k_per_word,
+                        min_similarity=self._min_similarity,
+                        include_exact=True,
+                    ):
+                        english = hit["english"]
+                        mirad_candidates = lookup_word_candidates(db_path=self._db_path, english_word=english)
+                        if not mirad_candidates:
+                            mirad_candidates = [hit["mirad"]]
+                        if english not in word_equivalents:
+                            word_equivalents[english] = _join_candidates(mirad_candidates)
+                        if len(word_equivalents) >= self._max_total_pairs:
+                            break
+                    if len(word_equivalents) >= self._max_total_pairs:
+                        break
+            except Exception:
+                pass
+
         return dspy.Prediction(word_equivalents=word_equivalents)
 
 
@@ -423,7 +489,7 @@ class MiradToEnglishModule(StructuredRetrievalMixin, dspy.Module):
 
     Mir→En counterpart to TranslatorModule. Takes mirad_text as input and internally:
     1. Looks up Mirad→English word equivalents via reverse lexicon lookup
-    2. Retrieves grammar/thesaurus context via ChromaDB (same indexes, En query works for Mirad too)
+    2. Retrieves grammar-rule context via ChromaDB (same grammar index, Mirad query works too)
     3. Passes text, word equivalents, and context to ChainOfThought for translation
 
     Args:
@@ -571,15 +637,14 @@ class MultiHopTranslatorModule(StructuredRetrievalMixin, dspy.Module):
             try:
                 result = retrieve_all(follow_up, top_k=self._num_context_passages)
                 new_passages = []
-                for section in ("grammar", "thesaurus"):
-                    for item in result.get(section, []):
-                        src = item.get("metadata", {}).get("source_section", section)
-                        passage_text = f"[{src}] {item['text']}"
-                        # Only add if not already seen
-                        content_hash = hash(passage_text[:100])
-                        if content_hash not in seen_ids:
-                            seen_ids.add(content_hash)
-                            new_passages.append(passage_text)
+                for item in result.get("grammar", []):
+                    src = item.get("metadata", {}).get("source_section", "grammar")
+                    passage_text = f"[{src}] {item['text']}"
+                    # Only add if not already seen
+                    content_hash = hash(passage_text[:100])
+                    if content_hash not in seen_ids:
+                        seen_ids.add(content_hash)
+                        new_passages.append(passage_text)
             except Exception:
                 new_passages = []
 
@@ -633,11 +698,13 @@ class MiradLexiconLookup(dspy.Module):
 
 
 class MiradContextRetrieve(dspy.Retrieve):
-    """DSPy-traceable retrieval module for structured Mirad grammar rules and thesaurus context.
+    """DSPy-traceable retrieval module for structured Mirad grammar rules.
 
     Grammar retrieval uses semantic similarity between the query and embedded
     retrieval_tags from nirad_grammer_rules.json. Returned passages include
     structured rule payloads and a `grammar_rules` attribute with raw rule data.
+    Vocabulary belongs in `word_equivalents`; thesaurus chunks are intentionally
+    excluded from prompt context to avoid broad noisy passages.
     """
 
     def __init__(self, k: int = 5):
@@ -645,13 +712,13 @@ class MiradContextRetrieve(dspy.Retrieve):
         self._k = k
 
     def forward(self, query: str) -> dspy.Prediction:
-        """Retrieve structured grammar rules and thesaurus chunks for the query."""
-        from mirad_translator.retrieval import retrieve_all
+        """Retrieve structured grammar rules for the query."""
+        from mirad_translator.retrieval import retrieve_grammar
         try:
-            result = retrieve_all(query, top_k=self._k)
+            grammar_result = retrieve_grammar(query, top_k=self._k)
             passages = []
             grammar_rules = []
-            for item in result.get("grammar", []):
+            for item in grammar_result:
                 if "rule" in item:
                     grammar_rules.append(item)
                 else:
@@ -660,9 +727,6 @@ class MiradContextRetrieve(dspy.Retrieve):
             rule_text = _format_rule_context(grammar_rules)
             if rule_text:
                 passages.append(f"[grammar_rules]\n{rule_text}")
-            for item in result.get("thesaurus", []):
-                src = item.get("metadata", {}).get("source_section", "thesaurus")
-                passages.append(f"[{src}] {item['text']}")
         except Exception:
             passages = []
             grammar_rules = []
@@ -675,7 +739,7 @@ class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
 
     The module takes only ``english_text`` as input and internally:
     1. Looks up word equivalents via the lexicon DB
-    2. Retrieves grammar/thesaurus context via ChromaDB (disabled when k=0)
+    2. Retrieves structured grammar-rule context via ChromaDB (disabled when k=0)
     3. Passes the original text, word equivalents, and context as separate
        signature fields to ChainOfThought for translation
 
@@ -862,7 +926,7 @@ class CritiqueAndFixModule(dspy.Module):
         )
 
 
-def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=3, max_total_pairs=30, min_similarity=0.5):
+def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=5, max_total_pairs=50, min_similarity=0.5):
     """Load the pre-compiled BootstrapFewShot translator from disk.
 
     The compiled program has bootstrapped demos for the ChainOfThought predictor,
@@ -915,7 +979,7 @@ def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_pe
     return module
 
 
-def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=3, max_total_pairs=30, min_similarity=0.5):
+def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=5, max_total_pairs=50, min_similarity=0.5):
     """Load the pre-compiled BootstrapRS Mir→En translator from disk.
 
     The compiled program has bootstrapped demos for the ChainOfThought predictor,
@@ -948,29 +1012,25 @@ def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, t
         module = cloudpickle.load(f)
 
     if semantic_lexicon:
-        from mirad_translator.semantic_lexicon import MiradSemanticLexiconLookup
-        module.lexicon_lookup = MiradSemanticLexiconLookup(
+        module.lexicon_lookup = MiradSemanticReverseLexiconLookup(
             db_path=None,
             top_k_per_word=top_k_per_word,
             max_total_pairs=max_total_pairs,
             min_similarity=min_similarity,
         )
-
-    # Compiled artifacts may contain predictors compiled against the old signature.
-    # Refresh the predictor so structured-pipeline fields are always present.
-    module.generate = dspy.ChainOfThought(MiradToEnglishSignature)
     if not hasattr(module, "analyze"):
         module.analyze = dspy.ChainOfThought(TranslationAnalysisSignature)
 
     return module
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = True, semantic_lexicon: bool = True, top_k_per_word: int = 3, max_total_pairs: int = 30, min_similarity: float = 0.5):
+def DefaultTranslator(db_path=None, num_context_passages: int = 5, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = False, semantic_lexicon: bool = True, top_k_per_word: int = 5, max_total_pairs: int = 50, min_similarity: float = 0.5):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
-    By default (use_compiled=True), loads the pre-compiled BootstrapFewShot program
-    which has bootstrapped demos for significantly better translation quality.
-    Set use_compiled=False to get an uncompiled TranslatorModule.
+    By default this returns fresh structured-retrieval modules using semantic
+    lexicon lookup and grammar rules from the rebuilt JSON-rule Chroma index.
+    Set use_compiled=True only when compiled programs have been regenerated for
+    the current signatures.
 
     When max_retries > 0, wraps the translator in a CritiqueAndFixModule that runs a
     critique-and-fix loop after the initial translation.
@@ -994,12 +1054,12 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
 
     Args:
         db_path: Path to the lexicon SQLite DB. Defaults to built-in path.
-        num_context_passages: Number of RAG context passages to retrieve (0 disables retrieval).
+        num_context_passages: Number of structured grammar rules to retrieve (0 disables retrieval).
         max_retries: Max critique-fix rounds (0 = no critique, plain translation). Only for en_to_mir.
         num_hops: Number of retrieval hops (1 = single retrieval, 2+ = multi-hop with LM queries). Only for en_to_mir.
         direction: Translation direction — "en_to_mir" (default) or "mir_to_en".
         use_postprocessor: Apply post-processing to En→Mir translations (default True).
-        use_compiled: Load the pre-compiled BootStrapFewShot program by default (default True).
+        use_compiled: Load a pre-compiled BootstrapFewShot program (default False because current structured-retrieval signatures supersede stale compiled programs).
             Falls back to an uncompiled TranslatorModule if the compiled program is not found.
         semantic_lexicon: Use semantic (embedding-based) top-k lexicon lookup instead of exact match (default True).
         top_k_per_word: Semantic lookup neighbors per word (default 3). Only used when semantic_lexicon=True.
@@ -1007,31 +1067,34 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
         min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5). Only used when semantic_lexicon=True.
     """
     from mirad_translator.lexicon_db import build_lexicon_db, DB_PATH as _default_db
-    from mirad_translator.retrieval import build_indexes as _build_chroma
 
     effective_db_path = db_path or _default_db
     build_lexicon_db(db_path=effective_db_path)
-
-    if num_context_passages > 0:
-        try:
-            _build_chroma()
-        except Exception:
-            pass  # ChromaDB not available; retrieval will be empty
 
     # --- Reverse direction: try compiled Mir→En program first ---
     if direction == "mir_to_en":
         if use_compiled:
             try:
-                # Note: semantic_lexicon is En→Mir only; Mir→En uses exact reverse lookup
                 return load_compiled_mir2en_translator(
-                    semantic_lexicon=False,
+                    semantic_lexicon=semantic_lexicon,
+                    top_k_per_word=top_k_per_word,
+                    max_total_pairs=max_total_pairs,
+                    min_similarity=min_similarity,
                 )
             except FileNotFoundError:
                 pass  # Fall through to uncompiled module
-        return MiradToEnglishModule(
+        module = MiradToEnglishModule(
             db_path=effective_db_path,
             num_context_passages=num_context_passages,
         )
+        if semantic_lexicon:
+            module.lexicon_lookup = MiradSemanticReverseLexiconLookup(
+                db_path=effective_db_path,
+                top_k_per_word=top_k_per_word,
+                max_total_pairs=max_total_pairs,
+                min_similarity=min_similarity,
+            )
+        return module
 
     # --- Forward direction (en_to_mir) ---
 
@@ -1089,10 +1152,10 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 0, max_retries: 
     return module
 
 
-def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_retries: int = 0, num_hops: int = 1, use_compiled: bool = True, semantic_lexicon: bool = True):
+def translate_with_lookup(english_text: str, db_path=None, top_k: int = 5, max_retries: int = 0, num_hops: int = 1, use_compiled: bool = False, semantic_lexicon: bool = True):
     """High-level entry point: look up words + retrieve context + translate.
 
-    By default loads the compiled BootstrapFewShot program for best quality.
+    By default uses the current structured grammar-rule retrieval and semantic lexicon pipeline.
 
     Args:
         english_text: English text to translate.
@@ -1100,7 +1163,7 @@ def translate_with_lookup(english_text: str, db_path=None, top_k: int = 0, max_r
         top_k: Number of context passages to retrieve (0 disables retrieval).
         max_retries: Max critique-fix rounds (0 = no critique).
         num_hops: Number of retrieval hops (1 = single, 2+ = multi-hop).
-        use_compiled: Load compiled program (default True).
+        use_compiled: Load compiled program (default False).
         semantic_lexicon: Use semantic (embedding-based) top-k lexicon lookup (default True).
 
     Returns:

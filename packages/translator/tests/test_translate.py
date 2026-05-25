@@ -12,6 +12,7 @@ from mirad_translator.translate import (
     MiradToEnglishSignature,
     MiradToEnglishModule,
     MiradLexiconReverseLookup,
+    MiradSemanticReverseLexiconLookup,
     _MIRAD_TO_ENGLISH_RULES,
 )
 
@@ -71,24 +72,41 @@ def test_lexicon_lookup_no_matches():
 # MiradContextRetrieve tests
 # ---------------------------------------------------------------------------
 
-def test_context_retrieve_returns_passages():
-    """MiradContextRetrieve returns a Prediction with passages list."""
+def test_context_retrieve_returns_grammar_passages_only():
+    """MiradContextRetrieve returns grammar rules but excludes thesaurus chunks."""
     mock_result = {
         "grammar": [{"text": "Verbs: ...", "metadata": {"source_section": "verbs"}}],
         "thesaurus": [{"text": "Weather: ...", "metadata": {"source_section": "weather"}}],
     }
-    with patch('mirad_translator.retrieval.retrieve_all', return_value=mock_result):
+    with patch('mirad_translator.retrieval.retrieve_grammar', return_value=mock_result["grammar"]):
         retriever = MiradContextRetrieve(k=3)
         result = retriever(query="How does verb conjugation work?")
         assert hasattr(result, 'passages')
-        assert len(result.passages) == 2
+        assert len(result.passages) == 1
         assert '[verbs]' in result.passages[0]
-        assert '[weather]' in result.passages[1]
+        assert 'Weather' not in result.passages[0]
+        assert all('[thesaurus]' not in passage for passage in result.passages)
+
+
+def test_context_retrieve_returns_structured_grammar_rule_payloads():
+    """Structured grammar rules are formatted and exposed for rule-id tracking."""
+    mock_rule = {
+        "text": "tense rule",
+        "metadata": {"rule_id": "verb.tense"},
+        "rule": {"id": "verb.tense", "description": "Tense suffixes", "pseudocode": [], "examples": []},
+    }
+    with patch('mirad_translator.retrieval.retrieve_grammar', return_value=[mock_rule]):
+        retriever = MiradContextRetrieve(k=3)
+        result = retriever(query="past tense")
+        assert result.grammar_rules == [mock_rule]
+        assert len(result.passages) == 1
+        assert result.passages[0].startswith('[grammar_rules]')
+        assert 'verb.tense' in result.passages[0]
 
 
 def test_context_retrieve_failure_returns_empty():
     """MiradContextRetrieve returns empty list on retrieval failure."""
-    with patch('mirad_translator.retrieval.retrieve_all', side_effect=RuntimeError("ChromaDB not available")):
+    with patch('mirad_translator.retrieval.retrieve_grammar', side_effect=RuntimeError("ChromaDB not available")):
         retriever = MiradContextRetrieve(k=3)
         result = retriever(query="test query")
         assert result.passages == []
@@ -292,7 +310,7 @@ def test_mirad_lexicon_reverse_lookup_returns_word_equivalents():
             return word_map.get(mirad_word, None)
         return None
 
-    with patch('mirad_translator.lexicon_db.lookup_mirad_word', side_effect=mock_lookup):
+    with patch('mirad_translator.lexicon_db.lookup_mirad_word_candidates', side_effect=lambda db_path=None, mirad_word=None: [word_map[mirad_word]] if mirad_word in word_map else []):
         lookup = MiradLexiconReverseLookup(db_path=":memory:")
         # Use lowercase — Mirad words in the DB are lowercase and lookup is case-sensitive
         result = lookup(mirad_text="at tose oma")
@@ -302,10 +320,53 @@ def test_mirad_lexicon_reverse_lookup_returns_word_equivalents():
 
 def test_mirad_lexicon_reverse_lookup_no_matches():
     """MiradLexiconReverseLookup returns empty dict when no words match."""
-    with patch('mirad_translator.lexicon_db.lookup_mirad_word', return_value=None):
+    with patch('mirad_translator.lexicon_db.lookup_mirad_word_candidates', return_value=[]):
         lookup = MiradLexiconReverseLookup(db_path=":memory:")
         result = lookup(mirad_text="xyzzy plugh")
         assert result.word_equivalents == {}
+
+
+def test_mirad_semantic_reverse_lookup_enriches_exact_matches_with_semantic_neighbors():
+    """Mirad→English lookup exact-matches Mirad first, then searches semantically near the English equivalent."""
+    def mock_reverse_lookup(db_path=None, mirad_word=None):
+        return ['big'] if mirad_word == 'aga' else []
+
+    def mock_forward_lookup(db_path=None, english_word=None):
+        return {'big': ['aga'], 'large': ['aga'], 'huge': ['zyaga']}.get(english_word, [])
+
+    def mock_semantic_lookup(english_word, top_k, min_similarity, include_exact):
+        assert english_word == 'big'
+        assert top_k == 5
+        assert include_exact is True
+        return [
+            {'english': 'big', 'mirad': 'aga', 'cosine_similarity': 1.0, 'is_exact': True},
+            {'english': 'large', 'mirad': 'aga', 'cosine_similarity': 0.91, 'is_exact': False},
+            {'english': 'huge', 'mirad': 'zyaga', 'cosine_similarity': 0.86, 'is_exact': False},
+        ]
+
+    with patch('mirad_translator.lexicon_db.lookup_mirad_word_candidates', side_effect=mock_reverse_lookup), \
+         patch('mirad_translator.lexicon_db.lookup_word_candidates', side_effect=mock_forward_lookup), \
+         patch('mirad_translator.semantic_lexicon.semantic_lookup', side_effect=mock_semantic_lookup):
+        lookup = MiradSemanticReverseLexiconLookup(db_path=":memory:", top_k_per_word=5, max_total_pairs=6)
+        result = lookup(mirad_text="aga")
+        assert result.word_equivalents == {
+            'aga': 'big',
+            'big': 'aga',
+            'large': 'aga',
+            'huge': 'zyaga',
+        }
+
+
+def test_mirad_semantic_reverse_lookup_falls_back_to_exact_reverse_lookup():
+    """Semantic failures still return exact Mirad→English equivalents."""
+    def mock_reverse_lookup(db_path=None, mirad_word=None):
+        return ['house']
+
+    with patch('mirad_translator.lexicon_db.lookup_mirad_word_candidates', side_effect=mock_reverse_lookup), \
+         patch('mirad_translator.semantic_lexicon.semantic_lookup', side_effect=RuntimeError('index unavailable')):
+        lookup = MiradSemanticReverseLexiconLookup(db_path=":memory:")
+        result = lookup(mirad_text="tam")
+        assert result.word_equivalents == {'tam': 'house'}
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,332 @@
+[
+  {
+    "id": "r30-01-csv-0004",
+    "direction": "en_to_mir",
+    "source_text": "the houses",
+    "expected_text": "ha tami",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:4"
+    ]
+  },
+  {
+    "id": "r30-02-csv-0010",
+    "direction": "en_to_mir",
+    "source_text": "big houses",
+    "expected_text": "aga tami",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:10"
+    ]
+  },
+  {
+    "id": "r30-03-csv-0024",
+    "direction": "en_to_mir",
+    "source_text": "the birds",
+    "expected_text": "ha pati",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:24"
+    ]
+  },
+  {
+    "id": "r30-04-csv-0046",
+    "direction": "en_to_mir",
+    "source_text": "the people",
+    "expected_text": "ha tobi",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:46"
+    ]
+  },
+  {
+    "id": "r30-05-csv-0051",
+    "direction": "en_to_mir",
+    "source_text": "a woman",
+    "expected_text": "toyb",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:51"
+    ]
+  },
+  {
+    "id": "r30-06-csv-0066",
+    "direction": "en_to_mir",
+    "source_text": "mothers",
+    "expected_text": "teydi",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:66"
+    ]
+  },
+  {
+    "id": "r30-07-csv-0071",
+    "direction": "en_to_mir",
+    "source_text": "a teacher",
+    "expected_text": "tuxut",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:71"
+    ]
+  },
+  {
+    "id": "r30-08-csv-0098",
+    "direction": "en_to_mir",
+    "source_text": "your teacher is bad",
+    "expected_text": "Eta tuxut se fua.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:98"
+    ]
+  },
+  {
+    "id": "r30-09-csv-0161",
+    "direction": "en_to_mir",
+    "source_text": "we are",
+    "expected_text": "Yat se.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:161"
+    ]
+  },
+  {
+    "id": "r30-10-csv-0195",
+    "direction": "en_to_mir",
+    "source_text": "I will do",
+    "expected_text": "At xo.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:195"
+    ]
+  },
+  {
+    "id": "r30-11-csv-0256",
+    "direction": "en_to_mir",
+    "source_text": "we would go",
+    "expected_text": "Yat pu.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:256"
+    ]
+  },
+  {
+    "id": "r30-12-csv-0306",
+    "direction": "en_to_mir",
+    "source_text": "come to the grocery store sometime",
+    "expected_text": "Upu ha tolnam hej.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:306"
+    ]
+  },
+  {
+    "id": "r30-13-csv-0330",
+    "direction": "en_to_mir",
+    "source_text": "he or she is going home",
+    "expected_text": "It peye tam.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:330"
+    ]
+  },
+  {
+    "id": "r30-14-csv-0374",
+    "direction": "en_to_mir",
+    "source_text": "this teacher is the least good",
+    "expected_text": "Hia tuxut se ha gwo fia.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:374"
+    ]
+  },
+  {
+    "id": "r30-15-csv-0385",
+    "direction": "en_to_mir",
+    "source_text": "you all do not know",
+    "expected_text": "Yet voy te.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:385"
+    ]
+  },
+  {
+    "id": "r30-16-csv-0439",
+    "direction": "en_to_mir",
+    "source_text": "go to the store",
+    "expected_text": "Pe ha nam.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:439"
+    ]
+  },
+  {
+    "id": "r30-17-csv-0443",
+    "direction": "en_to_mir",
+    "source_text": "buy me a book",
+    "expected_text": "Nusbiu at dyes.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:443"
+    ]
+  },
+  {
+    "id": "r30-18-csv-0535",
+    "direction": "en_to_mir",
+    "source_text": "France",
+    "expected_text": "Feram",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:535"
+    ]
+  },
+  {
+    "id": "r30-19-csv-0540",
+    "direction": "en_to_mir",
+    "source_text": "Americans",
+    "expected_text": "Usomati",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:540"
+    ]
+  },
+  {
+    "id": "r30-20-csv-0609",
+    "direction": "en_to_mir",
+    "source_text": "easy easily",
+    "expected_text": "gyua gyuay",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:609"
+    ]
+  },
+  {
+    "id": "r30-21-csv-0611",
+    "direction": "en_to_mir",
+    "source_text": "personal personally",
+    "expected_text": "auta autay",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:611"
+    ]
+  },
+  {
+    "id": "r30-22-csv-0645",
+    "direction": "en_to_mir",
+    "source_text": "your desk is clean",
+    "expected_text": "Eta dresem se vyia.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:645"
+    ]
+  },
+  {
+    "id": "r30-23-csv-0683",
+    "direction": "en_to_mir",
+    "source_text": "I was happy",
+    "expected_text": "At sa iva.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:683"
+    ]
+  },
+  {
+    "id": "r30-24-csv-0692",
+    "direction": "en_to_mir",
+    "source_text": "we will be happy",
+    "expected_text": "Yat so iva.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:692"
+    ]
+  },
+  {
+    "id": "r30-25-csv-0718",
+    "direction": "en_to_mir",
+    "source_text": "did you come",
+    "expected_text": "Duven et upa?",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:718"
+    ]
+  },
+  {
+    "id": "r30-26-csv-0735",
+    "direction": "en_to_mir",
+    "source_text": "is that student bad",
+    "expected_text": "Duven hua tixut se fua?",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:735"
+    ]
+  },
+  {
+    "id": "r30-27-csv-0820",
+    "direction": "en_to_mir",
+    "source_text": "we do not know where he or she went, but we know where you live",
+    "expected_text": "Yat voy te hom it pa, oy yat te hom et tambese.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:820"
+    ]
+  },
+  {
+    "id": "r30-28-csv-0827",
+    "direction": "en_to_mir",
+    "source_text": "do they know where we went and where you live",
+    "expected_text": "Duven yit te hom yat pa ay hom et tambese?",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:827"
+    ]
+  },
+  {
+    "id": "r30-29-csv-0888",
+    "direction": "en_to_mir",
+    "source_text": "this teacher is good enough, but that teacher is not good enough",
+    "expected_text": "Hia tuxut se gre fia, oy hua tuxut se gro fia.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:888"
+    ]
+  },
+  {
+    "id": "r30-30-csv-0968",
+    "direction": "en_to_mir",
+    "source_text": "take this telegram and give me that box",
+    "expected_text": "Biu hia yibdren ay buu at hua nyem.",
+    "taxonomy_focus": [
+      "random30",
+      "csv-sentence-pairs",
+      "csv_index:968"
+    ]
+  }
+]

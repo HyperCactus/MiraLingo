@@ -1,0 +1,222 @@
+[
+  {
+    "id": "sent10-en-01-csv-0522",
+    "direction": "en_to_mir",
+    "source_text": "unless you say otherwise I will be silent",
+    "expected_text": "Oven et do hyuyen, at dolo.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:522"
+    ]
+  },
+  {
+    "id": "sent10-en-02-csv-0749",
+    "direction": "en_to_mir",
+    "source_text": "you do not work at home",
+    "expected_text": "Et voy yexe be tam.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:749"
+    ]
+  },
+  {
+    "id": "sent10-en-03-csv-0802",
+    "direction": "en_to_mir",
+    "source_text": "we would be going home, but we would be happy here",
+    "expected_text": "Yat peyu tam, oy yat su iva him.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:802"
+    ]
+  },
+  {
+    "id": "sent10-en-04-csv-0808",
+    "direction": "en_to_mir",
+    "source_text": "we know that he or she will come and we will be happy",
+    "expected_text": "Yat te van it upo ay yat so iva.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:808"
+    ]
+  },
+  {
+    "id": "sent10-en-05-csv-0861",
+    "direction": "en_to_mir",
+    "source_text": "even if I disagree, you will support me",
+    "expected_text": "Gey ven at yontexe, et bolo at.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:861"
+    ]
+  },
+  {
+    "id": "sent10-en-06-csv-0878",
+    "direction": "en_to_mir",
+    "source_text": "before we leave, say hi",
+    "expected_text": "Du hay ja van yat pio.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:878"
+    ]
+  },
+  {
+    "id": "sent10-en-07-csv-0906",
+    "direction": "en_to_mir",
+    "source_text": "this teacher is good, but that student is bad",
+    "expected_text": "Hia tuxut se fia, oy hua tixut se fua.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:906"
+    ]
+  },
+  {
+    "id": "sent10-en-08-csv-0947",
+    "direction": "en_to_mir",
+    "source_text": "she played but lost, and he tried but lost",
+    "expected_text": "Iyt eka oy oka, ay wit yeka oy oka.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:947"
+    ]
+  },
+  {
+    "id": "sent10-en-09-csv-0979",
+    "direction": "en_to_mir",
+    "source_text": "this is a good thing and that is mine",
+    "expected_text": "His se fis ay huas se atas.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:979"
+    ]
+  },
+  {
+    "id": "sent10-en-10-csv-0990",
+    "direction": "en_to_mir",
+    "source_text": "the man left for no reason, but someone else won",
+    "expected_text": "Ha tob pia hyosav, oy hyut aka.",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "en_to_mir",
+      "csv_index:990"
+    ]
+  },
+  {
+    "id": "sent10-mi-01-csv-0522",
+    "direction": "mir_to_en",
+    "source_text": "Oven et do hyuyen, at dolo.",
+    "expected_text": "unless you say otherwise I will be silent",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:522"
+    ]
+  },
+  {
+    "id": "sent10-mi-02-csv-0749",
+    "direction": "mir_to_en",
+    "source_text": "Et voy yexe be tam.",
+    "expected_text": "you do not work at home",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:749"
+    ]
+  },
+  {
+    "id": "sent10-mi-03-csv-0802",
+    "direction": "mir_to_en",
+    "source_text": "Yat peyu tam, oy yat su iva him.",
+    "expected_text": "we would be going home, but we would be happy here",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:802"
+    ]
+  },
+  {
+    "id": "sent10-mi-04-csv-0808",
+    "direction": "mir_to_en",
+    "source_text": "Yat te van it upo ay yat so iva.",
+    "expected_text": "we know that he or she will come and we will be happy",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:808"
+    ]
+  },
+  {
+    "id": "sent10-mi-05-csv-0861",
+    "direction": "mir_to_en",
+    "source_text": "Gey ven at yontexe, et bolo at.",
+    "expected_text": "even if I disagree, you will support me",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:861"
+    ]
+  },
+  {
+    "id": "sent10-mi-06-csv-0878",
+    "direction": "mir_to_en",
+    "source_text": "Du hay ja van yat pio.",
+    "expected_text": "before we leave, say hi",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:878"
+    ]
+  },
+  {
+    "id": "sent10-mi-07-csv-0906",
+    "direction": "mir_to_en",
+    "source_text": "Hia tuxut se fia, oy hua tixut se fua.",
+    "expected_text": "this teacher is good, but that student is bad",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:906"
+    ]
+  },
+  {
+    "id": "sent10-mi-08-csv-0947",
+    "direction": "mir_to_en",
+    "source_text": "Iyt eka oy oka, ay wit yeka oy oka.",
+    "expected_text": "she played but lost, and he tried but lost",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:947"
+    ]
+  },
+  {
+    "id": "sent10-mi-09-csv-0979",
+    "direction": "mir_to_en",
+    "source_text": "His se fis ay huas se atas.",
+    "expected_text": "this is a good thing and that is mine",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:979"
+    ]
+  },
+  {
+    "id": "sent10-mi-10-csv-0990",
+    "direction": "mir_to_en",
+    "source_text": "Ha tob pia hyosav, oy hyut aka.",
+    "expected_text": "the man left for no reason, but someone else won",
+    "taxonomy_focus": [
+      "sentence-min5",
+      "mir_to_en",
+      "csv_index:990"
+    ]
+  }
+]

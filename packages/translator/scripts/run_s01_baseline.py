@@ -51,6 +51,7 @@ REQUIRED_REPORT_EXAMPLE_KEYS = {
     "expected",
     "prediction",
     "retrieval_context",
+    "word_equivalents",
     "retrieval_rule_ids",
     "elapsed_ms",
     "model",
@@ -308,8 +309,18 @@ class DefaultTranslatorAdapter:
 
         lm = _make_deepinfra_lm(model=model)
         dspy.settings.configure(lm=lm)
-        self._forward = DefaultTranslator(direction="en_to_mir", num_context_passages=num_context_passages)
-        self._reverse = DefaultTranslator(direction="mir_to_en", num_context_passages=num_context_passages)
+        # Use fresh modules here instead of stale compiled DSPy programs so live
+        # diagnostics exercise the current structured-retrieval signatures.
+        self._forward = DefaultTranslator(
+            direction="en_to_mir",
+            num_context_passages=num_context_passages,
+            use_compiled=False,
+        )
+        self._reverse = DefaultTranslator(
+            direction="mir_to_en",
+            num_context_passages=num_context_passages,
+            use_compiled=False,
+        )
 
     def __call__(self, source_text: str, direction: str, example: Mapping[str, Any]) -> Any:
         translator = self._forward if direction == "en_to_mir" else self._reverse
@@ -344,6 +355,7 @@ def build_example_row(
         "normalized_match": False,
         "exact_match": False,
         "retrieval_context": [],
+        "word_equivalents": {},
         "retrieval_rule_ids": [],
         "retrieval_warning": None,
         "elapsed_ms": 0,
@@ -380,6 +392,10 @@ def run_examples(
             payload = normalize_prediction_shape(raw_prediction)
             prediction_text = extract_prediction_text(payload, example["direction"])
             retrieval_context, retrieval_context_malformed = coerce_retrieval_context(payload.get("context"))
+            word_equivalents = payload.get("word_equivalents") or {}
+            if not isinstance(word_equivalents, Mapping):
+                word_equivalents = {"_malformed": _coerce_string(word_equivalents)}
+                retrieval_context_malformed = True
             rule_ids, rule_ids_malformed = coerce_rule_ids(payload.get("used_rule_ids"))
             warning_candidates = []
             if payload.get("warning"):
@@ -397,6 +413,7 @@ def run_examples(
                     "exact_match": prediction_text == example["expected_text"],
                     "normalized_match": normalize_for_match(prediction_text) == normalize_for_match(example["expected_text"]),
                     "retrieval_context": retrieval_context,
+                    "word_equivalents": dict(word_equivalents),
                     "retrieval_rule_ids": rule_ids,
                     "retrieval_warning": "; ".join(part for part in warning_candidates if part) or None,
                 }
@@ -624,6 +641,7 @@ def render_markdown_report(summary: Mapping[str, Any], rows: list[dict[str, Any]
     lines.extend(["", "## Detailed Examples", ""])
     for row in rows:
         retrieval_context = row.get("retrieval_context") or []
+        word_equivalents = row.get("word_equivalents") or {}
         retrieval_rule_ids = row.get("retrieval_rule_ids") or []
         failure_labels = row.get("failure_labels") or []
         lines.extend(
@@ -655,6 +673,18 @@ def render_markdown_report(summary: Mapping[str, Any], rows: list[dict[str, Any]
                 "#### Prediction",
                 "",
                 row["prediction"] or "(empty)",
+                "",
+                "#### Word Equivalents",
+                "",
+            ]
+        )
+        if word_equivalents:
+            for src, tgt in sorted(word_equivalents.items()):
+                lines.append(f"- {src} → {tgt}")
+        else:
+            lines.append("None.")
+        lines.extend(
+            [
                 "",
                 "#### Retrieval Context",
                 "",

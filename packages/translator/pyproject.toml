@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mirad-translator"
 version = "0.1.0"
-description = "Translate English to Mirad using DSPy and Ollama"
+description = "Bidirectional English-Mirad translation using DSPy, DeepInfra, semantic lexicon lookup, and structured grammar retrieval"
 readme = "README.md"
 authors = [{name = "Mirad Team"}]
 license = {text = "MIT"}
-keywords = ["mirad", "translation", "dspy", "ollama"]
+keywords = ["mirad", "translation", "dspy", "deepinfra"]
 classifiers = [
     "Development Status: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -20,9 +20,9 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "dspy-ai>=2.1",
-    "ollama",
     "fastapi",
     "uvicorn[standard]",
+    "python-dotenv>=1.0.0",
     "requests",
     "wordfreq>=2.10.0",
 ]

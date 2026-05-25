@@ -30,12 +30,8 @@ def test_cli_translation():
         context=["[grammar] verb rules"],
     )
 
-    with patch('mirad_translator.cli.OllamaLM') as mock_ollama_class, \
-         patch('mirad_translator.cli.DefaultTranslator') as mock_factory, \
-         patch('mirad_translator.cli.dspy.configure'):
-        mock_ollama_instance = Mock()
-        mock_ollama_class.return_value = mock_ollama_instance
-
+    with patch('mirad_translator.cli._configure_deepinfra_lm') as mock_lm_config, \
+         patch('mirad_translator.cli.DefaultTranslator') as mock_factory:
         mock_translator = Mock()
         # Module call: translator(english_text=...) returns prediction
         mock_translator.return_value = mock_prediction
@@ -65,9 +61,8 @@ def test_cli_reverse_translation():
         context=["[grammar] verb rules"],
     )
 
-    with patch('mirad_translator.cli.OllamaLM') as mock_ollama_class, \
-         patch('mirad_translator.cli.DefaultTranslator') as mock_factory, \
-         patch('mirad_translator.cli.dspy.configure'):
+    with patch('mirad_translator.cli._configure_deepinfra_lm') as mock_lm_config, \
+         patch('mirad_translator.cli.DefaultTranslator') as mock_factory:
         mock_translator = Mock()
         mock_translator.return_value = mock_prediction
         mock_factory.return_value = mock_translator
@@ -96,12 +91,11 @@ def test_cli_retrieve_mode():
     mock_prediction = dspy.Prediction(
         mirad_text="At tose oma.",
         word_equivalents={"i": "at", "cold": "oma"},
-        context=["[grammar] verb rules", "[thesaurus] weather terms"],
+        context=["[grammar_rules] verb rules"],
     )
 
-    with patch('mirad_translator.cli.OllamaLM') as mock_ollama_class, \
-         patch('mirad_translator.cli.DefaultTranslator') as mock_factory, \
-         patch('mirad_translator.cli.dspy.configure'):
+    with patch('mirad_translator.cli._configure_deepinfra_lm') as mock_lm_config, \
+         patch('mirad_translator.cli.DefaultTranslator') as mock_factory:
         mock_translator = Mock()
         mock_translator.return_value = mock_prediction
         mock_factory.return_value = mock_translator
@@ -118,7 +112,7 @@ def test_cli_retrieve_mode():
 
             assert "--- Word equivalents ---" in output
             assert "cold → oma" in output or "i → at" in output
-            assert "--- Context ---" in output
+            assert "--- Structured grammar rules ---" in output
             assert "--- Translation ---" in output
             assert "At tose oma." in output
 
@@ -146,8 +140,7 @@ def test_cli_debug_mode():
     )
 
     with patch('logging.basicConfig') as mock_logging, \
-         patch('mirad_translator.cli.OllamaLM') as mock_ollama, \
-         patch('mirad_translator.cli.dspy.configure'), \
+         patch('mirad_translator.cli._configure_deepinfra_lm') as mock_lm_config, \
          patch('mirad_translator.cli.DefaultTranslator') as mock_factory:
         mock_translator = Mock()
         mock_translator.return_value = mock_prediction
@@ -161,3 +154,34 @@ def test_cli_debug_mode():
             sys.argv = original_argv
 
         mock_logging.assert_called_with(level=logging.DEBUG)
+
+def test_cli_vocab_only_preserves_input_order(monkeypatch, capsys):
+    from mirad_translator import cli
+
+    monkeypatch.setattr('sys.argv', ['mirad-translator', '--vocab-only', 'congratulated toasted'])
+    monkeypatch.setattr('mirad_translator.lexicon_db.lookup_word_candidates', lambda english_word=None, **_: {
+        'congratulated': ['hwaydwa', 'yanivtosdwa'],
+        'toasted': ['aymxwa', 'hwaydwa'],
+    }.get(english_word, []))
+
+    cli.main()
+    assert capsys.readouterr().out.splitlines() == [
+        'congratulated → hwaydwa, yanivtosdwa',
+        'toasted → aymxwa, hwaydwa',
+    ]
+
+
+def test_cli_vocab_only_reverse_preserves_input_order(monkeypatch, capsys):
+    from mirad_translator import cli
+
+    monkeypatch.setattr('sys.argv', ['mirad-translator', '--vocab-only', '--reverse', 'hwaydwa yanivtosdwa'])
+    monkeypatch.setattr('mirad_translator.lexicon_db.lookup_mirad_word_candidates', lambda mirad_word=None, **_: {
+        'hwaydwa': ['cheered on', 'congratulated', 'toasted'],
+        'yanivtosdwa': ['congratulated', 'felicitated'],
+    }.get(mirad_word, []))
+
+    cli.main()
+    assert capsys.readouterr().out.splitlines() == [
+        'hwaydwa → cheered on, congratulated, toasted',
+        'yanivtosdwa → congratulated, felicitated',
+    ]

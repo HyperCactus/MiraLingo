@@ -83,3 +83,16 @@ def test_stats_returns_total_and_by_letter(built_db):
     stats = lexicon_db.get_stats(built_db)
     assert stats["total"] > 1000
     assert len(stats["by_letter"]) >= 20
+
+def test_reverse_lexicon_section_is_parsed(built_db):
+    from mirad_translator import lexicon_db
+    stats = lexicon_db.get_stats(built_db)
+    assert stats["reverse_total"] > 1000
+    assert lexicon_db.lookup_mirad_word_candidates(built_db, "hwaydwa") == ["cheered on", "congratulated", "toasted"]
+
+
+def test_english_lookup_splits_multi_candidates(built_db):
+    from mirad_translator import lexicon_db
+    assert lexicon_db.lookup_word_candidates(built_db, "congratulated") == ["hwaydwa", "yanivtosdwa"]
+    toasted = lexicon_db.lookup_word_candidates(built_db, "toasted")
+    assert toasted == ["aymxwa", "hwaydwa", "melzaxwa", "tilhyaydwa", "umamxwa"]

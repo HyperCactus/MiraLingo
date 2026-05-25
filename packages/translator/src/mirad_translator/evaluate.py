@@ -248,7 +248,7 @@ def evaluate_module(
         Dict with keys: score, results (list of per-example dicts), module_name.
     """
     if module is None:
-        module = DefaultTranslator()
+        module = DefaultTranslator(use_compiled=False)
     if metric is None:
         metric = normalized_match_metric
     if devset is None:
@@ -352,7 +352,7 @@ def _make_deepinfra_lm(model: str | None = None) -> dspy.LM:
 
     api_key = os.environ.get("DEEPINFRA_API_KEY")
     api_base = os.environ.get("DEEPINFRA_BASE_URL", "https://api.deepinfra.com/v1/openai")
-    teacher_model = model or os.environ.get("DEEPINFRA_TEACHER_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
+    teacher_model = model or os.environ.get("DEEPINFRA_TRANSLATION_MODEL") or os.environ.get("DEEPINFRA_TEACHER_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 
     if not api_key:
         raise ValueError("DEEPINFRA_API_KEY not set. Add it to .env or environment.")
@@ -366,24 +366,24 @@ def _make_deepinfra_lm(model: str | None = None) -> dspy.LM:
 
 
 def run_baseline_eval(
-    model: str = "qwen3.5:4b",
+    model: str | None = None,
     metric_name: str = "normalized_match",
     num_threads: int = 10,
     output_path: Optional[str] = None,
 ) -> dict:
-    """Run baseline evaluation with Ollama qwen3.5:4b and save per-example predictions.
+    """Run baseline evaluation with DeepInfra DeepSeek-V4-Flash and save per-example predictions.
 
     Uses DSPy's native Evaluate with ``save_as_json`` to persist results.
     Runs both ``normalized_match_metric`` and ``exact_match_metric`` so callers
     can compare.  Returns a flat summary dict with score and metric name.
 
     Args:
-        model: Ollama model name (default: qwen3.5:4b).
+        model: DeepInfra model name (default: DEEPINFRA_TRANSLATION_MODEL or DeepSeek-V4-Flash).
         metric_name: Which metric to return in the summary. Pass 'exact' or 'exact_match'
                      for exact_match_metric, anything else uses normalized_match_metric.
         num_threads: Parallel threads passed to Evaluate (default 4).
         output_path: Override output path for normalized_match results.
-                     Defaults to ``data/eval_results/ollama_baseline.json``.
+                     Defaults to ``data/eval_results/deepinfra_baseline.json``.
 
     Returns:
         Dict with keys: score (float %), metric_name (str), devset_size (int),
@@ -393,15 +393,16 @@ def run_baseline_eval(
     out_dir = _PROJECT_ROOT / "data" / "eval_results"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    norm_path = output_path or str(out_dir / "ollama_baseline.json")
-    exact_path = str(out_dir / "ollama_baseline_exact.json")
+    norm_path = output_path or str(out_dir / "deepinfra_baseline.json")
+    exact_path = str(out_dir / "deepinfra_baseline_exact.json")
 
     # Configure LM — DSPy uses dspy.settings.lm for all Generate tasks
-    lm = _make_ollama_lm(model=model)
+    lm = _make_deepinfra_lm(model=model)
     dspy.settings.configure(lm=lm)
+    model_name = model or os.environ.get("DEEPINFRA_TRANSLATION_MODEL") or os.environ.get("DEEPINFRA_TEACHER_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 
     devset = load_evaluation_set()
-    module = DefaultTranslator()
+    module = DefaultTranslator(use_compiled=False)
 
     # ── normalized_match_metric ──────────────────────────────────────────────
     norm_evaluator = Evaluate(
@@ -434,13 +435,13 @@ def run_baseline_eval(
         "devset_size": len(devset),
         "normalized_score": norm_result.score,
         "exact_score": exact_result.score,
-        "model": model,
+        "model": model_name,
         "output_normalized": norm_path,
         "output_exact": exact_path,
     }
 
     # Also save a summary alongside the per-example results
-    summary_path = str(out_dir / "ollama_baseline_summary.json")
+    summary_path = str(out_dir / "deepinfra_baseline_summary.json")
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
@@ -451,7 +452,7 @@ def run_baseline_eval(
 
 
 def inspect_traces(
-    model: str = "qwen3.5:4b",
+    model: str | None = None,
     num_examples: int = 5,
     output_path: Optional[str] = None,
 ) -> dict:
@@ -463,26 +464,26 @@ def inspect_traces(
     context_passages, mirad_text, confidence, normalized_score.
 
     Args:
-        model: Ollama model name.
+        model: DeepInfra model name.
         num_examples: How many first examples to trace (default 5).
         output_path: Override trace output path.
                      Defaults to ``data/eval_results/trace_inspection.json``.
 
     Returns:
         Dict with keys: traces (list of per-example dicts), lm_history (list of
-        the raw messages+responses stored by OllamaLM for each call).
+        the raw messages+responses stored by the configured LM where available).
     """
     _PROJECT_ROOT = Path(__file__).resolve().parents[4]
     out_dir = _PROJECT_ROOT / "data" / "eval_results"
     out_dir.mkdir(parents=True, exist_ok=True)
     trace_path = output_path or str(out_dir / "trace_inspection.json")
 
-    lm = _make_ollama_lm(model=model)
+    lm = _make_deepinfra_lm(model=model)
     dspy.settings.configure(lm=lm)
 
     devset = load_evaluation_set()
     examples_to_trace = devset[:num_examples]
-    module = DefaultTranslator()
+    module = DefaultTranslator(use_compiled=False)
 
     traces = []
     for example in examples_to_trace:
@@ -500,7 +501,7 @@ def inspect_traces(
     with open(trace_path, "w", encoding="utf-8") as f:
         json.dump({
             "traces": traces,
-            "lm_history_count": len(lm.history),
+            "lm_history_count": len(getattr(lm, "history", [])),
         }, f, indent=2, ensure_ascii=False)
 
     print(f"[inspect_traces] Traced {len(traces)} examples → {trace_path}")
@@ -510,7 +511,7 @@ def inspect_traces(
         print(f"      CTX: {t['context_passages'][:2] if t['context_passages'] else '[]'}")
         print(f"      PR: {t['predicted_mirad'][:60]!r}  GOLD: {t['gold_mirad'][:60]!r}  score={t['normalized_score']}")
 
-    return {"traces": traces, "lm_history_count": len(lm.history)}
+    return {"traces": traces, "lm_history_count": len(getattr(lm, "history", []))}
 
 
 # ---------------------------------------------------------------------------
@@ -569,7 +570,7 @@ def run_labeled_fewshot_eval(
     num_fewshot: int = 5,
     num_threads: int = 1,
     output_path: Optional[str] = None,
-    lm_type: str = "ollama",
+    lm_type: str = "deepinfra",
     save_compiled: Optional[str] = None,
 ) -> dict:
     """Run LabeledFewShot baseline evaluation with timed execution.
@@ -581,11 +582,11 @@ def run_labeled_fewshot_eval(
     the effect of dictionary lookups + few-shot prompting.
 
     Args:
-        model: Model name (default: qwen3.5:4b for Ollama, or DeepInfra teacher model).
+        model: Model name (default: DeepInfra translation/teacher model).
         num_fewshot: Number of labeled few-shot examples (default: 5).
         num_threads: Parallel threads for evaluation (default: 1 for timing accuracy).
         output_path: Override output path for results JSON.
-        lm_type: "ollama" for local Ollama, "deepinfra" for DeepInfra cloud API.
+        lm_type: "deepinfra" for DeepInfra cloud API, "ollama" only for optional local experiments.
         save_compiled: If provided, save the compiled program to this path as JSON.
 
     Returns:
@@ -620,7 +621,7 @@ def run_labeled_fewshot_eval(
         print(f"  Demo {i}: EN={demo.english_text[:50]!r}... WE={we_count} items")
 
     # ── Build module with k=0 (no RAG retrieval) ──────────────────────────────
-    module = DefaultTranslator(num_context_passages=0)
+    module = DefaultTranslator(num_context_passages=5, use_compiled=False)
 
     # ── Compile with LabeledFewShot ───────────────────────────────────────────
     from dspy import LabeledFewShot
@@ -662,7 +663,7 @@ def run_labeled_fewshot_eval(
     summary = {
         "method": "LabeledFewShot",
         "lm_type": lm_type,
-        "model": model,
+        "model": model_name,
         "num_fewshot": num_fewshot,
         "k_context_passages": 0,
         "eval_set_size": len(eval_examples),

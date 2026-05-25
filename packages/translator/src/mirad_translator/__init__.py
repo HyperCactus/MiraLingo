@@ -12,6 +12,7 @@ from mirad_translator.translate import (
     MiradToEnglishModule,
     MiradLexiconLookup,
     MiradLexiconReverseLookup,
+    MiradSemanticReverseLexiconLookup,
     MiradContextRetrieve,
     MultiHopTranslatorModule,
     CritiqueAndFixModule,

@@ -22,7 +22,7 @@ from typing import Optional
 
 import dspy
 
-from mirad_translator.lexicon_db import DB_PATH, LEXICON_PATH
+from mirad_translator.lexicon_db import DB_PATH, LEXICON_PATH, lookup_word_candidates
 from mirad_translator.retrieval import _get_embedder, _CHROMA_AVAILABLE
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -154,9 +154,10 @@ def semantic_lookup(
 
     # Merge exact match if requested
     if include_exact:
-        exact_mirad = lookup_word(english_word=english_word)
-        if exact_mirad:
+        exact_mirads = lookup_word_candidates(english_word=english_word)
+        if exact_mirads:
             exact_en = english_word.lower()
+            exact_mirad = ", ".join(exact_mirads)
             # Check if exact match already appears in semantic results
             exact_in_semantic = any(
                 h["english"] == exact_en for h in semantic_hits
@@ -182,8 +183,8 @@ def semantic_lookup(
 
 def semantic_lookup_multi(
     english_text: str,
-    top_k_per_word: int = 3,
-    max_total_pairs: int = 30,
+    top_k_per_word: int = 5,
+    max_total_pairs: int = 50,
     min_similarity: float = 0.5,
     include_exact: bool = True,
 ) -> dict[str, str]:
@@ -261,7 +262,7 @@ class MiradSemanticLexiconLookup(dspy.Module):
     translations. Falls back gracefully if ChromaDB/embeddings are unavailable.
     """
 
-    def __init__(self, db_path=None, top_k_per_word: int = 3, max_total_pairs: int = 30, min_similarity: float = 0.5):
+    def __init__(self, db_path=None, top_k_per_word: int = 5, max_total_pairs: int = 30, min_similarity: float = 0.5):
         super().__init__()
         self._db_path = db_path
         self._top_k_per_word = top_k_per_word

@@ -139,6 +139,7 @@ def test_run_baseline_persists_expected_artifacts_with_fake_translator(devset, o
             "mirad_text": devset[0]["expected_text"],
             "context": ["rule snippet"],
             "used_rule_ids": ["rule.progressive"],
+            "word_equivalents": {"going": "peyer"},
         },
         devset[1]["id"]: {
             "mirad_text": "wrong answer",
@@ -180,6 +181,7 @@ def test_run_baseline_persists_expected_artifacts_with_fake_translator(devset, o
     assert first["exact_match"] is True
     assert first["normalized_match"] is True
     assert first["retrieval_context"] == ["rule snippet"]
+    assert first["word_equivalents"] == {"going": "peyer"}
     assert first["retrieval_rule_ids"] == ["rule.progressive"]
     assert first["failure_labels"] == devset[0]["taxonomy_focus"]
     assert first["elapsed_ms"] >= 0
@@ -203,6 +205,7 @@ def test_run_baseline_persists_expected_artifacts_with_fake_translator(devset, o
     assert "## Detailed Examples" in report_text
     assert "### s01-001-en-to-mir-progressive-going-home" in report_text
     assert "rule.progressive" in report_text
+    assert "going → peyer" in report_text
     assert "rule snippet" in report_text
     assert "retrieval_context_malformed" in report_text
 

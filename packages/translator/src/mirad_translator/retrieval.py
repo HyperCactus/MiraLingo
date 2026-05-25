@@ -79,15 +79,32 @@ def _load_grammar_rules() -> list[dict[str, Any]]:
                 tags = [str(tags)]
             examples = rule.get("examples") or []
 
+            rule_payload = rule.get("rule") or {}
+            if isinstance(rule_payload, dict):
+                description = rule_payload.get("description") or ""
+                pseudocode_payload = rule_payload.get("pseudocode") or []
+            else:
+                description = str(rule_payload)
+                pseudocode_payload = rule.get("pseudocode") or []
+
+            if isinstance(pseudocode_payload, list):
+                pseudocode = "\n".join(str(line) for line in pseudocode_payload)
+            else:
+                pseudocode = str(pseudocode_payload or "")
+
             rules.append(
                 {
                     "id": str(rid),
                     "section": section,
                     "title": str(rule.get("title") or ""),
-                    "rule": str(rule.get("rule") or ""),
-                    "pseudocode": str(rule.get("pseudocode") or ""),
+                    "description": str(description),
+                    "pseudocode": pseudocode,
                     "examples": examples if isinstance(examples, list) else [examples],
                     "retrieval_tags": [str(t) for t in tags],
+                    "direction": rule.get("direction") if isinstance(rule.get("direction"), list) else [],
+                    "category": str(rule.get("category") or ""),
+                    "subcategory": str(rule.get("subcategory") or ""),
+                    "priority": int(rule.get("priority") or 0),
                 }
             )
 
@@ -111,7 +128,7 @@ def _format_rule_document(rule: dict[str, Any]) -> str:
         f"ID: {rule.get('id', '')}\n"
         f"SECTION: {rule.get('section', '')}\n"
         f"TITLE: {rule.get('title', '')}\n"
-        f"DESCRIPTION: {rule.get('rule', '')}\n"
+        f"DESCRIPTION: {rule.get('description', '')}\n"
         f"PSEUDOCODE: {rule.get('pseudocode', '')}\n"
         f"EXAMPLES:\n{ex_text}".strip()
     )
@@ -224,10 +241,14 @@ def _index_grammar_rules(collection):
                 "source_section": rule.get("section", "grammar_rules"),
                 "rule_id": rule.get("id", f"rule_{i}"),
                 "title": rule.get("title", ""),
-                "description": rule.get("rule", ""),
+                "description": rule.get("description", ""),
                 "pseudocode": rule.get("pseudocode", ""),
                 "examples": examples_text,
                 "retrieval_tags": "; ".join(rule.get("retrieval_tags", [])),
+                "direction": "; ".join(rule.get("direction", [])),
+                "category": rule.get("category", ""),
+                "subcategory": rule.get("subcategory", ""),
+                "priority": rule.get("priority", 0),
             }
         )
 

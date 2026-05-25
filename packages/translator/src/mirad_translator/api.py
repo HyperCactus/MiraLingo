@@ -1,15 +1,21 @@
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, Literal
 import logging
+import os
 import traceback
+from pathlib import Path
+
+import dspy
+from dotenv import load_dotenv
 
 from mirad_translator.translate import DefaultTranslator
-from mirad_translator.ollama_lm import OllamaLM
-import dspy
 
 logger = logging.getLogger(__name__)
+
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+DEFAULT_TRANSLATION_MODEL = "deepseek-ai/DeepSeek-V4-Flash"
 
 app = FastAPI()
 
@@ -18,19 +24,39 @@ translator_en_mir = None
 translator_mir_en = None
 
 
+def _configure_default_lm() -> str:
+    """Configure DSPy with the default DeepInfra translation model."""
+    load_dotenv(PROJECT_ROOT / ".env")
+    api_key = os.environ.get("DEEPINFRA_API_KEY")
+    if not api_key:
+        raise RuntimeError("DEEPINFRA_API_KEY is not set")
+    api_base = os.environ.get("DEEPINFRA_BASE_URL", "https://api.deepinfra.com/v1/openai")
+    model = os.environ.get("DEEPINFRA_TRANSLATION_MODEL") or os.environ.get(
+        "DEEPINFRA_TEACHER_MODEL",
+        DEFAULT_TRANSLATION_MODEL,
+    )
+    dspy.settings.configure(
+        lm=dspy.LM(
+            model=f"openai/{model}",
+            api_key=api_key,
+            api_base=api_base,
+        )
+    )
+    return model
+
+
 @app.on_event("startup")
 async def startup_event():
     global translator_en_mir, translator_mir_en
     try:
-        lm = OllamaLM()
-        dspy.configure(lm=lm)
+        model = _configure_default_lm()
         translator_en_mir = DefaultTranslator(direction="en_to_mir")
         translator_mir_en = DefaultTranslator(direction="mir_to_en")
-        logger.info("Translators initialized successfully (both directions)")
+        logger.info("Translators initialized successfully with DeepInfra model %s", model)
     except Exception as e:
         logger.warning(
             "Translator initialization deferred: %s. "
-            "Health endpoint will report unhealthy until Ollama is available.",
+            "Health endpoint will report unhealthy until DeepInfra env vars are configured.",
             e,
         )
 
@@ -48,15 +74,15 @@ async def health():
             content={"status": "unhealthy", "reason": "Translators not initialized"}
         )
     try:
-        # Test both directions
-        result = translator_en_mir(english_text="test")
+        # Test both directions enough to catch missing LM/env without exhausting API budget.
+        result = translator_en_mir(english_text="you do not work at home")
         if not result.mirad_text:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 content={"status": "unhealthy", "reason": "En→Mir translator returned empty result"}
             )
     except Exception as e:
-        logging.error(f"Health check failed: {str(e)}")
+        logging.error("Health check failed: %s", str(e))
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             content={"status": "unhealthy", "reason": "Translator health check failed"}
@@ -108,6 +134,6 @@ async def translate(request: TranslateRequest):
 
         return response
     except Exception as e:
-        logging.error(f"Translation failed: {str(e)}")
+        logging.error("Translation failed: %s", str(e))
         logging.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))

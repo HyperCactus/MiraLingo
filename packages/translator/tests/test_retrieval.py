@@ -50,3 +50,26 @@ def test_retrieve_grammar_returns_list_or_skips():
         if "chromadb" in str(e) or "sentence" in str(e):
             pytest.skip(f"Missing dependency: {e}")
         raise
+
+def test_load_grammar_rules_flattens_nested_json_rule_payloads():
+    from mirad_translator.retrieval import _load_grammar_rules
+
+    rules = _load_grammar_rules()
+    assert rules
+    first = rules[0]
+
+    assert first["id"] == "orthography.alphabet.roman_no_diacritics"
+    assert "Native Mirad words" in first["description"]
+    assert "token.is_native_mirad" in first["pseudocode"]
+    assert not first["description"].startswith("{")
+
+
+def test_format_rule_document_contains_structured_fields_not_dict_repr():
+    from mirad_translator.retrieval import _format_rule_document, _load_grammar_rules
+
+    doc = _format_rule_document(_load_grammar_rules()[0])
+
+    assert "ID: orthography.alphabet.roman_no_diacritics" in doc
+    assert "DESCRIPTION: Native Mirad words" in doc
+    assert "PSEUDOCODE: if token.is_native_mirad:" in doc
+    assert "'description':" not in doc

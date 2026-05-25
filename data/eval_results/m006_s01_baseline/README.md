@@ -9,6 +9,7 @@ The S01 baseline is the fixed comparison point for later model-improvement slice
 ## Verified execution states
 
 - Deterministic proof for this slice comes from pytest plus the runner's `--dry-run` mode.
+- S01 is not complete unless this directory contains a real live `run_summary.json`, `examples.json`, and `latest.md` artifact set produced by the DeepInfra-backed runner surface.
 - A real baseline run is credential-gated on `DEEPINFRA_API_KEY`.
 - When that key is absent, the expected behavior is a preflight failure with exit code `2` and a stacktrace-free `run_summary.json` error payload before any model call begins.
 - Do not treat dry-run output as the canonical live baseline; it is only a local verification aid.
@@ -36,16 +37,18 @@ PYTHONPATH=packages/translator/src python packages/translator/scripts/run_s01_ba
 
 ### Live baseline run
 
-Use the same script surface for a real DeepInfra-backed run after `DEEPINFRA_API_KEY` is already present in the environment:
+Use the same script surface for a real DeepInfra-backed run after loading `.env` into the shell environment so `DEEPINFRA_API_KEY` is available to the Python process:
 
 ```bash
-PYTHONPATH=packages/translator/src python packages/translator/scripts/run_s01_baseline.py \
+bash -lc 'set -a; source .env; set +a; PYTHONPATH=packages/translator/src python packages/translator/scripts/run_s01_baseline.py \
   --output-dir data/eval_results/m006_s01_baseline \
   --model deepseek-ai/DeepSeek-V4-Flash \
   --max-examples 15 \
   --estimated-calls-per-example 1 \
-  --estimated-cost-per-call-usd 0.0
+  --estimated-cost-per-call-usd 0.0'
 ```
+
+Future auto-mode runs should use this exact env-loading command pattern instead of assuming exported shell state.
 
 ### Expected no-credential preflight check
 
