@@ -20,39 +20,36 @@ def _source() -> str:
 
 def test_logged_out_landing_copy_mentions_mirad_and_miralingo_practice() -> None:
     source = _source()
-
     anonymous_chunk = source.split('{:else}', maxsplit=1)[1]
 
-    assert "Welcome to MiraLingo" in anonymous_chunk
-    assert "Practice Mirad" in anonymous_chunk
     assert "MiraLingo" in anonymous_chunk
-    assert "Mirad" in anonymous_chunk
+    assert "Practice Mirad pronunciation and translation." in anonymous_chunk
+    assert "Create account" in anonymous_chunk
+    assert "Log in" in anonymous_chunk
+    assert "Welcome to MiraLingo" not in anonymous_chunk
 
 
-def test_logged_out_landing_includes_external_wikibooks_grammar_link() -> None:
+def test_logged_out_landing_includes_external_mirad_links() -> None:
     source = _source()
 
     assert WIKIBOOKS_GRAMMAR_URL in source
-    assert "Wikibooks" in source
-    assert "Grammar" in source
-    assert 'target={link.external ? "_blank" : undefined}' in source
-    assert 'rel={link.external ? "noreferrer" : undefined}' in source
+    assert "Mirad Grammar" in source
+    assert "https://www.mirad.org/" in source
+    assert 'target="_blank"' in source
+    assert 'rel="noopener"' in source
 
 
 def test_public_docs_links_do_not_expose_repo_relative_readmes() -> None:
     source = _source()
 
-    public_links_chunk = source.split("const docsLinks = [", maxsplit=1)[1].split("];", maxsplit=1)[0]
-
     for forbidden_link in FORBIDDEN_REPO_RELATIVE_LINKS:
-        assert forbidden_link not in public_links_chunk
+        assert forbidden_link not in source
 
 
-def test_public_link_data_is_rendered_from_docs_links_collection() -> None:
+def test_public_links_are_plain_external_anchors_not_old_docs_collection() -> None:
     source = _source()
 
-    assert "const docsLinks = [" in source
-    assert "{#each docsLinks as link}" in source
-    assert "href={link.href}" in source
-    assert 'aria-label={`${link.label}: ${link.description}`}' in source
-    assert "Mirad and MiraLingo docs" in source
+    assert "const docsLinks = [" not in source
+    assert "{#each docsLinks as link}" not in source
+    assert 'href="https://en.wikibooks.org/wiki/Mirad_Grammar"' in source
+    assert 'href="https://www.mirad.org/"' in source

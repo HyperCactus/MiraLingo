@@ -14,82 +14,90 @@ def _source() -> str:
 def test_audio_control_fetches_mirad_audio_identifier_endpoint() -> None:
     frontend_source = _source()
 
-    assert "const audioCardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;" in frontend_source
-    assert "fetch(`/practice/audio/${encodeURIComponent(audioCardId)}`" in frontend_source
-    assert 'headers: { Accept: "audio/wav, application/json" }' in frontend_source
-    assert "if (!currentCard || audioState === \"loading\") return;" in frontend_source
+    # audio card id uses fallback chain: audio_card_id → base_card_id → id
+    cid_line = "currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id"
+    assert cid_line in frontend_source
+    assert 'fetch(`/practice/audio/${encodeURIComponent(cid)}`,' in frontend_source  # backtick closes URL, then comma
+    assert '{headers:{"Accept":"audio/wav,application/json"}}' in frontend_source
+    assert 'if (!currentCard || audioState==="loading") return;' in frontend_source
+    assert "canPlayAudio()" in frontend_source  # TTS gating: only play after answer revealed
 
 
 def test_audio_control_has_accessible_speaker_affordance() -> None:
     frontend_source = _source()
-    authenticated_branch = frontend_source.split('{#if authState === "authenticated"}', maxsplit=1)[1].split("{:else}", maxsplit=1)[0]
 
-    assert 'class="audio-row" aria-label="Mirad answer audio"' in authenticated_branch
-    assert 'aria-label="Play Mirad answer audio"' in authenticated_branch
-    assert "Hear Mirad answer" in authenticated_branch
-    assert "Preparing audio…" in authenticated_branch
-    assert "Playing…" in authenticated_branch
-    assert 'disabled={audioState === "loading"}' in authenticated_branch
+    # TTS is rendered inside the practice card section (inside {#if currentCard})
+    assert 'class="btn-tts"' in frontend_source
+    assert 'aria-label="Hear Mirad"' in frontend_source  # Mir→En direction (prompt visible)
+    assert 'aria-label="Hear answer"' in frontend_source  # En→Mir direction (after reveal)
+    assert 'disabled={audioState==="loading"}' in frontend_source
+    assert "🔊" in frontend_source  # emoji-only TTS button
 
 
 def test_audio_success_path_uses_blob_url_and_revokes_stale_urls() -> None:
     frontend_source = _source()
 
-    assert "const blob = await response.blob();" in frontend_source
+    assert "const blob = await r.blob();" in frontend_source
     assert "URL.createObjectURL(blob)" in frontend_source
-    assert "new Audio(nextBlobUrl)" in frontend_source
+    assert "activeAudio=new Audio(url)" in frontend_source  # creates Audio from blob URL
     assert "activeAudio.play()" in frontend_source
     assert "URL.revokeObjectURL(audioBlobUrl)" in frontend_source
     assert "activeAudio.pause()" in frontend_source
-    assert "new Audio(" not in frontend_source.split("loadCurrentUser();", maxsplit=1)[1]
+    # TTS gating: only allows playback after canPlayAudio() returns true
+    assert "canPlayAudio()" in frontend_source
 
 
 def test_audio_playback_rate_uses_persisted_speed_with_safe_default() -> None:
     frontend_source = _source()
 
     assert 'tts_speed: 0.8,' in frontend_source
-    assert 'const effectiveTtsSpeed = () => coerceSpeed(persistedSettings?.tts_speed);' in frontend_source
-    assert 'const ttsSpeed = effectiveTtsSpeed();' in frontend_source
-    assert 'activeAudio.playbackRate = ttsSpeed;' in frontend_source
-    assert 'Audio uses your saved {speedLabel(effectiveTtsSpeed())} learner speed preference.' in frontend_source
-    assert 'Playing Mirad audio at ${speedLabel(ttsSpeed)}.' in frontend_source
+    assert 'const coerceSpeed = (s) =>' in frontend_source  # validates 0.5-2.0, defaults 0.8
+    assert 'const effSpd = () =>' in frontend_source  # reads from settingsForm
+    assert "activeAudio.playbackRate=spd" in frontend_source
+    assert 'parseFloat(settingsForm?.tts_speed)' in frontend_source  # uses form state, not persistedSettings
 
 
 def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
     frontend_source = _source()
 
-    assert 'contentType.includes("application/json")' in frontend_source
-    assert "const payload = await readJson(response);" in frontend_source
-    assert 'audioState = response.status === 401 ? "error" : "unavailable";' in frontend_source
-    assert "friendlyAudioError(payload, response.status)" in frontend_source
-    assert "formatAudioDiagnostic(payload)" in frontend_source
-    assert "Your session expired. Log in again to hear this card." in frontend_source
-    assert 'payload?.error === "mbrola_voice_unavailable"' in frontend_source
-    assert "The Mirad de6 voice is not installed on this server." in frontend_source
-    assert 'audioDiagnostic = `playback_rate_unavailable requested=${speedLabel(ttsSpeed)}`;' in frontend_source
-    assert 'audioDiagnostic = audioDiagnostic || "network_or_browser_playback";' in frontend_source
-    assert "Could not play audio. Check the server, then try again." in frontend_source
-    assert 'role={audioState === "error" || audioState === "unavailable" ? "alert" : "status"}' in frontend_source
+    assert "ct.includes(\"application/json\")" in frontend_source  # ct = content-type header
+    assert "const p = await readJson(r);" in frontend_source
+    assert 'audioState = r.status===401 ? "error" : "unavailable";' in frontend_source
+    assert 'p?.error==="mbrola_unavailable"' in frontend_source
+    assert '"Session expired."' in frontend_source  # 401 case
+    assert '"Audio unavailable."' in frontend_source  # JSON error case
+    assert 'audioState="error"; audioMsg="Could not play audio."' in frontend_source  # catch block
+    # Error display uses role=alert for error/unavailable states
+    assert 'audioState==="error" || audioState==="unavailable"' in frontend_source
+    # TTS gating message when trying to play before answer is revealed
+    assert "canPlayAudio()" in frontend_source
+    assert '"Reveal answer first."' in frontend_source  # gating fallback message
 
 
 def test_audio_state_resets_on_queue_refresh_card_change_and_logout() -> None:
     frontend_source = _source()
 
-    load_queue_body = frontend_source.split("async function loadPracticeQueue(mode = activePracticeMode)", maxsplit=1)[1].split("async function openPracticeMode", maxsplit=1)[0]
-    logout_body = frontend_source.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeQueue(mode = activePracticeMode)", maxsplit=1)[0]
+    # loadPracticeQueue resets audio before fetching
+    load_queue_body = frontend_source.split("async function loadPracticeQueue(mode=", maxsplit=1)[1].split("async function", maxsplit=1)[0]
+    assert "resetAudio();" in load_queue_body
+    assert "resetAnswer();" in load_queue_body
 
-    assert "resetAudioState();" in load_queue_body
+    # logout resets the full practice surface (includes audio)
+    logout_body = frontend_source.split("async function logout()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
     assert "resetPracticeSurface();" in logout_body
     assert "resetSettingsSurface();" in logout_body
-    assert '$: if ((currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null) !== lastAudioCardId)' in frontend_source
-    assert "lastAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null;" in frontend_source
+
+    # Card change resets audio via $effect watching audio_card_id
+    assert "audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id" in frontend_source
+    assert "lastAudioCardId=id" in frontend_source
+    # advancePracticeCard also clears answerResult to prevent stale TTS on new card
+    assert "resetAnswer();" in frontend_source.split("async function advancePracticeCard()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
 
 
 def test_audio_styles_include_compact_mobile_row() -> None:
     css_source = FRONTEND_CSS.read_text(encoding="utf-8")
 
-    assert ".audio-row" in css_source
-    assert ".audio-button" in css_source
-    assert ".audio-diagnostic" in css_source
-    assert "@media (max-width: 820px)" in css_source
-    assert ".audio-button," in css_source
+    # New design uses .btn-tts (emoji-only, inline with Mirad text)
+    assert ".btn-tts" in css_source
+    assert ".pcard-icon-frame" in css_source  # icon frame in practice card
+    assert ".audio-err" in css_source  # error message below card

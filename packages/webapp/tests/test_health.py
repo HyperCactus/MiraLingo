@@ -32,10 +32,10 @@ def test_frontend_welcome_text_is_present() -> None:
 
     assert app_source.exists()
     contents = app_source.read_text(encoding="utf-8")
-    assert "Welcome to MiraLingo" in contents
-    assert "Mirad pronunciation, translation, and vocabulary" in contents
+    assert "MiraLingo" in contents
+    assert "Practice Mirad pronunciation and translation." in contents
     assert "Create account" in contents
-    assert "Mirad writing notes" in contents
+    assert "Log in" in contents
 
 
 def test_frontend_auth_states_and_error_copy_are_wired() -> None:
@@ -46,11 +46,10 @@ def test_frontend_auth_states_and_error_copy_are_wired() -> None:
     assert 'fetch("/auth/login"' in contents
     assert 'fetch("/auth/register"' in contents
     assert 'fetch("/auth/logout"' in contents
-    assert 'authState = "anonymous"' in contents
-    assert 'authState = "login-failed"' in contents
-    assert 'authState = "registration-failed"' in contents
-    assert 'authState = "authenticated"' in contents
-    assert "Invalid username or password." in contents
+    assert 'authState="anonymous"' in contents
+    assert 'authState="login-failed"' in contents
+    assert 'authState="registration-failed"' in contents
+    assert 'authState="authenticated"' in contents
     assert "Could not reach MiraLingo auth" in contents
     assert 'role="alert"' in contents
 
@@ -63,46 +62,37 @@ def test_frontend_stylesheet_defines_responsive_app_home() -> None:
     assert 'import "./app.css";' in app_source
     assert css_source.exists()
     contents = css_source.read_text(encoding="utf-8")
-    assert ".welcome-shell" in contents
-    assert ".home-panel" in contents
-    assert "@media (max-width: 820px)" in contents
+    assert ".hero-title" in contents
+    assert ".auth-card" in contents
+    assert ".pcard-main" in contents
 
 
 def test_frontend_registration_source_affordance_is_wired() -> None:
     app_source = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
 
     contents = app_source.read_text(encoding="utf-8")
-    logged_out_branch = contents.split("{:else}", maxsplit=1)[1]
-    logout_body = contents.split("async function logout()", maxsplit=1)[1].split("async function loadPracticeQueue", maxsplit=1)[0]
-
     assert 'async function submitRegistration()' in contents
     assert 'fetch("/auth/register", {' in contents
-    assert '"Content-Type": "application/json"' in contents
-    assert 'body: JSON.stringify({ username: registerUsername, password: registerPassword })' in contents
-    registration_body = contents.split("async function submitRegistration()", maxsplit=1)[1].split("async function logout", maxsplit=1)[0]
-    assert 'activeSection = "menu"' in registration_body
-    assert 'await loadSettings({ force: true });' in registration_body
-    assert 'aria-label="Learner registration"' in logged_out_branch
-    assert 'autocomplete="new-password"' in logged_out_branch
-    assert 'Passwords are never echoed in errors.' in logged_out_branch
-    assert 'clearAuthenticatedAppState();' in logout_body
-    assert 'resetPracticeSurface();' in logout_body
-    assert 'resetSettingsSurface();' in logout_body
+    assert '"Content-Type":"application/json"' in contents
+    assert "username:regU" in contents
+    registration_body = contents.split("async function submitRegistration()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
+    assert 'activeSection="menu"' in registration_body
+    assert 'await loadSettings({force:true});' in registration_body
+    logout_body = contents.split("async function logout()", maxsplit=1)[1].split("// ── settings", maxsplit=1)[0]
+    assert 'clearAuthAppState()' in logout_body
+    assert 'resetPracticeSurface()' in logout_body
+    assert 'resetSettingsSurface()' in logout_body
 
 
 def test_frontend_practice_direction_labels_are_helper_based() -> None:
     app_source = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
 
     contents = app_source.read_text(encoding="utf-8")
-    authenticated_branch = contents.split('{#if authState === "authenticated"}', maxsplit=1)[1].split("{:else}", maxsplit=1)[0]
-
-    assert 'const languageLabel = (language) =>' in contents
-    assert 'const directionLabel = (card) =>' in contents
-    assert 'const promptLabel = (card) =>' in contents
-    assert 'const answerLabel = (card) =>' in contents
-    assert 'return "practice";' in contents
-    assert 'Direction: {directionLabel(currentCard)}' in authenticated_branch
-    assert '{promptLabel(currentCard)}' in authenticated_branch
-    assert '{answerInputLabel(currentCard)}' in authenticated_branch
-    assert 'English prompt' not in authenticated_branch
-    assert 'Show Mirad answer' not in authenticated_branch
+    assert 'activeSection === "practice"' in contents
+    assert 'const langLabel = (l) =>' in contents
+    assert 'const promptTag = (c) =>' in contents
+    assert 'const answerTag = (c) =>' in contents
+    assert 'const inputLabel = (c) =>' in contents
+    assert 'const isEnMir = (c) =>' in contents
+    assert 'class="pcard-lang"' in contents
+    assert 'class="pcard-main"' in contents

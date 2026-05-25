@@ -18,24 +18,24 @@ def _css() -> str:
 def test_authenticated_shell_declares_main_menu_contract() -> None:
     source = _source()
 
-    assert 'let activeSection = "menu";' in source or 'let currentSection = "menu";' in source
+    assert 'let activeSection = $state("menu");' in source
     assert "Continue Practice" in source
     assert "Revision" in source
-    assert "Build Vocabulary" in source
+    assert "Vocabulary" in source
     assert "Analytics" in source
     assert "Settings" in source
     assert "Log Out" in source
+    assert 'let activeSection = "menu";' not in source
 
 
 def test_navigation_handlers_cover_each_authenticated_destination() -> None:
     source = _source()
 
-    assert 'activeSection === "menu"' in source or 'currentSection === "menu"' in source
-    assert 'activeSection === "practice"' in source or 'currentSection === "practice"' in source
-    assert 'activeSection === "revision"' in source or 'currentSection === "revision"' in source
-    assert 'activeSection === "build_vocabulary"' in source or 'currentSection === "build_vocabulary"' in source
-    assert 'activeSection === "analytics"' in source or 'currentSection === "analytics"' in source
-    assert 'activeSection === "settings"' in source or 'currentSection === "settings"' in source
+    for section in ('"menu"', '"practice"', '"revision"', '"build_vocabulary"', '"analytics"', '"settings"'):
+        assert f'activeSection === {section}' in source
+    assert "function activateItem(item)" in source
+    assert 'loadAnalytics(); return;' in source
+    assert 'loadSettings(); return;' in source
 
 
 def test_queue_requests_cover_mixed_revision_and_build_vocabulary_modes() -> None:
@@ -50,15 +50,16 @@ def test_menu_copy_keeps_practice_cards_uncluttered() -> None:
     source = _source()
 
     assert "Continue Practice" in source
-    assert "Practice queue" in source
+    assert "Mixed recall" in source
     assert "Analytics" in source
     assert 'fetch("/practice/progress"' not in source.split("async function loadPracticeQueue", maxsplit=1)[1].split("async function", maxsplit=1)[0]
 
 
-def test_menu_and_navigation_have_dedicated_styles() -> None:
+def test_menu_and_navigation_have_current_dedicated_styles() -> None:
     css_source = _css()
 
-    assert ".main-menu" in css_source
-    assert ".menu-grid" in css_source or ".menu-actions" in css_source
-    assert ".analytics-panel" in css_source
-    assert ".practice-card" in css_source
+    assert ".shell--menu" in css_source
+    assert ".menu-wrap" in css_source
+    assert ".menu-btns" in css_source
+    assert ".menu-btn" in css_source
+    assert ".main-menu" not in css_source

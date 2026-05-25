@@ -104,23 +104,21 @@ def test_s03_negative_paths_are_structured_and_do_not_expose_credentials(monkeyp
     }
 
 
-def test_s03_frontend_source_contains_practice_fetch_and_submit_affordances() -> None:
+def test_s03_frontend_source_contains_current_practice_fetch_and_submit_affordances() -> None:
     frontend_source = FRONTEND_APP.read_text(encoding="utf-8")
 
-    authenticated_branch = frontend_source.split('{#if authState === "authenticated"}', maxsplit=1)[1].split("{:else}", maxsplit=1)[0]
+    authenticated_branch = frontend_source.split('authState === "authenticated" && (activeSection === "practice"', maxsplit=1)[1].split("<!-- ══════════════════════════════════════════════════════════════\n     MENU", maxsplit=1)[0]
     logged_out_branch = frontend_source.split("{:else}", maxsplit=1)[1]
 
-    assert 'let queueUrl = "/practice/queue?mode=mixed&limit=3";' in frontend_source
-    assert 'fetch(queueUrl, { headers: { Accept: "application/json" } })' in frontend_source
-    assert "fetch(\"/practice/answers" in frontend_source
-    assert "{practiceTitle()}" in authenticated_branch
-    assert "Submit answer" in authenticated_branch
-    assert "Type your answer" in authenticated_branch
-    assert "Give up" in authenticated_branch
-    assert "disabled={answerSubmitting || answerResult !== null}" in authenticated_branch
-    assert "Your session expired" in frontend_source
-    assert "No practice cards are available" in frontend_source
-    assert "scheduler_reason" in authenticated_branch
-    assert "event_count" in authenticated_branch
-    assert "direction" in authenticated_branch
+    assert '/practice/queue?mode=mixed&limit=${LIMIT}' in frontend_source
+    assert 'fetch(qmap[mode] ?? qmap.mixed, {headers:{"Accept":"application/json"}})' in frontend_source
+    assert 'fetch("/practice/answers"' in frontend_source
+    assert "{getPracticeTitle()}" in authenticated_branch
+    assert "Submit" in authenticated_branch
+    assert "inputLabel(currentCard)" in authenticated_branch
+    assert "Skip" in authenticated_branch
+    assert 'disabled={answerSubmitting || !typedAnswer.trim()}' in authenticated_branch
+    assert "Could not reach practice." in frontend_source
+    assert "No cards. Import content first." in frontend_source
+    assert "scheduler_reason" not in authenticated_branch
     assert "Practice queue" not in logged_out_branch

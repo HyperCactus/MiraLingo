@@ -1,0 +1,158 @@
+[
+  {
+    "id": "s01-001-en-to-mir-progressive-going-home",
+    "direction": "en_to_mir",
+    "source_text": "he or she was going home",
+    "expected_text": "It peya tam.",
+    "rationale": "Covers progressive-aspect morphology with the -eya form in a simple motion clause.",
+    "taxonomy_focus": ["progressive-aspect", "verb-inflection"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 337
+    }
+  },
+  {
+    "id": "s01-002-en-to-mir-comparison-vyel",
+    "direction": "en_to_mir",
+    "source_text": "my house is bigger than yours",
+    "expected_text": "Ata tam se ga aga vyel etas.",
+    "rationale": "Exercises comparative construction with the linker vyel plus possessive pronouns on both sides.",
+    "taxonomy_focus": ["comparison-linker", "possessives"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 363
+    }
+  },
+  {
+    "id": "s01-003-en-to-mir-dummy-it-negation",
+    "direction": "en_to_mir",
+    "source_text": "it is not fair to prejudge someone",
+    "expected_text": "Voy se yeva jayevder hes.",
+    "rationale": "Targets dummy English it together with negation and an impersonal predicate.",
+    "taxonomy_focus": ["dummy-it", "negation", "impersonal-predicate"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 427
+    }
+  },
+  {
+    "id": "s01-004-en-to-mir-object-order",
+    "direction": "en_to_mir",
+    "source_text": "give me that box",
+    "expected_text": "Buu at hua nyem.",
+    "rationale": "Checks pronoun and object ordering in an imperative with both indirect and direct objects.",
+    "taxonomy_focus": ["pronoun-object-order", "imperative"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 438
+    }
+  },
+  {
+    "id": "s01-005-en-to-mir-subordinate-whether",
+    "direction": "en_to_mir",
+    "source_text": "I did not know whether he or she would come",
+    "expected_text": "At voy ta ven it upo.",
+    "rationale": "Exercises negation plus subordinate whether/if marking with ven before a future-in-the-past clause.",
+    "taxonomy_focus": ["subordinate-ven", "negation", "embedded-clause"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 397
+    }
+  },
+  {
+    "id": "s01-006-en-to-mir-possession-book",
+    "direction": "en_to_mir",
+    "source_text": "I did not see his or her book",
+    "expected_text": "At voy teata ita dyes.",
+    "rationale": "Uses a possessive determiner inside the object noun phrase so baseline errors can separate ownership from word choice mistakes.",
+    "taxonomy_focus": ["possessives", "negation", "object-np"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 459
+    }
+  },
+  {
+    "id": "s01-007-mir-to-en-locative-be-home",
+    "direction": "mir_to_en",
+    "source_text": "At yexe be tam.",
+    "expected_text": "I work at home",
+    "rationale": "Pairs with the next item to force distinction between locative be and source/distance bi in English output.",
+    "taxonomy_focus": ["be-vs-bi", "locative"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 262
+    }
+  },
+  {
+    "id": "s01-008-mir-to-en-distance-bi-here",
+    "direction": "mir_to_en",
+    "source_text": "Et sa gla yib bi him.",
+    "expected_text": "you were very far from here",
+    "rationale": "Contrasts bi with be by using a distance relation that should surface as from here rather than at here.",
+    "taxonomy_focus": ["be-vs-bi", "distance-relation"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 288
+    }
+  },
+  {
+    "id": "s01-009-mir-to-en-question-school",
+    "direction": "mir_to_en",
+    "source_text": "Duven et tyoyape tistam?",
+    "expected_text": "do you walk to school",
+    "rationale": "Ensures interrogative morphology and punctuation map back to a natural English question.",
+    "taxonomy_focus": ["questions", "verb-mood"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 360
+    }
+  },
+  {
+    "id": "s01-010-mir-to-en-weather-dummy-it",
+    "direction": "mir_to_en",
+    "source_text": "Mamilo.",
+    "expected_text": "it will rain",
+    "rationale": "Checks that an impersonal weather verb expands to idiomatic English dummy-it wording.",
+    "taxonomy_focus": ["dummy-it", "weather", "future-tense"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 429
+    }
+  },
+  {
+    "id": "s01-011-mir-to-en-subordinate-van",
+    "direction": "mir_to_en",
+    "source_text": "Se uva van iyt pia.",
+    "expected_text": "it is sad that she left",
+    "rationale": "Covers subordinate van introducing a content clause that needs English dummy-it paraphrase.",
+    "taxonomy_focus": ["subordinate-van", "dummy-it", "embedded-clause"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 433
+    }
+  },
+  {
+    "id": "s01-012-mir-to-en-pronoun-object-reference",
+    "direction": "mir_to_en",
+    "source_text": "Yit xa has fi.",
+    "expected_text": "they did it well",
+    "rationale": "Tests pronoun reference and adverb placement in the reverse direction using a compact transitive clause.",
+    "taxonomy_focus": ["pronouns", "adverb-placement", "vocabulary-fidelity"],
+    "source_reference": {
+      "type": "csv",
+      "path": "data/phrases/english-mirad-sentence-pairs.csv",
+      "line": 379
+    }
+  }
+]

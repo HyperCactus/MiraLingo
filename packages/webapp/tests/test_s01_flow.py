@@ -24,9 +24,9 @@ def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> No
         "user": None,
         "detail": "No active user session.",
     }
-    assert "Welcome to MiraLingo" in frontend_source
-    assert "Local admin access" in frontend_source
-    assert "authState = \"anonymous\"" in frontend_source
+    assert "MiraLingo" in frontend_source
+    assert "Practice Mirad pronunciation and translation." in frontend_source
+    assert 'authState="anonymous"' in frontend_source
 
 
 def test_s01_local_admin_login_reaches_app_home_and_logout_returns_to_logged_out_state() -> None:
@@ -51,8 +51,8 @@ def test_s01_local_admin_login_reaches_app_home_and_logout_returns_to_logged_out
     assert logout.status_code == 200
     assert logout.json() == {"authenticated": False}
     assert logged_out_again.status_code == 401
-    assert "MiraLingo app home" in frontend_source
     assert "Welcome back" in frontend_source
+    assert "Continue Practice" in frontend_source
 
 
 def test_s01_admin_bootstrap_is_refused_outside_development_without_password_echo() -> None:

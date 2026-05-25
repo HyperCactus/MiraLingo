@@ -223,17 +223,16 @@ def test_s05_browser_visible_source_affordances_exist() -> None:
     source = APP_SOURCE.read_text(encoding="utf-8")
 
     for expected_label in [
-        "Welcome to MiraLingo",
-        "Local admin access",
-        "Log in as local admin",
-        "Create learner account",
-        "Learner registration",
-        "Practice queue",
-        "Hear Mirad answer",
+        "MiraLingo",
+        "Practice Mirad pronunciation and translation.",
+        "Create account",
+        "Log in",
+        "Continue Practice",
+        "Hear Mirad",
         "Analytics",
-        "Progress diagnostics",
-        "Build Vocabulary",
+        "Vocabulary",
         "Settings",
         "Log Out",
+        "Skip",
     ]:
         assert expected_label in source
