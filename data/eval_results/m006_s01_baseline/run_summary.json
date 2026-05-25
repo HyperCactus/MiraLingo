@@ -1,4 +1,37 @@
 {
-  "error": "PreflightError: DEEPINFRA_API_KEY is required for live baseline runs",
-  "phase": "preflight"
+  "started_at": "2026-05-25T08:20:27.329025+00:00",
+  "completed_at": "2026-05-25T08:20:52.139884+00:00",
+  "dry_run": false,
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "api_preflight": {
+    "api_key_required": true,
+    "api_key_present": true,
+    "status": "ok"
+  },
+  "devset_size": 12,
+  "direction_counts": {
+    "en_to_mir": 6,
+    "mir_to_en": 6
+  },
+  "estimated_total_calls": 12,
+  "estimated_cost_usd": 0.0,
+  "total_calls": 12,
+  "elapsed_ms": 24811,
+  "failed_example_count": 0,
+  "failed_example_ids": [],
+  "preflight": {
+    "ok": true,
+    "dry_run": false,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "devset_size": 12,
+    "max_examples": 15,
+    "explicit_override": false,
+    "estimated_calls_per_example": 1,
+    "estimated_total_calls": 12,
+    "estimated_cost_usd": 0.0,
+    "direction_counts": {
+      "en_to_mir": 6,
+      "mir_to_en": 6
+    }
+  }
 }

@@ -1,12 +1,12 @@
 {
-  "started_at": "2026-05-25T07:03:57.737652+00:00",
-  "completed_at": "2026-05-25T07:03:57.739267+00:00",
-  "dry_run": true,
+  "started_at": "2026-05-25T08:24:49.857783+00:00",
+  "completed_at": "2026-05-25T08:29:00.520671+00:00",
+  "dry_run": false,
   "model": "deepseek-ai/DeepSeek-V4-Flash",
   "api_preflight": {
-    "api_key_required": false,
+    "api_key_required": true,
     "api_key_present": true,
-    "status": "not-required"
+    "status": "ok"
   },
   "devset_size": 12,
   "direction_counts": {
@@ -16,28 +16,28 @@
   "estimated_total_calls": 48,
   "estimated_cost_usd": 0.0,
   "total_calls": 48,
-  "elapsed_ms": 0,
-  "failed_example_count": 0,
-  "failed_example_ids": [],
-  "successful_example_count": 12,
-  "passed_example_count": 12,
+  "elapsed_ms": 250663,
+  "failed_example_count": 3,
+  "failed_example_ids": [
+    "s01-005-en-to-mir-subordinate-whether",
+    "s01-009-mir-to-en-question-school",
+    "s01-012-mir-to-en-pronoun-object-reference"
+  ],
+  "successful_example_count": 9,
+  "passed_example_count": 8,
   "passed_example_ids": [
     "s01-001-en-to-mir-progressive-going-home",
     "s01-002-en-to-mir-comparison-vyel",
-    "s01-003-en-to-mir-dummy-it-negation",
     "s01-004-en-to-mir-object-order",
-    "s01-005-en-to-mir-subordinate-whether",
     "s01-006-en-to-mir-possession-book",
     "s01-007-mir-to-en-locative-be-home",
     "s01-008-mir-to-en-distance-bi-here",
-    "s01-009-mir-to-en-question-school",
     "s01-010-mir-to-en-weather-dummy-it",
-    "s01-011-mir-to-en-subordinate-van",
-    "s01-012-mir-to-en-pronoun-object-reference"
+    "s01-011-mir-to-en-subordinate-van"
   ],
   "preflight": {
     "ok": true,
-    "dry_run": true,
+    "dry_run": false,
     "model": "deepseek-ai/DeepSeek-V4-Flash",
     "devset_size": 12,
     "max_examples": 15,
