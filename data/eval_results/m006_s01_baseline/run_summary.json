@@ -1,0 +1,4 @@
+{
+  "error": "PreflightError: DEEPINFRA_API_KEY is required for live baseline runs",
+  "phase": "preflight"
+}
