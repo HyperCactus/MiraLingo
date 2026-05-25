@@ -8,6 +8,7 @@ Artifacts are written beneath ``data/eval_results/m006_s01_baseline/``:
 
 - ``run_summary.json`` — run-level metadata, preflight state, counts, timing, cost
 - ``examples.json`` — per-example diagnostic rows
+- ``latest.md`` — human-readable inspection report derived from the JSON artifacts
 
 The module also exposes pure helpers so tests can verify schema, preflight, and
 error-row behavior without network access.
@@ -17,7 +18,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import os
 import sys
 import time
@@ -38,6 +38,43 @@ DEFAULT_MAX_EXAMPLES = 15
 DEFAULT_ESTIMATED_CALLS_PER_EXAMPLE = 1
 DEFAULT_ESTIMATED_COST_PER_CALL_USD = 0.0
 ALLOWED_DIRECTIONS = {"en_to_mir", "mir_to_en"}
+DIRECTION_LABELS = {
+    "en_to_mir": "English → Mirad",
+    "mir_to_en": "Mirad → English",
+}
+REQUIRED_REPORT_EXAMPLE_KEYS = {
+    "id",
+    "status",
+    "phase",
+    "direction",
+    "input",
+    "expected",
+    "prediction",
+    "retrieval_context",
+    "retrieval_rule_ids",
+    "elapsed_ms",
+    "model",
+    "estimated_calls",
+    "estimated_cost_usd",
+    "failure_labels",
+    "error",
+}
+REQUIRED_REPORT_SUMMARY_KEYS = {
+    "started_at",
+    "completed_at",
+    "dry_run",
+    "model",
+    "api_preflight",
+    "devset_size",
+    "direction_counts",
+    "estimated_total_calls",
+    "estimated_cost_usd",
+    "total_calls",
+    "elapsed_ms",
+    "failed_example_count",
+    "failed_example_ids",
+    "preflight",
+}
 
 
 @dataclass(frozen=True)
@@ -424,13 +461,231 @@ def build_run_summary(
     }
 
 
+def _format_usd(value: Any) -> str:
+    try:
+        return f"${float(value):.6f}"
+    except (TypeError, ValueError):
+        return "$0.000000"
+
+
+def _format_duration_ms(value: Any) -> str:
+    try:
+        milliseconds = int(value)
+    except (TypeError, ValueError):
+        milliseconds = 0
+    seconds = milliseconds / 1000
+    return f"{milliseconds} ms ({seconds:.2f} s)"
+
+
+def _format_bool(value: Any) -> str:
+    return "yes" if bool(value) else "no"
+
+
+def _direction_label(value: Any) -> str:
+    return DIRECTION_LABELS.get(_coerce_string(value), _coerce_string(value) or "unknown")
+
+
+def _score_rows_for_direction(rows: list[dict[str, Any]], direction: str) -> tuple[int, int, int]:
+    scoped = [row for row in rows if row.get("direction") == direction]
+    normalized_matches = sum(1 for row in scoped if row.get("normalized_match") is True)
+    errors = sum(1 for row in scoped if row.get("status") == "error")
+    return len(scoped), normalized_matches, errors
+
+
+def _validate_report_example(example: Any, index: int) -> dict[str, Any]:
+    if not isinstance(example, dict):
+        raise BaselineConfigError(f"report example {index} must be an object")
+    missing = sorted(REQUIRED_REPORT_EXAMPLE_KEYS.difference(example))
+    if missing:
+        raise BaselineConfigError(f"report example {index} missing keys: {', '.join(missing)}")
+    return example
+
+
+def _validate_report_inputs(summary: Any, rows: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not isinstance(summary, dict):
+        raise BaselineConfigError("report summary must be an object")
+    if not isinstance(rows, list):
+        raise BaselineConfigError("report examples must be a list")
+
+    if "error" in summary and "started_at" not in summary:
+        return summary, []
+
+    missing_summary = sorted(REQUIRED_REPORT_SUMMARY_KEYS.difference(summary))
+    if missing_summary:
+        raise BaselineConfigError(f"report summary missing keys: {', '.join(missing_summary)}")
+
+    validated_rows = [_validate_report_example(example, index) for index, example in enumerate(rows, start=1)]
+    return summary, validated_rows
+
+
+def render_markdown_report(summary: Mapping[str, Any], rows: list[dict[str, Any]]) -> str:
+    summary, rows = _validate_report_inputs(dict(summary), list(rows))
+
+    if "error" in summary and "started_at" not in summary:
+        error_summary = _coerce_string(summary.get("error")) or "unknown error"
+        phase = _coerce_string(summary.get("phase")) or "preflight"
+        return "\n".join(
+            [
+                "# M006 S01 Baseline Inspection Report",
+                "",
+                "## Run Metadata",
+                "",
+                "- status: preflight-failed",
+                f"- phase: {phase}",
+                f"- error: {error_summary}",
+                "- examples_rendered: 0",
+                "",
+                "## Preflight Call and Cost Estimate",
+                "",
+                "Preflight failed before predictions were generated, so no call or score summary is available.",
+                "",
+                "## Score Summary by Direction",
+                "",
+                "No predictions were generated.",
+                "",
+                "## Failure Taxonomy Legend",
+                "",
+                "No example-level taxonomy could be rendered because the run stopped during preflight.",
+                "",
+                "## Per-Example Table",
+                "",
+                "No examples available.",
+            ]
+        ) + "\n"
+
+    lines: list[str] = [
+        "# M006 S01 Baseline Inspection Report",
+        "",
+        "## Run Metadata",
+        "",
+        f"- started_at: {summary['started_at']}",
+        f"- completed_at: {summary['completed_at']}",
+        f"- mode: {'dry-run' if summary['dry_run'] else 'live'}",
+        f"- model: {summary['model']}",
+        f"- api_preflight: {summary['api_preflight'].get('status', 'unknown')}",
+        f"- devset_size: {summary['devset_size']}",
+        f"- elapsed: {_format_duration_ms(summary['elapsed_ms'])}",
+        f"- failed_example_count: {summary['failed_example_count']}",
+        f"- failed_example_ids: {', '.join(summary['failed_example_ids']) if summary['failed_example_ids'] else 'none'}",
+        "",
+        "## Preflight Call and Cost Estimate",
+        "",
+        f"- estimated_total_calls: {summary['estimated_total_calls']}",
+        f"- estimated_cost_usd: {_format_usd(summary['estimated_cost_usd'])}",
+        f"- total_calls_recorded: {summary['total_calls']}",
+        f"- english_to_mirad_examples: {summary['direction_counts'].get('en_to_mir', 0)}",
+        f"- mirad_to_english_examples: {summary['direction_counts'].get('mir_to_en', 0)}",
+        "",
+        "## Score Summary by Direction",
+        "",
+        "| Direction | Examples | Normalized Matches | Errors | Success Rate |",
+        "|-----------|----------|--------------------|--------|--------------|",
+    ]
+
+    for direction in ("en_to_mir", "mir_to_en"):
+        total, matches, errors = _score_rows_for_direction(rows, direction)
+        success_rate = f"{((matches / total) * 100):.1f}%" if total else "n/a"
+        lines.append(f"| {_direction_label(direction)} | {total} | {matches} | {errors} | {success_rate} |")
+
+    taxonomy_counts: dict[str, int] = {}
+    for row in rows:
+        for label in row.get("failure_labels") or []:
+            taxonomy_counts[_coerce_string(label)] = taxonomy_counts.get(_coerce_string(label), 0) + 1
+
+    lines.extend([
+        "",
+        "## Failure Taxonomy Legend",
+        "",
+    ])
+    if taxonomy_counts:
+        lines.append("| Label | Example Count |")
+        lines.append("|-------|---------------|")
+        for label in sorted(taxonomy_counts):
+            lines.append(f"| `{label}` | {taxonomy_counts[label]} |")
+    else:
+        lines.append("No failure taxonomy labels were present.")
+
+    lines.extend([
+        "",
+        "## Per-Example Table",
+        "",
+        "| ID | Direction | Status | Phase | Exact | Normalized | Failure Labels | Rule IDs | Elapsed |",
+        "|----|-----------|--------|-------|-------|------------|----------------|----------|---------|",
+    ])
+    for row in rows:
+        labels = ", ".join(row.get("failure_labels") or []) or "none"
+        rule_ids = ", ".join(row.get("retrieval_rule_ids") or []) or "none"
+        lines.append(
+            f"| {row['id']} | {_direction_label(row['direction'])} | {row['status']} | {row['phase']} | "
+            f"{_format_bool(row.get('exact_match'))} | {_format_bool(row.get('normalized_match'))} | "
+            f"{labels} | {rule_ids} | {int(row.get('elapsed_ms') or 0)} ms |"
+        )
+
+    lines.extend(["", "## Detailed Examples", ""])
+    for row in rows:
+        retrieval_context = row.get("retrieval_context") or []
+        retrieval_rule_ids = row.get("retrieval_rule_ids") or []
+        failure_labels = row.get("failure_labels") or []
+        lines.extend(
+            [
+                f"### {row['id']}",
+                "",
+                f"- direction: {_direction_label(row['direction'])}",
+                f"- status: {row['status']}",
+                f"- phase: {row['phase']}",
+                f"- model: {row['model']}",
+                f"- elapsed_ms: {row['elapsed_ms']}",
+                f"- estimated_calls: {row['estimated_calls']}",
+                f"- estimated_cost_usd: {_format_usd(row['estimated_cost_usd'])}",
+                f"- exact_match: {_format_bool(row.get('exact_match'))}",
+                f"- normalized_match: {_format_bool(row.get('normalized_match'))}",
+                f"- failure_labels: {', '.join(failure_labels) if failure_labels else 'none'}",
+                f"- retrieval_rule_ids: {', '.join(retrieval_rule_ids) if retrieval_rule_ids else 'none'}",
+                f"- retrieval_warning: {_coerce_string(row.get('retrieval_warning')) or 'none'}",
+                f"- error_summary: {_coerce_string(row.get('error')) or 'none'}",
+                "",
+                "#### Input",
+                "",
+                row["input"] or "(empty)",
+                "",
+                "#### Expected Output",
+                "",
+                row["expected"] or "(empty)",
+                "",
+                "#### Prediction",
+                "",
+                row["prediction"] or "(empty)",
+                "",
+                "#### Retrieval Context",
+                "",
+            ]
+        )
+        if retrieval_context:
+            for index, snippet in enumerate(retrieval_context, start=1):
+                lines.append(f"{index}. {snippet}")
+        else:
+            lines.append("None.")
+        lines.append("")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_markdown_report(*, output_dir: Path, summary: Mapping[str, Any], rows: list[dict[str, Any]]) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    report_path = output_dir / "latest.md"
+    report_text = render_markdown_report(summary, rows)
+    report_path.write_text(report_text, encoding="utf-8")
+    return report_path
+
+
 def persist_artifacts(*, output_dir: Path, summary: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = output_dir / "run_summary.json"
     examples_path = output_dir / "examples.json"
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     examples_path.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return {"summary_path": summary_path, "examples_path": examples_path}
+    report_path = write_markdown_report(output_dir=output_dir, summary=summary, rows=rows)
+    return {"summary_path": summary_path, "examples_path": examples_path, "report_path": report_path}
 
 
 def run_baseline(
@@ -527,6 +782,7 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps({
         "summary_path": str(result["summary_path"]),
         "examples_path": str(result["examples_path"]),
+        "report_path": str(result["report_path"]),
         "failed_example_count": result["summary"]["failed_example_count"],
         "estimated_total_calls": result["summary"]["estimated_total_calls"],
     }, indent=2))
