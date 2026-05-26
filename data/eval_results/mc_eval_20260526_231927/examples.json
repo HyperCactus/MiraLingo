@@ -1,0 +1,3402 @@
+[
+  {
+    "id": "pair-0976",
+    "idx": 0,
+    "english_text": "whose book is this and whose are these books",
+    "gold": "duhota dyes se his ay duhotasi se hia dyesi",
+    "pred": "Hotas dyes se hias ay hotasi se hiasi dyesi?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 84.0,
+    "rationale": "The translation is largely correct but the second clause's word order (\"hotasi se hiasi dyesi\") is slightly English-influenced, reducing the English bleed score.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duhota dyes hia, ay duhota dyesi hiasi?",
+        "total_score": 54.0,
+        "grammar": 10.0,
+        "morphology": 12.0,
+        "vocab": 14.0,
+        "bleed": 8.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hotas dyes se hias ay hotasi se hiasi dyesi?",
+        "total_score": 84.0,
+        "grammar": 16.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 14.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0013",
+    "idx": 0,
+    "english_text": "small houses",
+    "gold": "oga tami",
+    "pred": "oga tami",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "Perfect translation with no errors, English bleed, or omissions.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "oga tami",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "oga tami",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0359",
+    "idx": 0,
+    "english_text": "do you all walk to school",
+    "gold": "duven yet tyoyape tistam",
+    "pred": "Du yet tyope bu tistam?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 72.0,
+    "rationale": "Main weakness: The candidate uses the imperative \"Du\" instead of a simple interrogative structure, changing the meaning from a question to a command, and includes English punctuation (capitalization and question mark).",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du yet tyope bu tistam?",
+        "total_score": 72.0,
+        "grammar": 14.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 12.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Du yet tyope bu tistam?",
+        "total_score": 64.0,
+        "grammar": 10.0,
+        "morphology": 12.0,
+        "vocab": 14.0,
+        "bleed": 18.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0895",
+    "idx": 0,
+    "english_text": "our teacher is good but their teacher is bad",
+    "gold": "yata tuxut se fia oy yita tuxut se fua",
+    "pred": "yata tuxut se fia oy yita tuxut se fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, vocabulary, has zero English bleed, and fully captures the source meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yata tuxut se fia oy yita tuxut se fua",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yata tuxut se fia oy yita tuxut se fua",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0488",
+    "idx": 0,
+    "english_text": "this guy s house is on fire",
+    "gold": "hwuta tam magseye",
+    "pred": "Hia twoba tam se magsea.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 71.0,
+    "rationale": "Main weaknesses: redundant copula \"se\" with progressive verb \"magsea,\" incorrect possessive structure (should be \"hia twob bi tam\" or \"hia twoba tam\" but \"twoba\" is ambiguous), and English bleed from capitalization and period.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hia twoba tam se magsea.",
+        "total_score": 71.0,
+        "grammar": 14.0,
+        "morphology": 16.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hia aota tam se magsea.",
+        "total_score": 52.0,
+        "grammar": 10.0,
+        "morphology": 12.0,
+        "vocab": 8.0,
+        "bleed": 10.0,
+        "complete": 12.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0166",
+    "idx": 0,
+    "english_text": "we were",
+    "gold": "yat sa",
+    "pred": "yat sa",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the past tense copula \"sa\" with the inclusive pronoun \"yat\" for \"we were\" with no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yat sa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yat sa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0861",
+    "idx": 0,
+    "english_text": "unless they say otherwise we will be silent",
+    "gold": "oven yit do hyuyen yat dolo",
+    "pred": "Ven voy yit du hyus, yat so dunuka.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 98.0,
+    "rationale": "Main weakness: minor English bleed due to unnecessary period at end.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "gob van yit de hyuay, yat so dola",
+        "total_score": 39.0,
+        "grammar": 6.0,
+        "morphology": 10.0,
+        "vocab": 5.0,
+        "bleed": 8.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Ven voy yit du hyus, yat so dunuka.",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 18.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0891",
+    "idx": 0,
+    "english_text": "the teacher is good and the student is bad",
+    "gold": "ha tuxut se fia ay ha tixut se fua",
+    "pred": "Ha tuxut se fia ay ha tixut se fua.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "Main weaknesses: English bleed from unnecessary article \"ha\" and initial capitalization, which are not in the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Ha tuxut se fia ay ha tixut se fua.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha tuxut se fia ay ha tixut se fua",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0510",
+    "idx": 0,
+    "english_text": "do you know the answer",
+    "gold": "duven et te ha dud",
+    "pred": "Duven et tere ha dud?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 82.0,
+    "rationale": "Main weakness: English bleed from the article \"ha\" (the), which is not authentic Mirad style.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duven et tete ha dud?",
+        "total_score": 71.0,
+        "grammar": 15.0,
+        "morphology": 10.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Duven et tere ha dud?",
+        "total_score": 82.0,
+        "grammar": 18.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0592",
+    "idx": 0,
+    "english_text": "justice",
+    "gold": "yevan",
+    "pred": "doyevan",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is a single correct Mirad noun with no errors, no English bleed, and complete fidelity to the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "doyevan",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "doyevan",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0366",
+    "idx": 0,
+    "english_text": "this teacher is very good",
+    "gold": "hia tuxut se gla fia",
+    "pred": "hia tuxut se gla fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "Perfect translation with no errors, no English bleed, and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia tuxut se gla fia",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hia tuxut se gla fia",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0963",
+    "idx": 0,
+    "english_text": "play or get lost but do not laugh",
+    "gold": "eku ey pilu oy von hihidu",
+    "pred": "Eku ey mepoku oy voy dizeudu.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 88.0,
+    "rationale": "The main weakness is the non-standard verb \"mepoku\" for \"get lost\" instead of the more correct \"mepoksu\" or \"mepokxu\".",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Eku ey oku aa voy dizeudu.",
+        "total_score": 71.0,
+        "grammar": 15.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 12.0,
+        "complete": 14.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Eku ey mepoku oy voy dizeudu.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 17.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0951",
+    "idx": 0,
+    "english_text": "are the stars bright but the night cold",
+    "gold": "duven ha mari se manika oy ha moj se oma",
+    "pred": "Mari se maaza oy moj se oma?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 81.0,
+    "rationale": "The translation is mostly correct but loses points for adding an English-style question mark and slightly unnatural word order.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duven ha mari se maa, ay ha moj se oma?",
+        "total_score": 80.0,
+        "grammar": 16.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Mari se maaza oy moj se oma?",
+        "total_score": 81.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 12.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0221",
+    "idx": 0,
+    "english_text": "he or she will come",
+    "gold": "it upo",
+    "pred": "it upo",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 40.0,
+    "rationale": "Main weaknesses: dummy \"it\" is an English bleed, and the subject \"he or she\" is omitted, making the translation incomplete and ungrammatical in Mirad.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it upo",
+        "total_score": 40.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 10.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it upo",
+        "total_score": 35.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 5.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0206",
+    "idx": 0,
+    "english_text": "do",
+    "gold": "xu",
+    "pred": "xe",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The candidate is a perfect, minimal Mirad imperative translation with no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "xe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Xu.",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0467",
+    "idx": 0,
+    "english_text": "everyone s drinks contain ice",
+    "gold": "hyata tili yebee yom",
+    "pred": "Hyata tili bexe yom.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is grammatically correct, uses proper verb morphology, appropriate vocabulary, has no English bleed, and is structurally complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hyata tili bexe yom.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hyata tili bexe yom",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0721",
+    "idx": 0,
+    "english_text": "do they work at home",
+    "gold": "duven yit yexe be tam",
+    "pred": "Duven yit yexe be tam?",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct grammar, morphology, vocabulary, no English bleed, and complete structural equivalence.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du yit yexe be tam?",
+        "total_score": 68.0,
+        "grammar": 12.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Duven yit yexe be tam?",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0605",
+    "idx": 0,
+    "english_text": "easy easily",
+    "gold": "gyua gyuay",
+    "pred": "yuka yukay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "Perfect translation with correct adjective and adverb forms, no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yukla yuklay",
+        "total_score": 85.0,
+        "grammar": 20.0,
+        "morphology": 10.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yuka yukay",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0083",
+    "idx": 0,
+    "english_text": "these persons",
+    "gold": "hiti",
+    "pred": "hia tobi",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct demonstrative, correct plural, no English artifacts, and fully matches the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia tobi",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hia tobi",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0875",
+    "idx": 0,
+    "english_text": "you are not my father but you know my father",
+    "gold": "et voy se ata twed oy et tre ata twed",
+    "pred": "Et voy se ata twed oy et te ata twed.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it perfectly captures the meaning, uses correct Mirad grammar and morphology, avoids any English influence, and is fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et voy se ata twed oy et te ata twed.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et voy se ata twed oy et te ata twed",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0076",
+    "idx": 0,
+    "english_text": "the name",
+    "gold": "ha dyun",
+    "pred": "ha dyun",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 70.0,
+    "rationale": "Main weakness: insertion of English article \"ha\" (the) which is not used in Mirad, causing significant English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha dyun",
+        "total_score": 55.0,
+        "grammar": 5.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 0.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha dyun",
+        "total_score": 70.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0616",
+    "idx": 0,
+    "english_text": "the houses are ugly",
+    "gold": "ha tami se vua",
+    "pred": "ha fua tami se",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 62.0,
+    "rationale": "Main weaknesses: insertion of English article \"ha\" and period punctuation, which are not in the source and violate Mirad style.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha vua tami se",
+        "total_score": 55.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 8.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha fua tami se",
+        "total_score": 62.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0622",
+    "idx": 0,
+    "english_text": "that house is beautiful",
+    "gold": "hua tam se via",
+    "pred": "hua tam se via",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, and vocabulary with zero English bleed and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hua tam se via",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hua tam se via",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0082",
+    "idx": 0,
+    "english_text": "this person",
+    "gold": "hit",
+    "pred": "hia tob",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is perfect: it uses correct Mirad demonstrative and noun, with no errors or English influence.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia tob",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hia tob",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0391",
+    "idx": 0,
+    "english_text": "they know",
+    "gold": "yit te",
+    "pred": "yit te",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is fully correct: proper pronoun, correct verb form, no English bleed, and complete meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yit te",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit tye.",
+        "total_score": 45.0,
+        "grammar": 10.0,
+        "morphology": 5.0,
+        "vocab": 5.0,
+        "bleed": 10.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0424",
+    "idx": 0,
+    "english_text": "it is not fair to prejudge someone",
+    "gold": "voy se yeva jayevder hes",
+    "pred": "voy se yeva jayevder het",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, vocabulary, and structure with zero English bleed, fully capturing the source meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Voy se yeva javyeker het.",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "voy se yeva jayevder het",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0107",
+    "idx": 0,
+    "english_text": "that teacher is bad",
+    "gold": "hua tuxut se fua",
+    "pred": "hua tuxut se fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 95.0,
+    "rationale": "Main weakness: English bleed from capitalization of the first word and inclusion of a period, which are not authentic Mirad style.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hua fua tuxut se",
+        "total_score": 73.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 12.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hua tuxut se fua",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0643",
+    "idx": 0,
+    "english_text": "the teacher is good",
+    "gold": "ha tuxut se fia",
+    "pred": "ha tuxut se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "Main weakness: insertion of the English article \"ha\" (the) where the source has no article, causing significant English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha tuxut se fia",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha tuxut se fia",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0909",
+    "idx": 0,
+    "english_text": "this building is a store but this building was a store before",
+    "gold": "hia tom se nam oy hia tom sa nam ja his",
+    "pred": "hia tom se nam oy hia tom sa nam ja",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 98.0,
+    "rationale": "The translation is nearly perfect, but loses one point for not repeating \"hia tom\" before the second clause, slightly reducing structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia tom se nam oy hia tom sa nam ja",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hia tom se nam oy hia tom sa nam ja.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0410",
+    "idx": 0,
+    "english_text": "you live in the neighborhood",
+    "gold": "et tambese ha yubem",
+    "pred": "et bese bi ha yubem",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 89.0,
+    "rationale": "Main weakness: incorrect preposition \"bi\" instead of \"be\" for location, and the verb \"bese\" is acceptable but slightly less precise than \"bese\" for dwelling.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et bese bi ha doeym.",
+        "total_score": 60.0,
+        "grammar": 12.0,
+        "morphology": 14.0,
+        "vocab": 10.0,
+        "bleed": 8.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et bese bi ha yubem",
+        "total_score": 89.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 18.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0431",
+    "idx": 0,
+    "english_text": "he looks like a good worker",
+    "gold": "wit tease fia yexut",
+    "pred": "wit teatyene gel fia yexut",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 72.0,
+    "rationale": "Main weakness: incorrect verb morphology (\"teatyene\" instead of \"teatyeye\") and missing required copula \"se\" for the equative structure.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "It tease gel fia yexut.",
+        "total_score": 30.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 10.0,
+        "bleed": 0.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "wit teatyene gel fia yexut",
+        "total_score": 72.0,
+        "grammar": 12.0,
+        "morphology": 8.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 14.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0273",
+    "idx": 0,
+    "english_text": "you will work at home",
+    "gold": "et yexo be tam",
+    "pred": "et yexo be tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 98.0,
+    "rationale": "The translation is nearly perfect, with only a minor vocabulary nuance where \"tam\" strictly means \"house\" but is acceptable for \"home\" in context.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et yexo be tam.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 15.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et yexo be tam",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0554",
+    "idx": 0,
+    "english_text": "thanks you were very kind",
+    "gold": "hway et sa gla fitipa",
+    "pred": "Bayse, et sa gla tipifa.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 86.0,
+    "rationale": "Main weaknesses: the opening \"Bayse\" is not standard Mirad for \"thanks\" (should be \"bayse\" as a verb or a different expression) and the capitalized \"B\" and comma are English bleed, though the rest of the translation is structurally complete and morphologically correct.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hyay! et sa gla fitipa.",
+        "total_score": 84.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 12.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Bayse, et sa gla tipifa.",
+        "total_score": 86.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 12.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0736",
+    "idx": 0,
+    "english_text": "you all do not come",
+    "gold": "yet voy upe",
+    "pred": "Yet du upu",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 30.0,
+    "rationale": "Main weaknesses: imperative mood used instead of declarative negative, missing negation particle \"voy\", and \"du\" is an English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yet du upu",
+        "total_score": 30.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 10.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yet du upu",
+        "total_score": 24.0,
+        "grammar": 4.0,
+        "morphology": 6.0,
+        "vocab": 2.0,
+        "bleed": 10.0,
+        "complete": 2.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0088",
+    "idx": 0,
+    "english_text": "this person is beautiful and that one is ugly",
+    "gold": "hit se via ay hut se vua",
+    "pred": "Hiat se via ay hut se vua.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "Main weakness: non-standard demonstrative \"hiat\" instead of \"hit\" for \"this person\", plus unnecessary capitalization.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hiat se via ay hut se vua.",
+        "total_score": 88.0,
+        "grammar": 16.0,
+        "morphology": 20.0,
+        "vocab": 14.0,
+        "bleed": 18.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hit via ay huat vua.",
+        "total_score": 85.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0380",
+    "idx": 0,
+    "english_text": "i do not know",
+    "gold": "at voy te",
+    "pred": "At voy te.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, and vocabulary with zero English bleed and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "At voy te.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "At voy te.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0448",
+    "idx": 0,
+    "english_text": "people often do not love themselves",
+    "gold": "yot glaxag voy ife yout",
+    "pred": "yot glaxag voy ife yout",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "The main weakness is the non-standard reflexive pronoun \"yout\" instead of the correct \"yut\" for \"themselves\", which affects morphology and vocabulary scores.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yot glaxag voy ife yout",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "tyod gla jodi voy ife yut",
+        "total_score": 84.0,
+        "grammar": 18.0,
+        "morphology": 18.0,
+        "vocab": 15.0,
+        "bleed": 16.0,
+        "complete": 17.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0525",
+    "idx": 0,
+    "english_text": "do you know why he did it",
+    "gold": "duven et te hosav it xa his",
+    "pred": "Du et te hosav it xa is?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 30.0,
+    "rationale": "Main weaknesses: wrong sentence type (imperative instead of interrogative), incorrect vocabulary for \"why\" and \"it\", and English punctuation bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du et te hosav it xa is?",
+        "total_score": 30.0,
+        "grammar": 5.0,
+        "morphology": 10.0,
+        "vocab": 5.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Et tede av has van it xa is?",
+        "total_score": 18.0,
+        "grammar": 4.0,
+        "morphology": 6.0,
+        "vocab": 3.0,
+        "bleed": 2.0,
+        "complete": 3.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0564",
+    "idx": 0,
+    "english_text": "i did not know you were coming",
+    "gold": "at ta voy van et upo",
+    "pred": "At voy ta et upeya.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 95.0,
+    "rationale": "The only weakness is the capitalized \"At\" instead of lowercase \"at\", which introduces English-style capitalization.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "at voy ta van et upea",
+        "total_score": 79.0,
+        "grammar": 16.0,
+        "morphology": 10.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 15.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "At voy ta et upeya.",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0859",
+    "idx": 0,
+    "english_text": "unless i say otherwise you will be silent",
+    "gold": "oven at do hyuyen et dolo",
+    "pred": "Oven at de hyuay, et so dola.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 28.0,
+    "rationale": "Main weaknesses: invented vocabulary (\"oven\", \"hyuay\"), English-style capitalization and punctuation, and failure to correctly render the conditional \"unless\" structure.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Oven at de hyuay, et so dola.",
+        "total_score": 28.0,
+        "grammar": 5.0,
+        "morphology": 10.0,
+        "vocab": 3.0,
+        "bleed": 2.0,
+        "complete": 8.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Gob van at de hyuay, et dolso.",
+        "total_score": 22.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 3.0,
+        "bleed": 5.0,
+        "complete": 4.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0014",
+    "idx": 0,
+    "english_text": "the small house",
+    "gold": "ha oga tam",
+    "pred": "ha oga tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 75.0,
+    "rationale": "Main weakness: inclusion of the English article \"ha\" (bleed from \"the\") violates Mirad grammar, which has no articles.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha oga tam",
+        "total_score": 70.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha oga tam",
+        "total_score": 75.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0524",
+    "idx": 0,
+    "english_text": "everywhere i go you are there",
+    "gold": "hyam at pe et se hum",
+    "pred": "Hyam at pe, et se be hum.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 76.0,
+    "rationale": "Main weaknesses: unnecessary preposition \"be\" before \"hum\" (should be \"et se hum\") and a period at the end, indicating English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hyam at pe, et se be hum.",
+        "total_score": 76.0,
+        "grammar": 14.0,
+        "morphology": 18.0,
+        "vocab": 16.0,
+        "bleed": 12.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hyam at pe et se be hum.",
+        "total_score": 25.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 5.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0269",
+    "idx": 0,
+    "english_text": "we worked at home",
+    "gold": "yat yexa be tam",
+    "pred": "yat yexa be tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is grammatically perfect, uses correct verb morphology, appropriate vocabulary, has zero English bleed, and is fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yat yexa be tam.",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yat yexa be tam",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0886",
+    "idx": 0,
+    "english_text": "our house is bigger than yours but this house is not as big as ours",
+    "gold": "yata tam se ga aga vyel etas oy hia tam voy se ge aga vyel yatas",
+    "pred": "Aeta tam se ga aga vyel yetas, va hia tam voy se ge aga vyel aetas.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 65.0,
+    "rationale": "Main weaknesses: incorrect possessive pronoun forms (\"aeta\" instead of \"ayeta\", \"aetas\" instead of \"ayetas\") and non-standard conjunction \"va\" for \"but\", plus English-style capitalization and punctuation.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Aeta tam se ga aga vyel yetas, va hia tam voy se ge aga vyel aetas.",
+        "total_score": 65.0,
+        "grammar": 14.0,
+        "morphology": 12.0,
+        "vocab": 13.0,
+        "bleed": 10.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Aeta tam se ga aga vyel ayetas oy hia tam se voy ga aga vyel aetas.",
+        "total_score": 54.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 8.0,
+        "bleed": 10.0,
+        "complete": 14.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0305",
+    "idx": 0,
+    "english_text": "come to the grocery store sometime",
+    "gold": "upu ha tolnam hej",
+    "pred": "Upu bu ha tolnam hej.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 81.0,
+    "rationale": "Main weakness: insertion of the English article \"ha\" (the) and capitalization/period, which are ungrammatical in Mirad and constitute English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Upu bu ha tolnam hej.",
+        "total_score": 81.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Upu bu ha nunam hej.",
+        "total_score": 77.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 16.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0582",
+    "idx": 0,
+    "english_text": "ugly things",
+    "gold": "vuasi",
+    "pred": "vua bexunyani",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 75.0,
+    "rationale": "Main weakness: incorrect vocabulary — \"bexunyani\" is not the standard word for \"things\"; should be \"suni\".",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "vua bexunyani",
+        "total_score": 55.0,
+        "grammar": 15.0,
+        "morphology": 5.0,
+        "vocab": 5.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "vua bexunyani",
+        "total_score": 75.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 5.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0889",
+    "idx": 0,
+    "english_text": "this desk is small but good and that desk is big but bad",
+    "gold": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+    "pred": "hia dresem se oga ay fia ay hua dresem se aga ay fua",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 84.0,
+    "rationale": "Main weakness: double \"ay\" creates ungrammatical conjunction structure, and capitalization/period show English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia dresem se oga ay fia ay hua dresem se aga ay fua",
+        "total_score": 84.0,
+        "grammar": 14.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hia dresem se oga ay fia ay hua dresem se aga ay fua.",
+        "total_score": 83.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0816",
+    "idx": 0,
+    "english_text": "they do not know where he or she went but they know where we live",
+    "gold": "yit voy te hom it pa oy yit te hom yat tambese",
+    "pred": "Yit voy te hem it pa, oy yit te hem yat teje.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 78.0,
+    "rationale": "Main weakness: \"hem\" is not a valid Mirad word for \"where\" (should be \"hom\"), and the comma is an English punctuation bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yit voy te hem it pa, oy yit te hem yat teje.",
+        "total_score": 78.0,
+        "grammar": 16.0,
+        "morphology": 18.0,
+        "vocab": 12.0,
+        "bleed": 15.0,
+        "complete": 17.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit voy te hem it pa oy yit te hem yat bese.",
+        "total_score": 56.0,
+        "grammar": 14.0,
+        "morphology": 12.0,
+        "vocab": 8.0,
+        "bleed": 10.0,
+        "complete": 12.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0151",
+    "idx": 0,
+    "english_text": "captive",
+    "gold": "yuva",
+    "pred": "pixlawat",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is a perfectly formed Mirad noun with correct morphology and no English bleed, fully capturing the source meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "pixlawat",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yuvat",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0472",
+    "idx": 0,
+    "english_text": "every man must do his part",
+    "gold": "hya tob yefe xer ita gon",
+    "pred": "hya twob yefe xer ita gon",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, and vocabulary with zero English bleed and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hya twob yefe xer ita gon",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hyatwob yefe xer ita gon.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0683",
+    "idx": 0,
+    "english_text": "you all were happy",
+    "gold": "yet sa iva",
+    "pred": "yet sa iva",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct plural pronoun, proper past tense copula, accurate vocabulary, no English bleed, and complete meaning transfer.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yet sa iva",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yet sa iva",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0301",
+    "idx": 0,
+    "english_text": "we will be there until the end of the season",
+    "gold": "yat so hum ju ha uj bi ha jeb",
+    "pred": "Yat so hum ju ha uj bi ha jeb.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 86.0,
+    "rationale": "Main weakness: insertion of English article \"ha\" (the) twice, causing significant English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yat so be hum ju ha uj bi ha jeb.",
+        "total_score": 75.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 16.0,
+        "bleed": 8.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yat so hum ju ha uj bi ha jeb.",
+        "total_score": 86.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0980",
+    "idx": 0,
+    "english_text": "both cities have grown and any color will be fine",
+    "gold": "hyaewa domi agsaye ay hyea voz so fia",
+    "pred": "Hyaewa domi agsa ay hyea volz so fia.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 81.0,
+    "rationale": "Main weaknesses: verb tense for \"have grown\" should be present perfect (agsya) not simple past (agsa), and capitalization of \"Hyaewa\" introduces English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Ha ewa domi aage ay hyevolz so fia.",
+        "total_score": 52.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 10.0,
+        "bleed": 8.0,
+        "complete": 12.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hyaewa domi agsa ay hyea volz so fia.",
+        "total_score": 81.0,
+        "grammar": 16.0,
+        "morphology": 15.0,
+        "vocab": 18.0,
+        "bleed": 15.0,
+        "complete": 17.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0283",
+    "idx": 0,
+    "english_text": "before this you lived in the suburbs",
+    "gold": "ja his et tambesa ha yuzdom",
+    "pred": "Ja his et teja bi ha yuzdomi.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 81.0,
+    "rationale": "Main weaknesses: insertion of \"ha\" (the) and \"his\" (this) not present in source, causing English bleed and slight over-translation.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Ja his et besa in yibdomi.",
+        "total_score": 65.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 14.0,
+        "bleed": 8.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Ja his et teja bi ha yuzdomi.",
+        "total_score": 81.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0838",
+    "idx": 0,
+    "english_text": "they will give it to us after we pay",
+    "gold": "yit buo yat has jo van yat nuso",
+    "pred": "Yit buo is bu yat jo van yat nuxe.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 64.0,
+    "rationale": "Main weaknesses: insertion of dummy \"is\" (English bleed) and incorrect tense on \"nuxe\" (should be future or past to match the temporal clause).",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yit buo is bu yat jo van yat nuxe.",
+        "total_score": 64.0,
+        "grammar": 14.0,
+        "morphology": 12.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 13.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit buo yat is jo van yat nuxe.",
+        "total_score": 56.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 14.0,
+        "bleed": 8.0,
+        "complete": 12.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0651",
+    "idx": 0,
+    "english_text": "that is a good student",
+    "gold": "hus se fia tixut",
+    "pred": "Huat se fia tixut.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 88.0,
+    "rationale": "Main weakness: English bleed from capitalized \"Huat\" and period, instead of correct lowercase \"hus\" with no punctuation.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Huat se fia tixut.",
+        "total_score": 83.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Huat se fia tixut.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0710",
+    "idx": 0,
+    "english_text": "you all will do it well",
+    "gold": "yet xo has fi",
+    "pred": "Yet xo fi.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 26.0,
+    "rationale": "The candidate uses an invalid verb root \"xo\" instead of \"xer\", omits the future tense marker, drops the object \"it\", and uses an adjective where an adverb is required, making the translation largely incomprehensible.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yet xo fi.",
+        "total_score": 26.0,
+        "grammar": 4.0,
+        "morphology": 2.0,
+        "vocab": 3.0,
+        "bleed": 15.0,
+        "complete": 2.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yet xo has fiay.",
+        "total_score": 18.0,
+        "grammar": 5.0,
+        "morphology": 3.0,
+        "vocab": 4.0,
+        "bleed": 2.0,
+        "complete": 4.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0218",
+    "idx": 0,
+    "english_text": "they came",
+    "gold": "yit upa",
+    "pred": "yit upa",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct pronoun, correct past tense verb, no English bleed, and fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yit upa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit upa.",
+        "total_score": 90.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0682",
+    "idx": 0,
+    "english_text": "we were happy",
+    "gold": "yat sa iva",
+    "pred": "Yat sa iva.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, and vocabulary with zero English bleed and complete structural fidelity to the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yat sa iva.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yat sa iva",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0955",
+    "idx": 0,
+    "english_text": "maybe i may go but i do not know",
+    "gold": "ve at vey po oy at voy te",
+    "pred": "Vey at afu per, oy at voy te.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is grammatically perfect, uses correct verb morphology, appropriate vocabulary, has zero English bleed, and is fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Vey at afu per, oy at voy te.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Vey at pu, a at vo te.",
+        "total_score": 59.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 10.0,
+        "bleed": 8.0,
+        "complete": 14.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0156",
+    "idx": 0,
+    "english_text": "harmful",
+    "gold": "fyua",
+    "pred": "bukuyea",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it correctly derives the adjective \"bukuyea\" from \"buk\" (harm) with the proper suffix, uses all-lowercase, and fully matches the source meaning without any English bleed or structural issues.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "bukuyea",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "bukuyea",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0252",
+    "idx": 0,
+    "english_text": "i would go",
+    "gold": "at pu",
+    "pred": "at pu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 55.0,
+    "rationale": "The main weakness is the missing conditional mood marker -yu, resulting in an imperative form instead of the intended conditional \"would go\".",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "at pu",
+        "total_score": 55.0,
+        "grammar": 10.0,
+        "morphology": 5.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "at pu",
+        "total_score": 45.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 10.0,
+        "bleed": 20.0,
+        "complete": 5.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0200",
+    "idx": 0,
+    "english_text": "i would do",
+    "gold": "at xu",
+    "pred": "at xu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is fully correct: \"at xu\" accurately renders the conditional mood of \"i would do\" with proper Mirad verb morphology and no English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "at xu",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "at xu",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0645",
+    "idx": 0,
+    "english_text": "the teachers are good",
+    "gold": "ha tuxuti se fia",
+    "pred": "ha tuxuti se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "Main weakness: insertion of English article \"ha\" (the) which is not present in the source and violates Mirad's lack of definite articles.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha tuxuti se fia",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha tuxuti se fia",
+        "total_score": 85.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0073",
+    "idx": 0,
+    "english_text": "the teachers",
+    "gold": "ha tuxuti",
+    "pred": "ha tuxuti",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 75.0,
+    "rationale": "Main weakness: English bleed from using the article \"ha\" (the), which is not part of Mirad grammar.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha tuxuti",
+        "total_score": 70.0,
+        "grammar": 5.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha tuxuti",
+        "total_score": 75.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0821",
+    "idx": 0,
+    "english_text": "do they know where we went and where you live",
+    "gold": "duven yit te hom yat pa ay hom et tambese",
+    "pred": "Du yit te hom yat peya ay hom et teje?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 62.0,
+    "rationale": "Main weakness: The candidate incorrectly uses an imperative \"Du\" instead of a question structure, and lacks the necessary copula or question particle for the interrogative, while also showing English bleed through capitalization and punctuation.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duven yit tie hem yat pa ay hem et teje?",
+        "total_score": 60.0,
+        "grammar": 10.0,
+        "morphology": 8.0,
+        "vocab": 10.0,
+        "bleed": 20.0,
+        "complete": 12.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Du yit te hom yat peya ay hom et teje?",
+        "total_score": 62.0,
+        "grammar": 10.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 12.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0831",
+    "idx": 0,
+    "english_text": "while they are here they will do some work for us",
+    "gold": "je van yit so him yit xo gle yex av yat",
+    "pred": "Je van yit se be him, yit xo yex av yat.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 65.0,
+    "rationale": "Main weaknesses: non-standard conjunction \"je\" for \"while\" (English bleed), incorrect verb morphology \"xo\" instead of \"xeyo\" (future), and unnecessary period at end.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Je van yit se be him, yit xo yex av yat.",
+        "total_score": 65.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Je van yit se be him, yit xo gle yex av yat.",
+        "total_score": 62.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 14.0,
+        "bleed": 10.0,
+        "complete": 16.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0813",
+    "idx": 0,
+    "english_text": "i do not know where they went but i know where you live",
+    "gold": "at voy te hom yit pa oy at te hom et tambese",
+    "pred": "At voy te hem ho yit pa oy at te hem ho et teje.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 76.0,
+    "rationale": "Main weaknesses: \"hem\" is incorrect for \"where\" (should be \"hom\"), and the relative clause structure is slightly off, plus a period adds English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "At voy te hem yit pa, oy at te hem et teje.",
+        "total_score": 56.0,
+        "grammar": 12.0,
+        "morphology": 14.0,
+        "vocab": 10.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "At voy te hem ho yit pa oy at te hem ho et teje.",
+        "total_score": 76.0,
+        "grammar": 14.0,
+        "morphology": 18.0,
+        "vocab": 12.0,
+        "bleed": 16.0,
+        "complete": 16.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0647",
+    "idx": 0,
+    "english_text": "the student is good",
+    "gold": "ha tixut se fia",
+    "pred": "ha tixut se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "Main weakness: insertion of English article \"ha\" (the) where source has no article, causing English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha tixut se fia",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha fia tixut se",
+        "total_score": 55.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0171",
+    "idx": 0,
+    "english_text": "he or she will be",
+    "gold": "it so",
+    "pred": "it so",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 0.0,
+    "rationale": "The candidate is entirely English words with no Mirad grammar, morphology, or vocabulary, making it a complete failure as a translation.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it so",
+        "total_score": 0.0,
+        "grammar": 0.0,
+        "morphology": 0.0,
+        "vocab": 0.0,
+        "bleed": 0.0,
+        "complete": 0.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it so",
+        "total_score": 0.0,
+        "grammar": 0.0,
+        "morphology": 0.0,
+        "vocab": 0.0,
+        "bleed": 0.0,
+        "complete": 0.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0439",
+    "idx": 0,
+    "english_text": "you should tell her that",
+    "gold": "et yefu der iyt hus",
+    "pred": "Et yefe der iyt hus.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 79.0,
+    "rationale": "Main weakness: missing the complementizer \"van\" to introduce the subordinate clause, which reduces structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et yefe der iyt hus.",
+        "total_score": 79.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 16.0,
+        "bleed": 18.0,
+        "complete": 12.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et yeyfe dwe iyt van",
+        "total_score": 62.0,
+        "grammar": 12.0,
+        "morphology": 8.0,
+        "vocab": 10.0,
+        "bleed": 18.0,
+        "complete": 14.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0212",
+    "idx": 0,
+    "english_text": "they come",
+    "gold": "yit upe",
+    "pred": "yit upe",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is perfect: correct pronoun, correct verb morphology, no English bleed, and fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yit upe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yit upe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0254",
+    "idx": 0,
+    "english_text": "he or she would go",
+    "gold": "it pu",
+    "pred": "it pu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 4.0,
+    "rationale": "The candidate uses the English word \"it\" instead of the Mirad pronoun, omits the conditional verb ending, and fails to convey the meaning of \"would go,\" resulting in a near-total failure across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it pu",
+        "total_score": 0.0,
+        "grammar": 0.0,
+        "morphology": 0.0,
+        "vocab": 0.0,
+        "bleed": 0.0,
+        "complete": 0.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it pu",
+        "total_score": 4.0,
+        "grammar": 2.0,
+        "morphology": 0.0,
+        "vocab": 2.0,
+        "bleed": 0.0,
+        "complete": 0.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0874",
+    "idx": 0,
+    "english_text": "i am not your father but i know your father",
+    "gold": "at voy se eta twed oy at tre eta twed",
+    "pred": "At voy se eta twed oy at te eta twed.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is grammatically perfect, uses correct Mirad morphology and vocabulary, has zero English bleed, and fully captures the meaning of the source sentence.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "At voy se eta twed oy at te eta twed.",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 18.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "At voy se eta twed oy at te eta twed.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0453",
+    "idx": 0,
+    "english_text": "yours are worth more than mine",
+    "gold": "etasi naze ga vyel atasi",
+    "pred": "Etasi naze ga vyel atasi.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, morphology, vocabulary, no English bleed, and complete structural correspondence to the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Etasi naze ga vyel atasi.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Etasi naze ga vyel atasi.",
+        "total_score": 90.0,
+        "grammar": 18.0,
+        "morphology": 16.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0521",
+    "idx": 0,
+    "english_text": "whenever you talk i laugh",
+    "gold": "hyej et dale at hihide",
+    "pred": "Hyejod ho et dale, at dizeude.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 90.0,
+    "rationale": "Main weakness: English bleed from initial capitalization and final period, which should be all-lowercase with no punctuation in authentic Mirad.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hyejod ho et dale, at dizeude.",
+        "total_score": 85.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 17.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hyejod ho et dale, at dizeude.",
+        "total_score": 90.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0110",
+    "idx": 0,
+    "english_text": "that student is good",
+    "gold": "hua tixut se fia",
+    "pred": "hua tixut se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 95.0,
+    "rationale": "The only weakness is the unnecessary capitalization of the first word, which introduces English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hua tixut se fia",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hua fia tixut se",
+        "total_score": 85.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0432",
+    "idx": 0,
+    "english_text": "the dog bit me",
+    "gold": "ha yepet teupixa at",
+    "pred": "Ha yepet teupixa at.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 86.0,
+    "rationale": "Main weakness: unnecessary English article \"ha\" and capitalization reduce English bleed score, though grammar and morphology are correct.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Ha yepet teupixa at.",
+        "total_score": 86.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Ha yepet teupixa at.",
+        "total_score": 74.0,
+        "grammar": 16.0,
+        "morphology": 18.0,
+        "vocab": 12.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0805",
+    "idx": 0,
+    "english_text": "they know that we will come and they will be happy",
+    "gold": "yit te van yat upo ay yit so iva",
+    "pred": "Yit te van yat upo ay yit so iva.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is grammatically perfect, uses correct verb morphology, appropriate vocabulary, has zero English bleed, and is fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yit te van yat upo ay yit so iva.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit te van yat upo ay yit so iva.",
+        "total_score": 91.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 18.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0497",
+    "idx": 0,
+    "english_text": "we were indeed there",
+    "gold": "yat vay sa hum",
+    "pred": "aet vay sa be hum",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 90.0,
+    "rationale": "Main weakness: \"be hum\" is slightly redundant; Mirad uses \"hum\" alone for \"there\" without the preposition \"be\".",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "aet vay sa be hum",
+        "total_score": 85.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 10.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "aet vay sa be hum",
+        "total_score": 90.0,
+        "grammar": 18.0,
+        "morphology": 18.0,
+        "vocab": 16.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0096",
+    "idx": 0,
+    "english_text": "your teacher is good",
+    "gold": "eta tuxut se fia",
+    "pred": "eta tuxut se fia.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: all Mirad grammar rules are followed, vocabulary is correct, and there is zero English bleed, with complete structural fidelity to the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "eta fia tuxut se",
+        "total_score": 96.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "eta tuxut se fia.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0374",
+    "idx": 0,
+    "english_text": "he sings beautifully",
+    "gold": "it deuze vi",
+    "pred": "it deuze viay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 65.0,
+    "rationale": "The candidate uses the English word \"it\" instead of the Mirad pronoun \"it\" for \"he\", causing significant English bleed and a grammar error.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it deuze viay",
+        "total_score": 55.0,
+        "grammar": 10.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 5.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it deuze viay",
+        "total_score": 65.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0483",
+    "idx": 0,
+    "english_text": "this book is my favorite",
+    "gold": "hia dyes se ata gafias",
+    "pred": "hia dyes se ata gaifwa",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, and vocabulary with zero English bleed and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia dyes se ata gaifwa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hia dyes se ata gaifwa",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0355",
+    "idx": 0,
+    "english_text": "the students walk to school every day",
+    "gold": "ha tixuti tyoyape tistam hyajub",
+    "pred": "Ha tixuti tyope bu tistam hya jub.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 86.0,
+    "rationale": "Main weaknesses: unnecessary English article \"Ha\" and capitalization introduce English bleed, though grammar and vocabulary are otherwise correct.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Ha tixuti tyope bu tistam hya jub.",
+        "total_score": 86.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Ha tixuti tyope bu tistam hyajub.",
+        "total_score": 79.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0063",
+    "idx": 0,
+    "english_text": "fathers",
+    "gold": "twedi",
+    "pred": "twedi",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 80.0,
+    "rationale": "The candidate uses an incorrect, non-dictionary word \"twedi\" instead of the correct Mirad \"tedi\" for \"fathers\", resulting in a zero vocabulary score.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "twedi",
+        "total_score": 80.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 0.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "twedi",
+        "total_score": 70.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 0.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0978",
+    "idx": 0,
+    "english_text": "these words are prohibited but this book is my favorite",
+    "gold": "hiia duni se yofwa oy hia dyes se ata gafias",
+    "pred": "hia duni se ofwa oy hia dyes se ata gaifwa",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 84.0,
+    "rationale": "Main weakness: \"gaifwa\" is not a valid Mirad word; should be \"ga ifwa\" (more loved) or simply \"ifwa\" for \"favorite.\"",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "hia duni se ofwa oy hia dyes se ata gaifwa",
+        "total_score": 84.0,
+        "grammar": 18.0,
+        "morphology": 16.0,
+        "vocab": 12.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hui duni se ofwa, oy hu dyes se ata gaifwas.",
+        "total_score": 73.0,
+        "grammar": 15.0,
+        "morphology": 18.0,
+        "vocab": 12.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0731",
+    "idx": 0,
+    "english_text": "is that student bad",
+    "gold": "duven hua tixut se fua",
+    "pred": "Duven hua tixut se fua?",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, morphology, vocabulary, and style with zero English bleed, fully matching the source meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duven hua tixut se fua?",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Duven hua tixut fua?",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0780",
+    "idx": 0,
+    "english_text": "he or she is going home but he or she will work at home",
+    "gold": "it peye tam oy it yexo be tam",
+    "pred": "it pe be tam oy it yexo be tam",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 58.0,
+    "rationale": "Main weaknesses: using \"it\" instead of the correct generic pronoun \"et\" and missing the progressive aspect \"-eye\" on the verb \"pe\" (should be \"peye\").",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it pe tam oy it yexo be tam",
+        "total_score": 50.0,
+        "grammar": 10.0,
+        "morphology": 15.0,
+        "vocab": 12.0,
+        "bleed": 5.0,
+        "complete": 8.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it pe be tam oy it yexo be tam",
+        "total_score": 58.0,
+        "grammar": 10.0,
+        "morphology": 12.0,
+        "vocab": 14.0,
+        "bleed": 8.0,
+        "complete": 14.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0986",
+    "idx": 0,
+    "english_text": "the sun has risen so you must get up out of bed",
+    "gold": "ha maar yapaye avhus et yefe sumpier",
+    "pred": "Amar yapia, ay et yefe yabpier oyeb bi sum.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 82.0,
+    "rationale": "Main weakness: English bleed from capitalization, comma, and period, plus slightly unnatural phrasing \"oyeb bi sum\" instead of a more Mirad-like expression.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Amar yapia, ay et yefe yabpier oyeb bi sum.",
+        "total_score": 82.0,
+        "grammar": 18.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 10.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Ha amar yapa, ay et yefe yabuper oyeb bi sum.",
+        "total_score": 77.0,
+        "grammar": 16.0,
+        "morphology": 18.0,
+        "vocab": 17.0,
+        "bleed": 8.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0376",
+    "idx": 0,
+    "english_text": "they sing beautifully",
+    "gold": "yit deuze vi",
+    "pred": "yit deuze viay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, verb morphology, vocabulary, no English bleed, and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yit deuze viay",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Yit deuze viay.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0070",
+    "idx": 0,
+    "english_text": "a teacher",
+    "gold": "tuxut",
+    "pred": "tuxut",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "Perfect translation: correct noun formation, no English bleed, and complete meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "tuxut",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "tuxut",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0021",
+    "idx": 0,
+    "english_text": "birds",
+    "gold": "pati",
+    "pred": "pati",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it correctly uses the Mirad plural noun form with no errors or English influence.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "pati",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "pati",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0401",
+    "idx": 0,
+    "english_text": "are the stars bright",
+    "gold": "duven ha mari se manika",
+    "pred": "Duven ha mari manaya?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 98.0,
+    "rationale": "The translation is nearly perfect but adds \"ha\" (the) which is not in the source, slightly reducing completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du ha mari se manaza?",
+        "total_score": 45.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 0.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Duven ha mari manaya?",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0065",
+    "idx": 0,
+    "english_text": "mothers",
+    "gold": "teydi",
+    "pred": "teydi",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "Perfect translation: correct plural morphology, no English bleed, complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "teydi",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "teydi",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0335",
+    "idx": 0,
+    "english_text": "he or she was going home",
+    "gold": "it peya tam",
+    "pred": "it peya be tam",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 45.0,
+    "rationale": "Main weaknesses: dummy \"it\" subject is English bleed, verb \"peya\" should be past progressive \"peyaya\", and \"be tam\" is acceptable but the subject is mishandled.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it peya be tam",
+        "total_score": 45.0,
+        "grammar": 10.0,
+        "morphology": 8.0,
+        "vocab": 12.0,
+        "bleed": 5.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it peya be tam",
+        "total_score": 40.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 10.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0494",
+    "idx": 0,
+    "english_text": "will you ever come back",
+    "gold": "duven et hyej upo zoy",
+    "pred": "Et hyej zoyupo?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 86.0,
+    "rationale": "Main weaknesses: \"hyej\" should be \"hyoj\" for \"ever\", and the question mark is an English punctuation bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du et hyej zoyupo?",
+        "total_score": 45.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 5.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Et hyej zoyupo?",
+        "total_score": 86.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 15.0,
+        "bleed": 15.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0399",
+    "idx": 0,
+    "english_text": "are you married",
+    "gold": "duven et se tadxwa",
+    "pred": "Duven et se taduwa?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad grammar, proper verb morphology, accurate vocabulary, zero English bleed, and full structural completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duven et se taduwa?",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Se et taduwa?",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0751",
+    "idx": 0,
+    "english_text": "be good",
+    "gold": "su fia",
+    "pred": "Su fia.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 1,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct imperative verb form, proper adjective, no English bleed, and complete meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Su fia!",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Su fia.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0019",
+    "idx": 0,
+    "english_text": "the cars",
+    "gold": "ha puri",
+    "pred": "ha puri",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 75.0,
+    "rationale": "Main weakness: insertion of English article \"ha\" (the) which is not used in Mirad, causing significant English bleed and a grammar error.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "ha puri",
+        "total_score": 75.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "ha puri",
+        "total_score": 70.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 5.0,
+        "complete": 15.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0932",
+    "idx": 0,
+    "english_text": "every man must do his part and every person must love oneself",
+    "gold": "hya tob yefe xer ita gon ay ot yefe ifer out",
+    "pred": "Hyatwob yefe xer ita gon ay hyatob yefe ifer out.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 62.0,
+    "rationale": "Main weakness: the English word \"out\" is used instead of the Mirad reflexive pronoun \"uta\" or \"outa\", causing significant English bleed and vocabulary error.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Hyatwob yefe xer ita gon ay hyatob yefe ifer out.",
+        "total_score": 62.0,
+        "grammar": 15.0,
+        "morphology": 14.0,
+        "vocab": 12.0,
+        "bleed": 5.0,
+        "complete": 16.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Hyawat yefe xer ita gon ay hyatob yefe ifer out.",
+        "total_score": 61.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 10.0,
+        "bleed": 10.0,
+        "complete": 14.0
+      }
+    ]
+  }
+]

@@ -1,0 +1,104 @@
+[
+  {
+    "id": "pair-0351",
+    "idx": 0,
+    "english_text": "you are being bad",
+    "gold": "et seye fua",
+    "pred": "Et se fua.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is perfect: grammatically correct, no English bleed, and fully captures the meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et se fua.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et se fua",
+        "total_score": 91.0,
+        "grammar": 18.0,
+        "morphology": 15.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0221",
+    "idx": 0,
+    "english_text": "he or she will come",
+    "gold": "it upo",
+    "pred": "it upo",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is fully correct: \"it\" is the standard Mirad pronoun for \"he or she\", and \"upo\" is the correct future tense of \"come\", with no English bleed or missing elements.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it upo",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it upo",
+        "total_score": 35.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 5.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0255",
+    "idx": 0,
+    "english_text": "we would go",
+    "gold": "yat pu",
+    "pred": "yat pu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 60.0,
+    "rationale": "Main weakness: verb morphology is incomplete — the conditional suffix \"-u\" is missing, so \"pu\" is a bare root instead of \"puyu\".",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yat pu",
+        "total_score": 60.0,
+        "grammar": 10.0,
+        "morphology": 5.0,
+        "vocab": 15.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yet pu",
+        "total_score": 20.0,
+        "grammar": 2.0,
+        "morphology": 2.0,
+        "vocab": 4.0,
+        "bleed": 10.0,
+        "complete": 2.0
+      }
+    ]
+  }
+]

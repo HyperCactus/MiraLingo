@@ -1,37 +1,28 @@
 """
-Multi-candidate translation with judge-based selection.
+Multi-candidate translation with judge-based selection (no back-translation).
 
 Architecture:
-  1. Generate N translation candidates at different temperature values.
+  1. Generate 2 translation candidates at temperatures [0.1, 0.7].
      Uses TranslatorModule (num_context_passages=3, top_k_per_word=0) internally.
-     Retrieval is deterministic (same rules every call); only the generation
-     temperature varies across candidates.
-  2. Round-trip each candidate back to English via MiradToEnglishModule
-     (num_context_passages=0 → raw back-translation, no retrieval noise).
-  3. CandidateJudge (dspy.Module) scores each candidate on 5 dimensions,
-     then picks the highest-scoring candidate.
+     Retrieval is deterministic; only the generation temperature varies.
+  2. CandidateJudge (dspy.Module) scores each candidate directly on Mirad grammar
+     compliance — no back-translation. Scores 5 dimensions: grammar,
+     morphology, vocabulary, English bleed (lower = more English contamination),
+     and structural completeness. Highest total_score wins.
 
-All three sub-modules are dspy.Module subclasses and can be traced by DSPy
-optimizers, though the multi-call loop inside MultiCandidateTranslator.forward
-is sequential (Python-level, not a DSPy parallel primitive).
+All modules are dspy.Module subclasses and can be traced by DSPy optimizers.
 
 Usage:
-    from mirad_translator.multi_candidate import (
-        MultiCandidateTranslator,
-        CandidateJudge,
-    )
+    from mirad_translator.multi_candidate import MultiCandidateTranslator
 
     translator = MultiCandidateTranslator(
-        num_candidates=5,
-        temperatures=[0.1, 0.3, 0.5, 0.7, 0.9],
-        db_path=None,
-        num_context_passages=3,
-        back_translation_passages=0,
+        num_candidates=2,
+        temperatures=[0.1, 0.7],
     )
     result = translator(english_text="the cat sat on the mat")
-    print(result.mirad_text)   # best candidate
-    print(result.total_score)   # its judge score
-    print(result.winner_index) # index of winning candidate (0-based)
+    print(result.mirad_text)    # best candidate
+    print(result.total_score)   # judge total score (0-100)
+    print(result.winner_index)  # index of winning candidate (0-based)
 """
 
 from __future__ import annotations
@@ -138,43 +129,45 @@ def _make_lm(temperature: float) -> dspy.LM:
 # ---------------------------------------------------------------------------
 
 class CandidateJudgeSignature(dspy.Signature):
-    """Judge a candidate English→Mirad translation on 5 dimensions.
+    """Judge an English→Mirad translation for grammar compliance.
 
-    You are a Mirad grammar expert. Score each dimension honestly.
-    Be strict: a candidate only scores well if it genuinely demonstrates
-    the quality being judged. Scores below 10/20 indicate clear deficiencies.
+    You are a Mirad grammar expert. The candidate should look like authentic Mirad,
+    not English written in Mirad words. Score honestly — scores below 10 indicate
+    clear violations.
 
     Scoring rubric (each dimension: 0-20 pts):
-    1. Grammar correctness (0-20): word order (SVO), article usage (ha=the, no "a/an"),
-       correct use of bi/be/bu prepositions, no dummy "it" inserted.
+
+    1. Grammar correctness (0-20): word order (SVO), correct use of bi/be/bu prepositions,
+       no dummy "it" inserted, no English article words ("the", "a", "an").
+
     2. Verb morphology (0-20): correct tense ending (-e/-a/-o/-u), progressive
-       aspect (-eye preserved, not truncated), passive (-w-), no invented verb roots.
+       aspect (-eye preserved, not truncated to -ie), passive (-w-), no invented verb roots.
+
     3. Word choice / vocabulary (0-20): dictionary lookups used correctly, no
-       plausible-but-wrong roots substituted for known vocabulary, correct
-       plural -i on nouns, correct possessive -a on pronouns.
-    4. Idiom and structure (0-20): comparison phrases use vyel (not ge), relative
-       clause uses ho, subordinate clauses use van/ven, negation places voy
-       correctly before verb.
-    5. Semantic retention (0-20): round-trip back-translation preserves the
-       original English meaning — subjects/objects stay correct, tense is
-       retained, negation is preserved, no argument drop.
+       plausible-but-wrong roots, correct plural -i on nouns, correct possessive -a on pronouns.
+
+    4. English bleed (0-20): LOWER score = more English bleed (e.g. capitalization,
+       punctuation, extra words not in source, article words, "that" omitted).
+       Authentic Mirad: all-lowercase, no period, no extra particles.
+       Score 20 = zero English bleed. Score 0 = looks like English with Mirad words.
+
+    5. Structural completeness (0-20): all source words/meaning components present?
+       Required particles (se=copula, bi=possession, voy=negation) not dropped.
 
     Total score: 0-100 (sum of all 5 dimensions).
 
-    If two candidates have similar total scores, prefer the one with fewer
-    grammar/morphology violations (dimensions 1 and 2 are most important).
+    Prefer candidates with higher structural completeness and less English bleed.
+    Grammar and morphology matter more than looking polished.
     """
-    original_english       = dspy.InputField(desc="Original English source text")
-    candidate_mirad        = dspy.InputField(desc="Candidate Mirad translation")
-    back_translated_english= dspy.InputField(desc="English produced by back-translating the candidate Mirad → English")
-    semantic_retention_score = dspy.InputField(desc="Semantic retention score from 0.0 to 1.0 (0.0=completely different meaning, 1.0=identical meaning)")
-    grammar_score          = dspy.OutputField(desc="Integer 0-20: grammar correctness score")
-    morphology_score       = dspy.OutputField(desc="Integer 0-20: verb morphology score")
-    vocabulary_score       = dspy.OutputField(desc="Integer 0-20: word choice / vocabulary accuracy score")
-    idiom_score            = dspy.OutputField(desc="Integer 0-20: idiom and structural correctness score")
-    retention_input_score  = dspy.OutputField(desc="Integer 0-20: semantic retention score from your own assessment (should align with semantic_retention_score input)")
-    total_score            = dspy.OutputField(desc="Integer 0-100: sum of all 5 dimension scores")
-    rationale              = dspy.OutputField(desc="One-sentence explanation of the overall quality and main weaknesses")
+    original_english    = dspy.InputField(desc="Original English source text")
+    candidate_mirad     = dspy.InputField(desc="Candidate Mirad translation")
+    grammar_score       = dspy.OutputField(desc="Integer 0-20: grammar correctness")
+    morphology_score    = dspy.OutputField(desc="Integer 0-20: verb morphology")
+    vocabulary_score    = dspy.OutputField(desc="Integer 0-20: word choice / vocabulary")
+    english_bleed_score = dspy.OutputField(desc="Integer 0-20: LOWER = more English bleed (20=perfect Mirad style)")
+    completeness_score  = dspy.OutputField(desc="Integer 0-20: structural completeness vs source")
+    total_score         = dspy.OutputField(desc="Integer 0-100: sum of all 5 dimensions")
+    rationale           = dspy.OutputField(desc="One-sentence explanation of main weaknesses")
 
 
 class CandidateJudge(dspy.Module):
@@ -194,21 +187,17 @@ class CandidateJudge(dspy.Module):
         self,
         original_english: str,
         candidate_mirad: str,
-        back_translated_english: str,
-        semantic_retention_score: float,
     ) -> dspy.Prediction:
         pred = self._judge(
             original_english=original_english,
             candidate_mirad=candidate_mirad,
-            back_translated_english=back_translated_english,
-            semantic_retention_score=semantic_retention_score,
         )
         return dspy.Prediction(
             grammar_score=self._parse_float(getattr(pred, "grammar_score", "0"), default=0),
             morphology_score=self._parse_float(getattr(pred, "morphology_score", "0"), default=0),
             vocabulary_score=self._parse_float(getattr(pred, "vocabulary_score", "0"), default=0),
-            idiom_score=self._parse_float(getattr(pred, "idiom_score", "0"), default=0),
-            retention_input_score=self._parse_float(getattr(pred, "retention_input_score", "0"), default=0),
+            english_bleed_score=self._parse_float(getattr(pred, "english_bleed_score", "0"), default=0),
+            completeness_score=self._parse_float(getattr(pred, "completeness_score", "0"), default=0),
             total_score=self._parse_float(getattr(pred, "total_score", "0"), default=0),
             rationale=str(getattr(pred, "rationale", "")),
         )
@@ -226,58 +215,38 @@ class CandidateJudge(dspy.Module):
 
 
 # ---------------------------------------------------------------------------
-# Round-trip semantic retention (reuses evaluate.py metric)
-# ---------------------------------------------------------------------------
-
-def _build_retention_module():
-    """Build a fresh RoundTripSemanticRetentionMetric from evaluate.py."""
-    from mirad_translator.evaluate import RoundTripSemanticRetentionMetric
-    return RoundTripSemanticRetentionMetric()
-
-
-# ---------------------------------------------------------------------------
-# Mirad→English back-translation module (no grammar retrieval, raw back-translation)
-# ---------------------------------------------------------------------------
-
-def _build_back_translator(db_path: Optional[str]):
-    """Build a MiradToEnglishModule with no grammar retrieval for clean round-trip."""
-    from mirad_translator.translate import MiradToEnglishModule
-    return MiradToEnglishModule(db_path=db_path, num_context_passages=0)
-
-
-# ---------------------------------------------------------------------------
 # Multi-candidate translator
 # ---------------------------------------------------------------------------
 
 class MultiCandidateTranslator(dspy.Module):
     """Generate N translation candidates at different temperatures and pick the best via judge.
 
-    The candidate generation loop is Python-sequential (not a DSPy parallel primitive).
+    The candidate generation loop is Python-sequential.
     Each candidate uses the same TranslatorModule settings (num_context_passages,
     top_k_per_word) — only the generation temperature varies. Retrieval is
     deterministic and run once per forward pass; the result is reused for all
     candidates.
 
     The judge module scores each candidate and the highest total_score wins.
+    No back-translation is used — the judge scores Mirad grammar compliance
+    directly, including an explicit English-bleed dimension to catch candidates
+    that look like English with Mirad words.
 
     Args:
-        num_candidates: Number of candidates to generate (default 5).
-        temperatures: List of temperatures, one per candidate (default [0.1, 0.3, 0.5, 0.7, 0.9]).
-            If len(temperatures) < num_candidates, temperatures are recycled.
+        num_candidates: Number of candidates to generate (default 2).
+        temperatures: List of temperatures, one per candidate (default [0.1, 0.7]).
         db_path: Path to lexicon SQLite DB (default: built-in).
         num_context_passages: Grammar retrieval k (default 3, the winning value).
-        back_translation_passages: Grammar rules for back-translation (default 0 = raw).
         use_compiled: Load compiled translator program (default False).
         top_k_per_word: Semantic lexicon k (default 0 = disabled).
     """
 
     def __init__(
         self,
-        num_candidates: int = 5,
+        num_candidates: int = 2,
         temperatures: Optional[list[float]] = None,
         db_path=None,
         num_context_passages: int = 3,
-        back_translation_passages: int = 0,
         use_compiled: bool = False,
         top_k_per_word: int = 0,
     ):
@@ -286,18 +255,15 @@ class MultiCandidateTranslator(dspy.Module):
         self.temperatures = (
             list(temperatures)
             if temperatures is not None
-            else [0.1, 0.3, 0.5, 0.7, 0.9]
+            else [0.1, 0.7]
         )
         self.num_context_passages = num_context_passages
-        self.back_translation_passages = back_translation_passages
         self._db_path = db_path
         self._use_compiled = use_compiled
         self._top_k_per_word = top_k_per_word
 
         # Modules (built lazily on first forward to allow dspy.trace-ability)
         self._translator: Optional[dspy.Module] = None
-        self._back_translator = None  # MiradToEnglishModule, built lazily
-        self._retention_module = None  # RoundTripSemanticRetentionMetric, built lazily
         self._judge = CandidateJudge()
 
     def _ensure_translator(self):
@@ -353,23 +319,6 @@ class MultiCandidateTranslator(dspy.Module):
             pred = self._translator(english_text=english_text)
         return str(getattr(pred, "mirad_text", ""))
 
-    def _back_translate(self, mirad_text: str) -> str:
-        """Back-translate Mirad → English (no grammar retrieval)."""
-        if self._back_translator is None:
-            self._back_translator = _build_back_translator(self._db_path)
-        pred = self._back_translator(mirad_text=mirad_text)
-        return str(getattr(pred, "english_text", ""))
-
-    def _score_retention(self, original: str, roundtrip: str) -> float:
-        """Score meaning retention between original and round-trip English."""
-        if self._retention_module is None:
-            self._retention_module = _build_retention_module()
-        pred = self._retention_module(
-            original_english=original,
-            roundtrip_english=roundtrip,
-        )
-        return float(getattr(pred, "retention_score", 0.5))
-
     def forward(self, english_text: str) -> dspy.Prediction:
         """Translate with multi-candidate selection.
 
@@ -393,39 +342,30 @@ class MultiCandidateTranslator(dspy.Module):
                 "mirad_text": candidate_text,
             })
 
-        # Round-trip + judge each candidate
+        # Judge each candidate and pick the highest total_score
         winner_index = 0
         winner_score = -1
         winner_rationale = ""
 
         for i, cand in enumerate(candidates):
             mirad = cand["mirad_text"]
-            back_en = self._back_translate(mirad)
-            cand["back_translated_english"] = back_en
-            retention = self._score_retention(english_text, back_en)
-            cand["semantic_retention_score"] = retention
-
             judge_pred = self._judge(
                 original_english=english_text,
                 candidate_mirad=mirad,
-                back_translated_english=back_en,
-                semantic_retention_score=retention,
             )
-            # Composite score: retention (0-60) + morphology (0-20) + vocabulary (0-20).
-            # Retention measures meaning preservation. Morphology and vocabulary
-            # measure Mirad correctness. English grammar/style (idiom_score) is
-            # deliberately excluded as it biases the judge toward English-looking
-            # candidates that aren't morphologically correct (e.g. capitalized,
-            # punctuated English) over correct-but-plain Mirad.
-            composite = (
-                retention * 60
-                + judge_pred.morphology_score
-                + judge_pred.vocabulary_score
-            )
-            cand["composite_score"] = composite
+            total = judge_pred.total_score
+            cand["judge"] = {
+                "grammar_score": judge_pred.grammar_score,
+                "morphology_score": judge_pred.morphology_score,
+                "vocabulary_score": judge_pred.vocabulary_score,
+                "english_bleed_score": judge_pred.english_bleed_score,
+                "completeness_score": judge_pred.completeness_score,
+                "total_score": total,
+                "rationale": judge_pred.rationale,
+            }
 
-            if composite > winner_score:
-                winner_score = composite
+            if total > winner_score:
+                winner_score = total
                 winner_index = i
                 winner_rationale = judge_pred.rationale
 
@@ -448,7 +388,7 @@ def run_mc_eval(
     seed: int = 20260526,
     min_english_words: int = 0,
     out_dir: Optional[Path] = None,
-    num_candidates: int = 5,
+    num_candidates: int = 2,
     temperatures: Optional[list[float]] = None,
     parallel: int = 1,
 ) -> dict:
@@ -524,7 +464,6 @@ def run_mc_eval(
         num_candidates=num_candidates,
         temperatures=temperatures,
         num_context_passages=3,
-        back_translation_passages=0,
     )
     # Prime dspy.settings.lm so the translator module can be created
     # (DefaultTranslator calls build_lexicon_db which may trigger DSPy module init).
@@ -557,9 +496,12 @@ def run_mc_eval(
             cand_summaries.append({
                 "temp": c["temperature"],
                 "mirad": c["mirad_text"],
-                "back_en": c.get("back_translated_english", ""),
-                "retention": c.get("semantic_retention_score", 0),
                 "total_score": j.get("total_score", 0),
+                "grammar": j.get("grammar_score", 0),
+                "morphology": j.get("morphology_score", 0),
+                "vocab": j.get("vocabulary_score", 0),
+                "bleed": j.get("english_bleed_score", 0),
+                "complete": j.get("completeness_score", 0),
             })
 
         return {
@@ -599,7 +541,7 @@ def run_mc_eval(
     summary = {
         "config": {
             "num_candidates": num_candidates,
-            "temperatures": temperatures or [0.1, 0.3, 0.5, 0.7, 0.9],
+            "temperatures": temperatures or [0.1, 0.7],
             "num_context_passages": 3,
             "top_k_per_word": 0,
             "parallel": parallel,
@@ -639,7 +581,7 @@ def run_mc_eval(
 **Date:** {datetime.now().strftime('%Y-%m-%d %H:%M')}  
 **Model:** {lm_model}  
 **Samples:** {n} (seed={seed})  
-**Candidates:** {num_candidates} @ {temperatures or [0.1, 0.3, 0.5, 0.7, 0.9]}  
+**Candidates:** {num_candidates} @ {temperatures or [0.1, 0.7]}  
 **Config:** num_context_passages=3, top_k_per_word=0  
 
 ## Metrics
