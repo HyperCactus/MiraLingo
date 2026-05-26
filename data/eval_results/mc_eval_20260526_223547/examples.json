@@ -1,0 +1,2102 @@
+[
+  {
+    "id": "pair-0976",
+    "idx": 0,
+    "english_text": "whose book is this and whose are these books",
+    "gold": "duhota dyes se his ay duhotasi se hia dyesi",
+    "pred": "Hota dyes se hias ay hotasi se hia dyesi?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 93.0,
+    "rationale": "The translation is nearly perfect, with only a slight over-specification in the back-translation (\"things\") and a minor structural difference (\"this one\" vs. \"this\"), but all core meaning and grammar are correct.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hota dyes se hias ay hotasi se hia dyesi?",
+        "back_en": "Whose book is this one, and whose things are these books?",
+        "retention": 0.9,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0013",
+    "idx": 0,
+    "english_text": "small houses",
+    "gold": "oga tami",
+    "pred": "oga tami",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct adjective-noun order, proper pluralization, and exact semantic retention, earning perfect scores across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "oga tami",
+        "back_en": "small houses",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0359",
+    "idx": 0,
+    "english_text": "do you all walk to school",
+    "gold": "duven yet tyoyape tistam",
+    "pred": "Yet tyope bu tistam?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 54.0,
+    "rationale": "The translation uses the correct plural pronoun and preposition, but the verb root \"tyope\" is incorrect (should be \"tyope\" from \"tyoper\" meaning \"to walk\"), and the back-translation loses the specific meaning of walking, resulting in moderate semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Yet tyope bu tistam?",
+        "back_en": "Do you all go to school?",
+        "retention": 0.6,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0895",
+    "idx": 0,
+    "english_text": "our teacher is good but their teacher is bad",
+    "gold": "yata tuxut se fia oy yita tuxut se fua",
+    "pred": "yata tuxut se fia oy yita tuxut se fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct possessive pronouns, copula, adjectives, and conjunction, and the back-translation perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yata tuxut se fia oy yita tuxut se fua",
+        "back_en": "Our teacher is good but their teacher is bad.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0488",
+    "idx": 0,
+    "english_text": "this guy s house is on fire",
+    "gold": "hwuta tam magseye",
+    "pred": "Hia aota tam se magsea.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 70.0,
+    "rationale": "The translation is grammatically sound and uses correct verb morphology, but the word \"aota\" (private) is a poor match for the colloquial \"guy's,\" and the back-translation shifts from \"on fire\" to \"burning,\" slightly reducing semantic fidelity.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hia aota tam se magsea.",
+        "back_en": "This private house is burning.",
+        "retention": 0.6,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0166",
+    "idx": 0,
+    "english_text": "we were",
+    "gold": "yat sa",
+    "pred": "yat sa",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses the correct pronoun, the correct past tense copula, and perfectly preserves the original meaning with no errors in any dimension.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yat sa",
+        "back_en": "We were.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0861",
+    "idx": 0,
+    "english_text": "unless they say otherwise we will be silent",
+    "gold": "oven yit do hyuyen yat dolo",
+    "pred": "Gob van yit du hyuyen, yat so dola.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 22.0,
+    "rationale": "The translation fails to capture the 'unless' condition, using incorrect vocabulary and structure, resulting in a meaning reversal.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Gob van yit du hyuyen, yat so dola.",
+        "back_en": "If they say otherwise, we will be silent.",
+        "retention": 0.2,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0891",
+    "idx": 0,
+    "english_text": "the teacher is good and the student is bad",
+    "gold": "ha tuxut se fia ay ha tixut se fua",
+    "pred": "ha tuxut se fia ay ha tixut se fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, morphology, vocabulary, and full semantic retention, as confirmed by the back-translation.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tuxut se fia ay ha tixut se fua",
+        "back_en": "The teacher is good and the student is bad.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0510",
+    "idx": 0,
+    "english_text": "do you know the answer",
+    "gold": "duven et te ha dud",
+    "pred": "Duho et te ha dud?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 28.0,
+    "rationale": "The candidate changes a yes/no question into a wh-question, severely distorting meaning, and uses incorrect word order and question structure, resulting in a poor translation overall.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duho et te ha dud?",
+        "back_en": "What is the answer you know?",
+        "retention": 0.2,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0592",
+    "idx": 0,
+    "english_text": "justice",
+    "gold": "yevan",
+    "pred": "doyev",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 10.0,
+    "rationale": "The candidate translates the noun \"justice\" as the verb \"doyev\" (judges), which is a complete semantic and part-of-speech mismatch, resulting in a very low score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "doyev",
+        "back_en": "judges",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0366",
+    "idx": 0,
+    "english_text": "this teacher is very good",
+    "gold": "hia tuxut se gla fia",
+    "pred": "hia tuxut se gla fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, morphology, vocabulary, idiom, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia tuxut se gla fia",
+        "back_en": "This teacher is very good.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0963",
+    "idx": 0,
+    "english_text": "play or get lost but do not laugh",
+    "gold": "eku ey pilu oy von hihidu",
+    "pred": "Eku ey mepoku oy du dizeudu.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 20.0,
+    "rationale": "The translation fails to convey \"get lost\" correctly, omits the required negation \"voy\" for \"do not laugh,\" and uses non-standard verb forms, resulting in a back-translation that loses most of the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Eku ey mepoku oy du dizeudu.",
+        "back_en": "Play or walk but say laugh.",
+        "retention": 0.2,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0951",
+    "idx": 0,
+    "english_text": "are the stars bright but the night cold",
+    "gold": "duven ha mari se manika oy ha moj se oma",
+    "pred": "Duven ha mari se maa oy ha moj se oma?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the polar question marker, proper word order, accurate verb morphology, and precise vocabulary, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duven ha mari se maa oy ha moj se oma?",
+        "back_en": "Are the stars bright but the night cold?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0221",
+    "idx": 0,
+    "english_text": "he or she will come",
+    "gold": "it upo",
+    "pred": "it upo",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 77.0,
+    "rationale": "The translation incorrectly uses a dummy subject \"it\" instead of a proper pronoun for \"he or she,\" losing the inclusive meaning, though the verb morphology is correct.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it upo",
+        "back_en": "he will come",
+        "retention": 0.7,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0206",
+    "idx": 0,
+    "english_text": "do",
+    "gold": "xu",
+    "pred": "Xu.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 25.0,
+    "rationale": "The candidate uses correct Mirad imperative morphology and grammar, but the vocabulary choice does not match the original English \"do\" (which could be interpreted as a general imperative or a verb), and the back-translation shows a complete semantic mismatch, resulting in a very low retention score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Xu.",
+        "back_en": "Hello.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0467",
+    "idx": 0,
+    "english_text": "everyone s drinks contain ice",
+    "gold": "hyata tili yebee yom",
+    "pred": "Hyata tili bexe yom.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is nearly flawless, with only a minor potential issue in the possessive construction (hyata is correct but could be more explicitly \"hyatay\" for \"everyone's\" though hyata is standard), but overall it accurately conveys the meaning with correct grammar, morphology, and vocabulary.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hyata tili bexe yom.",
+        "back_en": "Everybody's drinks contain ice.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0721",
+    "idx": 0,
+    "english_text": "do they work at home",
+    "gold": "duven yit yexe be tam",
+    "pred": "Duven yit yexe be tam?",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the question marker \"Duven,\" present tense verb, and appropriate prepositions, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duven yit yexe be tam?",
+        "back_en": "Do they work at home?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0605",
+    "idx": 0,
+    "english_text": "easy easily",
+    "gold": "gyua gyuay",
+    "pred": "yuka | yukay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The candidate provides a flawless translation of the adjective and adverb forms, with correct morphology and exact semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yuka | yukay",
+        "back_en": "easy | easily",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0083",
+    "idx": 0,
+    "english_text": "these persons",
+    "gold": "hiti",
+    "pred": "hia tobi",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, using correct demonstrative \"hia\" and plural \"tobi\" to perfectly match the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia tobi",
+        "back_en": "these people",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0875",
+    "idx": 0,
+    "english_text": "you are not my father but you know my father",
+    "gold": "et voy se ata twed oy et tre ata twed",
+    "pred": "Et voy se ata twed oy et te ata twed.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct negation, conjunction, verb forms, and vocabulary, and the back-translation confirms complete semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Et voy se ata twed oy et te ata twed.",
+        "back_en": "You are not my father, but you know my father.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0076",
+    "idx": 0,
+    "english_text": "the name",
+    "gold": "ha dyun",
+    "pred": "ha dyun",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses the correct article and noun, preserves the exact meaning, and has no errors in any dimension.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha dyun",
+        "back_en": "the name",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0616",
+    "idx": 0,
+    "english_text": "the houses are ugly",
+    "gold": "ha tami se vua",
+    "pred": "ha tami se vua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the definite article, plural noun, copula, and adjective, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tami se vua",
+        "back_en": "The houses are ugly.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0622",
+    "idx": 0,
+    "english_text": "that house is beautiful",
+    "gold": "hua tam se via",
+    "pred": "hua via tam se via",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 92.0,
+    "rationale": "The translation incorrectly places the adjective before the noun and redundantly repeats \"via\", while also using an unnecessary copula, resulting in a distorted meaning compared to the original.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hua via tam se via",
+        "back_en": "That beautiful house is beautiful.",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0082",
+    "idx": 0,
+    "english_text": "this person",
+    "gold": "hit",
+    "pred": "hia aot",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct Mirad vocabulary and grammar for a simple noun phrase, and the back-translation confirms perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia aot",
+        "back_en": "this person",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0391",
+    "idx": 0,
+    "english_text": "they know",
+    "gold": "yit te",
+    "pred": "yit tye",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 0.0,
+    "rationale": "The candidate uses an invalid verb root \"tye\" instead of the correct \"ter\" for \"know\", resulting in a completely different meaning as confirmed by the back-translation, and fails on all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yit tye",
+        "back_en": "they are",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0424",
+    "idx": 0,
+    "english_text": "it is not fair to prejudge someone",
+    "gold": "voy se yeva jayevder hes",
+    "pred": "Javyexer het voy se yeva.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 95.0,
+    "rationale": "The translation is nearly flawless, with correct grammar, verb morphology, and word choice, though \"het\" for \"someone\" is slightly informal compared to \"heyt\".",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Javyexer het voy se yeva.",
+        "back_en": "To prejudge someone is not fair.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0107",
+    "idx": 0,
+    "english_text": "that teacher is bad",
+    "gold": "hua tuxut se fua",
+    "pred": "hua tuxut fua",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct word order, accurate vocabulary, and perfect semantic retention, earning the maximum score across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hua tuxut fua",
+        "back_en": "That teacher is bad.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0643",
+    "idx": 0,
+    "english_text": "the teacher is good",
+    "gold": "ha tuxut se fia",
+    "pred": "ha tuxut se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the definite article, noun, copula, and adjective in proper SVO order, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tuxut se fia",
+        "back_en": "The teacher is good.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0909",
+    "idx": 0,
+    "english_text": "this building is a store but this building was a store before",
+    "gold": "hia tom se nam oy hia tom sa nam ja his",
+    "pred": "hia tom se nam oy hia tom sa nam ja",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 96.0,
+    "rationale": "The translation is nearly flawless, with correct grammar, morphology, vocabulary, and idiom usage, and the back-translation preserves the original meaning almost perfectly, though \"tom\" could be more specifically \"building\" rather than \"house.\"",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia tom se nam oy hia tom sa nam ja",
+        "back_en": "This house is a store, and this house was a store before.",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0410",
+    "idx": 0,
+    "english_text": "you live in the neighborhood",
+    "gold": "et tambese ha yubem",
+    "pred": "Et bese bi ha yubem.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 35.0,
+    "rationale": "The translation uses the wrong preposition \"bi\" instead of \"be\" for \"in,\" causing the back-translation to read \"stay from\" instead of \"live in,\" which severely damages semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Et bese bi ha yubem.",
+        "back_en": "You stay from the neighborhood.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0431",
+    "idx": 0,
+    "english_text": "he looks like a good worker",
+    "gold": "wit tease fia yexut",
+    "pred": "it se gel fia yexut",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 70.0,
+    "rationale": "The translation is mostly correct but uses the wrong pronoun (\"it\" for \"he\") and simplifies \"looks like\" to \"is like,\" reducing semantic precision.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it se gel fia yexut",
+        "back_en": "He is like a good worker.",
+        "retention": 0.6,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0273",
+    "idx": 0,
+    "english_text": "you will work at home",
+    "gold": "et yexo be tam",
+    "pred": "et yexo be tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, verb morphology, vocabulary, idiom, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "et yexo be tam",
+        "back_en": "You will work at home.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0554",
+    "idx": 0,
+    "english_text": "thanks you were very kind",
+    "gold": "hway et sa gla fitipa",
+    "pred": "Hyay, et sa gla tipifa.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 66.0,
+    "rationale": "The translation is grammatically sound and morphologically correct, but the vocabulary choice of \"Hyay\" (Hello) instead of \"Hyay\" (Thanks) reduces semantic retention and word accuracy.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hyay, et sa gla tipifa.",
+        "back_en": "Hello, you were very kind.",
+        "retention": 0.6,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0736",
+    "idx": 0,
+    "english_text": "you all do not come",
+    "gold": "yet voy upe",
+    "pred": "Yet voy upu.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 76.0,
+    "rationale": "The candidate uses correct pronoun and negation but fails to use the indicative present tense verb form (\"upe\") instead of the imperative (\"upu\"), causing a shift from a statement to a command, which reduces semantic retention and morphological accuracy.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Yet voy upu.",
+        "back_en": "Do not come, you all.",
+        "retention": 0.9,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0088",
+    "idx": 0,
+    "english_text": "this person is beautiful and that one is ugly",
+    "gold": "hit se via ay hut se vua",
+    "pred": "Hia aot se via ay hua aot se vua.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 97.0,
+    "rationale": "The translation is nearly perfect, with only a trivial synonym difference in the back-translation (handsome vs. beautiful) preventing a perfect semantic retention score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hia aot se via ay hua aot se vua.",
+        "back_en": "This person is handsome and that person is ugly.",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0380",
+    "idx": 0,
+    "english_text": "i do not know",
+    "gold": "at voy te",
+    "pred": "at voy te",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it correctly uses the subject pronoun, negation, and verb root with no errors, and the back-translation confirms identical meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "at voy te",
+        "back_en": "I do not know",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0448",
+    "idx": 0,
+    "english_text": "people often do not love themselves",
+    "gold": "yot glaxag voy ife yout",
+    "pred": "tyod glaxag voy ife yout",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless across all dimensions, correctly using Mirad vocabulary, verb morphology, negation, and reflexive pronoun structure to perfectly match the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "tyod glaxag voy ife yout",
+        "back_en": "People often do not love themselves.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0525",
+    "idx": 0,
+    "english_text": "do you know why he did it",
+    "gold": "duven et te hosav it xa his",
+    "pred": "Duven et te van hosav it xa is?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the question marker, subordinating conjunction, verb tenses, and vocabulary, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duven et te van hosav it xa is?",
+        "back_en": "Do you know why he did it?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0564",
+    "idx": 0,
+    "english_text": "i did not know you were coming",
+    "gold": "at ta voy van et upo",
+    "pred": "At voy ta av et upea.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 92.0,
+    "rationale": "The translation is mostly correct but loses points for using \"av\" instead of \"van\" for the subordinate clause and for omitting the progressive infix \"-eye-\" in \"upea\".",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "At voy ta av et upea.",
+        "back_en": "I did not know that you were coming.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0859",
+    "idx": 0,
+    "english_text": "unless i say otherwise you will be silent",
+    "gold": "oven at do hyuyen et dolo",
+    "pred": "Gob van at de hyuay, dolsu.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 7.0,
+    "rationale": "The candidate translation bears no semantic relation to the original, using incorrect vocabulary and structure, and fails to express the conditional \"unless\" clause.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Gob van at de hyuay, dolsu.",
+        "back_en": "Stop, I say hello, be quiet.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0014",
+    "idx": 0,
+    "english_text": "the small house",
+    "gold": "ha oga tam",
+    "pred": "ha oga tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is perfectly correct in all dimensions, with no errors in grammar, vocabulary, or structure, and the back-translation confirms identical meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha oga tam",
+        "back_en": "the small house",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0524",
+    "idx": 0,
+    "english_text": "everywhere i go you are there",
+    "gold": "hyam at pe et se hum",
+    "pred": "hyam at pe et se be hum",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "The translation conveys the intended meaning but is weakened by the incorrect use of \"be hum\" instead of just \"hum\" and the non-standard \"hyam\" spelling, though verb morphology is correct.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hyam at pe et se be hum",
+        "back_en": "Everywhere I go, you are there.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0269",
+    "idx": 0,
+    "english_text": "we worked at home",
+    "gold": "yat yexa be tam",
+    "pred": "yat yexa be tam",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless across all dimensions, with correct grammar, verb morphology, vocabulary, idiom, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yat yexa be tam",
+        "back_en": "We worked at home.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0886",
+    "idx": 0,
+    "english_text": "our house is bigger than yours but this house is not as big as ours",
+    "gold": "yata tam se ga aga vyel etas oy hia tam voy se ge aga vyel yatas",
+    "pred": "Aeta tam se ga aga vyel ayetas oy hia tam se voy ge aga vyel aetas.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using comparative and negative equative structures with accurate vocabulary and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Aeta tam se ga aga vyel ayetas oy hia tam se voy ge aga vyel aetas.",
+        "back_en": "Our house is bigger than yours, but this house is not as big as ours.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0305",
+    "idx": 0,
+    "english_text": "come to the grocery store sometime",
+    "gold": "upu ha tolnam hej",
+    "pred": "Upu bu ha nam hej.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 89.0,
+    "rationale": "The translation is grammatically and morphologically flawless, but loses the specificity of \"grocery store\" (using \"nam\" instead of \"tolnam/telnam\"), which slightly reduces vocabulary and semantic retention scores.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Upu bu ha nam hej.",
+        "back_en": "Come to the store sometime.",
+        "retention": 0.9,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0582",
+    "idx": 0,
+    "english_text": "ugly things",
+    "gold": "vuasi",
+    "pred": "vua suni",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct adjective-noun order, proper plural morphology, accurate vocabulary, and perfect semantic retention with no errors in any dimension.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "vua suni",
+        "back_en": "ugly things",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0889",
+    "idx": 0,
+    "english_text": "this desk is small but good and that desk is big but bad",
+    "gold": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+    "pred": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, morphology, vocabulary, idiom, and complete semantic retention, as confirmed by the exact back-translation.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+        "back_en": "This desk is small but good and that desk is big but bad.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0816",
+    "idx": 0,
+    "english_text": "they do not know where he or she went but they know where we live",
+    "gold": "yit voy te hom it pa oy yit te hom yat tambese",
+    "pred": "yit voy te hem it pa oy yit te hem yat teje",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 93.0,
+    "rationale": "The translation is accurate and idiomatic, with only a minor loss of the \"or she\" nuance in the back-translation, but otherwise preserves meaning and structure well.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yit voy te hem it pa oy yit te hem yat teje",
+        "back_en": "They don't know where he went, but they know we live.",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0151",
+    "idx": 0,
+    "english_text": "captive",
+    "gold": "yuva",
+    "pred": "pixlawat",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is a single correct Mirad noun that perfectly matches the original English in meaning, with no grammatical, morphological, or idiomatic errors.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "pixlawat",
+        "back_en": "captive",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0472",
+    "idx": 0,
+    "english_text": "every man must do his part",
+    "gold": "hya tob yefe xer ita gon",
+    "pred": "Hya twob yefe xer ita gon.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using all Mirad grammar, morphology, vocabulary, and idiom, with perfect semantic retention as confirmed by the back-translation.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hya twob yefe xer ita gon.",
+        "back_en": "Every man must do his part.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0683",
+    "idx": 0,
+    "english_text": "you all were happy",
+    "gold": "yet sa iva",
+    "pred": "yet sa iva",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the plural pronoun \"yet\", past copula \"sa\", and adjective \"iva\" with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yet sa iva",
+        "back_en": "You all were happy.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0301",
+    "idx": 0,
+    "english_text": "we will be there until the end of the season",
+    "gold": "yat so hum ju ha uj bi ha jeb",
+    "pred": "yat so be hum ju ha uj bi ha jeb",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, morphology, vocabulary, idiom, and semantic retention, matching the original meaning exactly.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yat so be hum ju ha uj bi ha jeb",
+        "back_en": "We will be at that place until the end of the season.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0980",
+    "idx": 0,
+    "english_text": "both cities have grown and any color will be fine",
+    "gold": "hyaewa domi agsaye ay hyea voz so fia",
+    "pred": "Hyaewa domi se agwa ay hyea volz so fia.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 68.0,
+    "rationale": "The translation is mostly correct but loses the perfect aspect of \"have grown\" by using \"agwa\" (big) instead of \"agya\" (grown), and the present tense \"se\" fails to capture the past-to-present growth.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hyaewa domi se agwa ay hyea volz so fia.",
+        "back_en": "Both cities are big and any color will be fine.",
+        "retention": 0.7,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0283",
+    "idx": 0,
+    "english_text": "before this you lived in the suburbs",
+    "gold": "ja his et tambesa ha yuzdom",
+    "pred": "Ja his et tambesa bi ha yibdomi.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 18.0,
+    "rationale": "The translation fails because \"yibdomi\" means \"far countries\" instead of \"suburbs,\" and \"bi\" should be \"be,\" resulting in a completely different meaning from the original.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Ja his et tambesa bi ha yibdomi.",
+        "back_en": "Before this, you lived from the far countries.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0838",
+    "idx": 0,
+    "english_text": "they will give it to us after we pay",
+    "gold": "yit buo yat has jo van yat nuso",
+    "pred": "Yit buo is bu yat jo van yat nuxe.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it preserves the original meaning exactly, uses correct Mirad grammar, verb morphology, vocabulary, and idiomatic structures, earning a perfect score across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Yit buo is bu yat jo van yat nuxe.",
+        "back_en": "They will give it to us after we pay.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0651",
+    "idx": 0,
+    "english_text": "that is a good student",
+    "gold": "hus se fia tixut",
+    "pred": "Huat se fia tixut.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, morphology, vocabulary, and idiom, and it perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Huat se fia tixut.",
+        "back_en": "That one is a good student.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0710",
+    "idx": 0,
+    "english_text": "you all will do it well",
+    "gold": "yet xo has fi",
+    "pred": "yet xo is fiay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 5.0,
+    "rationale": "The translation fails to convey the future tense and uses an invalid verb root \"xo\" instead of \"xer\", resulting in a completely different meaning and very low scores across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yet xo is fiay",
+        "back_en": "You all are well.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0218",
+    "idx": 0,
+    "english_text": "they came",
+    "gold": "yit upa",
+    "pred": "yit upa",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it uses correct subject-verb agreement, proper past tense morphology, accurate vocabulary, and perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yit upa",
+        "back_en": "They came.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0682",
+    "idx": 0,
+    "english_text": "we were happy",
+    "gold": "yat sa iva",
+    "pred": "yet sa ifla",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 41.0,
+    "rationale": "The candidate incorrectly uses \"yet\" (you all) instead of \"yet\" (we), causing a subject mismatch that significantly reduces semantic retention, though verb morphology and word order are otherwise correct.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yet sa ifla",
+        "back_en": "You all were happy.",
+        "retention": 0.3,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0955",
+    "idx": 0,
+    "english_text": "maybe i may go but i do not know",
+    "gold": "ve at vey po oy at voy te",
+    "pred": "Vey at afu per oy at voy te.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, verb morphology, vocabulary, idiom, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Vey at afu per oy at voy te.",
+        "back_en": "Maybe I may go, but I do not know.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0156",
+    "idx": 0,
+    "english_text": "harmful",
+    "gold": "fyua",
+    "pred": "buka",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 5.0,
+    "rationale": "The candidate translates \"harmful\" as \"Open!\", a completely unrelated word, resulting in zero semantic retention and a very low total score due to total vocabulary failure.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "buka",
+        "back_en": "Open!",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0252",
+    "idx": 0,
+    "english_text": "i would go",
+    "gold": "at pu",
+    "pred": "at pu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 0.0,
+    "rationale": "The candidate mistranslates the conditional first-person statement \"I would go\" as an imperative command \"Go!\", completely altering meaning and failing on all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "at pu",
+        "back_en": "Go!",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0200",
+    "idx": 0,
+    "english_text": "i would do",
+    "gold": "at xu",
+    "pred": "at xu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 43.0,
+    "rationale": "The candidate uses correct vocabulary and basic grammar but fails to express the conditional mood, using present tense instead, which significantly reduces semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "at xu",
+        "back_en": "I do!",
+        "retention": 0.3,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0645",
+    "idx": 0,
+    "english_text": "the teachers are good",
+    "gold": "ha tuxuti se fia",
+    "pred": "ha tuxuti se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, morphology, vocabulary, idiom, and semantic retention, fully matching the original English.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tuxuti se fia",
+        "back_en": "The teachers are good.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0073",
+    "idx": 0,
+    "english_text": "the teachers",
+    "gold": "ha tuxuti",
+    "pred": "ha tuxuti",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 83.0,
+    "rationale": "The translation is grammatically and morphologically flawless, but the word choice \"tuxut\" leans toward \"lecturer\" rather than the more general \"teacher,\" slightly reducing vocabulary and semantic retention scores.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tuxuti",
+        "back_en": "the lecturers",
+        "retention": 0.8,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0821",
+    "idx": 0,
+    "english_text": "do they know where we went and where you live",
+    "gold": "duven yit te hom yat pa ay hom et tambese",
+    "pred": "Du yit te duhom yat pa ay duhom et teje?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 88.0,
+    "rationale": "The translation incorrectly uses an imperative \"Du\" instead of a question particle, but the verb morphology and vocabulary are mostly correct, and the back-translation retains the original meaning well.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Du yit te duhom yat pa ay duhom et teje?",
+        "back_en": "Do they know where we went and where you live?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0831",
+    "idx": 0,
+    "english_text": "while they are here they will do some work for us",
+    "gold": "je van yit so him yit xo gle yex av yat",
+    "pred": "Je van yit se be him, yit xo gle yex av yat.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 84.0,
+    "rationale": "The translation is grammatically sound and uses correct Mirad morphology and vocabulary, with only a minor idiomatic preference for \"je van\" over a more standard \"je\" and a slight tense shift in the back-translation.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Je van yit se be him, yit xo gle yex av yat.",
+        "back_en": "While they are here, they do some work for us.",
+        "retention": 0.8,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0813",
+    "idx": 0,
+    "english_text": "i do not know where they went but i know where you live",
+    "gold": "at voy te hom yit pa oy at te hom et tambese",
+    "pred": "At voy te hem yit pa oy at te hem et teje.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 96.0,
+    "rationale": "The translation is largely accurate and preserves meaning, but loses points for omitting the required relative pronoun \"ho\" in both location clauses, which is a key structural feature of Mirad.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "At voy te hem yit pa oy at te hem et teje.",
+        "back_en": "I do not know where they went, but I know where you live.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0647",
+    "idx": 0,
+    "english_text": "the student is good",
+    "gold": "ha tixut se fia",
+    "pred": "ha fia tixut se",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 76.0,
+    "rationale": "The translation uses correct vocabulary and verb morphology but suffers from incorrect word order (predicate adjective before copula) and a resulting shift in meaning, lowering grammar and idiom scores.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha fia tixut se",
+        "back_en": "the good student is",
+        "retention": 0.6,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0171",
+    "idx": 0,
+    "english_text": "he or she will be",
+    "gold": "it so",
+    "pred": "it so",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 0.0,
+    "rationale": "The candidate is not a Mirad translation but English text, resulting in zero scores across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it so",
+        "back_en": "it so",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0439",
+    "idx": 0,
+    "english_text": "you should tell her that",
+    "gold": "et yefu der iyt hus",
+    "pred": "Et deryu ayt hus.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 4.0,
+    "rationale": "The translation fails on all dimensions: incorrect verb morphology (\"deryu\" is not a valid Mirad form), wrong pronoun (\"ayt\" for \"us\" instead of \"it\" for \"her\"), loss of the modal \"should\", and the back-translation shows a completely different meaning, resulting in a very low total score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Et deryu ayt hus.",
+        "back_en": "You will say that to us.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0212",
+    "idx": 0,
+    "english_text": "they come",
+    "gold": "yit upe",
+    "pred": "yit upe",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, verb morphology, vocabulary, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yit upe",
+        "back_en": "they come",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0254",
+    "idx": 0,
+    "english_text": "he or she would go",
+    "gold": "it pu",
+    "pred": "it pu",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 16.0,
+    "rationale": "The candidate uses the wrong verb root (\"pu\" for arrive instead of \"per\" for go), lacks the conditional mood ending, and the back-translation shows a completely different meaning, resulting in very low scores across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it pu",
+        "back_en": "he arrives",
+        "retention": 0.1,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0874",
+    "idx": 0,
+    "english_text": "i am not your father but i know your father",
+    "gold": "at voy se eta twed oy at tre eta twed",
+    "pred": "At voy se eta twed oy at te eta twed.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, demonstrating perfect grammar, morphology, vocabulary, idiom, and semantic retention, with no errors or deviations from the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "At voy se eta twed oy at te eta twed.",
+        "back_en": "I am not your father, but I know your father.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0453",
+    "idx": 0,
+    "english_text": "yours are worth more than mine",
+    "gold": "etasi naze ga vyel atasi",
+    "pred": "Etasi naze ga vyel atasi.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 48.0,
+    "rationale": "The translation correctly uses possessive forms and comparative structure but fails to capture the verb \"to be worth\" (nazer), substituting an incorrect form \"naze,\" which reduces semantic accuracy and vocabulary score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Etasi naze ga vyel atasi.",
+        "back_en": "Your things are more than mine.",
+        "retention": 0.4,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0521",
+    "idx": 0,
+    "english_text": "whenever you talk i laugh",
+    "gold": "hyej et dale at hihide",
+    "pred": "Hyejod ho et dale, at dizeude.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 76.0,
+    "rationale": "The translation is mostly correct but loses points for using past tense \"dale\" instead of present tense \"dale\" for the habitual \"you talk,\" causing a tense mismatch that slightly reduces semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hyejod ho et dale, at dizeude.",
+        "back_en": "Whenever you spoke, I laugh.",
+        "retention": 0.7,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0110",
+    "idx": 0,
+    "english_text": "that student is good",
+    "gold": "hua tixut se fia",
+    "pred": "hua tixut se fia",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct word order, copula usage, and vocabulary, and the back-translation confirms complete semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hua tixut se fia",
+        "back_en": "That student is good.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0432",
+    "idx": 0,
+    "english_text": "the dog bit me",
+    "gold": "ha yepet teupixa at",
+    "pred": "Ha yepet teupixa at.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 77.0,
+    "rationale": "The translation is mostly correct but uses the plural \"yepet\" (dogs) instead of the singular \"yepet\" (dog), causing a minor meaning shift that lowers vocabulary and semantic retention scores.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Ha yepet teupixa at.",
+        "back_en": "The dogs bit me.",
+        "retention": 0.7,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0805",
+    "idx": 0,
+    "english_text": "they know that we will come and they will be happy",
+    "gold": "yit te van yat upo ay yit so iva",
+    "pred": "Yit te van yat upo ay yit so iva.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, demonstrating perfect grammar, morphology, vocabulary, idiom, and semantic retention, with no errors or deviations from the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Yit te van yat upo ay yit so iva.",
+        "back_en": "They know that we will come and they will be happy.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0497",
+    "idx": 0,
+    "english_text": "we were indeed there",
+    "gold": "yat vay sa hum",
+    "pred": "yat vay sa be hum",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the past copula \"sa\", the adverb \"vay\", the preposition \"be\", and the locative \"hum\" to fully preserve the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yat vay sa be hum",
+        "back_en": "We were indeed at that place.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0096",
+    "idx": 0,
+    "english_text": "your teacher is good",
+    "gold": "eta tuxut se fia",
+    "pred": "eta fia tuxut se fia",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 84.0,
+    "rationale": "The translation incorrectly places the adjective before the noun and adds an extra \"good\" that changes the meaning, resulting in a lower semantic retention score than the input suggests.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "eta fia tuxut se fia",
+        "back_en": "Your good teacher is good.",
+        "retention": 0.9,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0374",
+    "idx": 0,
+    "english_text": "he sings beautifully",
+    "gold": "it deuze vi",
+    "pred": "it deuze viay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct subject pronoun, verb tense, adverb formation, and back-translation matches the original perfectly.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it deuze viay",
+        "back_en": "He sings beautifully.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0483",
+    "idx": 0,
+    "english_text": "this book is my favorite",
+    "gold": "hia dyes se ata gafias",
+    "pred": "hia dyes se ata gaifwa",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, morphology, vocabulary, and idiom usage, and it perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia dyes se ata gaifwa",
+        "back_en": "This book is my favorite.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0355",
+    "idx": 0,
+    "english_text": "the students walk to school every day",
+    "gold": "ha tixuti tyoyape tistam hyajub",
+    "pred": "ha tixuti tyope bu tistam hyajub",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 81.0,
+    "rationale": "The translation is grammatically sound and structurally correct, but the verb \"tyope\" is a non-standard root for \"walk\" (should be \"tyope\"), causing a minor semantic shift in the back-translation.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha tixuti tyope bu tistam hyajub",
+        "back_en": "The students come to school every day.",
+        "retention": 0.85,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0063",
+    "idx": 0,
+    "english_text": "fathers",
+    "gold": "twedi",
+    "pred": "twedi",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is perfectly correct, with no errors in any dimension, as it accurately renders the plural noun \"fathers\" using the correct Mirad root and plural suffix.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "twedi",
+        "back_en": "fathers",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0978",
+    "idx": 0,
+    "english_text": "these words are prohibited but this book is my favorite",
+    "gold": "hiia duni se yofwa oy hia dyes se ata gafias",
+    "pred": "hia duni se ofwa ay hia dyes se ata gaifwa.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 97.0,
+    "rationale": "The translation is nearly perfect, with only a slight concession mismatch (using \"and\" instead of \"but\") that does not significantly alter meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "hia duni se ofwa ay hia dyes se ata gaifwa.",
+        "back_en": "These words are prohibited and this book is my favorite.",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0731",
+    "idx": 0,
+    "english_text": "is that student bad",
+    "gold": "duven hua tixut se fua",
+    "pred": "Duven hua tixut se fua?",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, correctly using the question marker \"Duven\", the determiner \"hua\", the noun \"tixut\", the copula \"se\", and the adjective \"fua\" with perfect word order and full semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duven hua tixut se fua?",
+        "back_en": "Is that student bad?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0780",
+    "idx": 0,
+    "english_text": "he or she is going home but he or she will work at home",
+    "gold": "it peye tam oy it yexo be tam",
+    "pred": "it pe be tam oy it yexo be tam",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 76.0,
+    "rationale": "The translation is mostly understandable but loses the progressive aspect (\"is going\" → \"pe\" instead of \"peye\") and uses the wrong preposition \"be\" for motion toward home (\"bu\" required), though the back-translation retains the core meaning well.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it pe be tam oy it yexo be tam",
+        "back_en": "He goes home but he will work at home.",
+        "retention": 0.85,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0986",
+    "idx": 0,
+    "english_text": "the sun has risen so you must get up out of bed",
+    "gold": "ha maar yapaye avhus et yefe sumpier",
+    "pred": "Amar yapa ay et yefe sumpier.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 11.0,
+    "rationale": "The translation reverses the meaning of the original (get up vs. go to bed), uses incorrect vocabulary, omits the definite article, and misrepresents the conjunction, resulting in a completely different semantic outcome.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Amar yapa ay et yefe sumpier.",
+        "back_en": "Amar rose and you must go to bed.",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0376",
+    "idx": 0,
+    "english_text": "they sing beautifully",
+    "gold": "yit deuze vi",
+    "pred": "yit deuze viay",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct pronoun, verb tense, and adverb usage, and it perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "yit deuze viay",
+        "back_en": "They sing beautifully.",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0070",
+    "idx": 0,
+    "english_text": "a teacher",
+    "gold": "tuxut",
+    "pred": "tuxut",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 97.0,
+    "rationale": "The translation is flawless: it correctly uses the Mirad agent noun morphology, omits the unnecessary English article, and the back-translation confirms full semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "tuxut",
+        "back_en": "teacher",
+        "retention": 0.95,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0021",
+    "idx": 0,
+    "english_text": "birds",
+    "gold": "pati",
+    "pred": "pati",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: \"pati\" correctly pluralizes the noun \"pat\" for \"birds,\" and the back-translation confirms perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "pati",
+        "back_en": "birds",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0401",
+    "idx": 0,
+    "english_text": "are the stars bright",
+    "gold": "duven ha mari se manika",
+    "pred": "Duho se ha mari maa?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 13.0,
+    "rationale": "The candidate mistranslates a yes/no question about brightness into a wh-question about location, using wrong vocabulary (\"Duho\" for \"which\", \"maa\" for \"of the sky\" instead of \"bright\"), resulting in a completely different meaning and a very low total score.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Duho se ha mari maa?",
+        "back_en": "Which are the stars of the sky?",
+        "retention": 0.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0065",
+    "idx": 0,
+    "english_text": "mothers",
+    "gold": "teydi",
+    "pred": "teydi",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is a perfect, minimal plural noun that matches the original exactly in meaning and form, with no errors in any dimension.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "teydi",
+        "back_en": "mothers",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0335",
+    "idx": 0,
+    "english_text": "he or she was going home",
+    "gold": "it peya tam",
+    "pred": "it ey it pea be tam",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 62.0,
+    "rationale": "The translation incorrectly uses \"it\" for a person, uses present tense instead of past tense, and omits the definite article \"ha\" before \"tam\", resulting in significant grammar and morphology errors that reduce overall quality.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "it ey it pea be tam",
+        "back_en": "he or she is going home",
+        "retention": 0.7,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0494",
+    "idx": 0,
+    "english_text": "will you ever come back",
+    "gold": "duven et hyej upo zoy",
+    "pred": "Et hyej zoyupo?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct word order, proper future verb morphology, accurate vocabulary, idiomatic structure, and perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Et hyej zoyupo?",
+        "back_en": "Will you ever come back?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0399",
+    "idx": 0,
+    "english_text": "are you married",
+    "gold": "duven et se tadxwa",
+    "pred": "Du et tadxwa?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, using correct Mirad grammar, verb morphology, vocabulary, and idiomatic question structure, with perfect semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Du et tadxwa?",
+        "back_en": "Are you married?",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0751",
+    "idx": 0,
+    "english_text": "be good",
+    "gold": "su fia",
+    "pred": "Su fia!",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 58.0,
+    "rationale": "The translation is grammatically and morphologically perfect, but the semantic retention is poor because the back-translation \"Be well!\" does not match the original meaning of \"be good\" (behave well).",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Su fia!",
+        "back_en": "Be well!",
+        "retention": 0.3,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0019",
+    "idx": 0,
+    "english_text": "the cars",
+    "gold": "ha puri",
+    "pred": "ha puri",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct article, plural morphology, and exact semantic match with the original.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "ha puri",
+        "back_en": "the cars",
+        "retention": 1.0,
+        "total_score": 0
+      }
+    ]
+  },
+  {
+    "id": "pair-0932",
+    "idx": 0,
+    "english_text": "every man must do his part and every person must love oneself",
+    "gold": "hya tob yefe xer ita gon ay ot yefe ifer out",
+    "pred": "Hyawa twob yefe xer twoba gon ay hyawa aot yefe ifer aut.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 90.0,
+    "rationale": "The translation is strong overall, with only a minor vocabulary over-specification (\"twoba gon\" for \"his part\") and a slight semantic shift in the back-translation's reflexive pronoun, but grammar, morphology, and idiom are flawless.",
+    "candidates": [
+      {
+        "temp": 0.3,
+        "mirad": "Hyawa twob yefe xer twoba gon ay hyawa aot yefe ifer aut.",
+        "back_en": "Each man must do his manly part, and each person must love themselves.",
+        "retention": 0.9,
+        "total_score": 0
+      }
+    ]
+  }
+]

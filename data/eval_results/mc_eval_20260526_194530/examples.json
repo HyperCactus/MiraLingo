@@ -1,0 +1,58 @@
+[
+  {
+    "id": "pair-0351",
+    "idx": 0,
+    "english_text": "you are being bad",
+    "gold": "et seye fua",
+    "pred": "et seye fua",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 97.0,
+    "rationale": "The translation is grammatically and morphologically flawless, but the progressive aspect (\"being bad\") is not fully preserved in the back-translation, resulting in a slight semantic loss.",
+    "candidates": [
+      {
+        "temp": 0.2,
+        "mirad": "et seye fua",
+        "back_en": "You are bad.",
+        "retention": 0.85,
+        "total_score": 97.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et se fua",
+        "back_en": "You are bad.",
+        "retention": 0.7,
+        "total_score": 78.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0221",
+    "idx": 0,
+    "english_text": "he or she will come",
+    "gold": "it upo",
+    "pred": "It upo.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 72.0,
+    "rationale": "The main weakness is using the dummy pronoun \"it\" instead of the gender-neutral \"yet\" for \"he or she\", which reduces grammatical and vocabulary accuracy, and the back-translation loses the \"or she\" part, lowering semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.2,
+        "mirad": "It upo.",
+        "back_en": "He will come.",
+        "retention": 0.6,
+        "total_score": 72.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it upo",
+        "back_en": "he will come",
+        "retention": 0.75,
+        "total_score": 65.0
+      }
+    ]
+  }
+]

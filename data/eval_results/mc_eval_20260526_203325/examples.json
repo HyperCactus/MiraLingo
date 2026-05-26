@@ -1,0 +1,394 @@
+[
+  {
+    "id": "pair-0351",
+    "idx": 0,
+    "english_text": "you are being bad",
+    "gold": "et seye fua",
+    "pred": "et sea fua",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 4,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with correct grammar, verb morphology, vocabulary, and idiom, and it perfectly preserves the original meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "et se fua",
+        "back_en": "You are bad.",
+        "retention": 0.85,
+        "total_score": 87.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "et se fua",
+        "back_en": "You are bad",
+        "retention": 0.85,
+        "total_score": 90.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Et se fua.",
+        "back_en": "You are bad.",
+        "retention": 0.7,
+        "total_score": 75.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Et efe fua.",
+        "back_en": "You want bad.",
+        "retention": 0.0,
+        "total_score": 40.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "et sea fua",
+        "back_en": "You are being bad",
+        "retention": 1.0,
+        "total_score": 100.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0221",
+    "idx": 0,
+    "english_text": "he or she will come",
+    "gold": "it upo",
+    "pred": "it upo",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 90.0,
+    "rationale": "The translation is grammatically and morphologically sound, but the semantic retention is slightly diminished because the back-translation loses the gender-neutral \"or she\" from the original.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it upo",
+        "back_en": "He will come.",
+        "retention": 0.7,
+        "total_score": 90.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "it o upo",
+        "back_en": "It will not come.",
+        "retention": 0.0,
+        "total_score": 16.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "it o upo",
+        "back_en": "He will come.",
+        "retention": 0.7,
+        "total_score": 45.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it upo",
+        "back_en": "he will come",
+        "retention": 0.85,
+        "total_score": 70.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "it upoa",
+        "back_en": "it came",
+        "retention": 0.0,
+        "total_score": 0.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0255",
+    "idx": 0,
+    "english_text": "we would go",
+    "gold": "yat pu",
+    "pred": "yat p-yu-er",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 2,
+    "total_score": 21.0,
+    "rationale": "The candidate invents a non-standard verb form \"p-yu-er\" instead of using the correct conditional \"pu\", and the back-translation shows a completely different tense and meaning, resulting in very low scores across all dimensions.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yat pyu",
+        "back_en": "by the people",
+        "retention": 0.0,
+        "total_score": 0.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "yat pey",
+        "back_en": "Let us wait.",
+        "retention": 0.0,
+        "total_score": 0.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "yat p-yu-er",
+        "back_en": "We are coming.",
+        "retention": 0.2,
+        "total_score": 21.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yat pey",
+        "back_en": "Let's wait.",
+        "retention": 0.0,
+        "total_score": 0.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "yat pyu",
+        "back_en": "We are near.",
+        "retention": 0.0,
+        "total_score": 6.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0410",
+    "idx": 0,
+    "english_text": "you live in the neighborhood",
+    "gold": "et tambese ha yubem",
+    "pred": "Et teje bi ha doeym.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 4,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, verb morphology, vocabulary, idiom, and semantic retention, matching the original exactly.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "et tejye be yubem",
+        "back_en": "You are living in the neighborhood.",
+        "retention": 0.95,
+        "total_score": 99.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "et be ha yuzdom beseye",
+        "back_en": "You are staying at the suburb.",
+        "retention": 0.3,
+        "total_score": 42.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "et tejya bi ha yubem",
+        "back_en": "You lived in the neighborhood.",
+        "retention": 0.7,
+        "total_score": 60.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Et be yubyem teja.",
+        "back_en": "You lived in the vicinity.",
+        "retention": 0.7,
+        "total_score": 36.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Et teje bi ha doeym.",
+        "back_en": "You live in the neighborhood.",
+        "retention": 1.0,
+        "total_score": 100.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0384",
+    "idx": 0,
+    "english_text": "you all do not know",
+    "gold": "yet voy te",
+    "pred": "Eyt voy tere.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 94.0,
+    "rationale": "The translation is nearly flawless, with only a minor semantic shift from \"know\" to \"understand\" in the back-translation, and the plural \"you\" is correctly rendered as \"Eyt.\"",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Eyt voy tere.",
+        "back_en": "You do not understand.",
+        "retention": 0.7,
+        "total_score": 94.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "eyt voy ter",
+        "back_en": "You do not know.",
+        "retention": 0.85,
+        "total_score": 58.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "eyt voy te",
+        "back_en": "You do not know.",
+        "retention": 0.7,
+        "total_score": 94.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hya eyt voy te",
+        "back_en": "Not all of you know.",
+        "retention": 0.3,
+        "total_score": 57.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "eyt voy tes",
+        "back_en": "You do not mean.",
+        "retention": 0.0,
+        "total_score": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0788",
+    "idx": 0,
+    "english_text": "you all were going home but you all came here",
+    "gold": "yet peya tam oy yet upa him",
+    "pred": "yet sa per tambu oy yet upa him",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 2,
+    "total_score": 71.0,
+    "rationale": "The translation preserves the full meaning but loses points due to incorrect vocabulary for \"home\" and non-standard verb morphology for \"going.\"",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Et hya tam pyea oy et hya upya him.",
+        "back_en": "You all arrived at the house, but you all came here.",
+        "retention": 0.6,
+        "total_score": 40.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "Hyayt peya tam va hyayt upya him.",
+        "back_en": "Every girl was going home, and every girl had come here.",
+        "retention": 0.0,
+        "total_score": 8.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "yet sa per tambu oy yet upa him",
+        "back_en": "You all were going home but you all came here.",
+        "retention": 1.0,
+        "total_score": 71.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "hya yet ayeper tam oy hya yet upa him",
+        "back_en": "All of you leave home but came here.",
+        "retention": 0.4,
+        "total_score": 39.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Yet hya aype be tam oy yet upa be him.",
+        "back_en": "You all are at home, but you all came here.",
+        "retention": 0.4,
+        "total_score": 38.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0440",
+    "idx": 0,
+    "english_text": "i come from france",
+    "gold": "at byise ferom",
+    "pred": "At upya bi Feram.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 78.0,
+    "rationale": "The candidate correctly uses Mirad grammar and vocabulary, but the verb tense is incorrectly shifted to perfect (\"upya\") instead of simple present (\"upe\"), altering the meaning from a habitual state to a completed action.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "At upya bi Feram.",
+        "back_en": "I have come from France.",
+        "retention": 0.6,
+        "total_score": 78.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "At upwe bi Feram.",
+        "back_en": "I came from France.",
+        "retention": 0.7,
+        "total_score": 70.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Upya bi Feram.",
+        "back_en": "Came from France.",
+        "retention": 0.3,
+        "total_score": 49.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "at upya bi Feram",
+        "back_en": "I have arrived from France.",
+        "retention": 0.3,
+        "total_score": 51.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "At upya bi Feram.",
+        "back_en": "I have come from France.",
+        "retention": 0.7,
+        "total_score": 74.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0437",
+    "idx": 0,
+    "english_text": "go to the store",
+    "gold": "pe ha nam",
+    "pred": "per bu ha nam",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: it correctly uses the imperative \"per,\" the preposition \"bu,\" the article \"ha,\" and the noun \"nam,\" with perfect back-translation and full semantic retention.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "per bu ha nam",
+        "back_en": "Go to the store.",
+        "retention": 1.0,
+        "total_score": 100.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "per bu nam",
+        "back_en": "Go to the store.",
+        "retention": 1.0,
+        "total_score": 96.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "pu bu nam",
+        "back_en": "Come to store",
+        "retention": 0.7,
+        "total_score": 72.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Peru bu ha nam.",
+        "back_en": "Go to the store.",
+        "retention": 1.0,
+        "total_score": 100.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "puer bu nam",
+        "back_en": "arrive at the store",
+        "retention": 0.8,
+        "total_score": 78.0
+      }
+    ]
+  }
+]
