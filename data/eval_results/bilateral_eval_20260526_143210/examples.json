@@ -1,0 +1,559 @@
+{
+  "metadata": {
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "date": "2026-05-26T14:35:49.988121",
+    "num_samples": 30,
+    "random_seed": 20260526,
+    "min_english_words": 5,
+    "total_eligible": 455,
+    "metric": "normalized_match (punctuation/whitespace/capitalization insensitive)",
+    "en_mir_avg": 0.1,
+    "mir_en_avg": 0.4333,
+    "en_mir_count": 3,
+    "mir_en_count": 13
+  },
+  "en_to_mir": [
+    {
+      "idx": 1,
+      "direction": "en_mir",
+      "source": "how much did she win and who won",
+      "gold": "duhoglas iyt aka ay duhot aka",
+      "pred": "duhonog ya iyt ak ay hoti ya ak",
+      "score": 0.0,
+      "elapsed_s": 46.6
+    },
+    {
+      "idx": 3,
+      "direction": "en_mir",
+      "source": "play or get lost but do not laugh",
+      "gold": "eku ey pilu oy von hihidu",
+      "pred": "Eku o oku ut, va von dizeudu.",
+      "score": 0.0,
+      "elapsed_s": 49.6
+    },
+    {
+      "idx": 6,
+      "direction": "en_mir",
+      "source": "my house is bigger than yours but this house is not as big as mine",
+      "gold": "ata tam se ga aga vyel etas oy hia tam voy se ge aga vyel atas",
+      "pred": "Ata tam se gaaga vyel eta tam, oy hia tam voy se gaaga asolk ata tam.",
+      "score": 0.0,
+      "elapsed_s": 49.9
+    },
+    {
+      "idx": 5,
+      "direction": "en_mir",
+      "source": "you worked at home and you did it well",
+      "gold": "et yexa be tam ay et xa has fi",
+      "pred": "Et yexa be tam ay et xa has fiay.",
+      "score": 0.0,
+      "elapsed_s": 55.6
+    },
+    {
+      "idx": 0,
+      "direction": "en_mir",
+      "source": "i am not your father but i know your father",
+      "gold": "at voy se eta twed oy at tre eta twed",
+      "pred": "At voy eta twed oy at tye eta twed.",
+      "score": 0.0,
+      "elapsed_s": 59.8
+    },
+    {
+      "idx": 4,
+      "direction": "en_mir",
+      "source": "you can either stay or leave",
+      "gold": "et yafe hyeawa beser ey pier",
+      "pred": "Et yafe hyeawa beser ey pier.",
+      "score": 1.0,
+      "elapsed_s": 60.1
+    },
+    {
+      "idx": 7,
+      "direction": "en_mir",
+      "source": "they will not start until you get here",
+      "gold": "yit voy ijo ju van et puo him",
+      "pred": "Yit voy ijo ju van et upe him.",
+      "score": 0.0,
+      "elapsed_s": 61.8
+    },
+    {
+      "idx": 8,
+      "direction": "en_mir",
+      "source": "do you know why he did it",
+      "gold": "duven et te hosav it xa his",
+      "pred": "Du et te hosav it has xwa?",
+      "score": 0.0,
+      "elapsed_s": 17.6
+    },
+    {
+      "idx": 9,
+      "direction": "en_mir",
+      "source": "he looks like a good worker",
+      "gold": "wit tease fia yexut",
+      "pred": "It vyeys fia yexut.",
+      "score": 0.0,
+      "elapsed_s": 18.6
+    },
+    {
+      "idx": 12,
+      "direction": "en_mir",
+      "source": "this teacher is very good",
+      "gold": "hia tuxut se gla fia",
+      "pred": "hiatuxut gla fia",
+      "score": 0.0,
+      "elapsed_s": 12.1
+    },
+    {
+      "idx": 11,
+      "direction": "en_mir",
+      "source": "we know that you will come and we will be happy",
+      "gold": "yat te van et upo ay yat so iva",
+      "pred": "yat ter et upo ay yat so iva",
+      "score": 0.0,
+      "elapsed_s": 18.2
+    },
+    {
+      "idx": 13,
+      "direction": "en_mir",
+      "source": "the student walks to school every day",
+      "gold": "ha tixut tyoyape tistam hyajub",
+      "pred": "ha tixut tyope pu tistam bu hya jub",
+      "score": 0.0,
+      "elapsed_s": 14.3
+    },
+    {
+      "idx": 2,
+      "direction": "en_mir",
+      "source": "people often do not love themselves but one must love oneself",
+      "gold": "yot glaxag voy ife yout oy ot yefe ifer out",
+      "pred": "Yot glaxagay voy ifonier yout, oy ot yefe ifonier out.",
+      "score": 0.0,
+      "elapsed_s": 77.5
+    },
+    {
+      "idx": 10,
+      "direction": "en_mir",
+      "source": "you live downtown now and you work at a grocery store near here",
+      "gold": "et tambese zedom hij ay et yexe be tolnam yub bi him",
+      "pred": "et tejye be zedom hij ay yexe be tolnam yub bi him",
+      "score": 0.0,
+      "elapsed_s": 30.8
+    },
+    {
+      "idx": 17,
+      "direction": "en_mir",
+      "source": "you all will do it well",
+      "gold": "yet xo has fi",
+      "pred": "Eyt o vay has fiay.",
+      "score": 0.0,
+      "elapsed_s": 14.1
+    },
+    {
+      "idx": 16,
+      "direction": "en_mir",
+      "source": "i myself do not smoke but people often smoke",
+      "gold": "at aut voy movie oy yot glaxag movie",
+      "pred": "At aut voy movie, oy tyod gla jodi movie.",
+      "score": 0.0,
+      "elapsed_s": 20.5
+    },
+    {
+      "idx": 15,
+      "direction": "en_mir",
+      "source": "we know that he or she will come and we will be happy",
+      "gold": "yat te van it upo ay yat so iva",
+      "pred": "yet treye it wo upu ay yet wo iva",
+      "score": 0.0,
+      "elapsed_s": 24.5
+    },
+    {
+      "idx": 20,
+      "direction": "en_mir",
+      "source": "i worked at home but now i work at a grocery store near here",
+      "gold": "at yexa be tam oy at yexe be tolnam yub bi him",
+      "pred": "At yexa be tam oy hij at yexe be tolnam yub bi him.",
+      "score": 0.0,
+      "elapsed_s": 17.8
+    },
+    {
+      "idx": 21,
+      "direction": "en_mir",
+      "source": "he or she is going home",
+      "gold": "it peye tam",
+      "pred": "It peye bu tam.",
+      "score": 0.0,
+      "elapsed_s": 20.3
+    },
+    {
+      "idx": 22,
+      "direction": "en_mir",
+      "source": "what do we do for work now",
+      "gold": "duhos yat xe av yex hij",
+      "pred": "Duho yat xe av yex hij?",
+      "score": 0.0,
+      "elapsed_s": 15.1
+    },
+    {
+      "idx": 19,
+      "direction": "en_mir",
+      "source": "before this i lived in the suburbs",
+      "gold": "ja his at tambesa ha yuzdom",
+      "pred": "Ja his at besa bi ha oyebdomi.",
+      "score": 0.0,
+      "elapsed_s": 29.3
+    },
+    {
+      "idx": 14,
+      "direction": "en_mir",
+      "source": "forgive those who hurt you",
+      "gold": "yovobu hoti fyuxe et",
+      "pred": "Yovobiu hati ho fyuxa et.",
+      "score": 0.0,
+      "elapsed_s": 42.0
+    },
+    {
+      "idx": 18,
+      "direction": "en_mir",
+      "source": "we would be going home",
+      "gold": "yat peyu tam",
+      "pred": "yet peyeye tam",
+      "score": 0.0,
+      "elapsed_s": 31.3
+    },
+    {
+      "idx": 27,
+      "direction": "en_mir",
+      "source": "we will work at home and we will be happy",
+      "gold": "yat yexo be tam ay yat so iva",
+      "pred": "Yat yexo be tam ay yat so iva.",
+      "score": 1.0,
+      "elapsed_s": 13.5
+    },
+    {
+      "idx": 24,
+      "direction": "en_mir",
+      "source": "you live in the neighborhood right and you work near here",
+      "gold": "et tambese ha yubem vao ay et yexe yub bi him",
+      "pred": "Et teje be doeym ay et yexe yuba him, vya?",
+      "score": 0.0,
+      "elapsed_s": 26.3
+    },
+    {
+      "idx": 23,
+      "direction": "en_mir",
+      "source": "when we arrived the fun began",
+      "gold": "hoj yat pua ha if ija",
+      "pred": "Ha job hu yat puasa, ha if ija.",
+      "score": 0.0,
+      "elapsed_s": 30.4
+    },
+    {
+      "idx": 28,
+      "direction": "en_mir",
+      "source": "whenever we talk they laugh",
+      "gold": "hyej yat dale yit hihide",
+      "pred": "Hyejod ho yat dale, yit dizeude.",
+      "score": 0.0,
+      "elapsed_s": 17.5
+    },
+    {
+      "idx": 26,
+      "direction": "en_mir",
+      "source": "we worked at home but now we work at a grocery store near here",
+      "gold": "yat yexa be tam oy yat yexe be tolnam yub bi him",
+      "pred": "Yat yexa be tam oy hij yat yex bi ana telnunam yub bi him.",
+      "score": 0.0,
+      "elapsed_s": 24.6
+    },
+    {
+      "idx": 29,
+      "direction": "en_mir",
+      "source": "your name is john and my name is bill",
+      "gold": "eta dyun se john ay ata dyun se bill",
+      "pred": "Eta dyun se John ay ata dyun se Bill.",
+      "score": 1.0,
+      "elapsed_s": 23.9
+    },
+    {
+      "idx": 25,
+      "direction": "en_mir",
+      "source": "you all do not know",
+      "gold": "yet voy te",
+      "pred": "Hyayt voy tru.",
+      "score": 0.0,
+      "elapsed_s": 37.7
+    }
+  ],
+  "mir_to_en": [
+    {
+      "idx": 3,
+      "direction": "mir_en",
+      "source": "eku ey pilu oy von hihidu",
+      "gold": "play or get lost but do not laugh",
+      "pred": "Play or flee, but don't laugh.",
+      "score": 0.0,
+      "elapsed_s": 16.2
+    },
+    {
+      "idx": 0,
+      "direction": "mir_en",
+      "source": "at voy se eta twed oy at tre eta twed",
+      "gold": "i am not your father but i know your father",
+      "pred": "I am not your father but I know your father.",
+      "score": 1.0,
+      "elapsed_s": 16.6
+    },
+    {
+      "idx": 4,
+      "direction": "mir_en",
+      "source": "et yafe hyeawa beser ey pier",
+      "gold": "you can either stay or leave",
+      "pred": "You can either stay or leave.",
+      "score": 1.0,
+      "elapsed_s": 17.8
+    },
+    {
+      "idx": 7,
+      "direction": "mir_en",
+      "source": "yit voy ijo ju van et puo him",
+      "gold": "they will not start until you get here",
+      "pred": "They will not leave until you arrive here.",
+      "score": 0.0,
+      "elapsed_s": 19.2
+    },
+    {
+      "idx": 2,
+      "direction": "mir_en",
+      "source": "yot glaxag voy ife yout oy ot yefe ifer out",
+      "gold": "people often do not love themselves but one must love oneself",
+      "pred": "People do not often love themselves, but one must love oneself.",
+      "score": 0.0,
+      "elapsed_s": 20.2
+    },
+    {
+      "idx": 6,
+      "direction": "mir_en",
+      "source": "ata tam se ga aga vyel etas oy hia tam voy se ge aga vyel atas",
+      "gold": "my house is bigger than yours but this house is not as big as mine",
+      "pred": "My house is bigger than yours but this house is not as big as mine.",
+      "score": 1.0,
+      "elapsed_s": 20.6
+    },
+    {
+      "idx": 5,
+      "direction": "mir_en",
+      "source": "et yexa be tam ay et xa has fi",
+      "gold": "you worked at home and you did it well",
+      "pred": "You worked at home and you did it well.",
+      "score": 1.0,
+      "elapsed_s": 24.4
+    },
+    {
+      "idx": 8,
+      "direction": "mir_en",
+      "source": "duven et te hosav it xa his",
+      "gold": "do you know why he did it",
+      "pred": "Do you know why he did this?",
+      "score": 0.0,
+      "elapsed_s": 9.8
+    },
+    {
+      "idx": 12,
+      "direction": "mir_en",
+      "source": "hia tuxut se gla fia",
+      "gold": "this teacher is very good",
+      "pred": "This teacher is very good.",
+      "score": 1.0,
+      "elapsed_s": 9.5
+    },
+    {
+      "idx": 10,
+      "direction": "mir_en",
+      "source": "et tambese zedom hij ay et yexe be tolnam yub bi him",
+      "gold": "you live downtown now and you work at a grocery store near here",
+      "pred": "You live downtown now and you work at a grocery store near here.",
+      "score": 1.0,
+      "elapsed_s": 13.0
+    },
+    {
+      "idx": 11,
+      "direction": "mir_en",
+      "source": "yat te van et upo ay yat so iva",
+      "gold": "we know that you will come and we will be happy",
+      "pred": "We know that you will come and we will be happy.",
+      "score": 1.0,
+      "elapsed_s": 12.7
+    },
+    {
+      "idx": 9,
+      "direction": "mir_en",
+      "source": "wit tease fia yexut",
+      "gold": "he looks like a good worker",
+      "pred": "He/she teases a good worker.",
+      "score": 0.0,
+      "elapsed_s": 18.5
+    },
+    {
+      "idx": 13,
+      "direction": "mir_en",
+      "source": "ha tixut tyoyape tistam hyajub",
+      "gold": "the student walks to school every day",
+      "pred": "The student walks to school every day.",
+      "score": 1.0,
+      "elapsed_s": 18.4
+    },
+    {
+      "idx": 16,
+      "direction": "mir_en",
+      "source": "at aut voy movie oy yot glaxag movie",
+      "gold": "i myself do not smoke but people often smoke",
+      "pred": "I myself do not move, but people often move.",
+      "score": 0.0,
+      "elapsed_s": 16.3
+    },
+    {
+      "idx": 15,
+      "direction": "mir_en",
+      "source": "yat te van it upo ay yat so iva",
+      "gold": "we know that he or she will come and we will be happy",
+      "pred": "We know that he will come and we will be happy.",
+      "score": 0.0,
+      "elapsed_s": 22.9
+    },
+    {
+      "idx": 18,
+      "direction": "mir_en",
+      "source": "yat peyu tam",
+      "gold": "we would be going home",
+      "pred": "We are going home.",
+      "score": 0.0,
+      "elapsed_s": 18.0
+    },
+    {
+      "idx": 14,
+      "direction": "mir_en",
+      "source": "yovobu hoti fyuxe et",
+      "gold": "forgive those who hurt you",
+      "pred": "Apologize to those who harm you.",
+      "score": 0.0,
+      "elapsed_s": 31.8
+    },
+    {
+      "idx": 17,
+      "direction": "mir_en",
+      "source": "yet xo has fi",
+      "gold": "you all will do it well",
+      "pred": "You all will do it well.",
+      "score": 1.0,
+      "elapsed_s": 25.9
+    },
+    {
+      "idx": 21,
+      "direction": "mir_en",
+      "source": "it peye tam",
+      "gold": "he or she is going home",
+      "pred": "It is going home.",
+      "score": 0.0,
+      "elapsed_s": 13.0
+    },
+    {
+      "idx": 1,
+      "direction": "mir_en",
+      "source": "duhoglas iyt aka ay duhot aka",
+      "gold": "how much did she win and who won",
+      "pred": "the winning how much she and the winning who?",
+      "score": 0.0,
+      "elapsed_s": 60.6
+    },
+    {
+      "idx": 22,
+      "direction": "mir_en",
+      "source": "duhos yat xe av yex hij",
+      "gold": "what do we do for work now",
+      "pred": "What do we do for work now?",
+      "score": 1.0,
+      "elapsed_s": 14.9
+    },
+    {
+      "idx": 25,
+      "direction": "mir_en",
+      "source": "yet voy te",
+      "gold": "you all do not know",
+      "pred": "You all do not know",
+      "score": 1.0,
+      "elapsed_s": 8.0
+    },
+    {
+      "idx": 23,
+      "direction": "mir_en",
+      "source": "hoj yat pua ha if ija",
+      "gold": "when we arrived the fun began",
+      "pred": "When we arrived, the joy began.",
+      "score": 0.0,
+      "elapsed_s": 16.5
+    },
+    {
+      "idx": 19,
+      "direction": "mir_en",
+      "source": "ja his at tambesa ha yuzdom",
+      "gold": "before this i lived in the suburbs",
+      "pred": "Let this be my home in the suburb.",
+      "score": 0.0,
+      "elapsed_s": 34.8
+    },
+    {
+      "idx": 27,
+      "direction": "mir_en",
+      "source": "yat yexo be tam ay yat so iva",
+      "gold": "we will work at home and we will be happy",
+      "pred": "We will work at home and we will be happy.",
+      "score": 1.0,
+      "elapsed_s": 10.1
+    },
+    {
+      "idx": 26,
+      "direction": "mir_en",
+      "source": "yat yexa be tam oy yat yexe be tolnam yub bi him",
+      "gold": "we worked at home but now we work at a grocery store near here",
+      "pred": "We worked at home but we work at the grocery store near here.",
+      "score": 0.0,
+      "elapsed_s": 16.0
+    },
+    {
+      "idx": 20,
+      "direction": "mir_en",
+      "source": "at yexa be tam oy at yexe be tolnam yub bi him",
+      "gold": "i worked at home but now i work at a grocery store near here",
+      "pred": "I worked at home but I am working at a grocery store near here.",
+      "score": 0.0,
+      "elapsed_s": 36.3
+    },
+    {
+      "idx": 29,
+      "direction": "mir_en",
+      "source": "eta dyun se john ay ata dyun se bill",
+      "gold": "your name is john and my name is bill",
+      "pred": "Your name is John and my name is Bill.",
+      "score": 1.0,
+      "elapsed_s": 14.3
+    },
+    {
+      "idx": 28,
+      "direction": "mir_en",
+      "source": "hyej yat dale yit hihide",
+      "gold": "whenever we talk they laugh",
+      "pred": "Anytime we talk, they laugh.",
+      "score": 0.0,
+      "elapsed_s": 21.4
+    },
+    {
+      "idx": 24,
+      "direction": "mir_en",
+      "source": "et tambese ha yubem vao ay et yexe yub bi him",
+      "gold": "you live in the neighborhood right and you work near here",
+      "pred": "Do you live in the neighborhood, and do you work near here?",
+      "score": 0.0,
+      "elapsed_s": 30.8
+    }
+  ]
+}

@@ -1,0 +1,797 @@
+[
+  {
+    "idx": 5,
+    "id": "pair-0884",
+    "source": "this teacher is possibly better than that teacher but that teacher is very good",
+    "gold": "hia tuxut se vey ga fia vyel hua tuxut oy hua tuxut se gla fia",
+    "pred": "Hia tuxut se veay ga fia vyel hua tuxut oy hua tuxut se gla fia.",
+    "error": null,
+    "word_equivalents": {
+      "teacher": "tuxut",
+      "good": "fia, nuun, nyuun",
+      "better": "ga fi, ga fia, ga fiay, sagvekekut, vekdut, vekekut",
+      "this": "hi-, hia, hinog",
+      "that": "ho, hua, hunog, van",
+      "possibly": "veay, vey, yafway",
+      "very": "gla",
+      "but": "boy, oy",
+      "is": "se",
+      "note": "dres, duznod, ebdres, siyndras, texdun, texdwas",
+      "may": "afu",
+      "be": "baelk",
+      "omitted": "oyepiwa",
+      "in": "inilk",
+      "usually": "eglay, egxyenay, jubyenay, tezyenay, yansaunay",
+      "mirad": "Mirad",
+      "check": "nasdref, nyixdref, tulnaxdref, vyaleaxen, vyavyeken",
+      "for": "av-",
+      "conjunction": "yanxdun",
+      "or": "ey",
+      "and": "ay",
+      "comparison": "vyegex, vyegexen, vyegexun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 46384.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9,
+      "word_overlap_recall": 0.9,
+      "word_overlap_f1": 0.9
+    }
+  },
+  {
+    "idx": 3,
+    "id": "pair-0748",
+    "source": "you all do not work at home",
+    "gold": "yet voy yexe be tam",
+    "pred": "Yet hya voy be tam yexe.",
+    "error": null,
+    "word_equivalents": {
+      "yet": "gaj, gajob, gey bay hus, gey bay van, gey ov hus, ov hus, oy",
+      "all": "hya",
+      "be": "baelk",
+      "tam": "tamtef"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 46570.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9091
+    }
+  },
+  {
+    "idx": 8,
+    "id": "pair-0799",
+    "source": "i know that he or she will come and i will be happy",
+    "gold": "at te van it upo ay at so iva",
+    "pred": "At tru it u upu ay at u iva.",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya",
+      "happy": "fikyeoja, iva"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1378.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5714,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5333
+    }
+  },
+  {
+    "idx": 9,
+    "id": "pair-0254",
+    "source": "he or she would go",
+    "gold": "it pu",
+    "pred": "it piu",
+    "error": null,
+    "word_equivalents": {
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "she": "hayt, hiyt, huyt, it, iyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1426.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 10,
+    "id": "pair-0710",
+    "source": "you all will do it well",
+    "gold": "yet xo has fi",
+    "pred": "Eyt o vay has fiay.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "do": "vay",
+      "it": "has, his, hus, is",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1155.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.2,
+      "word_overlap_recall": 0.25,
+      "word_overlap_f1": 0.2222
+    }
+  },
+  {
+    "idx": 11,
+    "id": "pair-0366",
+    "source": "this teacher is very good",
+    "gold": "hia tuxut se gla fia",
+    "pred": "hiatuxut gla fia",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "teacher": "tuxut",
+      "very": "gla",
+      "good": "fia, nuun, nyuun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1143.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.4,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 12,
+    "id": "pair-0980",
+    "source": "both cities have grown and any color will be fine",
+    "gold": "hyaewa domi agsaye ay hyea voz so fia",
+    "pred": "Hyaewa domi agxwa se ay hye volz fia so.",
+    "error": null,
+    "word_equivalents": {
+      "city": "dom, doma",
+      "color": "volz",
+      "fine": "byoyk, fi, fia, gyola",
+      "both": "hyaewa",
+      "any": "hye-, hyea, hyegla, hyes, hyesi, hyesuni"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1436.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5556,
+      "word_overlap_recall": 0.625,
+      "word_overlap_f1": 0.5882
+    }
+  },
+  {
+    "idx": 13,
+    "id": "pair-0842",
+    "source": "they will not start until you get here",
+    "gold": "yit voy ijo ju van et puo him",
+    "pred": "yit voy oij ju van et pu him",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "start": "ij, yokbas",
+      "until": "ju van",
+      "you": "et, eyt",
+      "here": "be him, hiim, him",
+      "future": "oj, oja, ojna, ojoba, ojun",
+      "negation": "voaxen, voxen"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1485.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 14,
+    "id": "pair-0453",
+    "source": "yours are worth more than mine",
+    "gold": "etasi naze ga vyel atasi",
+    "pred": "Etas ga nazea vyel atas.",
+    "error": null,
+    "word_equivalents": {
+      "worth": "fyin, naz, nazea, naziea, utnaz",
+      "more": "ga-, gaj, tyobyen, tyodyen, utbyen",
+      "than": "vyegexwa bay, vyel",
+      "yours": "ayetas, ayetasi, etas, etasi, eyetas, eyetasi, eytas, eytasi, wetas, wetasi, yetas, yetasi",
+      "mine": "atas, atasi, aytas, aytasi, mukiblem, mumyex, watas, watasi"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1331.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.4,
+      "word_overlap_recall": 0.4,
+      "word_overlap_f1": 0.4
+    }
+  },
+  {
+    "idx": 15,
+    "id": "pair-0809",
+    "source": "we knew that you would come but we did not know whether they would come",
+    "gold": "yat ta van et upo oy yat voy ta ven yit upo",
+    "pred": "Yat twa van et upo, yat voy twa ven it upo.",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya",
+      "whether": "ven"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1414.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.7059
+    }
+  },
+  {
+    "idx": 17,
+    "id": "pair-0963",
+    "source": "play or get lost but do not laugh",
+    "gold": "eku ey pilu oy von hihidu",
+    "pred": "Ek ey Mepoku je du dizeudu voy",
+    "error": null,
+    "word_equivalents": {
+      "play": "dezun, ebnig, ek, ekun, ifek",
+      "lost": "mepokya, okwa, vyoembwa",
+      "laugh": "dizeud, hihid, ivseux, ivteud, yepyoden"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1374.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.1429,
+      "word_overlap_recall": 0.1667,
+      "word_overlap_f1": 0.1538
+    }
+  },
+  {
+    "idx": 16,
+    "id": "pair-0820",
+    "source": "do we know where you went and where they live",
+    "gold": "duven yat te hom et pa ay hom yit tambese",
+    "pred": "Yes ay hem et pa ay hem yit teje?",
+    "error": null,
+    "word_equivalents": {
+      "where": "hem",
+      "live": "teja, tejya",
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "you": "et, eyt",
+      "and": "ay",
+      "place": "-em, -om, domned, nem, unkunem, yem, zyim",
+      "location": "bem, bemben, emben, emkaxen, emxen, kason, kaxen, nem"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1836.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5714,
+      "word_overlap_recall": 0.4444,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 18,
+    "id": "pair-0707",
+    "source": "you will do it well",
+    "gold": "et xo has fi",
+    "pred": "Et oxer has fiay.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "will": "fan, fon, fwas, uja fondras",
+      "do": "vay",
+      "it": "has, his, hus, is",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1124.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 19,
+    "id": "pair-0780",
+    "source": "he or she is going home but he or she will work at home",
+    "gold": "it peye tam oy it yexo be tam",
+    "pred": "it peye bu tam oy it yexo be tam",
+    "error": null,
+    "word_equivalents": {
+      "home": "be tam, taam, tam",
+      "work": "yex",
+      "at": "atulk",
+      "to": "bu",
+      "but": "boy, oy",
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "she": "hayt, hiyt, huyt, it, iyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1639.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8571,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9231
+    }
+  },
+  {
+    "idx": 20,
+    "id": "pair-0788",
+    "source": "you all were going home but you all came here",
+    "gold": "yet peya tam oy yet upa him",
+    "pred": "Yet hya paya tam oy yet hya upa him.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "all": "hya",
+      "home": "be tam, taam, tam",
+      "come": "upya",
+      "here": "be him, hiim, him",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1647.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7143,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.7692
+    }
+  },
+  {
+    "idx": 21,
+    "id": "pair-0860",
+    "source": "unless we say otherwise they will be silent",
+    "gold": "oven yat do hyuyen yit dolo",
+    "pred": "ven voy yit du hyuay, yit so dola",
+    "error": null,
+    "word_equivalents": {
+      "unless": "gob van, oven",
+      "otherwise": "hyuay, hyugel, hyuyen, ogel hus, ven voy",
+      "silent": "dola, dolea, oseuxdwa, seuxoya, seuxuka, xeusoya, xeusuka"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1374.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.1429,
+      "word_overlap_recall": 0.1667,
+      "word_overlap_f1": 0.1538
+    }
+  },
+  {
+    "idx": 4,
+    "id": "pair-0911",
+    "source": "this building will be a store and this building would be a store",
+    "gold": "hia tom so nam ay hia tom su nam",
+    "pred": "hia tom so nam ay hia tom su nam",
+    "error": null,
+    "word_equivalents": {
+      "building": "-am, sexun, tom, tomsexen, tomxen",
+      "store": "nam, nunam, nyebam",
+      "this": "hi-, hia, hinog",
+      "be": "baelk",
+      "will": "fan, fon, fwas, uja fondras",
+      "auxiliary": "gabyuxea"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.448, importance=1.00]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=1.001, importance=0.95]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.952, importance=0.90]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes"
+    ],
+    "elapsed_ms": 57631.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 22,
+    "id": "pair-0920",
+    "source": "do they walk to school today",
+    "gold": "duven yit tyoyapeye tistam hijub",
+    "pred": "Duven yit tyope bu tistam hijub?",
+    "error": null,
+    "word_equivalents": {
+      "walk": "tyop",
+      "school": "tistam, tuxam",
+      "today": "hijub",
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "to": "bu"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1533.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.7273
+    }
+  },
+  {
+    "idx": 23,
+    "id": "pair-0521",
+    "source": "whenever you talk i laugh",
+    "gold": "hyej et dale at hihide",
+    "pred": "hyej ho et dal, at dizeud",
+    "error": null,
+    "word_equivalents": {
+      "talk": "dal",
+      "laugh": "dizeud, hihid, ivseux, ivteud, yepyoden",
+      "whenever": "hyej ho, hyejob ho, hyejod ho, hyejodi",
+      "you": "et, eyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1585.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.5455
+    }
+  },
+  {
+    "idx": 7,
+    "id": "pair-0891",
+    "source": "the teacher is good and the student is bad",
+    "gold": "ha tuxut se fia ay ha tixut se fua",
+    "pred": "ha tuxut se fia ay ha tixut se fua",
+    "error": null,
+    "word_equivalents": {
+      "teacher": "tuxut",
+      "student": "tixut",
+      "good": "fia, nuun, nyuun",
+      "bad": "fua"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.367, importance=1.00]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=1.224, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.107, importance=0.95]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes",
+      "verb.no_person_number_agreement"
+    ],
+    "elapsed_ms": 59302.2,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 1,
+    "id": "pair-0957",
+    "source": "go to the store and buy me a book",
+    "gold": "pe ha nam ay nusbiu at dyes",
+    "pred": "Pu bu nam ay nixu at dyes.",
+    "error": null,
+    "word_equivalents": {
+      "store": "nam, nunam, nyebam",
+      "me": "at, ayt",
+      "book": "draves, dyes",
+      "to": "bu",
+      "and": "ay"
+    },
+    "context_passages": [
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=1.198, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.086, importance=0.95]",
+      "Rule ID: conjunction.coordinate_ay_ey_oy\nDescription: ay links elements as 'and'; ey links alternatives as 'or'; oy can express exclusion/contrast such as 'but' or in neither/nor patterns, depending on construction.\nPseudocode: if relation == conjunction: use 'ay'\nif relation == alternative: use 'ey'\nif relation == contrast_or_negative_alternative: use 'oy'\nExamples:\n- Mirad: Ivan ay Maria | English: Ivan and Maria | Note: ay = and\n- Mirad: ha tam ey ha par | English: the house or the car | Note: ey = or\n- Mirad: hyati oy ha toybi | English: all but the women | Note: oy expresses exclusion\n[score=1.050, importance=0.80]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=1.189, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.188, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=1.147, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.344, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=1.221, importance=0.95]",
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.215, importance=1.00]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.354, importance=0.95]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=1.324, importance=0.90]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.262, importance=1.00]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes",
+      "conjunction.coordinate_ay_ey_oy",
+      "syntax.object.after_predicate",
+      "verb.transitive.direct_object_after_verb"
+    ],
+    "elapsed_ms": 59616.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5714,
+      "word_overlap_recall": 0.5714,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 0,
+    "id": "pair-0488",
+    "source": "this guy s house is on fire",
+    "gold": "hwuta tam magseye",
+    "pred": "Hia twoba tam magsea.",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "guy": "aot, twob",
+      "house": "tam",
+      "fire": "mag",
+      "on": "ab-, ap, ga yib, ija, ijbwa, makyija, manyija, manyijbwa, vyel, xenwa, yafonyija, yija, zay",
+      "the guy": "hwat",
+      "the house": "tim bi avembiuti, yembiutyanim",
+      "some guy": "hetwob, hwet",
+      "that guy": "hwut",
+      "on fire": "magijbwa, magsea",
+      "the guy's": "hwata, hwatas",
+      "firenado": "maguzrun",
+      "hausa": "Haud",
+      "to house": "embesuer, tambuer, tamuer",
+      "setting fire": "magijben",
+      "to fire": "loyixler, magxer, pusrer, puxrer, pyaxer, yexober, yoxluer",
+      "row house": "naba tam, nabtam",
+      "on and off": "aob-, aop-",
+      "this one": "hias, hiat, hiawa, hiawas",
+      "oni": "Jipofyofyet, oni",
+      "on from": "zay bi",
+      "on-and-off": "aob-, aop-",
+      "since this": "ji his",
+      "this kind of": "higela, hisauna, hiyena",
+      "this kind": "hisaun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 59910.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.25,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.2857
+    }
+  },
+  {
+    "idx": 24,
+    "id": "pair-0901",
+    "source": "my name is bill and your name is john",
+    "gold": "ata dyun se bill ay eta dyun se john",
+    "pred": "Ata dyun se Bil ay eta dyun se Jon.",
+    "error": null,
+    "word_equivalents": {
+      "name": "dyun",
+      "my": "ata, ayta, wata",
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "bill": "doduun, dovyabdras, dovyabdrun, drefes, drurunes, dudras, nasdref, pateib, pateub"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2791.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7143,
+      "word_overlap_recall": 0.7143,
+      "word_overlap_f1": 0.7143
+    }
+  },
+  {
+    "idx": 25,
+    "id": "pair-0771",
+    "source": "they will work at home and they will be happy",
+    "gold": "yit yexo be tam ay yit so iva",
+    "pred": "Yit yexo be tam ay yit ivo.",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "happy": "fikyeoja, iva",
+      "at": "atulk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3104.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.7143,
+      "word_overlap_f1": 0.7692
+    }
+  },
+  {
+    "idx": 26,
+    "id": "pair-0510",
+    "source": "do you know the answer",
+    "gold": "duven et te ha dud",
+    "pred": "Du et ter ha dud?",
+    "error": null,
+    "word_equivalents": {
+      "answer": "dud",
+      "you": "et, eyt",
+      "the": "ha"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2855.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.6
+    }
+  },
+  {
+    "idx": 6,
+    "id": "pair-0833",
+    "source": "while you are here you will work at home",
+    "gold": "je van et so him et yexo be tam",
+    "pred": "je van et se be him, et yexo be tam",
+    "error": null,
+    "word_equivalents": {
+      "while": "je van",
+      "you": "et, eyt",
+      "be": "baelk",
+      "here": "be him, hiim, him",
+      "work": "yex",
+      "at": "atulk",
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.305, importance=1.00]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.253, importance=1.00]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.214, importance=0.95]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes",
+      "syntax.basic_svo"
+    ],
+    "elapsed_ms": 61403.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.875,
+      "word_overlap_f1": 0.875
+    }
+  },
+  {
+    "idx": 29,
+    "id": "pair-0821",
+    "source": "do they know where we went and where you live",
+    "gold": "duven yit te hom yat pa ay hom et tambese",
+    "pred": "Duven yit twa hem yat pya ay hem et teja?",
+    "error": null,
+    "word_equivalents": {
+      "where": "hem",
+      "we": "aet, ayet, ayit, yat",
+      "you": "et, eyt",
+      "live": "teja, tejya",
+      "and": "ay"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2805.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5556,
+      "word_overlap_recall": 0.5556,
+      "word_overlap_f1": 0.5556
+    }
+  },
+  {
+    "idx": 27,
+    "id": "pair-0355",
+    "source": "the students walk to school every day",
+    "gold": "ha tixuti tyoyape tistam hyajub",
+    "pred": "Ha tixuti tyope bu tistam hya jub.",
+    "error": null,
+    "word_equivalents": {
+      "student": "tixut",
+      "walk": "tyop",
+      "to": "bu",
+      "school": "tistam, tuxam",
+      "every": "hya, hyawa",
+      "day": "jub, maj"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3415.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.4286,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 28,
+    "id": "pair-0805",
+    "source": "they know that we will come and they will be happy",
+    "gold": "yit te van yat upo ay yit so iva",
+    "pred": "yit te van yat upo ay yit so iva",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "that": "ho, hua, hunog, van",
+      "we": "aet, ayet, ayit, yat",
+      "come": "upya",
+      "and": "ay",
+      "happy": "fikyeoja, iva",
+      "will": "fan, fon, fwas, uja fondras"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3119.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 2,
+    "id": "pair-0846",
+    "source": "if i want to get results i must work harder",
+    "gold": "ven at fe iber ixuni at yefe yexer ga jestay",
+    "pred": "Ven at fone ier isi, at yefe yexer ga yika.",
+    "error": null,
+    "word_equivalents": {
+      "if": "ven",
+      "want": "fon",
+      "result": "is, ixun, xiun",
+      "must": "yef",
+      "work": "yex",
+      "hard": "azfay, jestay, kyotepay, twiyubyaxwa, yiga, yika, yiksona"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.020, importance=1.00]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=0.918, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=0.918, importance=0.95]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes",
+      "verb.no_person_number_agreement"
+    ],
+    "elapsed_ms": 69258.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5556,
+      "word_overlap_recall": 0.5556,
+      "word_overlap_f1": 0.5556
+    }
+  }
+]

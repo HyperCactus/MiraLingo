@@ -89,14 +89,46 @@ Final self-check before output:
 3. Did every comparison use vyel after ga/ge/go + adjective/adverb?
 4. Did I preserve required particles: bi, be, bu, ayv, van?
 5. Did I use supplied vocabulary exactly instead of a plausible alternate?
+
+Here are some translation examples for reference:
+english,mirad
+before this i lived in the suburbs but now i live downtown,ja his at tambesa ha yuzdom oy at tambese zedom hij
+the students are walking to school today and the teachers are going home,ha tixuti tyoyapeye tistam hijub ay ha tuxuti peye tam
+it is good to win but it is not fair to prejudge someone,se fia aker oy voy se yeva jayevder hes
+i did not know whether they would come,at voy ta ven yit upo
+i can see myself in the mirror,at yafe teater aut be ha sinzyef
+he did it because he wanted to show us something,it xa has hosav it fa teatuer yat hes
+they work at a grocery store near here and they will be there until the end of the season,yit yexe be tolnam yub bi him ay yit so hum ju ha uj bi ha jeb
 """.strip()
 
 
-def _format_word_equivalents(word_equivalents: dict) -> str:
-    """Format word equivalents dict as a readable string for the LLM."""
-    if not word_equivalents:
+def _format_word_equivalents(word_equivalents: dict, relevant_words: dict | None = None, back_translation: dict | None = None) -> str:
+    """Format word equivalents dict as a readable string for the LLM.
+
+    When relevant_words and back_translation are provided, formats three sections:
+    word equivalents, relevant words, and back translations.
+    """
+    if not word_equivalents and not relevant_words and not back_translation:
         return ""
-    return "\n".join(f"{en} → {mi}" for en, mi in sorted(word_equivalents.items()))
+
+    sections = []
+
+    # Section 1: Word equivalents (exact matches)
+    if word_equivalents:
+        lines = [f"{en} → {mi}" for en, mi in sorted(word_equivalents.items())]
+        sections.append("WORD EQUIVALENTS (exact matches):\n" + "\n".join(lines))
+
+    # Section 2: Relevant words (semantic neighbors)
+    if relevant_words:
+        lines = [f"{en} → {mi}" for en, mi in sorted(relevant_words.items())]
+        sections.append("RELEVANT WORDS (closest translations):\n" + "\n".join(lines))
+
+    # Section 3: Back translation (reverse lookups for context)
+    if back_translation:
+        lines = [f"{mi} → {en}" for mi, en in sorted(back_translation.items())]
+        sections.append("BACK TRANSLATION (Mirad → English for context):\n" + "\n".join(lines))
+
+    return "\n\n".join(sections)
 
 
 def _format_context_passages(passages: list) -> str:
@@ -126,33 +158,54 @@ def _split_search_terms(value) -> list[str]:
 
 
 def _format_rule_context(rules: list[dict]) -> str:
-    """Format retrieved structured grammar rules for the translator prompt."""
+    """Format retrieved structured grammar rules for the translator prompt.
+
+    Each rule is formatted as its own passage to keep them atomic and clearly
+    separated in the prompt context.
+    """
     if not rules:
         return ""
     blocks = []
     for item in rules:
         rule = item.get("rule", item)
+        rule_id = rule.get("id", "")
+        description = rule.get("description", "")
+        pseudocode = rule.get("pseudocode", "")
         examples = rule.get("examples") or []
+
         ex_lines = []
         for ex in examples[:3]:
             if isinstance(ex, dict):
                 mirad = ex.get("mirad", "")
                 english = ex.get("english", "")
                 analysis = ex.get("analysis", "")
-                ex_lines.append(f"- Mirad: {mirad} | English: {english} | Note: {analysis}".strip())
+                parts = [f"Mirad: {mirad}", f"English: {english}"]
+                if analysis:
+                    parts.append(f"Note: {analysis}")
+                ex_lines.append(f"- {' | '.join(parts)}")
             else:
                 ex_lines.append(f"- {ex}")
-        blocks.append(
-            "\n".join(
-                [
-                    f"Rule ID: {rule.get('id', '')}",
-                    f"Description: {rule.get('description', '')}",
-                    f"Pseudocode: {rule.get('pseudocode', '')}",
-                    "Examples:",
-                    *(ex_lines or ["- none"]),
-                ]
-            )
-        )
+
+        # Format each rule as a single self-contained passage
+        rule_text = f"Rule ID: {rule_id}\nDescription: {description}"
+        if pseudocode:
+            rule_text += f"\nPseudocode: {pseudocode}"
+        if ex_lines:
+            rule_text += "\nExamples:\n" + "\n".join(ex_lines)
+
+        # Include importance and combined score if available
+        importance = item.get("importance")
+        combined_score = item.get("combined_score")
+        if importance is not None or combined_score is not None:
+            score_parts = []
+            if combined_score is not None:
+                score_parts.append(f"score={combined_score:.3f}")
+            if importance is not None:
+                score_parts.append(f"importance={importance:.2f}")
+            rule_text += f"\n[{', '.join(score_parts)}]"
+
+        blocks.append(rule_text)
+
     return "\n\n".join(blocks)
 
 
@@ -313,6 +366,16 @@ Core Mirad grammar (for reverse translation):
 - Prepositions: be=at/in/on, bu=to/into, bi=of/from, ba=with, bo=without, van/ven/von as clausal conjunctions.
 - Possession: X bi Y = Y's X (literally: the X of Y). ha dyes bi Ivan = Ivan's book.
 - Omit dummy "it": Se fia van et upa. = It is good that you came.
+
+Here are some translation examples for reference:
+english,mirad
+before this i lived in the suburbs but now i live downtown,ja his at tambesa ha yuzdom oy at tambese zedom hij
+the students are walking to school today and the teachers are going home,ha tixuti tyoyapeye tistam hijub ay ha tuxuti peye tam
+it is good to win but it is not fair to prejudge someone,se fia aker oy voy se yeva jayevder hes
+i did not know whether they would come,at voy ta ven yit upo
+i can see myself in the mirror,at yafe teater aut be ha sinzyef
+he did it because he wanted to show us something,it xa has hosav it fa teatuer yat hes
+they work at a grocery store near here and they will be there until the end of the season,yit yexe be tolnam yub bi him ay yit so hum ju ha uj bi ha jeb
 """.strip()
 
 
@@ -435,7 +498,7 @@ class MiradSemanticReverseLexiconLookup(dspy.Module):
     vocabulary without pulling broad thesaurus chunks into grammar context.
     """
 
-    def __init__(self, db_path=None, top_k_per_word: int = 5, max_total_pairs: int = 50, min_similarity: float = 0.5):
+    def __init__(self, db_path=None, top_k_per_word: int = 0, max_total_pairs: int = 50, min_similarity: float = 0.5):
         super().__init__()
         self._db_path = db_path
         self._top_k_per_word = top_k_per_word
@@ -528,9 +591,21 @@ class MiradToEnglishModule(StructuredRetrievalMixin, dspy.Module):
             lookup_text = " ".join(vocab_terms) if vocab_terms else mirad_text
             word_eq_pred = self.lexicon_lookup(mirad_text=lookup_text)
             word_equivalents_dict = word_eq_pred.word_equivalents
-            word_equivalents = "\n".join(
-                f"{mi} → {en}" for mi, en in sorted(word_equivalents_dict.items())
-            )
+            # Build structured vocabulary for Mir→En with back-translation
+            from mirad_translator.lexicon_db import lookup_word_candidates
+            exact_pairs = {}
+            back_translation = {}
+            for mi, en_translations in word_equivalents_dict.items():
+                exact_pairs[mi] = en_translations
+                # Back-translation: for each English word in the translation, look up en→mir
+                for en_word in [w.strip() for w in en_translations.split(",")]:
+                    mir_candidates = lookup_word_candidates(english_word=en_word)
+                    if mir_candidates and en_word not in back_translation:
+                        # Don't include the same mirad word we started from
+                        back_en = ", ".join(mir_candidates)
+                        back_translation[en_word] = back_en
+            relevant_words = {}  # Semantic neighbors already included in exact pairs for mir→en
+            word_equivalents = _format_word_equivalents(exact_pairs, relevant_words, back_translation)
         else:
             # Parse provided string back to dict for return value
             word_equivalents_dict = {}
@@ -583,7 +658,7 @@ class MultiHopTranslatorModule(StructuredRetrievalMixin, dspy.Module):
         num_hops: Number of retrieval hops (1 = single-hop like TranslatorModule, 2+ = multi-hop).
     """
 
-    def __init__(self, db_path=None, num_context_passages: int = 5, num_hops: int = 2):
+    def __init__(self, db_path=None, num_context_passages: int = 3, num_hops: int = 2):
         super().__init__()
         self.generate = dspy.ChainOfThought(EnglishToMiradSignature)
         self.generate_query = dspy.ChainOfThought(FollowUpQuerySignature)
@@ -594,23 +669,39 @@ class MultiHopTranslatorModule(StructuredRetrievalMixin, dspy.Module):
         self._num_hops = max(1, num_hops)
 
     def _retrieve(self, english_text: str):
-        """Run lexicon lookup and context retrieval, return formatted strings + raw data."""
-        word_eq_pred = self.lexicon_lookup(english_text=english_text)
-        word_equivalents = word_eq_pred.word_equivalents
+        """Run structured vocabulary lookup and context retrieval, return formatted strings + raw data."""
+        # Use structured vocabulary lookup (exact + semantic + back-translation)
+        from mirad_translator.semantic_lexicon import semantic_lookup_structured
+        vocab = semantic_lookup_structured(
+            english_text,
+            top_k_per_word=getattr(self, '_top_k_per_word', 5),
+            max_total_pairs=getattr(self, '_max_total_pairs', 50),
+            min_similarity=getattr(self, '_min_similarity', 0.5),
+            include_exact=True,
+        )
+        word_equivalents = vocab["word_equivalents"]
+        relevant_words = vocab["relevant_words"]
+        back_translation = vocab["back_translation"]
+
+        # Merge all non-exact pairs for backward compatibility
+        all_pairs = dict(word_equivalents)
+        for k, v in relevant_words.items():
+            if k not in all_pairs:
+                all_pairs[k] = v
 
         ctx_pred = self.context_retrieve(query=english_text)
         context_passages = list(ctx_pred.passages)
 
-        we_str = _format_word_equivalents(word_equivalents)
+        we_str = _format_word_equivalents(word_equivalents, relevant_words, back_translation)
         ctx_str = _format_context_passages(context_passages)
 
-        return we_str, ctx_str, word_equivalents, context_passages
+        return we_str, ctx_str, all_pairs, context_passages, relevant_words, back_translation
 
     def forward(self, english_text: str) -> dspy.Prediction:
         """Translate with multi-hop retrieval."""
         # Hop 1: Initial retrieval
         normalized_structure, grammar_terms, vocab_terms = self._analyze_text(english_text, "en_to_mir")
-        we_str, ctx_str, word_equivalents, context_passages = self._retrieve(english_text)
+        we_str, ctx_str, word_equivalents, context_passages, relevant_words, back_translation = self._retrieve(english_text)
 
         # Additional hops: LM generates follow-up queries for more context
         seen_ids = set()
@@ -700,9 +791,9 @@ class MiradLexiconLookup(dspy.Module):
 class MiradContextRetrieve(dspy.Retrieve):
     """DSPy-traceable retrieval module for structured Mirad grammar rules.
 
-    Grammar retrieval uses semantic similarity between the query and embedded
-    retrieval_tags from nirad_grammer_rules.json. Returned passages include
-    structured rule payloads and a `grammar_rules` attribute with raw rule data.
+    Grammar retrieval uses combined scoring (c² + i²) where c is cosine
+    similarity and i is the rule's importance score. Each rule is returned
+    as a separate passage — not grouped into a single block.
     Vocabulary belongs in `word_equivalents`; thesaurus chunks are intentionally
     excluded from prompt context to avoid broad noisy passages.
     """
@@ -712,21 +803,21 @@ class MiradContextRetrieve(dspy.Retrieve):
         self._k = k
 
     def forward(self, query: str) -> dspy.Prediction:
-        """Retrieve structured grammar rules for the query."""
+        """Retrieve structured grammar rules for the query.
+
+        Each rule is its own passage — one per rule, clearly formatted.
+        """
         from mirad_translator.retrieval import retrieve_grammar
         try:
             grammar_result = retrieve_grammar(query, top_k=self._k)
             passages = []
             grammar_rules = []
             for item in grammar_result:
-                if "rule" in item:
-                    grammar_rules.append(item)
-                else:
-                    src = item.get("metadata", {}).get("source_section", "grammar")
-                    passages.append(f"[{src}] {item['text']}")
-            rule_text = _format_rule_context(grammar_rules)
-            if rule_text:
-                passages.append(f"[grammar_rules]\n{rule_text}")
+                grammar_rules.append(item)
+                # Each rule becomes its own passage
+                rule_text = _format_rule_context([item])
+                if rule_text:
+                    passages.append(rule_text)
         except Exception:
             passages = []
             grammar_rules = []
@@ -765,17 +856,33 @@ class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
         self._use_postprocessor = use_postprocessor
 
     def _retrieve(self, english_text: str):
-        """Run lexicon lookup and context retrieval, return formatted strings + raw data."""
-        word_eq_pred = self.lexicon_lookup(english_text=english_text)
-        word_equivalents = word_eq_pred.word_equivalents
+        """Run structured vocabulary lookup and context retrieval, return formatted strings + raw data."""
+        # Use structured vocabulary lookup (exact + semantic + back-translation)
+        from mirad_translator.semantic_lexicon import semantic_lookup_structured
+        vocab = semantic_lookup_structured(
+            english_text,
+            top_k_per_word=getattr(self, '_top_k_per_word', 5),
+            max_total_pairs=getattr(self, '_max_total_pairs', 50),
+            min_similarity=getattr(self, '_min_similarity', 0.5),
+            include_exact=True,
+        )
+        word_equivalents = vocab["word_equivalents"]
+        relevant_words = vocab["relevant_words"]
+        back_translation = vocab["back_translation"]
+
+        # Merge all non-exact pairs for backward compatibility
+        all_pairs = dict(word_equivalents)
+        for k, v in relevant_words.items():
+            if k not in all_pairs:
+                all_pairs[k] = v
 
         ctx_pred = self.context_retrieve(query=english_text)
         context_passages = ctx_pred.passages
 
-        we_str = _format_word_equivalents(word_equivalents)
+        we_str = _format_word_equivalents(word_equivalents, relevant_words, back_translation)
         ctx_str = _format_context_passages(context_passages)
 
-        return we_str, ctx_str, word_equivalents, context_passages
+        return we_str, ctx_str, all_pairs, context_passages, relevant_words, back_translation
 
     def forward(
         self,
@@ -798,9 +905,26 @@ class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
         # otherwise compute internally from analysis-derived vocabulary terms.
         if not word_equivalents:
             lookup_text = " ".join(vocab_terms) if vocab_terms else english_text
-            we_pred = self.lexicon_lookup(english_text=lookup_text)
-            word_equivalents_dict = we_pred.word_equivalents
-            we_str = _format_word_equivalents(word_equivalents_dict)
+            # Use structured vocabulary lookup (exact + semantic + back-translation)
+            from mirad_translator.semantic_lexicon import semantic_lookup_structured
+            vocab = semantic_lookup_structured(
+                lookup_text,
+                top_k_per_word=getattr(self, '_top_k_per_word', 5),
+                max_total_pairs=getattr(self, '_max_total_pairs', 50),
+                min_similarity=getattr(self, '_min_similarity', 0.5),
+                include_exact=True,
+            )
+            word_equivalents_dict = vocab["word_equivalents"]
+            relevant_words = vocab["relevant_words"]
+            back_translation = vocab["back_translation"]
+            # Merge all pairs for backward compatibility
+            all_pairs = dict(word_equivalents_dict)
+            for k, v in relevant_words.items():
+                if k not in all_pairs:
+                    all_pairs[k] = v
+            we_str = _format_word_equivalents(word_equivalents_dict, relevant_words, back_translation)
+            # Use merged dict for return value
+            word_equivalents_dict = all_pairs
         else:
             we_str = word_equivalents
             # Parse provided string back to dict for return value
@@ -875,7 +999,7 @@ class CritiqueAndFixModule(dspy.Module):
         candidate = trans_pred.mirad_text
 
         # Retrieve context for critique (reuse translator's retrieval)
-        we_str, ctx_str, word_equivalents, context_passages = self.translator._retrieve(english_text)
+        we_str, ctx_str, word_equivalents, context_passages, _relevant_words, _back_translation = self.translator._retrieve(english_text)
 
         current_translation = candidate
 
@@ -926,7 +1050,7 @@ class CritiqueAndFixModule(dspy.Module):
         )
 
 
-def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=5, max_total_pairs=50, min_similarity=0.5):
+def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=0, max_total_pairs=50, min_similarity=0.5):
     """Load the pre-compiled BootstrapFewShot translator from disk.
 
     The compiled program has bootstrapped demos for the ChainOfThought predictor,
@@ -939,7 +1063,7 @@ def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_pe
         compiled_path: Path to the compiled program .pkl file. Defaults to built-in path.
         semantic_lexicon: If True (default), swap MiradLexiconLookup for MiradSemanticLexiconLookup
             (top-k semantic neighbor search instead of exact match).
-        top_k_per_word: Semantic lookup neighbors per word (default 3).
+        top_k_per_word: Semantic lookup neighbors per word (default 0 = disabled).
         max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30).
         min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5).
 
@@ -979,7 +1103,7 @@ def load_compiled_translator(compiled_path=None, semantic_lexicon=True, top_k_pe
     return module
 
 
-def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=5, max_total_pairs=50, min_similarity=0.5):
+def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, top_k_per_word=0, max_total_pairs=50, min_similarity=0.5):
     """Load the pre-compiled BootstrapRS Mir→En translator from disk.
 
     The compiled program has bootstrapped demos for the ChainOfThought predictor,
@@ -989,7 +1113,7 @@ def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, t
         compiled_path: Path to the compiled program .pkl file. Defaults to built-in path.
         semantic_lexicon: If True (default), swap MiradLexiconReverseLookup for
             MiradSemanticLexiconLookup (top-k semantic neighbor search).
-        top_k_per_word: Semantic lookup neighbors per word (default 3).
+        top_k_per_word: Semantic lookup neighbors per word (default 0 = disabled).
         max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30).
         min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5).
 
@@ -1024,7 +1148,7 @@ def load_compiled_mir2en_translator(compiled_path=None, semantic_lexicon=True, t
     return module
 
 
-def DefaultTranslator(db_path=None, num_context_passages: int = 5, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = False, semantic_lexicon: bool = True, top_k_per_word: int = 5, max_total_pairs: int = 50, min_similarity: float = 0.5):
+def DefaultTranslator(db_path=None, num_context_passages: int = 3, max_retries: int = 0, num_hops: int = 1, direction: str = "en_to_mir", use_postprocessor: bool = True, use_compiled: bool = False, semantic_lexicon: bool = True, top_k_per_word: int = 0, max_total_pairs: int = 50, min_similarity: float = 0.5):
     """Factory: open/create SQLite lexicon DB and ChromaDB index, return translation module.
 
     By default this returns fresh structured-retrieval modules using semantic
@@ -1062,7 +1186,7 @@ def DefaultTranslator(db_path=None, num_context_passages: int = 5, max_retries: 
         use_compiled: Load a pre-compiled BootstrapFewShot program (default False because current structured-retrieval signatures supersede stale compiled programs).
             Falls back to an uncompiled TranslatorModule if the compiled program is not found.
         semantic_lexicon: Use semantic (embedding-based) top-k lexicon lookup instead of exact match (default True).
-        top_k_per_word: Semantic lookup neighbors per word (default 3). Only used when semantic_lexicon=True.
+        top_k_per_word: Semantic lookup neighbors per word (default 0 = disabled). Only used when semantic_lexicon=True.
         max_total_pairs: Max total word equivalent pairs for semantic lookup (default 30). Only used when semantic_lexicon=True.
         min_similarity: Min cosine similarity for semantic lookup neighbors (default 0.5). Only used when semantic_lexicon=True.
     """

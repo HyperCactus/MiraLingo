@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-26T18:44:07.492852",
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "direction": "en_to_mir",
+    "data_path": "N/A",
+    "parallel": 8,
+    "n_samples": 100,
+    "random_seed": 20260526,
+    "min_english_words": 0,
+    "config_file": null,
+    "eval_duration_ms": 121459.7,
+    "avg_time_ms": 9640.9
+  },
+  "metrics": {
+    "normalized_match": 0.31,
+    "word_overlap_f1": 0.7061
+  },
+  "timing": {
+    "total_eval_ms": 964085.7,
+    "avg_per_sample_ms": 9640.9,
+    "min_ms": 2314.0,
+    "max_ms": 77401.9
+  },
+  "counts": {
+    "total": 100,
+    "errors": 0,
+    "normalized_match_correct": 31,
+    "word_overlap_good": 58
+  }
+}

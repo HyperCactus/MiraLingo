@@ -73,35 +73,45 @@ def test_lexicon_lookup_no_matches():
 # ---------------------------------------------------------------------------
 
 def test_context_retrieve_returns_grammar_passages_only():
-    """MiradContextRetrieve returns grammar rules but excludes thesaurus chunks."""
-    mock_result = {
-        "grammar": [{"text": "Verbs: ...", "metadata": {"source_section": "verbs"}}],
-        "thesaurus": [{"text": "Weather: ...", "metadata": {"source_section": "weather"}}],
-    }
-    with patch('mirad_translator.retrieval.retrieve_grammar', return_value=mock_result["grammar"]):
+    """MiradContextRetrieve returns grammar rules as individual rule passages."""
+    mock_grammar_result = [
+        {
+            "text": "Verbs: ...",
+            "distance": 0.3,
+            "cosine_similarity": 0.96,
+            "importance": 0.9,
+            "combined_score": 1.71,
+            "metadata": {"source_section": "verbs", "rule_id": "verb.test"},
+            "rule": {"id": "verb.test", "description": "Test verb rule", "pseudocode": "", "examples": []},
+        }
+    ]
+    with patch('mirad_translator.retrieval.retrieve_grammar', return_value=mock_grammar_result):
         retriever = MiradContextRetrieve(k=3)
         result = retriever(query="How does verb conjugation work?")
         assert hasattr(result, 'passages')
         assert len(result.passages) == 1
-        assert '[verbs]' in result.passages[0]
-        assert 'Weather' not in result.passages[0]
-        assert all('[thesaurus]' not in passage for passage in result.passages)
+        assert 'verb.test' in result.passages[0]
+        assert 'Test verb rule' in result.passages[0]
 
 
 def test_context_retrieve_returns_structured_grammar_rule_payloads():
     """Structured grammar rules are formatted and exposed for rule-id tracking."""
     mock_rule = {
         "text": "tense rule",
+        "distance": 0.3,
+        "cosine_similarity": 0.96,
+        "importance": 0.9,
+        "combined_score": 1.71,
         "metadata": {"rule_id": "verb.tense"},
-        "rule": {"id": "verb.tense", "description": "Tense suffixes", "pseudocode": [], "examples": []},
+        "rule": {"id": "verb.tense", "description": "Tense suffixes", "pseudocode": "", "examples": []},
     }
     with patch('mirad_translator.retrieval.retrieve_grammar', return_value=[mock_rule]):
         retriever = MiradContextRetrieve(k=3)
         result = retriever(query="past tense")
         assert result.grammar_rules == [mock_rule]
         assert len(result.passages) == 1
-        assert result.passages[0].startswith('[grammar_rules]')
         assert 'verb.tense' in result.passages[0]
+        assert 'Tense suffixes' in result.passages[0]
 
 
 def test_context_retrieve_failure_returns_empty():
@@ -121,21 +131,27 @@ def test_translator_module_forward():
     mock_prediction = Mock()
     mock_prediction.mirad_text = "At tose oma."
 
-    with patch('dspy.ChainOfThought') as mock_cot:
+    mock_vocab = {
+        "word_equivalents": {"i": "at", "cold": "oma"},
+        "relevant_words": {},
+        "back_translation": {"at": "I, me", "oma": "cold, hill"},
+    }
+
+    with patch('dspy.ChainOfThought') as mock_cot, \
+         patch('mirad_translator.semantic_lexicon.semantic_lookup_structured', return_value=mock_vocab):
         mock_instance = Mock()
         mock_instance.return_value = mock_prediction
         mock_cot.return_value = mock_instance
 
         translator = TranslatorModule(db_path=":memory:")
-        # Patch internal sub-modules
-        translator.lexicon_lookup = Mock(return_value=dspy.Prediction(word_equivalents={"i": "at", "cold": "oma"}))
-        translator.context_retrieve = Mock(return_value=dspy.Prediction(passages=["[grammar] verb rules"]))
+        translator.context_retrieve = Mock(return_value=dspy.Prediction(passages=["Rule ID: verb.test\nDescription: Test"]))
 
         result = translator.forward(english_text="I am cold.")
 
         assert result.mirad_text == "At tose oma."
-        assert result.word_equivalents == {"i": "at", "cold": "oma"}
-        assert result.context == ["[grammar] verb rules"]
+        assert "i" in result.word_equivalents
+        assert "cold" in result.word_equivalents
+        assert result.context == ["Rule ID: verb.test\nDescription: Test"]
 
 
 def test_translator_module_forward_passes_separate_fields():
@@ -143,24 +159,28 @@ def test_translator_module_forward_passes_separate_fields():
     mock_prediction = Mock()
     mock_prediction.mirad_text = "At tose oma."
 
-    with patch('dspy.ChainOfThought') as mock_cot:
+    mock_vocab = {
+        "word_equivalents": {"i": "at", "am": "ese", "cold": "oma"},
+        "relevant_words": {},
+        "back_translation": {},
+    }
+
+    with patch('dspy.ChainOfThought') as mock_cot, \
+         patch('mirad_translator.semantic_lexicon.semantic_lookup_structured', return_value=mock_vocab):
         mock_instance = Mock()
         mock_instance.return_value = mock_prediction
         mock_cot.return_value = mock_instance
 
         translator = TranslatorModule(db_path=":memory:")
-        word_eq = {"i": "at", "am": "ese", "cold": "oma"}
-        translator.lexicon_lookup = Mock(return_value=dspy.Prediction(word_equivalents=word_eq))
-        translator.context_retrieve = Mock(return_value=dspy.Prediction(passages=["[grammar] verb rules"]))
+        translator.context_retrieve = Mock(return_value=dspy.Prediction(passages=["Rule ID: verb.test\nDescription: Test"]))
 
         translator.forward(english_text="I am cold.")
 
         # Verify ChainOfThought was called with separate input fields
         call_kwargs = mock_instance.call_args.kwargs
         assert call_kwargs['english_text'] == "I am cold."
-        assert "am → ese" in call_kwargs['word_equivalents']
-        assert "i → at" in call_kwargs['word_equivalents']
-        assert "[grammar] verb rules" in call_kwargs['context_passages']
+        assert "at" in call_kwargs['word_equivalents']
+        assert "ese" in call_kwargs['word_equivalents']
 
 
 def test_translator_module_forward_no_retrieval():
@@ -168,13 +188,19 @@ def test_translator_module_forward_no_retrieval():
     mock_prediction = Mock()
     mock_prediction.mirad_text = "Helo."
 
-    with patch('dspy.ChainOfThought') as mock_cot:
+    mock_vocab = {
+        "word_equivalents": {},
+        "relevant_words": {},
+        "back_translation": {},
+    }
+
+    with patch('dspy.ChainOfThought') as mock_cot, \
+         patch('mirad_translator.semantic_lexicon.semantic_lookup_structured', return_value=mock_vocab):
         mock_instance = Mock()
         mock_instance.return_value = mock_prediction
         mock_cot.return_value = mock_instance
 
         translator = TranslatorModule(db_path=":memory:")
-        translator.lexicon_lookup = Mock(return_value=dspy.Prediction(word_equivalents={}))
         translator.context_retrieve = Mock(return_value=dspy.Prediction(passages=[]))
 
         result = translator.forward(english_text="Hello.")

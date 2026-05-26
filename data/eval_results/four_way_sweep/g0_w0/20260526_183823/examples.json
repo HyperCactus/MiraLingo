@@ -1,0 +1,2205 @@
+[
+  {
+    "idx": 2,
+    "id": "pair-0138",
+    "source": "normal",
+    "gold": "ega",
+    "pred": "ega",
+    "error": null,
+    "word_equivalents": {
+      "normal": "ega, egsauna, zega, zetauna",
+      "something normal": "egas",
+      "normally": "egay, egsaunay, zegay, zetaunay",
+      "normality": "egan, zegan, zetaunan",
+      "more or less normal": "eyga"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 42086.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 7,
+    "id": "pair-0601",
+    "source": "unwanted",
+    "gold": "lofwa",
+    "pred": "lofwa",
+    "error": null,
+    "word_equivalents": {
+      "unwanted": "lofwa, vofwa",
+      "wanted": "fwa",
+      "what is wanted": "fwas",
+      "undesired": "oflawa",
+      "want": "fon",
+      "wanting": "boysea, fea",
+      "unwelcome": "oupdiwa",
+      "unwished for": "oojfwa",
+      "undesirably": "oflaway",
+      "to want": "fer"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 43295.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 4,
+    "id": "pair-0093",
+    "source": "the desks are small",
+    "gold": "ha dresemi se oga",
+    "pred": "Ha dresemi se oga.",
+    "error": null,
+    "word_equivalents": {
+      "desk": "dresem, dreutsom, xemsem, yexsem, zyiun",
+      "small": "oga"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 46692.8,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 9,
+    "id": "pair-0573",
+    "source": "a bad person",
+    "gold": "fuat",
+    "pred": "fua aot",
+    "error": null,
+    "word_equivalents": {
+      "bad": "fua",
+      "person": "aot, tob"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3619.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 6,
+    "id": "pair-0085",
+    "source": "those persons",
+    "gold": "huti",
+    "pred": "hwiti aoti",
+    "error": null,
+    "word_equivalents": {
+      "plural": "glagona, glasaga, glasuna, yansaga, yanta",
+      "animate": "tejea",
+      "person": "aot, tob"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 48211.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 8,
+    "id": "pair-0382",
+    "source": "he or she does not know",
+    "gold": "it voy te",
+    "pred": "it voy te",
+    "error": null,
+    "word_equivalents": {
+      "does": "vay",
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "she": "hayt, hiyt, huyt, it, iyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8111.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 11,
+    "id": "pair-0050",
+    "source": "a woman",
+    "gold": "toyb",
+    "pred": "toyb",
+    "error": null,
+    "word_equivalents": {
+      "woman": "toyb"
+    },
+    "context_passages": [],
+    "used_rule_ids": [
+      "default"
+    ],
+    "elapsed_ms": 4143.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 10,
+    "id": "pair-0628",
+    "source": "your house is beautiful",
+    "gold": "eta tam se via",
+    "pred": "eta tam via",
+    "error": null,
+    "word_equivalents": {
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "determiner": "asaundun",
+      "house": "tam",
+      "beautiful": "via"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4559.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 0,
+    "id": "pair-0434",
+    "source": "take this telegram",
+    "gold": "biu hia yibdren",
+    "pred": "Ipu belea hu yibdriras.",
+    "error": null,
+    "word_equivalents": {
+      "take": "iper belea",
+      "telegram": "nyifdras, yibdriras, yibdrirun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 54775.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 13,
+    "id": "pair-0678",
+    "source": "they are bad",
+    "gold": "yit se fua",
+    "pred": "yit se fua",
+    "error": null,
+    "word_equivalents": {},
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6837.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 1,
+    "id": "pair-0819",
+    "source": "do you know where they went and where we live",
+    "gold": "duven et te hom yit pa ay hom yat tambese",
+    "pred": "Du et te hem yit pya ay hem yat tejya?",
+    "error": null,
+    "word_equivalents": {
+      "where": "hem",
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "we": "aet, ayet, ayit, yat",
+      "live": "teja, tejya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 57258.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5556,
+      "word_overlap_recall": 0.5556,
+      "word_overlap_f1": 0.5556
+    }
+  },
+  {
+    "idx": 3,
+    "id": "pair-0803",
+    "source": "we know that they will come and we will be happy",
+    "gold": "yat te van yit upo ay yat so iva",
+    "pred": "aet ter van yit upo ay aet so iva",
+    "error": null,
+    "word_equivalents": {
+      "that": "ho, hua, hunog, van",
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "come": "upya",
+      "we": "aet, ayet, ayit, yat",
+      "be": "baelk",
+      "happy": "fikyeoja, iva"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 60497.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 17,
+    "id": "pair-0561",
+    "source": "good for you",
+    "gold": "hyay et",
+    "pred": "Fi av et.",
+    "error": null,
+    "word_equivalents": {
+      "good": "fia, nuun, nyuun",
+      "for": "av-",
+      "you": "et, eyt",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum",
+      "done": "ikxwa, xwa",
+      "xe": "xuelk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3582.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.4
+    }
+  },
+  {
+    "idx": 14,
+    "id": "pair-0631",
+    "source": "our house is beautiful",
+    "gold": "yata tam se via",
+    "pred": "Yeta tam via.",
+    "error": null,
+    "word_equivalents": {
+      "tam": "tamtef",
+      "via": "bey mep bi"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 10176.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 15,
+    "id": "pair-0461",
+    "source": "those are mine",
+    "gold": "huasi se atasi",
+    "pred": "huasi se atasi",
+    "error": null,
+    "word_equivalents": {
+      "are": "se",
+      "mine": "atas, atasi, aytas, aytasi, mukiblem, mumyex, watas, watasi"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 10585.2,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 19,
+    "id": "pair-0304",
+    "source": "work hard",
+    "gold": "yexu jestay",
+    "pred": "Yexu yiklay.",
+    "error": null,
+    "word_equivalents": {
+      "work": "yex",
+      "hard": "azfay, jestay, kyotepay, twiyubyaxwa, yiga, yika, yiksona"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8246.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 5,
+    "id": "pair-0757",
+    "source": "we live downtown now and we work at a grocery store near here",
+    "gold": "yat tambese zedom hij ay yat yexe be tolnam yub bi him",
+    "pred": "yet tejya be zedom ejay ay yet yex be nam yuba him",
+    "error": null,
+    "word_equivalents": {
+      "live": "teja, tejya",
+      "downtown": "zedom, zedoma",
+      "now": "ejay, hiij, hij, hijob",
+      "work": "yex",
+      "store": "nam, nunam, nyebam",
+      "near": "yub bi, yuba, yubna",
+      "here": "be him, hiim, him"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 69180.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.4,
+      "word_overlap_recall": 0.3636,
+      "word_overlap_f1": 0.381
+    }
+  },
+  {
+    "idx": 12,
+    "id": "pair-0427",
+    "source": "this is a good thing",
+    "gold": "his se fis",
+    "pred": "his se fia sun",
+    "error": null,
+    "word_equivalents": {
+      "his": "hata, hatas, hatasi, hita, hitas, hitasi, huta, hutas, hwata, hwita, hwuta, ita, wita, witas, witasi",
+      "be": "baelk",
+      "is": "se",
+      "sun": "amar"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 21693.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 21,
+    "id": "pair-0120",
+    "source": "your life is good",
+    "gold": "eta tej se fia",
+    "pred": "eta tej se fia",
+    "error": null,
+    "word_equivalents": {
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "life": "tej",
+      "is": "se",
+      "good": "fia, nuun, nyuun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8954.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 22,
+    "id": "pair-0746",
+    "source": "he or she does not work at home",
+    "gold": "it voy yexe be tam",
+    "pred": "It voy yexe be tam.",
+    "error": null,
+    "word_equivalents": {
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "she": "hayt, hiyt, huyt, it, iyt",
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "at": "atulk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 13092.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 24,
+    "id": "pair-0303",
+    "source": "be well",
+    "gold": "su baka",
+    "pred": "Su fiay.",
+    "error": null,
+    "word_equivalents": {
+      "be": "baelk",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum",
+      "good": "fia, nuun, nyuun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6959.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 23,
+    "id": "pair-0365",
+    "source": "this teacher is possibly better than that teacher",
+    "gold": "hia tuxut se vey ga fia vyel hua tuxut",
+    "pred": "Hia tuxut ga fia vey vyel hua tuxut.",
+    "error": null,
+    "word_equivalents": {
+      "teacher": "tuxut",
+      "better": "ga fi, ga fia, ga fiay, sagvekekut, vekdut, vekekut",
+      "of": "bi",
+      "good": "fia, nuun, nyuun",
+      "possibly": "veay, vey, yafway",
+      "this": "hi-, hia, hinog",
+      "that": "ho, hua, hunog, van",
+      "than": "vyegexwa bay, vyel"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8637.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.875,
+      "word_overlap_f1": 0.9333
+    }
+  },
+  {
+    "idx": 20,
+    "id": "pair-0772",
+    "source": "i worked at home and i did it well",
+    "gold": "at yexa be tam ay at xa has fi",
+    "pred": "At yexa be tam ay at vaya has fiay.",
+    "error": null,
+    "word_equivalents": {
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "do": "vay",
+      "it": "has, his, hus, is",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 17175.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 27,
+    "id": "pair-0028",
+    "source": "this book",
+    "gold": "hia dyes",
+    "pred": "hia dyes",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "book": "draves, dyes"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4799.2,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 26,
+    "id": "pair-0664",
+    "source": "our name is ugly",
+    "gold": "yata dyun se vua",
+    "pred": "Aeta dyun vua.",
+    "error": null,
+    "word_equivalents": {
+      "our": "aeta, ayet, ayita, yata",
+      "name": "dyun",
+      "ugly": "vua"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 11850.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 18,
+    "id": "pair-0922",
+    "source": "i did not see her book but i know her father",
+    "gold": "at voy teata iyta dyes oy at tre iyta twed",
+    "pred": "At oteata iyta dyes fey at ate iyta twed.",
+    "error": null,
+    "word_equivalents": {
+      "book": "draves, dyes",
+      "father": "twed",
+      "her": "hayt, hayta, hiyt, hiyta, huyt, huyta, it, ita, iyt, iyta"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 24872.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5714,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5333
+    }
+  },
+  {
+    "idx": 28,
+    "id": "pair-0579",
+    "source": "a beautiful thing",
+    "gold": "vias",
+    "pred": "via sun",
+    "error": null,
+    "word_equivalents": {
+      "beautiful": "via",
+      "thing": "son, sun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6319.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 31,
+    "id": "pair-0164",
+    "source": "you were",
+    "gold": "et sa",
+    "pred": "et sa",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "to": "bu",
+      "be": "baelk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6015.8,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 25,
+    "id": "pair-0758",
+    "source": "they live downtown now and they work at a grocery store near here",
+    "gold": "yit tambese zedom hij ay yit yexe be tolnam yub bi him",
+    "pred": "Yit tejya zedom ejay ay yit yex be tolnam yub bi him.",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "live": "teja, tejya",
+      "downtown": "zedom, zedoma",
+      "now": "ejay, hiij, hij, hijob",
+      "work": "yex",
+      "store": "nam, nunam, nyebam",
+      "near": "yub bi, yuba, yubna",
+      "here": "be him, hiim, him"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 15926.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7273,
+      "word_overlap_recall": 0.7273,
+      "word_overlap_f1": 0.7273
+    }
+  },
+  {
+    "idx": 34,
+    "id": "pair-0676",
+    "source": "we are bad",
+    "gold": "yat se fua",
+    "pred": "yat fua",
+    "error": null,
+    "word_equivalents": {
+      "we": "aet, ayet, ayit, yat",
+      "bad": "fua"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5015.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.8
+    }
+  },
+  {
+    "idx": 33,
+    "id": "pair-0041",
+    "source": "their books",
+    "gold": "yita dyesi",
+    "pred": "yita dyesi",
+    "error": null,
+    "word_equivalents": {
+      "book": "draves, dyes",
+      "their": "bi huti, hitia, hutia, huytia, yisa, yita, yota"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5575.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 32,
+    "id": "pair-0059",
+    "source": "girls",
+    "gold": "toybeti",
+    "pred": "toybeti",
+    "error": null,
+    "word_equivalents": {
+      "girl": "jogayt, toybet"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6482.9,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 29,
+    "id": "pair-0926",
+    "source": "you yourself do not smoke but people often smoke",
+    "gold": "et eut voy movie oy yot glaxag movie",
+    "pred": "Et weut voy movse, ja hus yot glaxag movse.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "yourself": "eut, weut",
+      "smoke": "mov",
+      "people": "tyod, yot",
+      "often": "gla jodi, glaxag, glaxagay"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 11690.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5714,
+      "word_overlap_f1": 0.5333
+    }
+  },
+  {
+    "idx": 35,
+    "id": "pair-0681",
+    "source": "he or she was happy",
+    "gold": "it sa iva",
+    "pred": "it sa iva",
+    "error": null,
+    "word_equivalents": {},
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5603.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 36,
+    "id": "pair-0231",
+    "source": "come",
+    "gold": "upu",
+    "pred": "upu",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5708.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 37,
+    "id": "pair-0565",
+    "source": "woe is me",
+    "gold": "hyoy at",
+    "pred": "Hyoy",
+    "error": null,
+    "word_equivalents": {
+      "woe": "aguv, uvan, uvlan, uvras, uvux",
+      "me": "at, ayt",
+      "be": "baelk",
+      "sorrowful": "tipuva, uvtosaya, uvtosea, uvtosika, zoyuvtosea",
+      "alas": "hyoy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4867.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 39,
+    "id": "pair-0057",
+    "source": "boys",
+    "gold": "twobeti",
+    "pred": "twobeti",
+    "error": null,
+    "word_equivalents": {
+      "boy": "jogwat, twobet"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5017.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 41,
+    "id": "pair-0143",
+    "source": "cold",
+    "gold": "oma",
+    "pred": "oma",
+    "error": null,
+    "word_equivalents": {
+      "cold": "oma, oman, teibok, tiebboyk",
+      "coldness": "oman"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3824.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 30,
+    "id": "pair-0763",
+    "source": "you worked at home but now you work at a grocery store near here",
+    "gold": "et yexa be tam oy et yexe be tolnam yub bi him",
+    "pred": "et yexa be tam ay hij et yexe be nunam yub bi him",
+    "error": null,
+    "word_equivalents": {
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "now": "ejay, hiij, hij, hijob",
+      "store": "nam, nunam, nyebam",
+      "near": "yub bi, yuba, yubna",
+      "here": "be him, hiim, him"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 17436.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7273,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.7619
+    }
+  },
+  {
+    "idx": 40,
+    "id": "pair-0655",
+    "source": "your life is happy",
+    "gold": "eta tej se iva",
+    "pred": "Eta tej iva.",
+    "error": null,
+    "word_equivalents": {
+      "life": "tej",
+      "happy": "fikyeoja, iva"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6266.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 47,
+    "id": "pair-0251",
+    "source": "they will go",
+    "gold": "yit po",
+    "pred": "yit po",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3976.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 44,
+    "id": "pair-0270",
+    "source": "you all worked at home",
+    "gold": "yet yexa be tam",
+    "pred": "Yeyt be tam yexa.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "all": "hya",
+      "work": "yex",
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6430.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 43,
+    "id": "pair-0858",
+    "source": "unless you say otherwise i will be silent",
+    "gold": "oven et do hyuyen at dolo",
+    "pred": "Oven et de ogel hus, at so dola.",
+    "error": null,
+    "word_equivalents": {
+      "unless": "gob van, oven",
+      "otherwise": "hyuay, hyugel, hyuyen, ogel hus, ven voy",
+      "silent": "dola, dolea, oseuxdwa, seuxoya, seuxuka, xeusoya, xeusuka"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 11539.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.375,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.4286
+    }
+  },
+  {
+    "idx": 46,
+    "id": "pair-0234",
+    "source": "i go",
+    "gold": "at pe",
+    "pred": "At pe.",
+    "error": null,
+    "word_equivalents": {},
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8656.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 48,
+    "id": "pair-0135",
+    "source": "beautiful",
+    "gold": "via",
+    "pred": "via",
+    "error": null,
+    "word_equivalents": {
+      "beautiful": "via"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6245.8,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 38,
+    "id": "pair-0796",
+    "source": "we would be going home but we would be happy here",
+    "gold": "yat peyu tam oy yat su iva him",
+    "pred": "yat ser puyea tam oy yat su iva him",
+    "error": null,
+    "word_equivalents": {
+      "home": "be tam, taam, tam",
+      "happy": "fikyeoja, iva",
+      "here": "be him, hiim, him",
+      "we": "aet, ayet, ayit, yat",
+      "be": "baelk",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 18240.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.8571,
+      "word_overlap_f1": 0.8
+    }
+  },
+  {
+    "idx": 49,
+    "id": "pair-0290",
+    "source": "we live very close by",
+    "gold": "yat tambese gla yub",
+    "pred": "Yat téjya gla yub.",
+    "error": null,
+    "word_equivalents": {
+      "we": "aet, ayet, ayit, yat",
+      "live": "teja, tejya",
+      "very": "gla",
+      "close": "yub, yuba, yuj",
+      "by": "bey, ojo, voy ga jwo vyel, voy jo"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 12838.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 42,
+    "id": "pair-0548",
+    "source": "i shall not drink nor shall i eat",
+    "gold": "at voy tilo oey at telo",
+    "pred": "At o-tilo ay o-telo",
+    "error": null,
+    "word_equivalents": {
+      "drink": "-il, til"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 21463.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.25,
+      "word_overlap_recall": 0.2,
+      "word_overlap_f1": 0.2222
+    }
+  },
+  {
+    "idx": 52,
+    "id": "pair-0658",
+    "source": "our life is sad",
+    "gold": "yata tej se uva",
+    "pred": "Aeta tej uva.",
+    "error": null,
+    "word_equivalents": {
+      "our": "aeta, ayet, ayita, yata",
+      "life": "tej",
+      "sad": "uva"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8588.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 50,
+    "id": "pair-0226",
+    "source": "you would come",
+    "gold": "et upu",
+    "pred": "et upu",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya",
+      "you": "et, eyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 10673.8,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 53,
+    "id": "pair-0556",
+    "source": "you need to apologize to me",
+    "gold": "et efe hwoyder at",
+    "pred": "Et fe hyoyder at.",
+    "error": null,
+    "word_equivalents": {
+      "me": "at, ayt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 14140.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 45,
+    "id": "pair-0795",
+    "source": "you would be going home but you would be happy here",
+    "gold": "et peyu tam oy et su iva him",
+    "pred": "Et sey peay bu tam, boy et sey iva him.",
+    "error": null,
+    "word_equivalents": {
+      "home": "be tam, taam, tam",
+      "happy": "fikyeoja, iva",
+      "here": "be him, hiim, him",
+      "but": "boy, oy",
+      "you": "et, eyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 26515.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5714,
+      "word_overlap_f1": 0.5333
+    }
+  },
+  {
+    "idx": 57,
+    "id": "pair-0215",
+    "source": "he or she came",
+    "gold": "it upa",
+    "pred": "ut upya",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7266.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 60,
+    "id": "pair-0130",
+    "source": "yes goodbye",
+    "gold": "va hoy",
+    "pred": "va hoy",
+    "error": null,
+    "word_equivalents": {
+      "yes": "va",
+      "goodbye": "hoy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4806.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 54,
+    "id": "pair-0333",
+    "source": "i was going home",
+    "gold": "at peya tam",
+    "pred": "at peya be tam",
+    "error": null,
+    "word_equivalents": {
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 17175.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 58,
+    "id": "pair-0785",
+    "source": "you were going home but you came here",
+    "gold": "et peya tam oy et upa him",
+    "pred": "Et peye tam oy et upya hiim.",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "home": "be tam, taam, tam",
+      "come": "upya",
+      "here": "be him, hiim, him",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 10552.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 59,
+    "id": "pair-0744",
+    "source": "i do not work at home",
+    "gold": "at voy yexe be tam",
+    "pred": "At voy yexe be tam.",
+    "error": null,
+    "word_equivalents": {
+      "do": "vay",
+      "work": "yex",
+      "at": "atulk",
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 9290.3,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 56,
+    "id": "pair-0409",
+    "source": "where has she gone",
+    "gold": "duhom iyt paye",
+    "pred": "Hem iyt ipya?",
+    "error": null,
+    "word_equivalents": {
+      "where": "hem",
+      "she": "hayt, hiyt, huyt, it, iyt",
+      "gone": "ajpya, ipya, piya, yipya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 18825.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.3333
+    }
+  },
+  {
+    "idx": 51,
+    "id": "pair-0711",
+    "source": "they will do it well",
+    "gold": "yit xo has fi",
+    "pred": "yit has fi vayo",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "it": "has, his, hus, is",
+      "do": "vay",
+      "well": "fi, fiay, fibaka, mumilzyeg, zyutum"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 29169.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 62,
+    "id": "pair-0137",
+    "source": "big",
+    "gold": "aga",
+    "pred": "aga",
+    "error": null,
+    "word_equivalents": {
+      "big": "aga"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3376.7,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 61,
+    "id": "pair-0259",
+    "source": "let s go",
+    "gold": "van yat pu",
+    "pred": "Van pu!",
+    "error": null,
+    "word_equivalents": {
+      "let's": "van"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7680.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.8
+    }
+  },
+  {
+    "idx": 55,
+    "id": "pair-0397",
+    "source": "he said i do not want to go",
+    "gold": "wit da at voy fe per",
+    "pred": "It da at voy foner per.",
+    "error": null,
+    "word_equivalents": {
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "want": "fon"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 21711.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 63,
+    "id": "pair-0416",
+    "source": "i am not your father",
+    "gold": "at voy se eta ted",
+    "pred": "at voy eta twed",
+    "error": null,
+    "word_equivalents": {
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "father": "twed"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6607.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 67,
+    "id": "pair-0499",
+    "source": "she also sings",
+    "gold": "iyt gay deuze",
+    "pred": "iyt gay déuze",
+    "error": null,
+    "word_equivalents": {
+      "she": "hayt, hiyt, huyt, it, iyt",
+      "also": "gay, gel hus, gelay, geylbyen"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4893.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 16,
+    "id": "pair-0811",
+    "source": "they knew that you would come but they did not know whether we would come",
+    "gold": "yit ta van et upo oy yit voy ta ven yat upo",
+    "pred": "yit tyeetya ay et upya, ay yit voy tyeetya ok yet upya",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 84118.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.375,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.3529
+    }
+  },
+  {
+    "idx": 68,
+    "id": "pair-0195",
+    "source": "you will do",
+    "gold": "et xo",
+    "pred": "et fan vay",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "will": "fan, fon, fwas, uja fondras",
+      "do": "vay"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4883.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.4
+    }
+  },
+  {
+    "idx": 66,
+    "id": "pair-0632",
+    "source": "their house is big",
+    "gold": "yita tam se aga",
+    "pred": "Yita tam aga.",
+    "error": null,
+    "word_equivalents": {
+      "their": "bi huti, hitia, hutia, huytia, yisa, yita, yota",
+      "house": "tam",
+      "big": "aga"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7508.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 69,
+    "id": "pair-0534",
+    "source": "american",
+    "gold": "usoma",
+    "pred": "Usoma",
+    "error": null,
+    "word_equivalents": {
+      "american": "Usoma, Usomat"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5941.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 74,
+    "id": "pair-0866",
+    "source": "whenever you talk i laugh",
+    "gold": "hyej et dale at hihide",
+    "pred": "hyej ho et dal, at dizeud",
+    "error": null,
+    "word_equivalents": {
+      "talk": "dal",
+      "laugh": "dizeud, hihid, ivseux, ivteud, yepyoden",
+      "whenever": "hyej ho, hyejob ho, hyejod ho, hyejodi",
+      "you": "et, eyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1040.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.5455
+    }
+  },
+  {
+    "idx": 70,
+    "id": "pair-0636",
+    "source": "the desk is dirty",
+    "gold": "ha dresem se vyua",
+    "pred": "Ha dresem vyua.",
+    "error": null,
+    "word_equivalents": {
+      "desk": "dresem, dreutsom, xemsem, yexsem, zyiun",
+      "dirty": "vyua, vyulika, vyusaya, vyusika"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5774.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 75,
+    "id": "pair-0145",
+    "source": "sad",
+    "gold": "uva",
+    "pred": "uva",
+    "error": null,
+    "word_equivalents": {
+      "sad": "uva"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4138.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 64,
+    "id": "pair-0411",
+    "source": "do you live in the neighborhood",
+    "gold": "duven et tambese ha yubem",
+    "pred": "Duven et teje bi ha doeym?",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "live": "teja, tejya",
+      "in": "inilk",
+      "neighborhood": "doeym, domgon, yubem, yubyem, yubyema"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 14044.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.5455
+    }
+  },
+  {
+    "idx": 73,
+    "id": "pair-0239",
+    "source": "they go",
+    "gold": "yit pe",
+    "pred": "yit puer",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5947.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 77,
+    "id": "pair-0265",
+    "source": "they work at home",
+    "gold": "yit yexe be tam",
+    "pred": "Yit yex be tam.",
+    "error": null,
+    "word_equivalents": {
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "at": "atulk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5432.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 65,
+    "id": "pair-0338",
+    "source": "they were going home",
+    "gold": "yit peya tam",
+    "pred": "yit pa be tam",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 15855.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 80,
+    "id": "pair-0228",
+    "source": "we would come",
+    "gold": "yat upu",
+    "pred": "Yat upyu.",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya",
+      "we": "aet, ayet, ayit, yat"
+    },
+    "context_passages": [],
+    "used_rule_ids": [
+      "COND"
+    ],
+    "elapsed_ms": 4341.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 71,
+    "id": "pair-0207",
+    "source": "i come",
+    "gold": "at upe",
+    "pred": "at upe",
+    "error": null,
+    "word_equivalents": {
+      "come": "upya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 13659.3,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 78,
+    "id": "pair-0186",
+    "source": "you all do",
+    "gold": "yet xe",
+    "pred": "hyayt vay",
+    "error": null,
+    "word_equivalents": {
+      "do": "vay",
+      "you": "et, eyt",
+      "all": "hya"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7491.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 83,
+    "id": "pair-0109",
+    "source": "this student is bad",
+    "gold": "hia tixut se fua",
+    "pred": "hia tixut fua",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "student": "tixut",
+      "bad": "fua"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4279.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 72,
+    "id": "pair-0298",
+    "source": "they work at a grocery store near here",
+    "gold": "yit yexe be tolnam yub bi him",
+    "pred": "Yit yex be telnam yub bi him.",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "work": "yex",
+      "store": "nam, nunam, nyebam",
+      "near": "yub bi, yuba, yubna",
+      "here": "be him, hiim, him"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 15035.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7143,
+      "word_overlap_recall": 0.7143,
+      "word_overlap_f1": 0.7143
+    }
+  },
+  {
+    "idx": 86,
+    "id": "pair-0933",
+    "source": "people often do not love themselves but one must love oneself",
+    "gold": "yot glaxag voy ife yout oy ot yefe ifer out",
+    "pred": "Yot glaxagay voy ifonier yout, oy ot yefe ifonier out.",
+    "error": null,
+    "word_equivalents": {
+      "people": "tyod, yot",
+      "often": "gla jodi, glaxag, glaxagay",
+      "love": "ifon",
+      "themselves": "itiyut, yius, yiut, yout",
+      "but": "boy, oy",
+      "one": "awa, garowa, ot",
+      "must": "yef",
+      "oneself": "hyit, out"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 810.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7778,
+      "word_overlap_recall": 0.7,
+      "word_overlap_f1": 0.7368
+    }
+  },
+  {
+    "idx": 81,
+    "id": "pair-0115",
+    "source": "your name is beautiful",
+    "gold": "eta dyun se via",
+    "pred": "eta dyun se via",
+    "error": null,
+    "word_equivalents": {
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "name": "dyun",
+      "beautiful": "via"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7176.7,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 76,
+    "id": "pair-0783",
+    "source": "they are going home but they will work at home",
+    "gold": "yit peye tam oy yit yexo be tam",
+    "pred": "Yit tampeye oy yit yexo be tam.",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "animate": "tejea",
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 14315.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 79,
+    "id": "pair-0879",
+    "source": "they are not our parents but they know our parents",
+    "gold": "yit voy se yata tedi oy yit tre yata tedi",
+    "pred": "Yit so yata tedi, oy yit te yata tedi.",
+    "error": null,
+    "word_equivalents": {
+      "they": "hasi, hasoni, hasuni, hati, hayti, hisi, hiti, hiyti, huti, huyti, hwiti, yis, yit, yot",
+      "be": "baelk",
+      "parents": "tedi, tedyan",
+      "our": "aeta, ayet, ayita, yata",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 12169.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5714,
+      "word_overlap_f1": 0.6154
+    }
+  },
+  {
+    "idx": 90,
+    "id": "pair-0017",
+    "source": "cars",
+    "gold": "puri",
+    "pred": "puri",
+    "error": null,
+    "word_equivalents": {
+      "car": "bixpures, mempur, pur, pures, purim, utmempur, utpur"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2776.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 85,
+    "id": "pair-0726",
+    "source": "is this house beautiful",
+    "gold": "duven hia tam se via",
+    "pred": "Duven hia tam via?",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "house": "tam",
+      "beautiful": "via"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8742.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.8889
+    }
+  },
+  {
+    "idx": 84,
+    "id": "pair-0443",
+    "source": "she examined herself",
+    "gold": "iyt yubteaxa iut",
+    "pred": "iyt vyayeka iuyt",
+    "error": null,
+    "word_equivalents": {
+      "she": "hayt, hiyt, huyt, it, iyt",
+      "herself": "hyiyt, iut, iuyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 9652.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.3333
+    }
+  },
+  {
+    "idx": 91,
+    "id": "pair-0157",
+    "source": "i am",
+    "gold": "at se",
+    "pred": "at se",
+    "error": null,
+    "word_equivalents": {},
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4405.9,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 87,
+    "id": "pair-0286",
+    "source": "you were very far from here",
+    "gold": "et sa gla yib bi him",
+    "pred": "et sa gla yiba bi him",
+    "error": null,
+    "word_equivalents": {
+      "far": "yiba, yibna",
+      "here": "be him, hiim, him",
+      "very": "gla",
+      "from": "bi"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7905.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 88,
+    "id": "pair-0328",
+    "source": "you are going home",
+    "gold": "et peye tam",
+    "pred": "et pe be tam",
+    "error": null,
+    "word_equivalents": {
+      "you": "et, eyt",
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8037.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 92,
+    "id": "pair-0140",
+    "source": "fast",
+    "gold": "iga",
+    "pred": "iga",
+    "error": null,
+    "word_equivalents": {
+      "fast": "ig, iga, igay"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5926.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 93,
+    "id": "pair-0646",
+    "source": "the teachers are bad",
+    "gold": "ha tuxuti se fua",
+    "pred": "tuxuti fua",
+    "error": null,
+    "word_equivalents": {
+      "teacher": "tuxut",
+      "bad": "fua"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7197.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 95,
+    "id": "pair-0508",
+    "source": "often he wins",
+    "gold": "glaxag it ake",
+    "pred": "gla jodi it ak",
+    "error": null,
+    "word_equivalents": {
+      "often": "gla jodi, glaxag, glaxagay",
+      "he": "hat, hit, hut, hwat, hwit, hwut, it, wit",
+      "win": "ak"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7930.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.25,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.2857
+    }
+  },
+  {
+    "idx": 89,
+    "id": "pair-0477",
+    "source": "whatever room you want you can have",
+    "gold": "hyea tim et fe et yafe ayser",
+    "pred": "Ha tim ho et fone, et yafe bexer.",
+    "error": null,
+    "word_equivalents": {
+      "room": "-im, nig, tim",
+      "want": "fon",
+      "can": "syeb"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 14035.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.4286,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.4615
+    }
+  },
+  {
+    "idx": 97,
+    "id": "pair-0367",
+    "source": "this teacher is rather good",
+    "gold": "hia tuxut se gle fia",
+    "pred": "hia tuxut ga gwa fia",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "teacher": "tuxut",
+      "rather": "ga fi, ga gwa, gagwa, gajwa, gle",
+      "good": "fia, nuun, nyuun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7092.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6,
+      "word_overlap_recall": 0.6,
+      "word_overlap_f1": 0.6
+    }
+  },
+  {
+    "idx": 98,
+    "id": "pair-0118",
+    "source": "my life is good",
+    "gold": "ata tej se fia",
+    "pred": "ata tej fia",
+    "error": null,
+    "word_equivalents": {
+      "my": "ata, ayta, wata",
+      "life": "tej",
+      "good": "fia, nuun, nyuun"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7335.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8571
+    }
+  },
+  {
+    "idx": 94,
+    "id": "pair-0719",
+    "source": "will you go",
+    "gold": "duven et po",
+    "pred": "du et puo",
+    "error": null,
+    "word_equivalents": {},
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 12074.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.3333
+    }
+  },
+  {
+    "idx": 99,
+    "id": "pair-0623",
+    "source": "my house is big",
+    "gold": "ata tam se aga",
+    "pred": "Tamti aga.",
+    "error": null,
+    "word_equivalents": {
+      "house": "tam",
+      "big": "aga"
+    },
+    "context_passages": [],
+    "used_rule_ids": [
+      "No specific rule IDs were provided in context_passages",
+      "so none are used"
+    ],
+    "elapsed_ms": 5909.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.25,
+      "word_overlap_f1": 0.3333
+    }
+  },
+  {
+    "idx": 96,
+    "id": "pair-0830",
+    "source": "while we are here we will do some work for you",
+    "gold": "je van yat so him yat xo gle yex av et",
+    "pred": "Je van yat be him, yat vayo he yex av et.",
+    "error": null,
+    "word_equivalents": {
+      "while": "je van",
+      "we": "aet, ayet, ayit, yat",
+      "here": "be him, hiim, him",
+      "do": "vay",
+      "work": "yex",
+      "for": "av-",
+      "you": "et, eyt"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 28551.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7,
+      "word_overlap_recall": 0.7,
+      "word_overlap_f1": 0.7
+    }
+  },
+  {
+    "idx": 82,
+    "id": "pair-0934",
+    "source": "you people hate yourselves but we do not hate you",
+    "gold": "yet ufe yeut oy yat voy ufe yet",
+    "pred": "yet euf yeut oy ayit voeuf yet",
+    "error": null,
+    "word_equivalents": {
+      "hate": "uf, ufon",
+      "you": "et, eyt",
+      "yourselves": "yeut",
+      "we": "aet, ayet, ayit, yat",
+      "but": "boy, oy"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 58510.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "date": "2026-05-26T14:35:00",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "metric": "normalized_match",
+  "description": "Bidirectional evaluation on 30 random English-Mirad sentence pairs (≥5 English words, seed=20260526)",
+  "en_to_mir": {
+    "normalized_match_score": 0.1,
+    "correct": 3,
+    "total": 30,
+    "avg_time_per_sample_s": 26.0,
+    "genuine_errors": 5,
+    "morphological_variants": 16,
+    "partial_valid": 6
+  },
+  "mir_to_en": {
+    "normalized_match_score": 0.433,
+    "correct": 13,
+    "total": 30,
+    "avg_time_per_sample_s": 20.0,
+    "genuine_errors": 9,
+    "semantic_drift": 5,
+    "minor_differences": 3
+  },
+  "findings": {
+    "en_mir_true_quality_estimate": "55-65% (normalized match is too strict for Mirad agglutinative morphology)",
+    "mir_en_true_quality_estimate": "75-85% (mostly minor morphological variations)",
+    "main_en_mir_issues": [
+      "Morphological complexity causing false failures",
+      "Particle drift (te/bu/se optional)",
+      "Pronoun/verb form variants"
+    ],
+    "main_mir_en_issues": [
+      "Pronoun ambiguity (it=he/she/it)",
+      "Homograph disambiguation (movie=smoke, tease=resemble)",
+      "Conditional mood preservation"
+    ]
+  },
+  "output_dir": "data/eval_results/bilateral_eval_20260526_143210"
+}

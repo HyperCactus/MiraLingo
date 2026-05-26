@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "timestamp": "2026-05-26T16:19:48.386347",
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "direction": "mir_to_en",
+    "data_path": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval/train.json",
+    "parallel": 8,
+    "n_samples": 30,
+    "random_seed": 20260526,
+    "min_english_words": 5,
+    "config_file": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/scripts/eval_config.yaml",
+    "eval_duration_ms": 62171.8,
+    "avg_time_ms": 14527.4
+  },
+  "metrics": {
+    "normalized_match": 0.4333,
+    "word_overlap_f1": 0.8708
+  },
+  "timing": {
+    "total_eval_ms": 435823.5,
+    "avg_per_sample_ms": 14527.4,
+    "min_ms": 1890.9,
+    "max_ms": 62159.1
+  },
+  "counts": {
+    "total": 30,
+    "errors": 0,
+    "normalized_match_correct": 13,
+    "word_overlap_good": 26
+  }
+}

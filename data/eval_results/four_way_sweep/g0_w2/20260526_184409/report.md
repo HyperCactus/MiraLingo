@@ -1,0 +1,119 @@
+# Translation Evaluation Report
+
+**Date:** 2026-05-26T18:45:56.580770 | **Model:** deepseek-ai/DeepSeek-V4-Flash
+**Direction:** en_to_mir | **Samples:** 100
+**Data:** N/A
+**Parallelism:** 8 workers
+
+## Metrics Summary
+
+| Metric | Score | Count |
+|---|---|---|
+| Normalized Match | 31.0% | 31/100 |
+| Word Overlap F1 | 70.0% | 56/100 (≥0.7) |
+| Avg Time/Sample | 7987ms | — |
+
+## All Results
+
+| # | Source | Gold | Predicted | Score | Time |
+|---|---|---|---|---|---|
+| 0 | take this telegram | biu hia yibdren | Ipu belea hu yibdriras. | ✗ | 42094ms |
+| 1 | do you know where they went and where we | duven et te hom yit pa ay | Du et te hem yit pya ay h | ✗ | 45924ms |
+| 2 | normal | ega | ega | ✓ | 40819ms |
+| 3 | we know that they will come and we will  | yat te van yit upo ay yat | aet ter van yit upo ay ae | ✗ | 42810ms |
+| 4 | the desks are small | ha dresemi se oga | Ha dresemi se oga. | ✓ | 42166ms |
+| 5 | we live downtown now and we work at a gr | yat tambese zedom hij ay  | yet tejya be zedom ejay a | ✗ | 44324ms |
+| 6 | those persons | huti | hwiti aoti | ✗ | 42902ms |
+| 7 | unwanted | lofwa | lofwa | ✓ | 44018ms |
+| 8 | he or she does not know | it voy te | it voy te | ✓ | 1685ms |
+| 9 | a bad person | fuat | fua aot | ✗ | 3058ms |
+| 10 | your house is beautiful | eta tam se via | eta tam via | ✗ | 8264ms |
+| 11 | a woman | toyb | toyb | ✓ | 1373ms |
+| 12 | this is a good thing | his se fis | his se fia sun | ✗ | 8762ms |
+| 13 | they are bad | yit se fua | yit se fua | ✓ | 6185ms |
+| 14 | our house is beautiful | yata tam se via | Yeta tam via. | ✗ | 1846ms |
+| 15 | those are mine | huasi se atasi | huasi se atasi | ✓ | 2248ms |
+| 16 | they knew that you would come but they d | yit ta van et upo oy yit  | yit tyeetya ay et upya, a | ✗ | 11209ms |
+| 17 | good for you | hyay et | Fi av et. | ✗ | 7053ms |
+| 18 | i did not see her book but i know her fa | at voy teata iyta dyes oy | At oteata iyta dyes fey a | ✗ | 2603ms |
+| 19 | work hard | yexu jestay | Yexu yiklay. | ✗ | 8410ms |
+| 20 | i worked at home and i did it well | at yexa be tam ay at xa h | At yexa be tam ay at vaya | ✗ | 3639ms |
+| 21 | your life is good | eta tej se fia | eta tej se fia | ✓ | 2357ms |
+| 22 | he or she does not work at home | it voy yexe be tam | It voy yexe be tam. | ✓ | 8490ms |
+| 23 | this teacher is possibly better than tha | hia tuxut se vey ga fia v | Hia tuxut ga fia vey vyel | ✗ | 3131ms |
+| 24 | be well | su baka | Su fiay. | ✗ | 6469ms |
+| 25 | they live downtown now and they work at  | yit tambese zedom hij ay  | Yit tejya zedom ejay ay y | ✗ | 3351ms |
+| 26 | our name is ugly | yata dyun se vua | Aeta dyun vua. | ✗ | 8232ms |
+| 27 | this book | hia dyes | hia dyes | ✓ | 6456ms |
+| 28 | a beautiful thing | vias | via sun | ✗ | 1854ms |
+| 29 | you yourself do not smoke but people oft | et eut voy movie oy yot g | Et weut voy movse, ja hus | ✗ | 2867ms |
+| 30 | you worked at home but now you work at a | et yexa be tam oy et yexe | et yexa be tam ay hij et  | ✗ | 9940ms |
+| 31 | you were | et sa | et sa | ✓ | 1899ms |
+| 32 | girls | toybeti | toybeti | ✓ | 4953ms |
+| 33 | their books | yita dyesi | yita dyesi | ✓ | 1367ms |
+| 34 | we are bad | yat se fua | yat fua | ✗ | 1770ms |
+| 35 | he or she was happy | it sa iva | it sa iva | ✓ | 9591ms |
+| 36 | come | upu | upu | ✓ | 4933ms |
+| 37 | woe is me | hyoy at | Hyoy | ✗ | 2248ms |
+| 38 | we would be going home but we would be h | yat peyu tam oy yat su iv | yat ser puyea tam oy yat  | ✗ | 11403ms |
+| 39 | boys | twobeti | twobeti | ✓ | 1558ms |
+| 40 | your life is happy | eta tej se iva | Eta tej iva. | ✗ | 6274ms |
+| 41 | cold | oma | oma | ✓ | 1449ms |
+| 42 | i shall not drink nor shall i eat | at voy tilo oey at telo | At o-tilo ay o-telo | ✗ | 2644ms |
+| 43 | unless you say otherwise i will be silen | oven et do hyuyen at dolo | Oven et de ogel hus, at s | ✗ | 7967ms |
+| 44 | you all worked at home | yet yexa be tam | Yeyt be tam yexa. | ✗ | 2350ms |
+| 45 | you would be going home but you would be | et peyu tam oy et su iva  | Et sey peay bu tam, boy e | ✗ | 11186ms |
+| 46 | i go | at pe | At pe. | ✓ | 2169ms |
+| 47 | they will go | yit po | yit po | ✓ | 1930ms |
+| 48 | beautiful | via | via | ✓ | 4574ms |
+| 49 | we live very close by | yat tambese gla yub | Yat téjya gla yub. | ✗ | 2347ms |
+| 50 | you would come | et upu | et upu | ✓ | 2234ms |
+| 51 | they will do it well | yit xo has fi | yit has fi vayo | ✗ | 12003ms |
+| 52 | our life is sad | yata tej se uva | Aeta tej uva. | ✗ | 8278ms |
+| 53 | you need to apologize to me | et efe hwoyder at | Et fe hyoyder at. | ✗ | 2249ms |
+| 54 | i was going home | at peya tam | at peya be tam | ✗ | 2299ms |
+| 55 | he said i do not want to go | wit da at voy fe per | It da at voy foner per. | ✗ | 10046ms |
+| 56 | where has she gone | duhom iyt paye | Hem iyt ipya? | ✗ | 8638ms |
+| 57 | he or she came | it upa | ut upya | ✗ | 1881ms |
+| 58 | you were going home but you came here | et peya tam oy et upa him | Et peye tam oy et upya hi | ✗ | 10169ms |
+| 59 | i do not work at home | at voy yexe be tam | At voy yexe be tam. | ✓ | 2525ms |
+| 60 | yes goodbye | va hoy | va hoy | ✓ | 1111ms |
+| 61 | let s go | van yat pu | Van pu! | ✗ | 1855ms |
+| 62 | big | aga | aga | ✓ | 1355ms |
+| 63 | i am not your father | at voy se eta ted | at voy eta twed | ✗ | 8045ms |
+| 64 | do you live in the neighborhood | duven et tambese ha yubem | Duven et teje bi ha doeym | ✗ | 2876ms |
+| 65 | they were going home | yit peya tam | yit pa be tam | ✗ | 2680ms |
+| 66 | their house is big | yita tam se aga | Yita tam aga. | ✗ | 4983ms |
+| 67 | she also sings | iyt gay deuze | iyt gay déuze | ✗ | 2374ms |
+| 68 | you will do | et xo | et fan vay | ✗ | 2340ms |
+| 69 | american | usoma | Usoma | ✓ | 6608ms |
+| 70 | the desk is dirty | ha dresem se vyua | Ha dresem vyua. | ✗ | 7117ms |
+| 71 | i come | at upe | at upe | ✓ | 6815ms |
+| 72 | they work at a grocery store near here | yit yexe be tolnam yub bi | Yit yex be telnam yub bi  | ✗ | 3328ms |
+| 73 | they go | yit pe | yit puer | ✗ | 2576ms |
+| 74 | whenever you talk i laugh | hyej et dale at hihide | hyej ho et dal, at dizeud | ✗ | 13114ms |
+| 75 | sad | uva | uva | ✓ | 3260ms |
+| 76 | they are going home but they will work a | yit peye tam oy yit yexo  | Yit tampeye oy yit yexo b | ✗ | 13874ms |
+| 77 | they work at home | yit yexe be tam | Yit yex be tam. | ✗ | 2904ms |
+| 78 | you all do | yet xe | hyayt vay | ✗ | 2357ms |
+| 79 | they are not our parents but they know o | yit voy se yata tedi oy y | Yit so yata tedi, oy yit  | ✗ | 12278ms |
+| 80 | we would come | yat upu | Yat upyu. | ✗ | 7812ms |
+| 81 | your name is beautiful | eta dyun se via | eta dyun se via | ✓ | 2094ms |
+| 82 | you people hate yourselves but we do not | yet ufe yeut oy yat voy u | yet euf yeut oy ayit voeu | ✗ | 13182ms |
+| 83 | this student is bad | hia tixut se fua | hia tixut fua | ✗ | 2550ms |
+| 84 | she examined herself | iyt yubteaxa iut | iyt vyayeka iuyt | ✗ | 9764ms |
+| 85 | is this house beautiful | duven hia tam se via | Duven hia tam via? | ✗ | 2144ms |
+| 86 | people often do not love themselves but  | yot glaxag voy ife yout o | Yot glaxagay voy ifonier  | ✗ | 4128ms |
+| 87 | you were very far from here | et sa gla yib bi him | et sa gla yiba bi him | ✗ | 3676ms |
+| 88 | you are going home | et peye tam | et pe be tam | ✗ | 8152ms |
+| 89 | whatever room you want you can have | hyea tim et fe et yafe ay | Ha tim ho et fone, et yaf | ✗ | 2828ms |
+| 90 | cars | puri | puri | ✓ | 3991ms |
+| 91 | i am | at se | at se | ✓ | 1889ms |
+| 92 | fast | iga | iga | ✓ | 1774ms |
+| 93 | the teachers are bad | ha tuxuti se fua | tuxuti fua | ✗ | 2188ms |
+| 94 | will you go | duven et po | du et puo | ✗ | 5122ms |
+| 95 | often he wins | glaxag it ake | gla jodi it ak | ✗ | 4872ms |
+| 96 | while we are here we will do some work f | je van yat so him yat xo  | Je van yat be him, yat va | ✗ | 4983ms |
+| 97 | this teacher is rather good | hia tuxut se gle fia | hia tuxut ga gwa fia | ✗ | 2556ms |
+| 98 | my life is good | ata tej se fia | ata tej fia | ✗ | 3890ms |
+| 99 | my house is big | ata tam se aga | Tamti aga. | ✗ | 1803ms |

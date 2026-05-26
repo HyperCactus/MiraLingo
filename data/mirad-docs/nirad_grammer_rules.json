@@ -45,8 +45,11 @@
           "capitalization",
           "diacritics",
           "proper nouns",
-          "spelling"
+          "spelling",
+          "orthography",
+          "transliteration"
         ],
+        "importance": 0.4,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Alphabet / Capitalization"
@@ -84,8 +87,11 @@
           "direct quote",
           "colon",
           "punctuation",
-          "reported speech"
+          "reported speech",
+          "orthography",
+          "quotation"
         ],
+        "importance": 0.2,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Punctuation"
@@ -130,8 +136,11 @@
           "j",
           "c",
           "g",
-          "s"
+          "s",
+          "phonology",
+          "transliteration"
         ],
+        "importance": 0.3,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Pronunciation of Consonants"
@@ -180,8 +189,11 @@
           "complex vowel",
           "stress",
           "y",
-          "w"
+          "w",
+          "phonology",
+          "syllabification"
         ],
+        "importance": 0.25,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Syllabification"
@@ -225,6 +237,7 @@
           "pronunciation",
           "syllabification"
         ],
+        "importance": 0.1,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Stress"
@@ -273,8 +286,11 @@
           "singular",
           "common noun",
           "proper noun",
-          "final consonant"
+          "final consonant",
+          "morphology",
+          "orthography"
         ],
+        "importance": 0.5,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Types"
@@ -321,8 +337,11 @@
           "nouns",
           "-i",
           "agreement",
-          "countable nouns"
+          "countable nouns",
+          "inflection",
+          "number"
         ],
+        "importance": 1.0,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Pluralization of Common Nouns"
@@ -373,8 +392,11 @@
           "definite",
           "ha",
           "indefinite",
-          "noun phrase"
+          "noun phrase",
+          "definiteness",
+          "determiners"
         ],
+        "importance": 1.0,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Modifying Nouns with the Definite Article"
@@ -417,8 +439,11 @@
           "adjective order",
           "agreement",
           "noun phrase",
-          "word order"
+          "word order",
+          "syntax",
+          "constituent order"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Modifiers: Placement and Agreement"
@@ -457,8 +482,11 @@
           "of",
           "bi",
           "proper name",
-          "genitive"
+          "genitive",
+          "syntax",
+          "case_mapping"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage"
@@ -516,8 +544,11 @@
           "juxtaposition",
           "hyphenation",
           "preposition",
-          "conjunction"
+          "conjunction",
+          "word order",
+          "word construction"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage"
@@ -576,8 +607,11 @@
           "w",
           "y",
           "agent noun",
-          "-uyt"
+          "-uyt",
+          "derivation",
+          "morphology"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Gender"
@@ -627,8 +661,11 @@
           "adjective",
           "descriptive",
           "-a",
-          "derived adjective"
+          "derived adjective",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Descriptive Adjectives"
@@ -670,8 +707,11 @@
           "adjective",
           "word order",
           "before noun",
-          "noun phrase"
+          "noun phrase",
+          "syntax",
+          "constituent order"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Descriptive Adjectives"
@@ -730,8 +770,11 @@
           "ge",
           "go",
           "gwa",
-          "vyel"
+          "vyel",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Comparing Adjectives by Degree"
@@ -785,8 +828,11 @@
           "-t",
           "quality",
           "person",
-          "thing"
+          "thing",
+          "word construction",
+          "derivation"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deriving Substantives from Adjectives"
@@ -845,8 +891,11 @@
           "lo",
           "ol",
           "ov",
-          "lyo"
+          "lyo",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.5,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Reversing the Semantics of Adjectives"
@@ -901,8 +950,11 @@
           "semantic vowels",
           "i u",
           "a e o",
-          "adjectives"
+          "adjectives",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.4,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Scalarization of Base Word Adjectives"
@@ -951,8 +1003,11 @@
           "mitigate",
           "y-glide",
           "adjectives",
-          "intensity"
+          "intensity",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.35,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deintensifying the Sense of Adjectives"
@@ -996,8 +1051,11 @@
           "-y",
           "manner",
           "adjective",
-          "beautifully"
+          "beautifully",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Adverbs / Comparison of Adverbs by Degree"
@@ -1038,8 +1096,11 @@
           "ge",
           "vyel",
           "as",
-          "than"
+          "than",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Comparison of Adverbs by Degree"
@@ -1092,8 +1153,11 @@
           "subject",
           "object",
           "preposition",
-          "invariant"
+          "invariant",
+          "syntax",
+          "case_mapping"
         ],
+        "importance": 0.85,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Cases"
@@ -1146,8 +1210,11 @@
           "it",
           "they",
           "-t",
-          "-s"
+          "-s",
+          "animacy",
+          "core mapping"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Animacy / Personal Pronouns"
@@ -1204,8 +1271,11 @@
           "yat",
           "yet",
           "yit",
-          "plural y"
+          "plural y",
+          "core mapping",
+          "person number"
         ],
+        "importance": 1.0,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Personal Pronouns"
@@ -1260,8 +1330,11 @@
           "wit",
           "iyt",
           "it",
-          "optional gender"
+          "optional gender",
+          "animacy",
+          "core mapping"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Gender in Pronouns"
@@ -1309,8 +1382,11 @@
           "people",
           "they",
           "ot",
-          "yot"
+          "yot",
+          "indefinite",
+          "generic reference"
         ],
+        "importance": 0.5,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Generic Pronouns"
@@ -1356,8 +1432,11 @@
           "you and I",
           "aet",
           "ayet",
-          "inclusive"
+          "inclusive",
+          "person number",
+          "rare"
         ],
+        "importance": 0.25,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Hybrid Pronouns"
@@ -1409,8 +1488,11 @@
           "himself",
           "herself",
           "u",
-          "pronoun"
+          "pronoun",
+          "morphology",
+          "word construction"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Reflexive Personal Pronouns"
@@ -1460,8 +1542,11 @@
           "auto",
           "reflexive prefix",
           "suicide",
-          "autobiography"
+          "autobiography",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.4,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Reflexive Personal Pronouns"
@@ -1510,8 +1595,11 @@
           "myself",
           "yourself",
           "pronoun",
-          "personal plus reflexive"
+          "personal plus reflexive",
+          "syntax",
+          "emphasis"
         ],
+        "importance": 0.35,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Emphatic Personal Pronouns"
@@ -1559,8 +1647,11 @@
           "hyuit",
           "hyuis",
           "animate",
-          "inanimate"
+          "inanimate",
+          "pronoun mapping",
+          "semantic role"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Reciprocal Personal Pronouns"
@@ -1617,8 +1708,11 @@
           "yours",
           "-a",
           "-as",
-          "-asi"
+          "-asi",
+          "morphology",
+          "word construction"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Possessive Adjectives and Pronouns"
@@ -1669,8 +1763,11 @@
           "expletive it",
           "animate it",
           "inanimate it",
-          "omit pronoun"
+          "omit pronoun",
+          "core mapping",
+          "pronoun resolution"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Translating various uses of it in English"
@@ -1723,8 +1820,11 @@
           "infinitive",
           "-er",
           "conjugation",
-          "verbs"
+          "verbs",
+          "morphology",
+          "word construction"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Verb Stems"
@@ -1774,8 +1874,11 @@
           "person",
           "number",
           "invariable",
-          "conjugation"
+          "conjugation",
+          "syntax",
+          "core mapping"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Verb ser Unchanged for person/number"
@@ -1837,8 +1940,11 @@
           "-e",
           "-a",
           "-o",
-          "-u"
+          "-u",
+          "tense",
+          "mood"
         ],
+        "importance": 1.0,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Simple Aspect / Conjugation in the Simple Active Tenses"
@@ -1888,8 +1994,11 @@
           "w",
           "is done",
           "was done",
-          "by phrase"
+          "by phrase",
+          "morphology",
+          "tense"
         ],
+        "importance": 0.85,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Passive Voice / Simple Aspect"
@@ -1939,8 +2048,11 @@
           "-wa",
           "-wo",
           "-wu",
-          "tense"
+          "tense",
+          "voice",
+          "morphology"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Simple Aspect"
@@ -1991,8 +2103,11 @@
           "-eya",
           "-eyo",
           "-eyu",
-          "doing"
+          "doing",
+          "aspect",
+          "morphology"
         ],
+        "importance": 0.75,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Progressive Aspect"
@@ -2037,8 +2152,11 @@
           "-ewe",
           "-ewa",
           "-ewo",
-          "-ewu"
+          "-ewu",
+          "aspect",
+          "voice"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Progressive Aspect"
@@ -2089,8 +2207,11 @@
           "will have done",
           "-aye",
           "-aya",
-          "-ayo"
+          "-ayo",
+          "aspect",
+          "morphology"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Perfect Aspect"
@@ -2140,8 +2261,11 @@
           "had been done",
           "-awe",
           "-awa",
-          "-awo"
+          "-awo",
+          "aspect",
+          "voice"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Perfect Aspect"
@@ -2187,8 +2311,11 @@
           "about to",
           "-oye",
           "-oya",
-          "aspect"
+          "aspect",
+          "future",
+          "morphology"
         ],
+        "importance": 0.4,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Imminent Aspect"
@@ -2235,8 +2362,11 @@
           "may",
           "aspect",
           "-uye",
-          "-uwa"
+          "-uwa",
+          "mood",
+          "morphology"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Potential Aspect"
@@ -2288,8 +2418,11 @@
           "hypothetical",
           "-u",
           "command",
-          "would"
+          "would",
+          "mood",
+          "syntax"
         ],
+        "importance": 0.85,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Conditional and Imperative"
@@ -2341,8 +2474,11 @@
           "must",
           "want",
           "like",
-          "should"
+          "should",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Modal Verbs"
@@ -2397,8 +2533,11 @@
           "softening",
           "would like",
           "could",
-          "ought"
+          "ought",
+          "mood",
+          "semantics"
         ],
+        "importance": 0.5,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Modal Verbs"
@@ -2454,8 +2593,11 @@
           "like",
           "might",
           "weaken",
-          "mitigate"
+          "mitigate",
+          "semantics",
+          "word construction"
         ],
+        "importance": 0.35,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Modal Verbs"
@@ -2497,8 +2639,11 @@
           "transitive",
           "direct object",
           "SVO",
-          "verb complement"
+          "verb complement",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Object / Word Order"
@@ -2549,8 +2694,11 @@
           "direct object",
           "give",
           "tell",
-          "buy"
+          "buy",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.75,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Object / Verbs of Motion and Communication"
@@ -2600,8 +2748,11 @@
           "complement",
           "stative",
           "adjective complement",
-          "infinitive"
+          "infinitive",
+          "predicate",
+          "syntax"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Predicate / Word Order"
@@ -2656,8 +2807,11 @@
           "tell",
           "know",
           "embedded question",
-          "communication verbs"
+          "communication verbs",
+          "subordination",
+          "syntax"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Object / Communication Verbs"
@@ -2716,8 +2870,11 @@
           "go home",
           "come from",
           "tell me",
-          "directionality"
+          "directionality",
+          "argument structure",
+          "syntax"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Omitting Prepositions after Certain Verbs / Verbs of Motion and Communication"
@@ -2769,8 +2926,11 @@
           "deictic",
           "possessive",
           "quantitative",
-          "numerical"
+          "numerical",
+          "parts of speech",
+          "syntax"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Types of Determiners"
@@ -2823,8 +2983,11 @@
           "that",
           "who",
           "what",
-          "correlatives"
+          "correlatives",
+          "word construction",
+          "morphology"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deictic Determiners"
@@ -2880,8 +3043,11 @@
           "where",
           "when",
           "how",
-          "duh"
+          "duh",
+          "interrogative",
+          "core mapping"
         ],
+        "importance": 0.85,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deictic Determiners / Animate Determiners"
@@ -2935,8 +3101,11 @@
           "plural",
           "-t",
           "-s",
-          "-i"
+          "-i",
+          "animacy",
+          "number"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Animate Determiners and Personal Pronouns / Pronominalizing Adjectives"
@@ -2989,8 +3158,11 @@
           "those",
           "hia",
           "hua",
-          "demonstrative"
+          "demonstrative",
+          "deixis",
+          "core mapping"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deictic Determiners / Pronominalizing Adjectives"
@@ -3041,8 +3213,11 @@
           "each",
           "hya",
           "hyaha",
-          "hyawa"
+          "hyawa",
+          "quantifier",
+          "number"
         ],
+        "importance": 0.75,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Numerical Deictic Determiners"
@@ -3088,8 +3263,11 @@
           "solely",
           "hawa",
           "haway",
-          "exclusive"
+          "exclusive",
+          "focus",
+          "syntax"
         ],
+        "importance": 0.55,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Numerical Deictic Determiners"
@@ -3143,8 +3321,11 @@
           "and",
           "hyeawa",
           "hyeowa",
-          "hyaewa"
+          "hyaewa",
+          "coordination",
+          "syntax"
         ],
+        "importance": 0.5,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Numerical Deictic Determiners"
@@ -3198,8 +3379,11 @@
           "now",
           "then",
           "him",
-          "hij"
+          "hij",
+          "deixis",
+          "adverb"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Deictic Adverbs"
@@ -3249,8 +3433,11 @@
           "kind",
           "duhoyen",
           "duhoyena",
-          "duhonog"
+          "duhonog",
+          "question words",
+          "disambiguation"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Numerical Deictic Determiners / How"
@@ -3291,8 +3478,11 @@
           "subject",
           "verb",
           "object",
-          "declarative"
+          "declarative",
+          "syntax",
+          "core mapping"
         ],
+        "importance": 1.0,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Word Order"
@@ -3329,8 +3519,11 @@
           "subject",
           "noun phrase",
           "modifiers",
-          "word order"
+          "word order",
+          "syntax",
+          "constituent order"
         ],
+        "importance": 0.75,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Subject / Word Order"
@@ -3377,8 +3570,11 @@
           "complement",
           "predicate",
           "direct object",
-          "indirect object"
+          "indirect object",
+          "word order",
+          "syntax"
         ],
+        "importance": 0.9,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "The Object / Word Order"
@@ -3415,8 +3611,11 @@
           "direct discourse",
           "quote",
           "colon",
-          "reported speech"
+          "reported speech",
+          "punctuation",
+          "orthography"
         ],
+        "importance": 0.2,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Direct Discourse"
@@ -3471,8 +3670,11 @@
           "ay",
           "ey",
           "oy",
-          "coordinate conjunction"
+          "coordinate conjunction",
+          "coordination",
+          "syntax"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage / Conjunctions"
@@ -3516,8 +3718,11 @@
           "that",
           "van",
           "subordinate conjunction",
-          "complement clause"
+          "complement clause",
+          "subordination",
+          "syntax"
         ],
+        "importance": 0.75,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Communication Verbs / Word Order"
@@ -3561,8 +3766,11 @@
           "of",
           "bi",
           "possession",
-          "partitive"
+          "partitive",
+          "genitive",
+          "syntax"
         ],
+        "importance": 0.85,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage"
@@ -3601,8 +3809,11 @@
           "bay",
           "accompaniment",
           "company",
-          "preposition"
+          "preposition",
+          "semantic role",
+          "relation"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Prepositions / Vocabulary"
@@ -3645,8 +3856,11 @@
           "for",
           "av",
           "beneficiary",
-          "preposition"
+          "preposition",
+          "semantic role",
+          "relation"
         ],
+        "importance": 0.65,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Cases / Verbs of Motion and Communication"
@@ -3684,8 +3898,11 @@
           "without",
           "boy",
           "absence",
-          "preposition"
+          "preposition",
+          "semantic role",
+          "relation"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage"
@@ -3724,8 +3941,11 @@
           "concerning",
           "ayv",
           "topic",
-          "preposition"
+          "preposition",
+          "semantic role",
+          "relation"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Linkage"
@@ -3779,8 +3999,11 @@
           "drop -a",
           "drop -er",
           "word building",
-          "affixation"
+          "affixation",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Rule #2: Affixation / Prefixes"
@@ -3830,8 +4053,11 @@
           "-an",
           "-n",
           "-ness",
-          "-ity"
+          "-ity",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -3881,8 +4107,11 @@
           "-en",
           "-ing",
           "action noun",
-          "nominalization"
+          "nominalization",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -3934,8 +4163,11 @@
           "-uyt",
           "one who",
           "-er",
-          "feminine agent"
+          "feminine agent",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.6,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes / Gender"
@@ -3986,8 +4218,11 @@
           "-s",
           "animate",
           "inanimate",
-          "nominalization"
+          "nominalization",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Pronouns / Deriving Substantives from Adjectives"
@@ -4042,8 +4277,11 @@
           "-yan",
           "forest",
           "library",
-          "constellation"
+          "constellation",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.4,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -4105,8 +4343,11 @@
           "-im",
           "-am",
           "-um",
-          "-yem"
+          "-yem",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -4157,8 +4398,11 @@
           "vehicle",
           "-ar",
           "-ir",
-          "-ur"
+          "-ur",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.45,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -4212,8 +4456,11 @@
           "-tun",
           "-tut",
           "-tuyn",
-          "-tuin"
+          "-tuin",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.2,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Noun Derivational Suffixes"
@@ -4272,8 +4519,11 @@
           "-ika",
           "-oya",
           "-uka",
-          "-yena"
+          "-yena",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.55,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Adjectival Derivative Endings"
@@ -4340,8 +4590,11 @@
           "-ua",
           "ing",
           "ed",
-          "able"
+          "able",
+          "derivation",
+          "word construction"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Adjectival Derivative Endings"
@@ -4400,8 +4653,11 @@
           "language",
           "country",
           "proper noun",
-          "specificity"
+          "specificity",
+          "definiteness",
+          "determiners"
         ],
+        "importance": 0.7,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Use of the Definite Article"
@@ -4444,8 +4700,11 @@
           "an",
           "indefinite article",
           "omit article",
-          "noun phrase"
+          "noun phrase",
+          "determiners",
+          "definiteness"
         ],
+        "importance": 0.95,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Modifying Nouns with the Definite Article"
@@ -4497,8 +4756,11 @@
           "woman",
           "w",
           "y",
-          "default neutral"
+          "default neutral",
+          "core mapping",
+          "pronoun resolution"
         ],
+        "importance": 0.8,
         "source": {
           "document": "Mirad_grammer.pdf",
           "section": "Gender / Pronouns"

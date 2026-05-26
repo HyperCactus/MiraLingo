@@ -18,11 +18,11 @@ Architecture:
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import dspy
 
-from mirad_translator.lexicon_db import DB_PATH, LEXICON_PATH, lookup_word_candidates
+from mirad_translator.lexicon_db import lookup_word, lookup_word_candidates, lookup_mirad_word_candidates
 from mirad_translator.retrieval import _get_embedder, _CHROMA_AVAILABLE
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -254,6 +254,117 @@ def semantic_lookup_multi(
     return result
 
 
+def semantic_lookup_structured(
+    english_text: str,
+    top_k_per_word: int = 5,
+    max_total_pairs: int = 50,
+    min_similarity: float = 0.5,
+    include_exact: bool = True,
+) -> dict[str, Any]:
+    """Structured vocabulary lookup returning three sections:
+
+    1. word_equivalents: exact-match pairs from the lexicon (English → Mirad)
+    2. relevant_words: top-k semantically similar pairs in the translation direction
+    3. back_translation: for every Mirad word in word_equivalents, look up its
+       reverse (Mirad → English) translations to provide additional context
+
+    Args:
+        english_text: The English text to look up words from.
+        top_k_per_word: Number of semantic neighbors per input word.
+        max_total_pairs: Cap on total output pairs to control prompt size.
+        min_similarity: Minimum cosine similarity threshold.
+        include_exact: Whether to include exact-match results.
+
+    Returns:
+        Dict with keys 'word_equivalents', 'relevant_words', 'back_translation',
+        each containing a dict of {source: target} pairs.
+    """
+    from mirad_translator.lexicon_db import lookup_word, lookup_word_candidates, lookup_mirad_word_candidates
+
+    # --- 1. Exact-match word equivalents ---
+    words = []
+    for w in english_text.split():
+        w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}').lower()
+        if w_clean and len(w_clean) > 1 and w_clean not in [w for w in words]:
+            words.append(w_clean)
+
+    word_equivalents: dict[str, str] = {}
+    for word in words:
+        candidates = lookup_word_candidates(english_word=word)
+        if candidates:
+            word_equivalents[word] = ", ".join(candidates)
+
+    # --- 2. Relevant words (semantic top-k in translation direction) ---
+    relevant_pairs: dict[str, str] = {}
+    try:
+        semantic_pairs = semantic_lookup_multi(
+            english_text if not word_equivalents else " ".join(word_equivalents.keys()),
+            top_k_per_word=top_k_per_word,
+            max_total_pairs=max_total_pairs,
+            min_similarity=min_similarity,
+            include_exact=False,  # exact matches are in word_equivalents already
+        )
+        for source, target in (semantic_pairs or {}).items():
+            if source.lower() not in word_equivalents:
+                relevant_pairs[str(source)] = str(target)
+    except Exception:
+        pass
+
+    # --- 3. Back translation (every Mirad word from word_equivalents → English) ---
+    back_translation: dict[str, str] = {}
+    for english_word, mirad_translations in word_equivalents.items():
+        for mirad_word in [m.strip() for m in mirad_translations.split(",")]:
+            if not mirad_word:
+                continue
+            if mirad_word in back_translation:
+                continue
+            english_candidates = lookup_mirad_word_candidates(mirad_word=mirad_word)
+            if english_candidates:
+                back_translation[mirad_word] = ", ".join(english_candidates)
+
+    return {
+        "word_equivalents": word_equivalents,
+        "relevant_words": relevant_pairs,
+        "back_translation": back_translation,
+    }
+    """DSPy-traceable semantic lexicon lookup module.
+
+    Uses ChromaDB + jina-embeddings-v5-text-small embeddings to find top-k semantically
+    similar English words for each input word, along with their Mirad
+    translations. Falls back gracefully if ChromaDB/embeddings are unavailable.
+    """
+
+    def __init__(self, db_path=None, top_k_per_word: int = 0, max_total_pairs: int = 30, min_similarity: float = 0.5):
+        super().__init__()
+        self._db_path = db_path
+        self._top_k_per_word = top_k_per_word
+        self._max_total_pairs = max_total_pairs
+        self._min_similarity = min_similarity
+
+    def forward(self, english_text: str) -> dspy.Prediction:
+        try:
+            word_equivalents = semantic_lookup_multi(
+                english_text,
+                top_k_per_word=self._top_k_per_word,
+                max_total_pairs=self._max_total_pairs,
+                min_similarity=self._min_similarity,
+                include_exact=True,
+            )
+        except Exception:
+            # Fallback to exact lookup if semantic search fails
+            from mirad_translator.lexicon_db import lookup_word
+            words = english_text.split()
+            word_equivalents = {}
+            for w in words:
+                w_clean = w.strip().rstrip('.,!?;:"\'-()[]{}')
+                if w_clean:
+                    mirad = lookup_word(db_path=self._db_path, english_word=w_clean)
+                    if mirad:
+                        word_equivalents[w_clean.lower()] = mirad
+
+        return dspy.Prediction(word_equivalents=word_equivalents)
+
+
 class MiradSemanticLexiconLookup(dspy.Module):
     """DSPy-traceable semantic lexicon lookup module.
 
@@ -262,7 +373,7 @@ class MiradSemanticLexiconLookup(dspy.Module):
     translations. Falls back gracefully if ChromaDB/embeddings are unavailable.
     """
 
-    def __init__(self, db_path=None, top_k_per_word: int = 5, max_total_pairs: int = 30, min_similarity: float = 0.5):
+    def __init__(self, db_path=None, top_k_per_word: int = 0, max_total_pairs: int = 30, min_similarity: float = 0.5):
         super().__init__()
         self._db_path = db_path
         self._top_k_per_word = top_k_per_word

@@ -1,0 +1,1659 @@
+{
+  "metadata": {
+    "description": "Mirad translation pairs.",
+    "total": 330,
+    "format": "bidirectional: english + mirad fields (no source/target)"
+  },
+  "pairs": [
+    {
+      "id": "pair-0732",
+      "english": "i do not come",
+      "mirad": "at voy upe"
+    },
+    {
+      "id": "pair-0898",
+      "english": "that student is bad and that teacher is bad",
+      "mirad": "hua tixut se fua ay hua tuxut se fua"
+    },
+    {
+      "id": "pair-0739",
+      "english": "you do not go",
+      "mirad": "et voy pe"
+    },
+    {
+      "id": "pair-0030",
+      "english": "my book",
+      "mirad": "ata dyes"
+    },
+    {
+      "id": "pair-0498",
+      "english": "he went outside",
+      "mirad": "it pa oyeb"
+    },
+    {
+      "id": "pair-0268",
+      "english": "he or she worked at home",
+      "mirad": "it yexa be tam"
+    },
+    {
+      "id": "pair-0396",
+      "english": "she said i do not want to go",
+      "mirad": "iyt da at voy fe per"
+    },
+    {
+      "id": "pair-0743",
+      "english": "they do not go",
+      "mirad": "yit voy pe"
+    },
+    {
+      "id": "pair-0111",
+      "english": "that student is bad",
+      "mirad": "hua tixut se fua"
+    },
+    {
+      "id": "pair-0806",
+      "english": "i knew that you would come but i did not know whether they would come",
+      "mirad": "at ta van et upo oy at voy ta ven yit upo"
+    },
+    {
+      "id": "pair-0841",
+      "english": "we will not start until they get here",
+      "mirad": "yat voy ijo ju van yit puo him"
+    },
+    {
+      "id": "pair-0368",
+      "english": "this teacher is not very good",
+      "mirad": "hia tuxut se glo fia"
+    },
+    {
+      "id": "pair-0698",
+      "english": "you do it well",
+      "mirad": "et xe has fi"
+    },
+    {
+      "id": "pair-0724",
+      "english": "is the house big",
+      "mirad": "duven ha tam se aga"
+    },
+    {
+      "id": "pair-0569",
+      "english": "a bad thing",
+      "mirad": "fus"
+    },
+    {
+      "id": "pair-0069",
+      "english": "the students",
+      "mirad": "ha tixuti"
+    },
+    {
+      "id": "pair-0532",
+      "english": "i study french",
+      "mirad": "at tixe ferad"
+    },
+    {
+      "id": "pair-0656",
+      "english": "your life is sad",
+      "mirad": "eta tej se uva"
+    },
+    {
+      "id": "pair-0775",
+      "english": "we worked at home and we did it well",
+      "mirad": "yat yexa be tam ay yat xa has fi"
+    },
+    {
+      "id": "pair-0730",
+      "english": "is this student good",
+      "mirad": "duven hia tixut se fia"
+    },
+    {
+      "id": "pair-0337",
+      "english": "you all were going home",
+      "mirad": "yet peya tam"
+    },
+    {
+      "id": "pair-0541",
+      "english": "mirad",
+      "mirad": "mirad"
+    },
+    {
+      "id": "pair-0112",
+      "english": "this is a bad student",
+      "mirad": "his se fua tixut"
+    },
+    {
+      "id": "pair-0117",
+      "english": "your name is john",
+      "mirad": "eta dyun se john"
+    },
+    {
+      "id": "pair-0551",
+      "english": "you are welcome",
+      "mirad": "hwey"
+    },
+    {
+      "id": "pair-0526",
+      "english": "do as you would want others to act toward you",
+      "mirad": "xu hoyen et fu van hyuti axlu ub et"
+    },
+    {
+      "id": "pair-0817",
+      "english": "they do not know where we went but they know where we live",
+      "mirad": "yit voy te hom yat pa oy yit te hom yat tambese"
+    },
+    {
+      "id": "pair-0220",
+      "english": "you will come",
+      "mirad": "et upo"
+    },
+    {
+      "id": "pair-0639",
+      "english": "my desk is clean",
+      "mirad": "ata dresem se vyia"
+    },
+    {
+      "id": "pair-0787",
+      "english": "we were going home but we came here",
+      "mirad": "yat peya tam oy yat upa him"
+    },
+    {
+      "id": "pair-0348",
+      "english": "we would be going home",
+      "mirad": "yat peyu tam"
+    },
+    {
+      "id": "pair-0518",
+      "english": "if we want to get results we must work harder",
+      "mirad": "ven yat fe iber ixuni yat yefe yexer ga jestay"
+    },
+    {
+      "id": "pair-0002",
+      "english": "the house",
+      "mirad": "ha tam"
+    },
+    {
+      "id": "pair-0745",
+      "english": "you do not work at home",
+      "mirad": "et voy yexe be tam"
+    },
+    {
+      "id": "pair-0716",
+      "english": "do you go",
+      "mirad": "duven et pe"
+    },
+    {
+      "id": "pair-0249",
+      "english": "we will go",
+      "mirad": "yat po"
+    },
+    {
+      "id": "pair-0210",
+      "english": "we come",
+      "mirad": "yat upe"
+    },
+    {
+      "id": "pair-0147",
+      "english": "false",
+      "mirad": "vyoa"
+    },
+    {
+      "id": "pair-0263",
+      "english": "we work at home",
+      "mirad": "yat yexe be tam"
+    },
+    {
+      "id": "pair-0695",
+      "english": "you all would be happy",
+      "mirad": "yet su iva"
+    },
+    {
+      "id": "pair-0318",
+      "english": "when were you born",
+      "mirad": "duhoj et taja"
+    },
+    {
+      "id": "pair-0055",
+      "english": "children",
+      "mirad": "tobeti"
+    },
+    {
+      "id": "pair-0669",
+      "english": "he or she is good",
+      "mirad": "it se fia"
+    },
+    {
+      "id": "pair-0519",
+      "english": "unless you say otherwise i will be silent",
+      "mirad": "oven et do hyuyen at dolo"
+    },
+    {
+      "id": "pair-0024",
+      "english": "a book",
+      "mirad": "dyes"
+    },
+    {
+      "id": "pair-0557",
+      "english": "please come in",
+      "mirad": "hwey yepu"
+    },
+    {
+      "id": "pair-0871",
+      "english": "before i leave say hi",
+      "mirad": "du hay ja van at pio"
+    },
+    {
+      "id": "pair-0671",
+      "english": "you all are good",
+      "mirad": "yet se fia"
+    },
+    {
+      "id": "pair-0237",
+      "english": "we go",
+      "mirad": "yat pe"
+    },
+    {
+      "id": "pair-0272",
+      "english": "i will work at home",
+      "mirad": "at yexo be tam"
+    },
+    {
+      "id": "pair-0408",
+      "english": "she has gone",
+      "mirad": "iyt paye"
+    },
+    {
+      "id": "pair-0782",
+      "english": "you all are going home but you all will work at home",
+      "mirad": "yet peye tam oy yet yexo be tam"
+    },
+    {
+      "id": "pair-0989",
+      "english": "it is sad that she left but it is good to win",
+      "mirad": "se uva van iyt pia oy se fia aker"
+    },
+    {
+      "id": "pair-0555",
+      "english": "i would like to congratulate you",
+      "mirad": "at fu hwaydwa et"
+    },
+    {
+      "id": "pair-0979",
+      "english": "all roads lead to rome but all the roads are blocked",
+      "mirad": "hya mepi izpe roma oy hya ha mepi se ebwa"
+    },
+    {
+      "id": "pair-0668",
+      "english": "you are good",
+      "mirad": "et se fia"
+    },
+    {
+      "id": "pair-0320",
+      "english": "how are you",
+      "mirad": "duhoyen et se"
+    },
+    {
+      "id": "pair-0657",
+      "english": "our life is happy",
+      "mirad": "yata tej se iva"
+    },
+    {
+      "id": "pair-0863",
+      "english": "when i arrived the fun began",
+      "mirad": "hoj at pua ha if ija"
+    },
+    {
+      "id": "pair-0003",
+      "english": "the houses",
+      "mirad": "ha tami"
+    },
+    {
+      "id": "pair-0972",
+      "english": "this is a good thing and that is mine",
+      "mirad": "his se fis ay huas se atas"
+    },
+    {
+      "id": "pair-0571",
+      "english": "a good person",
+      "mirad": "fiat"
+    },
+    {
+      "id": "pair-0680",
+      "english": "you were happy",
+      "mirad": "et sa iva"
+    },
+    {
+      "id": "pair-0804",
+      "english": "they know that you will come and they will be happy",
+      "mirad": "yit te van et upo ay yit so iva"
+    },
+    {
+      "id": "pair-0414",
+      "english": "maybe i may go",
+      "mirad": "ve at vey po"
+    },
+    {
+      "id": "pair-0299",
+      "english": "i will be there until the end of the season",
+      "mirad": "at so hum ju ha uj bi ha jeb"
+    },
+    {
+      "id": "pair-0108",
+      "english": "this student is good",
+      "mirad": "hia tixut se fia"
+    },
+    {
+      "id": "pair-0471",
+      "english": "all the roads are blocked",
+      "mirad": "hya ha mepi se ebwa"
+    },
+    {
+      "id": "pair-0734",
+      "english": "he or she does not come",
+      "mirad": "it voy upe"
+    },
+    {
+      "id": "pair-0282",
+      "english": "before this i lived in the suburbs",
+      "mirad": "ja his at tambesa ha yuzdom"
+    },
+    {
+      "id": "pair-0080",
+      "english": "the desk",
+      "mirad": "ha dresem"
+    },
+    {
+      "id": "pair-0559",
+      "english": "here is my calling card",
+      "mirad": "hiy ata dyundraf"
+    },
+    {
+      "id": "pair-0363",
+      "english": "this house is bigger than yours",
+      "mirad": "hia tam se ga aga vyel etas"
+    },
+    {
+      "id": "pair-0704",
+      "english": "he or she did it well",
+      "mirad": "it xa has fi"
+    },
+    {
+      "id": "pair-0426",
+      "english": "it will rain",
+      "mirad": "mamilo"
+    },
+    {
+      "id": "pair-0072",
+      "english": "the teacher",
+      "mirad": "ha tuxut"
+    },
+    {
+      "id": "pair-0896",
+      "english": "their teacher is good but our teacher is bad",
+      "mirad": "yita tuxut se fia oy yata tuxut se fua"
+    },
+    {
+      "id": "pair-0462",
+      "english": "is that house yours",
+      "mirad": "duven hua tam se etas"
+    },
+    {
+      "id": "pair-0033",
+      "english": "your books",
+      "mirad": "eta dyesi"
+    },
+    {
+      "id": "pair-0902",
+      "english": "your name is john and my name is bill",
+      "mirad": "eta dyun se john ay ata dyun se bill"
+    },
+    {
+      "id": "pair-0253",
+      "english": "you would go",
+      "mirad": "et pu"
+    },
+    {
+      "id": "pair-0845",
+      "english": "you will not start until i get here",
+      "mirad": "et voy ijo ju van at puo him"
+    },
+    {
+      "id": "pair-0123",
+      "english": "our life is bad",
+      "mirad": "yata tej se fua"
+    },
+    {
+      "id": "pair-0949",
+      "english": "are you married and are the stars bright",
+      "mirad": "duven et se tadxwa ay duven ha mari se manika"
+    },
+    {
+      "id": "pair-0855",
+      "english": "even if i disagree you will support me",
+      "mirad": "gey ven at yontexe et bolo at"
+    },
+    {
+      "id": "pair-0935",
+      "english": "we hate you but you people do not hate yourselves",
+      "mirad": "yat ufe yet oy yet voy ufe yeut"
+    },
+    {
+      "id": "pair-0844",
+      "english": "i will not start until you get here",
+      "mirad": "at voy ijo ju van et puo him"
+    },
+    {
+      "id": "pair-0849",
+      "english": "if they want to get results they must work harder",
+      "mirad": "ven yit fe iber ixuni yit yefe yexer ga jestay"
+    },
+    {
+      "id": "pair-0621",
+      "english": "that house is small",
+      "mirad": "hua tam se oga"
+    },
+    {
+      "id": "pair-0177",
+      "english": "he or she would be",
+      "mirad": "it su"
+    },
+    {
+      "id": "pair-0539",
+      "english": "a german person",
+      "mirad": "deumat"
+    },
+    {
+      "id": "pair-0095",
+      "english": "my teacher is bad",
+      "mirad": "ata tuxut se fua"
+    },
+    {
+      "id": "pair-0760",
+      "english": "you work at a grocery store near here and you will be there until the end of the season",
+      "mirad": "et yexe be tolnam yub bi him ay et so hum ju ha uj bi ha jeb"
+    },
+    {
+      "id": "pair-0187",
+      "english": "they do",
+      "mirad": "yit xe"
+    },
+    {
+      "id": "pair-0614",
+      "english": "the houses are small",
+      "mirad": "ha tami se oga"
+    },
+    {
+      "id": "pair-0160",
+      "english": "we are",
+      "mirad": "yat se"
+    },
+    {
+      "id": "pair-0317",
+      "english": "where are you from",
+      "mirad": "duhom et byise"
+    },
+    {
+      "id": "pair-0985",
+      "english": "the earth goes around the sun and the stars are bright",
+      "mirad": "ha meir yuzpe ha maar ay ha mari se manika"
+    },
+    {
+      "id": "pair-0450",
+      "english": "we hate you",
+      "mirad": "yat ufe yet"
+    },
+    {
+      "id": "pair-0482",
+      "english": "someone else s opinion is equally valid",
+      "mirad": "hyuta texyen se ge fyia"
+    },
+    {
+      "id": "pair-0484",
+      "english": "these words are prohibited",
+      "mirad": "hiia duni se yofwa"
+    },
+    {
+      "id": "pair-0022",
+      "english": "the bird",
+      "mirad": "ha pat"
+    },
+    {
+      "id": "pair-0204",
+      "english": "you all would do",
+      "mirad": "yet xu"
+    },
+    {
+      "id": "pair-0097",
+      "english": "your teacher is bad",
+      "mirad": "eta tuxut se fua"
+    },
+    {
+      "id": "pair-0495",
+      "english": "you will go far in life",
+      "mirad": "et po yib be tej"
+    },
+    {
+      "id": "pair-0004",
+      "english": "a beautiful city",
+      "mirad": "via dom"
+    },
+    {
+      "id": "pair-0039",
+      "english": "your books",
+      "mirad": "yeta dyesi"
+    },
+    {
+      "id": "pair-0970",
+      "english": "let us pray and let us go",
+      "mirad": "van yat fyadilu ay van yat pu"
+    },
+    {
+      "id": "pair-0383",
+      "english": "we do not know",
+      "mirad": "yat voy te"
+    },
+    {
+      "id": "pair-0371",
+      "english": "this teacher is not good enough",
+      "mirad": "hia tuxut se gro fia"
+    },
+    {
+      "id": "pair-0456",
+      "english": "i know his father",
+      "mirad": "at tre wita twed"
+    },
+    {
+      "id": "pair-0865",
+      "english": "when they arrived the fun began",
+      "mirad": "hoj yit pua ha if ija"
+    },
+    {
+      "id": "pair-0574",
+      "english": "bad people",
+      "mirad": "fuati"
+    },
+    {
+      "id": "pair-0602",
+      "english": "he walks fast",
+      "mirad": "it tyoyape ig"
+    },
+    {
+      "id": "pair-0699",
+      "english": "he or she does it well",
+      "mirad": "it xe has fi"
+    },
+    {
+      "id": "pair-0027",
+      "english": "the books",
+      "mirad": "ha dyesi"
+    },
+    {
+      "id": "pair-0291",
+      "english": "they live very close by",
+      "mirad": "yit tambese gla yub"
+    },
+    {
+      "id": "pair-0942",
+      "english": "often he wins but today she won a lot",
+      "mirad": "glaxag wit ake oy hijub iyt aka glas"
+    },
+    {
+      "id": "pair-0248",
+      "english": "he or she will go",
+      "mirad": "it po"
+    },
+    {
+      "id": "pair-0176",
+      "english": "you would be",
+      "mirad": "et su"
+    },
+    {
+      "id": "pair-0899",
+      "english": "this student is good but that student is bad",
+      "mirad": "hia tixut se fia oy hua tixut se fua"
+    },
+    {
+      "id": "pair-0988",
+      "english": "it may rain but everything is fine",
+      "mirad": "vey mamilo oy hyas se fia"
+    },
+    {
+      "id": "pair-0881",
+      "english": "this teacher is too good but that teacher is good enough",
+      "mirad": "hia tuxut se gra fia oy hua tuxut se gre fia"
+    },
+    {
+      "id": "pair-0776",
+      "english": "you all worked at home and you all did it well",
+      "mirad": "yet yexa be tam ay yet xa has fi"
+    },
+    {
+      "id": "pair-0159",
+      "english": "he or she is",
+      "mirad": "it se"
+    },
+    {
+      "id": "pair-0673",
+      "english": "i am bad",
+      "mirad": "at se fua"
+    },
+    {
+      "id": "pair-0466",
+      "english": "whose are these books",
+      "mirad": "duhotasi se hia dyesi"
+    },
+    {
+      "id": "pair-0475",
+      "english": "any kind of drink is available",
+      "mirad": "hyeyena til se aysyafwa"
+    },
+    {
+      "id": "pair-0241",
+      "english": "you went",
+      "mirad": "et pa"
+    },
+    {
+      "id": "pair-0393",
+      "english": "i knew that he or she would come",
+      "mirad": "at ta van it upo"
+    },
+    {
+      "id": "pair-0812",
+      "english": "i do not know where he or she went but i know where you live",
+      "mirad": "at voy te hom it pa oy at te hom et tambese"
+    },
+    {
+      "id": "pair-0288",
+      "english": "they were very far from here",
+      "mirad": "yit sa gla yib bi him"
+    },
+    {
+      "id": "pair-0921",
+      "english": "i did not see his book but i know his father",
+      "mirad": "at voy teata wita dyes oy at tre wita twed"
+    },
+    {
+      "id": "pair-0026",
+      "english": "the book",
+      "mirad": "ha dyes"
+    },
+    {
+      "id": "pair-0165",
+      "english": "he or she was",
+      "mirad": "it sa"
+    },
+    {
+      "id": "pair-0267",
+      "english": "you worked at home",
+      "mirad": "et yexa be tam"
+    },
+    {
+      "id": "pair-0791",
+      "english": "you will be going home and i will be there",
+      "mirad": "et peyo tam ay at so hum"
+    },
+    {
+      "id": "pair-0502",
+      "english": "we must work together",
+      "mirad": "yat yefe yexer yan"
+    },
+    {
+      "id": "pair-0545",
+      "english": "i will compete and i will win",
+      "mirad": "at oveko ay at ako"
+    },
+    {
+      "id": "pair-0034",
+      "english": "his or her book",
+      "mirad": "ita dyes"
+    },
+    {
+      "id": "pair-0406",
+      "english": "he has gone",
+      "mirad": "wit paye"
+    },
+    {
+      "id": "pair-0144",
+      "english": "happy",
+      "mirad": "iva"
+    },
+    {
+      "id": "pair-0198",
+      "english": "you all will do",
+      "mirad": "yet xo"
+    },
+    {
+      "id": "pair-0595",
+      "english": "a fair thing",
+      "mirad": "yevas"
+    },
+    {
+      "id": "pair-0952",
+      "english": "you live in the neighborhood right and you work near here",
+      "mirad": "et tambese ha yubem vao ay et yexe yub bi him"
+    },
+    {
+      "id": "pair-0463",
+      "english": "ours are bigger than yours",
+      "mirad": "yatasi se ga aga vyel yetasi"
+    },
+    {
+      "id": "pair-0663",
+      "english": "our name is beautiful",
+      "mirad": "yata dyun se via"
+    },
+    {
+      "id": "pair-0925",
+      "english": "i myself do not smoke but people often smoke",
+      "mirad": "at aut voy movie oy yot glaxag movie"
+    },
+    {
+      "id": "pair-0967",
+      "english": "speak softly but do not speak too fast",
+      "mirad": "dalu yug oy von dalu gra ig"
+    },
+    {
+      "id": "pair-0527",
+      "english": "work as slowly as you need to",
+      "mirad": "yexu hogla ugay et efe"
+    },
+    {
+      "id": "pair-0642",
+      "english": "your desk is dirty",
+      "mirad": "eta dresem se vyua"
+    },
+    {
+      "id": "pair-0962",
+      "english": "tell him to be quiet and tell her that",
+      "mirad": "du it doler ay du iyt hus"
+    },
+    {
+      "id": "pair-0068",
+      "english": "the student",
+      "mirad": "ha tixut"
+    },
+    {
+      "id": "pair-0677",
+      "english": "you all are bad",
+      "mirad": "yet se fua"
+    },
+    {
+      "id": "pair-0784",
+      "english": "i was going home but i came here",
+      "mirad": "at peya tam oy at upa him"
+    },
+    {
+      "id": "pair-0940",
+      "english": "she played but lost and he tried but lost",
+      "mirad": "iyt eka oy oka ay wit yeka oy oka"
+    },
+    {
+      "id": "pair-0129",
+      "english": "goodbye",
+      "mirad": "hoy"
+    },
+    {
+      "id": "pair-0740",
+      "english": "he or she does not go",
+      "mirad": "it voy pe"
+    },
+    {
+      "id": "pair-0918",
+      "english": "do you walk to school today",
+      "mirad": "duven et tyoyapeye tistam hijub"
+    },
+    {
+      "id": "pair-0343",
+      "english": "you all will be going home",
+      "mirad": "yet peyo tam"
+    },
+    {
+      "id": "pair-0009",
+      "english": "big houses",
+      "mirad": "aga tami"
+    },
+    {
+      "id": "pair-0016",
+      "english": "a car",
+      "mirad": "pur"
+    },
+    {
+      "id": "pair-0943",
+      "english": "do you know the answer and do you know why he did it",
+      "mirad": "duven et te ha dud ay duven et te hosav wit xa his"
+    },
+    {
+      "id": "pair-0102",
+      "english": "their teacher is good",
+      "mirad": "yita tuxut se fia"
+    },
+    {
+      "id": "pair-0309",
+      "english": "i live there",
+      "mirad": "at tambese hum"
+    },
+    {
+      "id": "pair-0302",
+      "english": "they will be there until the end of the season",
+      "mirad": "yit so hum ju ha uj bi ha jeb"
+    },
+    {
+      "id": "pair-0154",
+      "english": "guilty",
+      "mirad": "yova"
+    },
+    {
+      "id": "pair-0755",
+      "english": "i live downtown now and i work at a grocery store near here",
+      "mirad": "at tambese zedom hij ay at yexe be tolnam yub bi him"
+    },
+    {
+      "id": "pair-0974",
+      "english": "those are yours and these are mine",
+      "mirad": "huasi se etasi ay hiasi se atasi"
+    },
+    {
+      "id": "pair-0346",
+      "english": "you would be going home",
+      "mirad": "et peyu tam"
+    },
+    {
+      "id": "pair-0106",
+      "english": "that teacher is good",
+      "mirad": "hua tuxut se fia"
+    },
+    {
+      "id": "pair-0045",
+      "english": "the people",
+      "mirad": "ha tobi"
+    },
+    {
+      "id": "pair-0878",
+      "english": "we are not your parents but we know your parents",
+      "mirad": "yat voy se eta tedi oy yat tre eta tedi"
+    },
+    {
+      "id": "pair-0870",
+      "english": "before you leave say hi",
+      "mirad": "du hay ja van et pio"
+    },
+    {
+      "id": "pair-0807",
+      "english": "i knew that he or she would come but i did not know whether you would come",
+      "mirad": "at ta van it upo oy at voy ta ven et upo"
+    },
+    {
+      "id": "pair-0883",
+      "english": "this teacher is the best and that teacher is the least good",
+      "mirad": "hia tuxut se ha gwa fia ay hua tuxut se ha gwo fia"
+    },
+    {
+      "id": "pair-0452",
+      "english": "i myself do not smoke",
+      "mirad": "at aut voy movie"
+    },
+    {
+      "id": "pair-0020",
+      "english": "a bird",
+      "mirad": "pat"
+    },
+    {
+      "id": "pair-0031",
+      "english": "my books",
+      "mirad": "ata dyesi"
+    },
+    {
+      "id": "pair-0133",
+      "english": "good",
+      "mirad": "fia"
+    },
+    {
+      "id": "pair-0349",
+      "english": "you all would be going home",
+      "mirad": "yet peyu tam"
+    },
+    {
+      "id": "pair-0900",
+      "english": "this teacher is good but that student is bad",
+      "mirad": "hia tuxut se fia oy hua tixut se fua"
+    },
+    {
+      "id": "pair-0793",
+      "english": "they will be going home and we will be there",
+      "mirad": "yit peyo tam ay yat so hum"
+    },
+    {
+      "id": "pair-0653",
+      "english": "my life is happy",
+      "mirad": "ata tej se iva"
+    },
+    {
+      "id": "pair-0326",
+      "english": "this building would be a store",
+      "mirad": "hia tom su nam"
+    },
+    {
+      "id": "pair-0847",
+      "english": "if you want to get results you must work harder",
+      "mirad": "ven et fe iber ixuni et yefe yexer ga jestay"
+    },
+    {
+      "id": "pair-0604",
+      "english": "true truly",
+      "mirad": "vyaa vyaay"
+    },
+    {
+      "id": "pair-0715",
+      "english": "will you come",
+      "mirad": "duven et upo"
+    },
+    {
+      "id": "pair-0128",
+      "english": "hey",
+      "mirad": "hey"
+    },
+    {
+      "id": "pair-0227",
+      "english": "he or she would come",
+      "mirad": "it upu"
+    },
+    {
+      "id": "pair-0501",
+      "english": "the baby is still sleeping",
+      "mirad": "ha tobud gaj tujeye"
+    },
+    {
+      "id": "pair-0296",
+      "english": "you work at a grocery store near here",
+      "mirad": "et yexe be tolnam yub bi him"
+    },
+    {
+      "id": "pair-0649",
+      "english": "the students are good",
+      "mirad": "ha tixuti se fia"
+    },
+    {
+      "id": "pair-0594",
+      "english": "fair people",
+      "mirad": "yevati"
+    },
+    {
+      "id": "pair-0929",
+      "english": "we must protect our own things and we must work together",
+      "mirad": "yat yefe ovmasber yatasi ay yat yefe yexer yan"
+    },
+    {
+      "id": "pair-0040",
+      "english": "their book",
+      "mirad": "yita dyes"
+    },
+    {
+      "id": "pair-0648",
+      "english": "the student is bad",
+      "mirad": "ha tixut se fua"
+    },
+    {
+      "id": "pair-0570",
+      "english": "bad things",
+      "mirad": "fusi"
+    },
+    {
+      "id": "pair-0777",
+      "english": "they worked at home and they did it well",
+      "mirad": "yit yexa be tam ay yit xa has fi"
+    },
+    {
+      "id": "pair-0360",
+      "english": "do they walk to school",
+      "mirad": "duven yit tyoyape tistam"
+    },
+    {
+      "id": "pair-0331",
+      "english": "you all are going home",
+      "mirad": "yet peye tam"
+    },
+    {
+      "id": "pair-0087",
+      "english": "that person is ugly",
+      "mirad": "hut se vua"
+    },
+    {
+      "id": "pair-0163",
+      "english": "i was",
+      "mirad": "at sa"
+    },
+    {
+      "id": "pair-0105",
+      "english": "this teacher is bad",
+      "mirad": "hia tuxut se fua"
+    },
+    {
+      "id": "pair-0067",
+      "english": "students",
+      "mirad": "tixuti"
+    },
+    {
+      "id": "pair-0522",
+      "english": "i do not know where he went",
+      "mirad": "at voy te hom it pa"
+    },
+    {
+      "id": "pair-0347",
+      "english": "he or she would be going home",
+      "mirad": "it peyu tam"
+    },
+    {
+      "id": "pair-0700",
+      "english": "we do it well",
+      "mirad": "yat xe has fi"
+    },
+    {
+      "id": "pair-0199",
+      "english": "they will do",
+      "mirad": "yit xo"
+    },
+    {
+      "id": "pair-0937",
+      "english": "he sings beautifully and he also plays an instrument",
+      "mirad": "wit deuze vi ay wit gay duzare"
+    },
+    {
+      "id": "pair-0665",
+      "english": "their name is beautiful",
+      "mirad": "yita dyun se via"
+    },
+    {
+      "id": "pair-0580",
+      "english": "beautiful things",
+      "mirad": "viasi"
+    },
+    {
+      "id": "pair-0297",
+      "english": "we work at a grocery store near here",
+      "mirad": "yat yexe be tolnam yub bi him"
+    },
+    {
+      "id": "pair-0340",
+      "english": "you will be going home",
+      "mirad": "et peyo tam"
+    },
+    {
+      "id": "pair-0257",
+      "english": "they would go",
+      "mirad": "yit pu"
+    },
+    {
+      "id": "pair-0915",
+      "english": "do you walk to school every day",
+      "mirad": "duven et tyoyape tistam hyajub"
+    },
+    {
+      "id": "pair-0723",
+      "english": "will you work at home",
+      "mirad": "duven et yexo be tam"
+    },
+    {
+      "id": "pair-0637",
+      "english": "this desk is clean",
+      "mirad": "hia dresem se vyia"
+    },
+    {
+      "id": "pair-0219",
+      "english": "i will come",
+      "mirad": "at upo"
+    },
+    {
+      "id": "pair-0064",
+      "english": "a mother",
+      "mirad": "teyd"
+    },
+    {
+      "id": "pair-0035",
+      "english": "his or her books",
+      "mirad": "ita dyesi"
+    },
+    {
+      "id": "pair-0362",
+      "english": "our house is bigger than yours",
+      "mirad": "yata tam se ga aga vyel etas"
+    },
+    {
+      "id": "pair-0928",
+      "english": "they themselves do not smoke but people often smoke",
+      "mirad": "yit yuit voy movie oy yot glaxag movie"
+    },
+    {
+      "id": "pair-0586",
+      "english": "ugly people",
+      "mirad": "vuati"
+    },
+    {
+      "id": "pair-0563",
+      "english": "what a beautiful morning",
+      "mirad": "hyey via imaj"
+    },
+    {
+      "id": "pair-0750",
+      "english": "let us go",
+      "mirad": "van yat pu"
+    },
+    {
+      "id": "pair-0797",
+      "english": "they would be going home but they would be happy here",
+      "mirad": "yit peyu tam oy yit su iva him"
+    },
+    {
+      "id": "pair-0372",
+      "english": "this teacher is the best",
+      "mirad": "hia tuxut se ha gwa fia"
+    },
+    {
+      "id": "pair-0100",
+      "english": "our teacher is good",
+      "mirad": "yata tuxut se fia"
+    },
+    {
+      "id": "pair-0292",
+      "english": "what do you do for work now",
+      "mirad": "duhos et xe av yex hij"
+    },
+    {
+      "id": "pair-0354",
+      "english": "the student walks to school every day",
+      "mirad": "ha tixut tyoyape tistam hyajub"
+    },
+    {
+      "id": "pair-0158",
+      "english": "you are",
+      "mirad": "et se"
+    },
+    {
+      "id": "pair-0053",
+      "english": "the women",
+      "mirad": "ha toybi"
+    },
+    {
+      "id": "pair-0733",
+      "english": "you do not come",
+      "mirad": "et voy upe"
+    },
+    {
+      "id": "pair-0538",
+      "english": "german",
+      "mirad": "deuma"
+    },
+    {
+      "id": "pair-0798",
+      "english": "i know that you will come and i will be happy",
+      "mirad": "at te van et upo ay at so iva"
+    },
+    {
+      "id": "pair-0767",
+      "english": "you will work at home and you will be happy",
+      "mirad": "et yexo be tam ay et so iva"
+    },
+    {
+      "id": "pair-0307",
+      "english": "where do we live",
+      "mirad": "duhom yat tambese"
+    },
+    {
+      "id": "pair-0173",
+      "english": "you all will be",
+      "mirad": "yet so"
+    },
+    {
+      "id": "pair-0155",
+      "english": "useful",
+      "mirad": "fyia"
+    },
+    {
+      "id": "pair-0101",
+      "english": "our teacher is bad",
+      "mirad": "yata tuxut se fua"
+    },
+    {
+      "id": "pair-0094",
+      "english": "my teacher is good",
+      "mirad": "ata tuxut se fia"
+    },
+    {
+      "id": "pair-0075",
+      "english": "names",
+      "mirad": "dyuni"
+    },
+    {
+      "id": "pair-0149",
+      "english": "dirty",
+      "mirad": "vyua"
+    },
+    {
+      "id": "pair-0897",
+      "english": "this student is good and this teacher is good",
+      "mirad": "hia tixut se fia ay hia tuxut se fia"
+    },
+    {
+      "id": "pair-0638",
+      "english": "this desk is dirty",
+      "mirad": "hia dresem se vyua"
+    },
+    {
+      "id": "pair-0258",
+      "english": "go home",
+      "mirad": "pu tam"
+    },
+    {
+      "id": "pair-0708",
+      "english": "he or she will do it well",
+      "mirad": "it xo has fi"
+    },
+    {
+      "id": "pair-0369",
+      "english": "this teacher is too good",
+      "mirad": "hia tuxut se gra fia"
+    },
+    {
+      "id": "pair-0308",
+      "english": "where do they live",
+      "mirad": "duhom yit tambese"
+    },
+    {
+      "id": "pair-0480",
+      "english": "why did she leave so early",
+      "mirad": "duhosav iyt pia huugla jwa"
+    },
+    {
+      "id": "pair-0170",
+      "english": "you will be",
+      "mirad": "et so"
+    },
+    {
+      "id": "pair-0008",
+      "english": "a big house",
+      "mirad": "aga tam"
+    },
+    {
+      "id": "pair-0405",
+      "english": "how much did she win",
+      "mirad": "duhoglas iyt aka"
+    },
+    {
+      "id": "pair-0839",
+      "english": "i will give it to them after they pay",
+      "mirad": "at buo yit has jo van yit nuso"
+    },
+    {
+      "id": "pair-0640",
+      "english": "my desk is dirty",
+      "mirad": "ata dresem se vyua"
+    },
+    {
+      "id": "pair-0790",
+      "english": "i will be going home and you will be there",
+      "mirad": "at peyo tam ay et so hum"
+    },
+    {
+      "id": "pair-0693",
+      "english": "he or she would be happy",
+      "mirad": "it su iva"
+    },
+    {
+      "id": "pair-0924",
+      "english": "they did not see our book but they know our father",
+      "mirad": "yit voy teata yata dyes oy yit tre yata twed"
+    },
+    {
+      "id": "pair-0442",
+      "english": "buy a book for me",
+      "mirad": "nusbiu dyes av at"
+    },
+    {
+      "id": "pair-0515",
+      "english": "we will not start until you get here",
+      "mirad": "yat voy ijo ju van et puo him"
+    },
+    {
+      "id": "pair-0814",
+      "english": "we do not know where he or she went but we know where you live",
+      "mirad": "yat voy te hom it pa oy yat te hom et tambese"
+    },
+    {
+      "id": "pair-0460",
+      "english": "those are yours",
+      "mirad": "huasi se etasi"
+    },
+    {
+      "id": "pair-0010",
+      "english": "the big house",
+      "mirad": "ha aga tam"
+    },
+    {
+      "id": "pair-0829",
+      "english": "while you are here you will do some work for me",
+      "mirad": "je van et so him et xo gle yex av at"
+    },
+    {
+      "id": "pair-0077",
+      "english": "the names",
+      "mirad": "ha dyuni"
+    },
+    {
+      "id": "pair-0322",
+      "english": "everything is fine",
+      "mirad": "hyas se fia"
+    },
+    {
+      "id": "pair-0202",
+      "english": "he or she would do",
+      "mirad": "it xu"
+    },
+    {
+      "id": "pair-0987",
+      "english": "it is hot here but it will rain",
+      "mirad": "se ama him oy mamilo"
+    },
+    {
+      "id": "pair-0630",
+      "english": "our house is small",
+      "mirad": "yata tam se oga"
+    },
+    {
+      "id": "pair-0938",
+      "english": "they sing beautifully and they also dance",
+      "mirad": "yit deuze vi ay yit gay daze"
+    },
+    {
+      "id": "pair-0960",
+      "english": "come in please and give me that box",
+      "mirad": "hwey yepu ay buu at hua nyem"
+    },
+    {
+      "id": "pair-0818",
+      "english": "do you know where he or she went and where they live",
+      "mirad": "duven et te hom it pa ay hom yit tambese"
+    },
+    {
+      "id": "pair-0912",
+      "english": "the student walks to school every day but today the student is walking home",
+      "mirad": "ha tixut tyoyape tistam hyajub oy hijub ha tixut tyoyapeye tam"
+    },
+    {
+      "id": "pair-0644",
+      "english": "the teacher is bad",
+      "mirad": "ha tuxut se fua"
+    },
+    {
+      "id": "pair-0947",
+      "english": "where has he gone and where has she gone",
+      "mirad": "duhom wit paye ay duhom iyt paye"
+    },
+    {
+      "id": "pair-0244",
+      "english": "you all went",
+      "mirad": "yet pa"
+    },
+    {
+      "id": "pair-0613",
+      "english": "the houses are big",
+      "mirad": "ha tami se aga"
+    },
+    {
+      "id": "pair-0445",
+      "english": "we should get married",
+      "mirad": "yat yeyfe tadser"
+    },
+    {
+      "id": "pair-0590",
+      "english": "something new",
+      "mirad": "jogas"
+    },
+    {
+      "id": "pair-0403",
+      "english": "who won",
+      "mirad": "duhot aka"
+    },
+    {
+      "id": "pair-0323",
+      "english": "this building is a store",
+      "mirad": "hia tom se nam"
+    },
+    {
+      "id": "pair-0493",
+      "english": "i looked up",
+      "mirad": "at teaxa yab"
+    },
+    {
+      "id": "pair-0193",
+      "english": "they did",
+      "mirad": "yit xa"
+    },
+    {
+      "id": "pair-0610",
+      "english": "the house is small",
+      "mirad": "ha tam se oga"
+    },
+    {
+      "id": "pair-0583",
+      "english": "a beautiful person",
+      "mirad": "viat"
+    },
+    {
+      "id": "pair-0686",
+      "english": "you will be happy",
+      "mirad": "et so iva"
+    },
+    {
+      "id": "pair-0599",
+      "english": "unfriendly",
+      "mirad": "odata"
+    },
+    {
+      "id": "pair-0567",
+      "english": "a good thing",
+      "mirad": "fis"
+    },
+    {
+      "id": "pair-0487",
+      "english": "such stories scare children",
+      "mirad": "huua dini yufxe toboti"
+    },
+    {
+      "id": "pair-0334",
+      "english": "you were going home",
+      "mirad": "et peya tam"
+    },
+    {
+      "id": "pair-0543",
+      "english": "you can either stay or leave",
+      "mirad": "et yafe hyeawa beser ey pier"
+    },
+    {
+      "id": "pair-0853",
+      "english": "if they want to go home they must work harder",
+      "mirad": "ven yit fe per tam yit yefe yexer ga jestay"
+    },
+    {
+      "id": "pair-0300",
+      "english": "you will be there until the end of the season",
+      "mirad": "et so hum ju ha uj bi ha jeb"
+    },
+    {
+      "id": "pair-0127",
+      "english": "hello",
+      "mirad": "hay"
+    },
+    {
+      "id": "pair-0908",
+      "english": "their life is good but our life is bad",
+      "mirad": "yita tej se fia oy yata tej se fua"
+    },
+    {
+      "id": "pair-0694",
+      "english": "we would be happy",
+      "mirad": "yat su iva"
+    },
+    {
+      "id": "pair-0823",
+      "english": "do we live in the neighborhood and work near here",
+      "mirad": "duven yat tambese ha yubem ay yexe yub bi him"
+    },
+    {
+      "id": "pair-0315",
+      "english": "they live where the road ends",
+      "mirad": "yit tambese hom ha mep uje"
+    },
+    {
+      "id": "pair-0903",
+      "english": "my name is bill but your name is john",
+      "mirad": "ata dyun se bill oy eta dyun se john"
+    },
+    {
+      "id": "pair-0882",
+      "english": "this teacher is good enough but that teacher is not good enough",
+      "mirad": "hia tuxut se gre fia oy hua tuxut se gro fia"
+    },
+    {
+      "id": "pair-0837",
+      "english": "we will give it to you after you pay",
+      "mirad": "yat buo et has jo van et nuso"
+    },
+    {
+      "id": "pair-0756",
+      "english": "you live downtown now and you work at a grocery store near here",
+      "mirad": "et tambese zedom hij ay et yexe be tolnam yub bi him"
+    },
+    {
+      "id": "pair-0801",
+      "english": "we know that you will come and we will be happy",
+      "mirad": "yat te van et upo ay yat so iva"
+    },
+    {
+      "id": "pair-0306",
+      "english": "where do you live",
+      "mirad": "duhom et tambese"
+    },
+    {
+      "id": "pair-0516",
+      "english": "even if you disagree i will support you",
+      "mirad": "gey ven et yontexe at bolo et"
+    },
+    {
+      "id": "pair-0079",
+      "english": "desks",
+      "mirad": "dresemi"
+    },
+    {
+      "id": "pair-0464",
+      "english": "these people were better than those ones",
+      "mirad": "hiati sa fia vyel huati"
+    },
+    {
+      "id": "pair-0197",
+      "english": "we will do",
+      "mirad": "yat xo"
+    },
+    {
+      "id": "pair-0872",
+      "english": "before we leave say hi",
+      "mirad": "du hay ja van yat pio"
+    },
+    {
+      "id": "pair-0869",
+      "english": "whenever they talk we laugh",
+      "mirad": "hyej yit dale yat hihide"
+    },
+    {
+      "id": "pair-0266",
+      "english": "i worked at home",
+      "mirad": "at yexa be tam"
+    },
+    {
+      "id": "pair-0152",
+      "english": "innocent",
+      "mirad": "yava"
+    },
+    {
+      "id": "pair-0868",
+      "english": "whenever we talk they laugh",
+      "mirad": "hyej yat dale yit hihide"
+    },
+    {
+      "id": "pair-0230",
+      "english": "they would come",
+      "mirad": "yit upu"
+    },
+    {
+      "id": "pair-0794",
+      "english": "i would be going home but i would be happy here",
+      "mirad": "at peyu tam oy at su iva him"
+    },
+    {
+      "id": "pair-0531",
+      "english": "france",
+      "mirad": "feram"
+    },
+    {
+      "id": "pair-0090",
+      "english": "the desk is big",
+      "mirad": "ha dresem se aga"
+    },
+    {
+      "id": "pair-0966",
+      "english": "work hard and speak softly",
+      "mirad": "yexu jestay ay dalu yug"
+    },
+    {
+      "id": "pair-0774",
+      "english": "he or she worked at home and he or she did it well",
+      "mirad": "it yexa be tam ay it xa has fi"
+    },
+    {
+      "id": "pair-0015",
+      "english": "the small houses",
+      "mirad": "ha oga tami"
+    },
+    {
+      "id": "pair-0885",
+      "english": "my house is bigger than yours but this house is not as big as mine",
+      "mirad": "ata tam se ga aga vyel etas oy hia tam voy se ge aga vyel atas"
+    },
+    {
+      "id": "pair-0007",
+      "english": "the beautiful cities",
+      "mirad": "ha via domi"
+    },
+    {
+      "id": "pair-0596",
+      "english": "fair things",
+      "mirad": "yevasi"
+    },
+    {
+      "id": "pair-0836",
+      "english": "you will give it to me after i pay",
+      "mirad": "et buo at has jo van at nuso"
+    },
+    {
+      "id": "pair-0687",
+      "english": "he or she will be happy",
+      "mirad": "it so iva"
+    },
+    {
+      "id": "pair-0705",
+      "english": "you all did it well",
+      "mirad": "yet xa has fi"
+    },
+    {
+      "id": "pair-0049",
+      "english": "the men",
+      "mirad": "ha twobi"
+    },
+    {
+      "id": "pair-0474",
+      "english": "any color will be fine",
+      "mirad": "hyea voz so fia"
+    },
+    {
+      "id": "pair-0685",
+      "english": "i will be happy",
+      "mirad": "at so iva"
+    }
+  ]
+}

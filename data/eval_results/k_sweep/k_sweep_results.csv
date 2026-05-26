@@ -1,0 +1,9 @@
+k,direction,accuracy_percent,avg_ms_per_sample,total_samples,summary_path
+16,en_to_mir,10.0,46240.4,30,data/eval_results/k_sweep/k16/en_to_mir/20260526_161950/run_summary.json
+16,mir_to_en,40.0,16885.8,30,data/eval_results/k_sweep/k16/mir_to_en/20260526_162312/run_summary.json
+3,en_to_mir,26.7,31494.5,30,data/eval_results/k_sweep/k3/en_to_mir/20260526_160823/run_summary.json
+3,mir_to_en,40.0,34837.6,30,data/eval_results/k_sweep/k3/mir_to_en/20260526_161045/run_summary.json
+6,en_to_mir,10.0,27059.9,30,data/eval_results/k_sweep/k6/en_to_mir/20260526_161404/run_summary.json
+6,mir_to_en,40.0,20742.5,30,data/eval_results/k_sweep/k6/mir_to_en/20260526_161605/run_summary.json
+9,en_to_mir,10.0,15117.7,30,data/eval_results/k_sweep/k9/en_to_mir/20260526_161734/run_summary.json
+9,mir_to_en,43.3,14527.4,30,data/eval_results/k_sweep/k9/mir_to_en/20260526_161839/run_summary.json

@@ -1,4 +1,9 @@
-"""ChromaDB retrieval for structured grammar rules and thesaurus chunks."""
+"""ChromaDB retrieval for structured grammar rules and thesaurus chunks.
+
+Grammar rules are indexed one-per-document from nirad_grammer_rules.json.
+Retrieval uses combined scoring: r = c² + i² where c = cosine similarity
+(derived from ChromaDB L2 distance) and i = the rule's importance score (0-1).
+"""
 from pathlib import Path
 import json
 from typing import Any
@@ -92,6 +97,15 @@ def _load_grammar_rules() -> list[dict[str, Any]]:
             else:
                 pseudocode = str(pseudocode_payload or "")
 
+            importance = rule.get("importance")
+            if importance is not None:
+                try:
+                    importance = float(importance)
+                except (ValueError, TypeError):
+                    importance = 0.5
+            else:
+                importance = 0.5  # default importance if not specified
+
             rules.append(
                 {
                     "id": str(rid),
@@ -105,6 +119,7 @@ def _load_grammar_rules() -> list[dict[str, Any]]:
                     "category": str(rule.get("category") or ""),
                     "subcategory": str(rule.get("subcategory") or ""),
                     "priority": int(rule.get("priority") or 0),
+                    "importance": importance,
                 }
             )
 
@@ -249,6 +264,7 @@ def _index_grammar_rules(collection):
                 "category": rule.get("category", ""),
                 "subcategory": rule.get("subcategory", ""),
                 "priority": rule.get("priority", 0),
+                "importance": rule.get("importance", 0.5),
             }
         )
 
@@ -266,19 +282,49 @@ def _index_thesaurus(collection):
     return len(chunks)
 
 
-def retrieve_grammar(query, top_k=3):
-    """Retrieve top_k grammar rules for a query based on retrieval_tags similarity."""
+def retrieve_grammar(query, top_k=3, importance_weight=1.0):
+    """Retrieve top_k grammar rules for a query using combined scoring.
+
+    Uses r = c² + i² where c = cosine similarity (from ChromaDB L2 distance)
+    and i = the rule's importance score (0-1). Both c and i are in [0,1],
+    so r is in [0,2]. Rules that are both semantically close and important
+    are ranked highest.
+
+    Args:
+        query: Search query text.
+        top_k: Number of rules to return.
+        importance_weight: Weight for the importance component. Default 1.0
+            means r = c² + i². Set to 0 to ignore importance.
+    """
     collection = _get_grammar_rules_collection()
     embedder = _get_embedder()
     q_embedding = embedder.encode([query], show_progress_bar=False).tolist()
-    results = collection.query(query_embeddings=q_embedding, n_results=top_k)
 
-    output = []
+    # Retrieve more candidates than needed so we can re-rank by combined score
+    n_candidates = min(top_k * 4, collection.count()) if collection.count() > 0 else top_k
+    n_candidates = max(n_candidates, top_k)
+    results = collection.query(query_embeddings=q_embedding, n_results=n_candidates)
+
+    # Re-rank by combined score: c² + i²
+    scored = []
     for doc, dist, meta in zip(
         results["documents"][0],
         results["distances"][0],
         results["metadatas"][0],
     ):
+        # L2 distance → cosine similarity: cos ≈ 1 - L2²/2
+        cos_sim = max(0.0, 1.0 - (dist * dist) / 2.0)
+        importance = float(meta.get("importance", 0.5))
+
+        # Combined score: c² + (importance_weight * i²)
+        combined = (cos_sim ** 2) + (importance_weight * importance ** 2)
+        scored.append((combined, cos_sim, doc, dist, meta))
+
+    # Sort by combined score descending and take top_k
+    scored.sort(key=lambda x: x[0], reverse=True)
+
+    output = []
+    for combined, cos_sim, doc, dist, meta in scored[:top_k]:
         examples = []
         try:
             examples = json.loads(meta.get("examples", "[]") or "[]")
@@ -289,6 +335,9 @@ def retrieve_grammar(query, top_k=3):
             {
                 "text": doc,
                 "distance": dist,
+                "cosine_similarity": round(cos_sim, 4),
+                "importance": float(meta.get("importance", 0.5)),
+                "combined_score": round(combined, 4),
                 "metadata": meta,
                 "rule": {
                     "id": meta.get("rule_id", ""),

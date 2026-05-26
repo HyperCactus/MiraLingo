@@ -1,0 +1,903 @@
+[
+  {
+    "idx": 2,
+    "id": "pair-0721",
+    "source": "duven yit yexe be tam",
+    "gold": "do they work at home",
+    "pred": "Do they work at home?",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "be": "at",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 43629.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 7,
+    "id": "pair-0448",
+    "source": "yot glaxag voy ife yout",
+    "gold": "people often do not love themselves",
+    "pred": "People often do not like themselves.",
+    "error": null,
+    "word_equivalents": {
+      "yot": "people, them, they",
+      "glaxag": "frequently, oft, often, passim, very often, with great frequency",
+      "voy": "not",
+      "yout": "themselves"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 44914.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 8,
+    "id": "pair-0864",
+    "source": "hoj yat pua ha if ija",
+    "gold": "when we arrived the fun began",
+    "pred": "When we arrived, the joy began.",
+    "error": null,
+    "word_equivalents": {
+      "hoj": "the time that, the time when",
+      "yat": "the people...",
+      "puer": "to arrive",
+      "ha": "the",
+      "if": "amusement, fun, gratification, pleasure",
+      "joy": "afterward, hence, next, then"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2137.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 9,
+    "id": "pair-0809",
+    "source": "yat ta van et upo oy yat voy ta ven yit upo",
+    "gold": "we knew that you would come but we did not know whether they would come",
+    "pred": "We knew that you would come, but we did not know if they would come.",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "van": "let's, let..., may..., that, the fact that",
+      "et": "thee, thou, you",
+      "oy": "but, except, however, yet",
+      "voy": "not",
+      "ven": "if, whether",
+      "yit": "the girls, them, they"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2865.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9167,
+      "word_overlap_recall": 0.9167,
+      "word_overlap_f1": 0.9167
+    }
+  },
+  {
+    "idx": 10,
+    "id": "pair-0905",
+    "source": "ata tej se fia oy eta tej se fua",
+    "gold": "my life is good but your life is bad",
+    "pred": "My life is good but your life is bad.",
+    "error": null,
+    "word_equivalents": {
+      "ata": "my",
+      "tej": "life",
+      "se": "am, are, is",
+      "fia": "alright, fine, good, nice, ok",
+      "oy": "but, except, however, yet",
+      "eta": "eta, thine, thy, your",
+      "fua": "bad, crappy, crummy, lousy, piss poor"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2676.5,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 11,
+    "id": "pair-0913",
+    "source": "ha tixuti tyoyape tistam hyajub oy hijub ha tixuti tyoyapeye tam",
+    "gold": "the students walk to school every day but today the students are walking home",
+    "pred": "The students walk to school every day, but today the students are walking home.",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "tixut": "mentor, student",
+      "tistam": "school, schoolhouse",
+      "hyajub": "every day",
+      "oy": "but, except, however, yet",
+      "hijub": "today",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2588.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 12,
+    "id": "pair-0975",
+    "source": "duven hua tam se etas ey duven hia tam se atas",
+    "gold": "is that house yours or is this house mine",
+    "pred": "Whether that house is yours or whether this house is mine.",
+    "error": null,
+    "word_equivalents": {
+      "hua": "that, yon, yonder",
+      "tam": "abode, home, house",
+      "se": "am, are, is",
+      "etas": "your thing, yours",
+      "ey": "else, or",
+      "hia": "these, this",
+      "atas": "mine, my thing"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2437.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9333
+    }
+  },
+  {
+    "idx": 14,
+    "id": "pair-0889",
+    "source": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+    "gold": "this desk is small but good and that desk is big but bad",
+    "pred": "This desk is small but good, and that desk is big but bad.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "hua": "that, yon, yonder",
+      "dresem": "desk",
+      "oga": "little, petite, small",
+      "aga": "A, big, large, the capital letter A",
+      "oy": "but, except, however, yet",
+      "fia": "alright, fine, good, nice, ok",
+      "fua": "bad, crappy, crummy, lousy, piss poor"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1464.2,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 13,
+    "id": "pair-0835",
+    "source": "je van yit so him yit yexo be tam",
+    "gold": "while they are here they will work at home",
+    "pred": "While they are here, they will work at home.",
+    "error": null,
+    "word_equivalents": {
+      "je": "during",
+      "van": "let's, let..., may..., that, the fact that",
+      "yit": "the girls, them, they",
+      "so": "s, the letter s",
+      "ser": "to be",
+      "him": "here, hither, this place",
+      "yexer": "to do business, to labor, to work",
+      "be": "at",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2415.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 15,
+    "id": "pair-0521",
+    "source": "hyej et dale at hihide",
+    "gold": "whenever you talk i laugh",
+    "pred": "Whenever you speak, I laugh.",
+    "error": null,
+    "word_equivalents": {
+      "hyej": "any time, anytime, ever",
+      "et": "thee, thou, you",
+      "dal": "speech, talk",
+      "at": "I, me",
+      "hihid": "laugh"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1272.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.8
+    }
+  },
+  {
+    "idx": 16,
+    "id": "pair-0401",
+    "source": "duven ha mari se manika",
+    "gold": "are the stars bright",
+    "pred": "Are the stars bright?",
+    "error": null,
+    "word_equivalents": {
+      "mar": "star",
+      "manika": "bright, luminous"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1648.3,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 17,
+    "id": "pair-0529",
+    "source": "at telio hoglas at fe",
+    "gold": "i will drink as much as i want",
+    "pred": "I will eat what I want.",
+    "error": null,
+    "word_equivalents": {
+      "at": "I, me",
+      "hoglas": "how much",
+      "hos": "that which, the thing that, what",
+      "fe": "f, the letter f",
+      "fer": "to desire, to want, to will"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1891.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5455
+    }
+  },
+  {
+    "idx": 18,
+    "id": "pair-0780",
+    "source": "it peye tam oy it yexo be tam",
+    "gold": "he or she is going home but he or she will work at home",
+    "pred": "He is going home but he will work at home.",
+    "error": null,
+    "word_equivalents": {
+      "per": "to get, to go, to go to",
+      "tam": "abode, home, house",
+      "oy": "but, except, however, yet",
+      "it": "he, her, him, she",
+      "yexer": "to do business, to labor, to work",
+      "be": "at"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1451.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.8889
+    }
+  },
+  {
+    "idx": 5,
+    "id": "pair-0886",
+    "source": "yata tam se ga aga vyel etas oy hia tam voy se ge aga vyel yatas",
+    "gold": "our house is bigger than yours but this house is not as big as ours",
+    "pred": "Our house is bigger than yours but this house is not as big as ours.",
+    "error": null,
+    "word_equivalents": {
+      "tam": "abode, home, house",
+      "se": "am, are, is",
+      "ga": "-er, plus",
+      "aga": "A, big, large, the capital letter A",
+      "vyel": "about, as for, compared to, concerning, having to do with, in re, insofar as, involving, on, relating to, relative to, than, with respect to",
+      "etas": "your thing, yours",
+      "oy": "but, except, however, yet",
+      "hia": "these, this",
+      "voy": "not",
+      "ge": "equal, g, the letter g",
+      "yatas": "our thing, ours"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 56050.9,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 19,
+    "id": "pair-0820",
+    "source": "duven yat te hom et pa ay hom yit tambese",
+    "gold": "do we know where you went and where they live",
+    "pred": "Do we know the place where you went and the place where they live?",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "hom": "the place that, the place where",
+      "et": "thee, thou, you",
+      "ay": "and",
+      "yit": "the girls, them, they"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1383.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8182,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9
+    }
+  },
+  {
+    "idx": 20,
+    "id": "pair-0931",
+    "source": "yit yefe ovmasber yitasi ay yit yefe yexer yan",
+    "gold": "they must protect their own things and they must work together",
+    "pred": "They must barricade their things and they must work together.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "ovmasber": "to bar, to barricade, to block, to blockade, to dam, to defend, to embank, to protect, to shield against",
+      "yitasi": "their things, theirs",
+      "ay": "and",
+      "yexer": "to do business, to labor, to work",
+      "yan": "ensemble, together"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1357.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.7778,
+      "word_overlap_f1": 0.8235
+    }
+  },
+  {
+    "idx": 22,
+    "id": "pair-0789",
+    "source": "yit peya tam oy yit upa him",
+    "gold": "they were going home but they came here",
+    "pred": "They went home but they came here.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "per": "to get, to go, to go to",
+      "tam": "abode, home, house",
+      "oy": "but, except, however, yet",
+      "uper": "to come",
+      "him": "here, hither, this place"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 811.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.7143,
+      "word_overlap_f1": 0.7692
+    }
+  },
+  {
+    "idx": 23,
+    "id": "pair-0828",
+    "source": "je van at so him at xo gle yex av et",
+    "gold": "while i am here i will do some work for you",
+    "pred": "While I am here, I will do much work for you.",
+    "error": null,
+    "word_equivalents": {
+      "je": "during",
+      "van": "let's, let..., may..., that, the fact that",
+      "at": "I, me",
+      "so": "s, the letter s",
+      "him": "here, hither, this place",
+      "gle": "fairly, rather, some, somewhat",
+      "yex": "labor, work",
+      "av": "in favor of, in order to, on behalf of, per, pro, so as to",
+      "et": "thee, thou, you"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1286.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9,
+      "word_overlap_recall": 0.9,
+      "word_overlap_f1": 0.9
+    }
+  },
+  {
+    "idx": 24,
+    "id": "pair-0500",
+    "source": "yit yexe gey be moji",
+    "gold": "they work even nights",
+    "pred": "They are also working at night.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "gey": "even",
+      "be": "at"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 894.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.1667,
+      "word_overlap_recall": 0.25,
+      "word_overlap_f1": 0.2
+    }
+  },
+  {
+    "idx": 26,
+    "id": "pair-0843",
+    "source": "yit voy ijo ju van yat puo him",
+    "gold": "they will not start until we get here",
+    "pred": "They will not begin until we arrive here.",
+    "error": null,
+    "word_equivalents": {
+      "ijer": "to begin, to commence, to start",
+      "puer": "to arrive",
+      "him": "here, hither, this place",
+      "voy": "not",
+      "ju": "til",
+      "van": "let's, let..., may..., that, the fact that",
+      "yit": "the girls, them, they",
+      "yat": "the people..."
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 997.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 25,
+    "id": "pair-0816",
+    "source": "yit voy te hom it pa oy yit te hom yat tambese",
+    "gold": "they do not know where he or she went but they know where we live",
+    "pred": "They do not know where he/she went, but they know where we live.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "voy": "not",
+      "hom": "the place that, the place where",
+      "it": "he, her, him, she",
+      "oy": "but, except, however, yet",
+      "yat": "the people..."
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1372.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8182
+    }
+  },
+  {
+    "idx": 4,
+    "id": "pair-0963",
+    "source": "eku ey pilu oy von hihidu",
+    "gold": "play or get lost but do not laugh",
+    "pred": "Play or flee but don't laugh.",
+    "error": null,
+    "word_equivalents": {
+      "eker": "to enact, to perform, to play, to risk",
+      "piler": "to flee, to get the hell away, to leave, to quit, to scram",
+      "hihider": "to laugh, to ridicule, to teehee",
+      "ey": "else, or",
+      "oy": "but, except, however, yet",
+      "von": "don't, let not"
+    },
+    "context_passages": [
+      "Rule ID: conjunction.coordinate_ay_ey_oy\nDescription: ay links elements as 'and'; ey links alternatives as 'or'; oy can express exclusion/contrast such as 'but' or in neither/nor patterns, depending on construction.\nPseudocode: if relation == conjunction: use 'ay'\nif relation == alternative: use 'ey'\nif relation == contrast_or_negative_alternative: use 'oy'\nExamples:\n- Mirad: Ivan ay Maria | English: Ivan and Maria | Note: ay = and\n- Mirad: ha tam ey ha par | English: the house or the car | Note: ey = or\n- Mirad: hyati oy ha toybi | English: all but the women | Note: oy expresses exclusion\n[score=1.017, importance=0.80]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.015, importance=1.00]",
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.013, importance=1.00]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=0.997, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=0.955, importance=0.95]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=0.939, importance=0.95]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=0.921, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=0.917, importance=0.95]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.881, importance=0.90]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=0.880, importance=0.90]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.857, importance=0.90]",
+      "Rule ID: noun.possession.named_person_bi\nDescription: Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.\nPseudocode: if english_possessive.possessor.is_proper_name:\n    mirad = possessed_np + 'bi' + possessor_name\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessor follows bi\n[score=0.821, importance=0.90]",
+      "Rule ID: determiner.demonstrative_hia_hua\nDescription: hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.\nPseudocode: if referent.is_near_speaker: base = 'hi'\nif referent.is_far_or_contextual: base = 'hu'\nif used_as_adjective: form = base + 'a'\nif used_as_thing_pronoun: form = base + 'as' or base + 'asi'\nif used_as_person_pronoun: form = base + 'at' or base + 'ati'\nExamples:\n- Mirad: hia tam | English: this house | Note: proximal adjective\n- Mirad: hua tam | English: that house | Note: distal adjective\n- Mirad: Hias se etas. | English: This one is yours. | Note: proximal thing pronoun\n[score=0.812, importance=0.90]",
+      "Rule ID: verb.conditional_imperative_u_subject\nDescription: A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.\nPseudocode: if finite_verb.ends_with('u'):\n    if clause.has_explicit_subject:\n        interpret_as conditional_hypothetical\n    else:\n        interpret_as imperative\nExamples:\n- Mirad: Hus su fia. | English: That would be good. | Note: subject present; conditional\n- Mirad: Su baka! | English: Be well! | Note: no subject; command\n- Mirad: Xu has hij! | English: Do it now! | Note: imperative\n[score=0.780, importance=0.85]",
+      "Rule ID: verb.progressive.active_ey_plus_tense\nDescription: The active progressive inserts the present aspect vowel e plus buffer y between the stem and final tense/mood vowel: -eye, -eya, -eyo, -eyu.\nPseudocode: if aspect == progressive and voice == active:\n    form = stem + 'ey' + final_tense_vowel\nExamples:\n- Mirad: at xeye | English: I am doing | Note: x- + ey + e\n- Mirad: at xeya | English: I was doing | Note: x- + ey + a\n- Mirad: at xeyo | English: I will be doing | Note: x- + ey + o\n[score=0.756, importance=0.75]",
+      "Rule ID: preposition.bi_of_possession_partitive\nDescription: bi translates many English of-relations, including possession by named persons and partitives such as a glass of wine.\nPseudocode: if relation in ['of', 'possessive', 'partitive']:\n    use head + 'bi' + complement\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessive bi\n- Mirad: tilzyeb bi vafil | English: a glass of wine | Note: partitive bi\n[score=0.756, importance=0.85]"
+    ],
+    "used_rule_ids": [
+      "conjunction.coordinate_ay_ey_oy",
+      "verb.conditional_imperative_u_subject",
+      "verb.simple.active_suffixes"
+    ],
+    "elapsed_ms": 60199.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 27,
+    "id": "pair-0894",
+    "source": "eta tuxut se fia oy ata tuxut se fua",
+    "gold": "your teacher is good but my teacher is bad",
+    "pred": "Your teacher is good, but my teacher is bad.",
+    "error": null,
+    "word_equivalents": {
+      "eta": "eta, thine, thy, your",
+      "ata": "my",
+      "tuxut": "lecturer, preceptor, teacher",
+      "fia": "alright, fine, good, nice, ok",
+      "fua": "bad, crappy, crummy, lousy, piss poor",
+      "oy": "but, except, however, yet"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1274.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 28,
+    "id": "pair-0909",
+    "source": "hia tom se nam oy hia tom sa nam ja his",
+    "gold": "this building is a store but this building was a store before",
+    "pred": "This house is a store, but this house was a store before this.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "tom": "building, edifice",
+      "se": "am, are, is",
+      "nam": "retail establishment, shop, shoppe, store",
+      "oy": "but, except, however, yet",
+      "ja": "afore, ante, prior to",
+      "his": "it, this thing"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1337.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.875,
+      "word_overlap_f1": 0.875
+    }
+  },
+  {
+    "idx": 1,
+    "id": "pair-0875",
+    "source": "et voy se ata twed oy et tre ata twed",
+    "gold": "you are not my father but you know my father",
+    "pred": "You are not my father, but you know my father.",
+    "error": null,
+    "word_equivalents": {
+      "et": "thee, thou, you",
+      "voy": "not",
+      "ser": "to be",
+      "ata": "my",
+      "twed": "father, pater",
+      "oy": "but, except, however, yet",
+      "ter": "to be aware, to know",
+      "thee": "et",
+      "thew": "yuvat",
+      "theca": "abnyeb",
+      "teehee": "hihi, ozivseux",
+      "throe": "byook",
+      "thou": "et",
+      "thine": "eta",
+      "thy": "eta",
+      "throes": "byook",
+      "thitherto": "bu hum",
+      "you": "et, eyt",
+      "your": "ayeta, eta, eyta, weta, yeta",
+      "you yourself": "et eut, eyt eut",
+      "you yourselves": "yet yeut",
+      "you and i": "aet",
+      "not": "hyo-, voy",
+      "let not": "ofu, von",
+      "not a": "hyoa, hyoawa, owa",
+      "not that": "voy van",
+      "certainly not": "vlay voy, vlo, vloy",
+      "to be": "ser",
+      "to-be": "ojna",
+      "to there to be": "beuwer, eser",
+      "being": "sat, sea, sean, seat, sen, zapuen",
+      "to be about": "vyeler, vyeser"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 61821.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 21,
+    "id": "pair-0958",
+    "source": "pe ha nam ay nusbiu dyes av at",
+    "gold": "go to the store and buy a book for me",
+    "pred": "Go to the store and buy a book for me.",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "nam": "retail establishment, shop, shoppe, store",
+      "ay": "and",
+      "dyes": "book",
+      "av": "in favor of, in order to, on behalf of, per, pro, so as to",
+      "at": "I, me"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5836.6,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 29,
+    "id": "pair-0314",
+    "source": "yat tambese hom ha mep uje",
+    "gold": "we live where the road ends",
+    "pred": "We live where the road ends.",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "tambeser": "to be lodged, to dwell, to live, to lodge, to reside in",
+      "hom": "the place that, the place where",
+      "ha": "the",
+      "mep": "pathway, road, route, street, way",
+      "ujer": "to end up, to finish, to stop, to surcease, to terminate"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1907.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 0,
+    "id": "pair-0956",
+    "source": "vo at voy te oy at doho",
+    "gold": "no i do not know but i will ask",
+    "pred": "No, I do not know, or my name.",
+    "error": null,
+    "word_equivalents": {
+      "vo": "nay, no, nope",
+      "at": "I, me",
+      "voy": "not",
+      "oy": "but, except, however, yet"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.000, importance=1.00]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.000, importance=1.00]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=0.934, importance=0.95]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=0.908, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=0.902, importance=0.95]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=0.902, importance=0.95]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=0.902, importance=0.95]",
+      "Rule ID: translation.english_a_an_omit\nDescription: Mirad has no indefinite article equivalent to English a/an. An unmarked noun is indefinite or general unless made definite by ha or another determiner.\nPseudocode: if english_np.article in ['a','an']:\n    omit article in Mirad\n    translate noun phrase normally\nExamples:\n- Mirad: tam | English: a house | Note: no indefinite article\n- Mirad: fitejawa tej | English: a life well-lived | Note: indefinite abstraction, no article\n[score=0.902, importance=0.95]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=0.837, importance=0.90]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.818, importance=0.90]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.811, importance=0.90]",
+      "Rule ID: noun.possession.named_person_bi\nDescription: Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.\nPseudocode: if english_possessive.possessor.is_proper_name:\n    mirad = possessed_np + 'bi' + possessor_name\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessor follows bi\n[score=0.810, importance=0.90]",
+      "Rule ID: determiner.demonstrative_hia_hua\nDescription: hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.\nPseudocode: if referent.is_near_speaker: base = 'hi'\nif referent.is_far_or_contextual: base = 'hu'\nif used_as_adjective: form = base + 'a'\nif used_as_thing_pronoun: form = base + 'as' or base + 'asi'\nif used_as_person_pronoun: form = base + 'at' or base + 'ati'\nExamples:\n- Mirad: hia tam | English: this house | Note: proximal adjective\n- Mirad: hua tam | English: that house | Note: distal adjective\n- Mirad: Hias se etas. | English: This one is yours. | Note: proximal thing pronoun\n[score=0.810, importance=0.90]",
+      "Rule ID: adjective.descriptive.ends_a\nDescription: All descriptive adjectives end in the adjectival marker -a. Adjectives can be derived from qualitative roots, nouns, passive verb stems, and prepositions.\nPseudocode: if target_part_of_speech == descriptive_adjective:\n    form = stem + 'a'\nExamples:\n- Mirad: fia | English: good | Note: fi- + -a\n- Mirad: pura | English: vehicular | Note: pur 'vehicle' + -a\n- Mirad: dalwa | English: spoken | Note: passive verb stem + -a\n[score=0.810, importance=0.90]",
+      "Rule ID: verb.conditional_imperative_u_subject\nDescription: A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.\nPseudocode: if finite_verb.ends_with('u'):\n    if clause.has_explicit_subject:\n        interpret_as conditional_hypothetical\n    else:\n        interpret_as imperative\nExamples:\n- Mirad: Hus su fia. | English: That would be good. | Note: subject present; conditional\n- Mirad: Su baka! | English: Be well! | Note: no subject; command\n- Mirad: Xu has hij! | English: Do it now! | Note: imperative\n[score=0.724, importance=0.85]",
+      "Rule ID: verb.passive.insert_w_before_tense\nDescription: In finite passive forms, the passive marker w is inserted between the verb stem and the final tense/mood vowel. Passive forms translate English 'be/get + past participle' when a patient is subject.\nPseudocode: if voice == passive and aspect == simple:\n    form = stem + 'w' + tense_or_mood_vowel\nExamples:\n- Mirad: Has xwe. | English: It is done. | Note: x- + w + e\n- Mirad: Has xwa. | English: It was done. | Note: x- + w + a\n- Mirad: Has xwo. | English: It will be done. | Note: x- + w + o\n[score=0.723, importance=0.85]"
+    ],
+    "used_rule_ids": [
+      "verb.simple.active_suffixes",
+      "syntax.basic_svo",
+      "verb.no_person_number_agreement",
+      "noun.modifiers.order_no_agreement",
+      "pronoun.possessive_add_a_s_si"
+    ],
+    "elapsed_ms": 64297.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.625,
+      "word_overlap_recall": 0.625,
+      "word_overlap_f1": 0.625
+    }
+  },
+  {
+    "idx": 3,
+    "id": "pair-0951",
+    "source": "duven ha mari se manika oy ha moj se oma",
+    "gold": "are the stars bright but the night cold",
+    "pred": "Are the stars bright but the night is cold?",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "se": "am, are, is",
+      "manika": "bright, luminous",
+      "oy": "but, except, however, yet",
+      "moj": "night",
+      "oma": "cold, frigid",
+      "the": "ha",
+      "there": "be hum",
+      "passage": "ajpem, ajpen, ajpun, ajpyem, dyeun, yagzyotim, zeypen",
+      "thew": "yuvat",
+      "an": "awa, hea"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 65739.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9333
+    }
+  },
+  {
+    "idx": 6,
+    "id": "pair-0911",
+    "source": "hia tom so nam ay hia tom su nam",
+    "gold": "this building will be a store and this building would be a store",
+    "pred": "This building will be a store, and this building would be a store.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "tom": "building, edifice",
+      "so": "s, the letter s",
+      "nam": "retail establishment, shop, shoppe, store",
+      "ay": "and",
+      "su": "sou"
+    },
+    "context_passages": [
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.271, importance=1.00]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.019, importance=1.00]",
+      "Rule ID: pronoun.person_number_core_table\nDescription: Core animate personal pronouns are at I/me, et you, it he/she/him/her, yat we/us, yet you plural, yit they/them. Plural personal pronouns generally begin with y.\nPseudocode: map person_number to core_pronoun:\n    1sg -> at\n    2sg -> et\n    3sg animate -> it\n    1pl -> yat\n    2pl -> yet\n    3pl animate -> yit\nExamples:\n- Mirad: At xe. | English: I do. | Note: 1sg\n- Mirad: Yat xe. | English: We do. | Note: 1pl begins with y\n- Mirad: Yit xe. | English: They do. | Note: 3pl animate\n[score=1.000, importance=1.00]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=0.984, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=0.965, importance=0.95]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=0.943, importance=0.95]",
+      "Rule ID: pronoun.animate_t_inanimate_s\nDescription: Pronouns ending in -t refer to animate beings; pronouns ending in -s refer to inanimate objects, concepts, or abstractions. English 'it/they/them' must be resolved by antecedent animacy.\nPseudocode: if antecedent.is_animate:\n    use pronoun ending '-t'\nif antecedent.is_inanimate:\n    use pronoun ending '-s'\nExamples:\n- Mirad: it | English: he/she/him/her/animate it | Note: animate singular\n- Mirad: is | English: it | Note: inanimate singular\n- Mirad: yit / yis | English: they animate / they inanimate | Note: plural animacy contrast\n[score=0.903, importance=0.95]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=0.903, importance=0.95]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=0.903, importance=0.95]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.876, importance=0.90]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=0.857, importance=0.90]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.830, importance=0.90]",
+      "Rule ID: noun.possession.named_person_bi\nDescription: Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.\nPseudocode: if english_possessive.possessor.is_proper_name:\n    mirad = possessed_np + 'bi' + possessor_name\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessor follows bi\n[score=0.820, importance=0.90]",
+      "Rule ID: determiner.demonstrative_hia_hua\nDescription: hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.\nPseudocode: if referent.is_near_speaker: base = 'hi'\nif referent.is_far_or_contextual: base = 'hu'\nif used_as_adjective: form = base + 'a'\nif used_as_thing_pronoun: form = base + 'as' or base + 'asi'\nif used_as_person_pronoun: form = base + 'at' or base + 'ati'\nExamples:\n- Mirad: hia tam | English: this house | Note: proximal adjective\n- Mirad: hua tam | English: that house | Note: distal adjective\n- Mirad: Hias se etas. | English: This one is yours. | Note: proximal thing pronoun\n[score=0.810, importance=0.90]",
+      "Rule ID: verb.conditional_imperative_u_subject\nDescription: A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.\nPseudocode: if finite_verb.ends_with('u'):\n    if clause.has_explicit_subject:\n        interpret_as conditional_hypothetical\n    else:\n        interpret_as imperative\nExamples:\n- Mirad: Hus su fia. | English: That would be good. | Note: subject present; conditional\n- Mirad: Su baka! | English: Be well! | Note: no subject; command\n- Mirad: Xu has hij! | English: Do it now! | Note: imperative\n[score=0.808, importance=0.85]",
+      "Rule ID: verb.passive.insert_w_before_tense\nDescription: In finite passive forms, the passive marker w is inserted between the verb stem and the final tense/mood vowel. Passive forms translate English 'be/get + past participle' when a patient is subject.\nPseudocode: if voice == passive and aspect == simple:\n    form = stem + 'w' + tense_or_mood_vowel\nExamples:\n- Mirad: Has xwe. | English: It is done. | Note: x- + w + e\n- Mirad: Has xwa. | English: It was done. | Note: x- + w + a\n- Mirad: Has xwo. | English: It will be done. | Note: x- + w + o\n[score=0.797, importance=0.85]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.034, importance=1.00]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=1.016, importance=0.95]",
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.011, importance=1.00]",
+      "Rule ID: conjunction.coordinate_ay_ey_oy\nDescription: ay links elements as 'and'; ey links alternatives as 'or'; oy can express exclusion/contrast such as 'but' or in neither/nor patterns, depending on construction.\nPseudocode: if relation == conjunction: use 'ay'\nif relation == alternative: use 'ey'\nif relation == contrast_or_negative_alternative: use 'oy'\nExamples:\n- Mirad: Ivan ay Maria | English: Ivan and Maria | Note: ay = and\n- Mirad: ha tam ey ha par | English: the house or the car | Note: ey = or\n- Mirad: hyati oy ha toybi | English: all but the women | Note: oy expresses exclusion\n[score=0.986, importance=0.80]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=0.967, importance=0.95]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=0.940, importance=0.95]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=0.928, importance=0.95]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=0.927, importance=0.95]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=0.895, importance=0.90]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.886, importance=0.90]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.872, importance=0.90]",
+      "Rule ID: noun.possession.named_person_bi\nDescription: Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.\nPseudocode: if english_possessive.possessor.is_proper_name:\n    mirad = possessed_np + 'bi' + possessor_name\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessor follows bi\n[score=0.816, importance=0.90]",
+      "Rule ID: determiner.demonstrative_hia_hua\nDescription: hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.\nPseudocode: if referent.is_near_speaker: base = 'hi'\nif referent.is_far_or_contextual: base = 'hu'\nif used_as_adjective: form = base + 'a'\nif used_as_thing_pronoun: form = base + 'as' or base + 'asi'\nif used_as_person_pronoun: form = base + 'at' or base + 'ati'\nExamples:\n- Mirad: hia tam | English: this house | Note: proximal adjective\n- Mirad: hua tam | English: that house | Note: distal adjective\n- Mirad: Hias se etas. | English: This one is yours. | Note: proximal thing pronoun\n[score=0.811, importance=0.90]",
+      "Rule ID: verb.conditional_imperative_u_subject\nDescription: A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.\nPseudocode: if finite_verb.ends_with('u'):\n    if clause.has_explicit_subject:\n        interpret_as conditional_hypothetical\n    else:\n        interpret_as imperative\nExamples:\n- Mirad: Hus su fia. | English: That would be good. | Note: subject present; conditional\n- Mirad: Su baka! | English: Be well! | Note: no subject; command\n- Mirad: Xu has hij! | English: Do it now! | Note: imperative\n[score=0.782, importance=0.85]",
+      "Rule ID: verb.modal_auxiliary_before_infinitive\nDescription: Modal verbs such as wanting, needing, being able, being obliged, liking, and fearing are conjugated as auxiliaries and followed by an infinitive verb in -er.\nPseudocode: modal = conjugate(modal_stem, tense_aspect_mood_voice)\nmain_verb = infinitive_er_form\nclause_predicate = modal + ' ' + main_verb\nExamples:\n- Mirad: At fe per. | English: I want to go. | Note: fe + infinitive per\n- Mirad: Et yafe aker. | English: You can win. | Note: yafe + infinitive aker\n- Mirad: Yet yefe iper. | English: You must leave. | Note: yefe + infinitive iper\n[score=0.765, importance=0.80]",
+      "Rule ID: determiner.demonstrative_hia_hua\nDescription: hia marks proximal reference, this; hua marks distal reference, that. As adjectives they precede the noun. As pronouns they can take -s/-t and plural -i.\nPseudocode: if referent.is_near_speaker: base = 'hi'\nif referent.is_far_or_contextual: base = 'hu'\nif used_as_adjective: form = base + 'a'\nif used_as_thing_pronoun: form = base + 'as' or base + 'asi'\nif used_as_person_pronoun: form = base + 'at' or base + 'ati'\nExamples:\n- Mirad: hia tam | English: this house | Note: proximal adjective\n- Mirad: hua tam | English: that house | Note: distal adjective\n- Mirad: Hias se etas. | English: This one is yours. | Note: proximal thing pronoun\n[score=1.251, importance=0.90]",
+      "Rule ID: noun.article.definite_ha\nDescription: Mirad has one definite article, ha. It precedes the noun and any adjectives. It does not change for gender, number, or case. There is no indefinite article.\nPseudocode: if english_np.definiteness == definite:\n    mirad_np = 'ha' + modifiers + noun\nelse if english_np.has_indefinite_article:\n    omit_article_in_mirad\nExamples:\n- Mirad: tam | English: a house | Note: indefinite; no article\n- Mirad: ha tam | English: the house | Note: definite marked with ha\n- Mirad: ha tami | English: the houses | Note: ha unchanged before plural noun\n[score=1.118, importance=1.00]",
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.059, importance=1.00]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=1.005, importance=0.95]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=0.999, importance=0.95]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=0.968, importance=0.90]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=0.959, importance=0.95]",
+      "Rule ID: pronoun.animate_t_inanimate_s\nDescription: Pronouns ending in -t refer to animate beings; pronouns ending in -s refer to inanimate objects, concepts, or abstractions. English 'it/they/them' must be resolved by antecedent animacy.\nPseudocode: if antecedent.is_animate:\n    use pronoun ending '-t'\nif antecedent.is_inanimate:\n    use pronoun ending '-s'\nExamples:\n- Mirad: it | English: he/she/him/her/animate it | Note: animate singular\n- Mirad: is | English: it | Note: inanimate singular\n- Mirad: yit / yis | English: they animate / they inanimate | Note: plural animacy contrast\n[score=0.942, importance=0.95]",
+      "Rule ID: translation.english_a_an_omit\nDescription: Mirad has no indefinite article equivalent to English a/an. An unmarked noun is indefinite or general unless made definite by ha or another determiner.\nPseudocode: if english_np.article in ['a','an']:\n    omit article in Mirad\n    translate noun phrase normally\nExamples:\n- Mirad: tam | English: a house | Note: no indefinite article\n- Mirad: fitejawa tej | English: a life well-lived | Note: indefinite abstraction, no article\n[score=0.939, importance=0.95]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=0.934, importance=0.95]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=0.891, importance=0.90]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.865, importance=0.90]",
+      "Rule ID: noun.possession.named_person_bi\nDescription: Possession by a named person is expressed as possessed noun + bi + possessor, equivalent to English 'Y's X' or 'the X of Y'.\nPseudocode: if english_possessive.possessor.is_proper_name:\n    mirad = possessed_np + 'bi' + possessor_name\nExamples:\n- Mirad: ha tam bi Maria | English: Mary's house / the house of Mary | Note: possessor follows bi\n[score=0.858, importance=0.90]",
+      "Rule ID: adjective.descriptive.ends_a\nDescription: All descriptive adjectives end in the adjectival marker -a. Adjectives can be derived from qualitative roots, nouns, passive verb stems, and prepositions.\nPseudocode: if target_part_of_speech == descriptive_adjective:\n    form = stem + 'a'\nExamples:\n- Mirad: fia | English: good | Note: fi- + -a\n- Mirad: pura | English: vehicular | Note: pur 'vehicle' + -a\n- Mirad: dalwa | English: spoken | Note: passive verb stem + -a\n[score=0.828, importance=0.90]",
+      "Rule ID: determiner.interrogative_duh_forms\nDescription: Interrogative deictic determiners are built with duh- plus a category ending: duhot? who/whom, duhos? what, duhota? whose, duhom? where, duhoj? when, duhoyen? how.\nPseudocode: if asking_for_person: use 'duhot?'\nif asking_for_thing: use 'duhos?'\nif asking_for_possessor: use 'duhota?'\nif asking_for_place: use 'duhom?'\nif asking_for_time: use 'duhoj?'\nif asking_for_manner: use 'duhoyen?'\nExamples:\n- Mirad: Duhot? | English: Who? / Whom? | Note: animate interrogative\n- Mirad: Duhos? | English: What? | Note: inanimate interrogative\n- Mirad: Duhom yit se? | English: Where are they? | Note: place interrogative\n[score=0.815, importance=0.85]",
+      "Rule ID: verb.simple.active_suffixes\nDescription: Simple active present uses stem + -e, past stem + -a, future stem + -o, and atemporal hypothetical/imperative stem + -u.\nPseudocode: if aspect == simple and voice == active:\n    if tense == present and mood == indicative: form = stem + 'e'\n    if tense == past and mood == indicative: form = stem + 'a'\n    if tense == future and mood == indicative: form = stem + 'o'\n    if mood == hypothetical or imperative: form = stem + 'u'\nExamples:\n- Mirad: at xe | English: I do | Note: x- + -e\n- Mirad: at xa | English: I did | Note: x- + -a\n- Mirad: at xo | English: I will do | Note: x- + -o\n[score=1.486, importance=1.00]",
+      "Rule ID: verb.conditional_imperative_u_subject\nDescription: A verb ending in -u is atemporal hypothetical. With an overt subject in a main clause it usually means would. Without a subject it is normally interpreted as an imperative command.\nPseudocode: if finite_verb.ends_with('u'):\n    if clause.has_explicit_subject:\n        interpret_as conditional_hypothetical\n    else:\n        interpret_as imperative\nExamples:\n- Mirad: Hus su fia. | English: That would be good. | Note: subject present; conditional\n- Mirad: Su baka! | English: Be well! | Note: no subject; command\n- Mirad: Xu has hij! | English: Do it now! | Note: imperative\n[score=1.224, importance=0.85]",
+      "Rule ID: verb.no_person_number_agreement\nDescription: The same verb form is used for all subjects regardless of person or number. Subject pronouns carry person and number information.\nPseudocode: verb_form = conjugate(stem, tense, aspect, mood, voice)\ndo_not_modify verb_form for subject.person\ndo_not_modify verb_form for subject.number\nExamples:\n- Mirad: at se | English: I am | Note: se unchanged\n- Mirad: et se | English: you are | Note: se unchanged\n- Mirad: yit se | English: they are | Note: se unchanged\n[score=1.160, importance=0.95]",
+      "Rule ID: verb.infinitive_er_stem\nDescription: Verbs are listed under the present active infinitive ending in -er. The stem is the infinitive minus -er. All conjugation uses this stem. Passive infinitives ending in -wer may be lexicalized, but the stem is still the infinitive minus -er.\nPseudocode: if verb.infinitive.ends_with('er'):\n    stem = remove_suffix(verb.infinitive, 'er')\nelse:\n    lookup irregular_or_nonstandard_entry\nExamples:\n- Mirad: yexer → yex- | English: to work → work stem | Note: remove -er\n- Mirad: poser → pos- | English: to stop → stop stem | Note: remove -er\n- Mirad: xwer → xw- | English: to happen/be done → passive stem | Note: remove -er\n[score=1.158, importance=0.90]",
+      "Rule ID: verb.transitive.direct_object_after_verb\nDescription: A transitive verb can be followed by its direct object. In basic declaratives this follows SVO order.\nPseudocode: if verb.is_transitive:\n    clause = subject + verb + direct_object\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: imperative verb + direct object\n[score=1.131, importance=0.95]",
+      "Rule ID: syntax.basic_svo\nDescription: Mirad is normally SVO: subject + verb predicate + object, similar to English and Romance languages.\nPseudocode: if clause.is_basic_declarative:\n    order = [subject, verb_predicate, object_or_complement]\nExamples:\n- Mirad: Ha yepet teupixa at. | English: The dog bit me. | Note: subject + verb + object\n[score=1.130, importance=1.00]",
+      "Rule ID: pronoun.english_it.translation_rules\nDescription: If English 'it' refers to an animate creature, use it/iyt/wit. If it refers to an inanimate object or abstraction, use is or a deictic determiner. If it is a dummy/expletive subject with no antecedent, omit it in Mirad.\nPseudocode: if english_it.has_antecedent:\n    if antecedent.is_animate: use gender_resolved one_of('it','iyt','wit')\n    else: use 'is' or deictic_determiner\nelse if english_it.is_dummy_subject:\n    omit pronoun\nExamples:\n- Mirad: At eke bay ha epet hosav at iyfe it. | English: I play with the dog because I like it. | Note: dog is animate, so it\n- Mirad: At teasa ha dyezun ay at iyfa is gla. | English: I saw the movie and I liked it a lot. | Note: movie is inanimate, so is\n- Mirad: Mamilo. | English: It will rain. | Note: dummy it omitted\n[score=1.101, importance=0.95]",
+      "Rule ID: verb.modal_auxiliary_before_infinitive\nDescription: Modal verbs such as wanting, needing, being able, being obliged, liking, and fearing are conjugated as auxiliaries and followed by an infinitive verb in -er.\nPseudocode: modal = conjugate(modal_stem, tense_aspect_mood_voice)\nmain_verb = infinitive_er_form\nclause_predicate = modal + ' ' + main_verb\nExamples:\n- Mirad: At fe per. | English: I want to go. | Note: fe + infinitive per\n- Mirad: Et yafe aker. | English: You can win. | Note: yafe + infinitive aker\n- Mirad: Yet yefe iper. | English: You must leave. | Note: yefe + infinitive iper\n[score=1.095, importance=0.80]",
+      "Rule ID: noun.article.definite_ha\nDescription: Mirad has one definite article, ha. It precedes the noun and any adjectives. It does not change for gender, number, or case. There is no indefinite article.\nPseudocode: if english_np.definiteness == definite:\n    mirad_np = 'ha' + modifiers + noun\nelse if english_np.has_indefinite_article:\n    omit_article_in_mirad\nExamples:\n- Mirad: tam | English: a house | Note: indefinite; no article\n- Mirad: ha tam | English: the house | Note: definite marked with ha\n- Mirad: ha tami | English: the houses | Note: ha unchanged before plural noun\n[score=1.037, importance=1.00]",
+      "Rule ID: pronoun.possessive_add_a_s_si\nDescription: Possessive adjectives are formed by adding -a to the pronoun. Possessive pronouns for things are formed with -as singular and -asi plural. Change s to t when the possessed referent is a person.\nPseudocode: possessive_adjective = pronoun + 'a'\nif possessed_referent == inanimate_singular:\n    possessive_pronoun = pronoun + 'as'\nif possessed_referent == inanimate_plural:\n    possessive_pronoun = pronoun + 'asi'\nif possessed_referent == animate:\n    replace final_s_with_t in possessive_pronoun\nExamples:\n- Mirad: at → ata | English: I/me → my | Note: possessive adjective -a\n- Mirad: atas | English: mine | Note: possessive pronoun for thing\n- Mirad: Etasi naze ga vyel atasi. | English: Yours are worth more than mine. | Note: plural possessed things\n[score=1.033, importance=0.90]",
+      "Rule ID: noun.modifiers.order_no_agreement\nDescription: Qualitative, quantitative, deictic, and pronominal adjectives precede the noun. There is no gender or number agreement between modifiers and noun.\nPseudocode: mirad_np = optional_article + determiners + quantitative_modifiers + descriptive_adjectives + noun\ndo_not_inflect_modifiers_for_gender_number_case\nExamples:\n- Mirad: ha ewa aga tami | English: the two big houses | Note: modifiers precede noun; only tami is plural\n- Mirad: ata aja teji | English: my past lives | Note: possessive and adjective precede noun\n[score=1.018, importance=0.95]",
+      "Rule ID: verb.passive.insert_w_before_tense\nDescription: In finite passive forms, the passive marker w is inserted between the verb stem and the final tense/mood vowel. Passive forms translate English 'be/get + past participle' when a patient is subject.\nPseudocode: if voice == passive and aspect == simple:\n    form = stem + 'w' + tense_or_mood_vowel\nExamples:\n- Mirad: Has xwe. | English: It is done. | Note: x- + w + e\n- Mirad: Has xwa. | English: It was done. | Note: x- + w + a\n- Mirad: Has xwo. | English: It will be done. | Note: x- + w + o\n[score=0.992, importance=0.85]",
+      "Rule ID: adjective.position.before_noun\nDescription: Descriptive adjectives are placed before the nouns they modify.\nPseudocode: mirad_np = optional_article + adjective_list + noun\nExamples:\n- Mirad: aga tam | English: a big house | Note: aga precedes tam\n- Mirad: ha fia toyb | English: the good woman | Note: article + adjective + noun\n[score=0.988, importance=0.95]",
+      "Rule ID: pronoun.animate_t_inanimate_s\nDescription: Pronouns ending in -t refer to animate beings; pronouns ending in -s refer to inanimate objects, concepts, or abstractions. English 'it/they/them' must be resolved by antecedent animacy.\nPseudocode: if antecedent.is_animate:\n    use pronoun ending '-t'\nif antecedent.is_inanimate:\n    use pronoun ending '-s'\nExamples:\n- Mirad: it | English: he/she/him/her/animate it | Note: animate singular\n- Mirad: is | English: it | Note: inanimate singular\n- Mirad: yit / yis | English: they animate / they inanimate | Note: plural animacy contrast\n[score=0.976, importance=0.95]",
+      "Rule ID: syntax.object.after_predicate\nDescription: In ordinary clauses, direct objects and complements follow the finite verb predicate. Indirect objects may precede direct objects with verbs that imply direction.\nPseudocode: predicate = finite_verb + optional_adverbs\nif direct_object: place after predicate\nif indirect_object and direct_object and verb.implies_direction: place indirect_object before direct_object\nExamples:\n- Mirad: Biu hia yibdren. | English: Take this telegram. | Note: object follows verb\n- Mirad: Buu at hua nyem. | English: Give me that box. | Note: indirect object before direct object\n[score=0.958, importance=0.90]",
+      "Rule ID: adjective.descriptive.ends_a\nDescription: All descriptive adjectives end in the adjectival marker -a. Adjectives can be derived from qualitative roots, nouns, passive verb stems, and prepositions.\nPseudocode: if target_part_of_speech == descriptive_adjective:\n    form = stem + 'a'\nExamples:\n- Mirad: fia | English: good | Note: fi- + -a\n- Mirad: pura | English: vehicular | Note: pur 'vehicle' + -a\n- Mirad: dalwa | English: spoken | Note: passive verb stem + -a\n[score=0.895, importance=0.90]"
+    ],
+    "used_rule_ids": [
+      "syntax.basic_svo",
+      "verb.simple.active_suffixes",
+      "verb.conditional_imperative_u_subject",
+      "determiner.demonstrative_hia_hua",
+      "noun.modifiers.order_no_agreement",
+      "noun.article.definite_ha",
+      "translation.english_a_an_omit",
+      "conjunction.coordinate_ay_ey_oy",
+      "verb.infinitive_er_stem"
+    ],
+    "elapsed_ms": 68612.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  }
+]

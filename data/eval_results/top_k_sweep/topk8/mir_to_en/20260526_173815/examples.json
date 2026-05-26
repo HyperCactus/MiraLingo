@@ -1,0 +1,789 @@
+[
+  {
+    "idx": 7,
+    "id": "pair-0448",
+    "source": "yot glaxag voy ife yout",
+    "gold": "people often do not love themselves",
+    "pred": "People often do not like themselves.",
+    "error": null,
+    "word_equivalents": {
+      "yot": "people, them, they",
+      "glaxag": "frequently, oft, often, passim, very often, with great frequency",
+      "voy": "not",
+      "yout": "themselves"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 40537.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 3,
+    "id": "pair-0951",
+    "source": "duven ha mari se manika oy ha moj se oma",
+    "gold": "are the stars bright but the night cold",
+    "pred": "Is it true that the days are bright but the night is cold?",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "se": "am, are, is",
+      "manika": "bright, luminous",
+      "oy": "but, except, however, yet",
+      "moj": "night",
+      "oma": "cold, frigid"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 40892.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5455,
+      "word_overlap_recall": 0.8571,
+      "word_overlap_f1": 0.6667
+    }
+  },
+  {
+    "idx": 4,
+    "id": "pair-0963",
+    "source": "eku ey pilu oy von hihidu",
+    "gold": "play or get lost but do not laugh",
+    "pred": "Play or flee, but don't laugh.",
+    "error": null,
+    "word_equivalents": {
+      "eker": "to enact, to perform, to play, to risk",
+      "piler": "to flee, to get the hell away, to leave, to quit, to scram",
+      "hihider": "to laugh, to ridicule, to teehee",
+      "ey": "else, or",
+      "oy": "but, except, however, yet",
+      "von": "don't, let not"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 41009.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5714
+    }
+  },
+  {
+    "idx": 2,
+    "id": "pair-0721",
+    "source": "duven yit yexe be tam",
+    "gold": "do they work at home",
+    "pred": "Do they work at home?",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "be": "at",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 41947.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 8,
+    "id": "pair-0864",
+    "source": "hoj yat pua ha if ija",
+    "gold": "when we arrived the fun began",
+    "pred": "When we arrived, the joy began.",
+    "error": null,
+    "word_equivalents": {
+      "hoj": "the time that, the time when",
+      "yat": "the people...",
+      "puer": "to arrive",
+      "ha": "the",
+      "if": "amusement, fun, gratification, pleasure",
+      "joy": "afterward, hence, next, then"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2808.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.8333,
+      "word_overlap_f1": 0.8333
+    }
+  },
+  {
+    "idx": 10,
+    "id": "pair-0905",
+    "source": "ata tej se fia oy eta tej se fua",
+    "gold": "my life is good but your life is bad",
+    "pred": "My life is good but your life is bad.",
+    "error": null,
+    "word_equivalents": {
+      "ata": "my",
+      "tej": "life",
+      "se": "am, are, is",
+      "fia": "alright, fine, good, nice, ok",
+      "oy": "but, except, however, yet",
+      "eta": "eta, thine, thy, your",
+      "fua": "bad, crappy, crummy, lousy, piss poor"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2888.2,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 12,
+    "id": "pair-0975",
+    "source": "duven hua tam se etas ey duven hia tam se atas",
+    "gold": "is that house yours or is this house mine",
+    "pred": "Whether that house is yours or whether this house is mine.",
+    "error": null,
+    "word_equivalents": {
+      "hua": "that, yon, yonder",
+      "tam": "abode, home, house",
+      "se": "am, are, is",
+      "etas": "your thing, yours",
+      "ey": "else, or",
+      "hia": "these, this",
+      "atas": "mine, my thing"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2834.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9333
+    }
+  },
+  {
+    "idx": 13,
+    "id": "pair-0835",
+    "source": "je van yit so him yit yexo be tam",
+    "gold": "while they are here they will work at home",
+    "pred": "While they are here, they will work at home.",
+    "error": null,
+    "word_equivalents": {
+      "je": "during",
+      "van": "let's, let..., may..., that, the fact that",
+      "yit": "the girls, them, they",
+      "so": "s, the letter s",
+      "ser": "to be",
+      "him": "here, hither, this place",
+      "yexer": "to do business, to labor, to work",
+      "be": "at",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3622.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 5,
+    "id": "pair-0886",
+    "source": "yata tam se ga aga vyel etas oy hia tam voy se ge aga vyel yatas",
+    "gold": "our house is bigger than yours but this house is not as big as ours",
+    "pred": "Our house is bigger than yours but this house is not as big as ours.",
+    "error": null,
+    "word_equivalents": {
+      "tam": "abode, home, house",
+      "se": "am, are, is",
+      "ga": "-er, plus",
+      "aga": "A, big, large, the capital letter A",
+      "vyel": "about, as for, compared to, concerning, having to do with, in re, insofar as, involving, on, relating to, relative to, than, with respect to",
+      "etas": "your thing, yours",
+      "oy": "but, except, however, yet",
+      "hia": "these, this",
+      "voy": "not",
+      "ge": "equal, g, the letter g",
+      "yatas": "our thing, ours"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 48432.8,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 14,
+    "id": "pair-0889",
+    "source": "hia dresem se oga oy fia ay hua dresem se aga oy fua",
+    "gold": "this desk is small but good and that desk is big but bad",
+    "pred": "This desk is small but good, and that desk is big but bad.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "hua": "that, yon, yonder",
+      "dresem": "desk",
+      "oga": "little, petite, small",
+      "aga": "A, big, large, the capital letter A",
+      "oy": "but, except, however, yet",
+      "fia": "alright, fine, good, nice, ok",
+      "fua": "bad, crappy, crummy, lousy, piss poor"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 2358.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 1,
+    "id": "pair-0875",
+    "source": "et voy se ata twed oy et tre ata twed",
+    "gold": "you are not my father but you know my father",
+    "pred": "You are not my father, but you know my father.",
+    "error": null,
+    "word_equivalents": {
+      "et": "thee, thou, you",
+      "voy": "not",
+      "ser": "to be",
+      "ata": "my",
+      "twed": "father, pater",
+      "oy": "but, except, however, yet",
+      "ter": "to be aware, to know"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 48547.7,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 9,
+    "id": "pair-0809",
+    "source": "yat ta van et upo oy yat voy ta ven yit upo",
+    "gold": "we knew that you would come but we did not know whether they would come",
+    "pred": "We knew that you would come, but we did not know if they would come.",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "van": "let's, let..., may..., that, the fact that",
+      "et": "thee, thou, you",
+      "oy": "but, except, however, yet",
+      "voy": "not",
+      "ven": "if, whether",
+      "yit": "the girls, them, they"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8762.3,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9167,
+      "word_overlap_recall": 0.9167,
+      "word_overlap_f1": 0.9167
+    }
+  },
+  {
+    "idx": 17,
+    "id": "pair-0529",
+    "source": "at telio hoglas at fe",
+    "gold": "i will drink as much as i want",
+    "pred": "I will eat what I want.",
+    "error": null,
+    "word_equivalents": {
+      "at": "I, me",
+      "hoglas": "how much",
+      "hos": "that which, the thing that, what",
+      "fe": "f, the letter f",
+      "fer": "to desire, to want, to will"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3115.9,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5455
+    }
+  },
+  {
+    "idx": 15,
+    "id": "pair-0521",
+    "source": "hyej et dale at hihide",
+    "gold": "whenever you talk i laugh",
+    "pred": "Whenever you speak, I laugh.",
+    "error": null,
+    "word_equivalents": {
+      "hyej": "any time, anytime, ever",
+      "et": "thee, thou, you",
+      "dal": "speech, talk",
+      "at": "I, me",
+      "hihid": "laugh"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 4575.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.8
+    }
+  },
+  {
+    "idx": 20,
+    "id": "pair-0931",
+    "source": "yit yefe ovmasber yitasi ay yit yefe yexer yan",
+    "gold": "they must protect their own things and they must work together",
+    "pred": "They must barricade their things and they must work together.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "ovmasber": "to bar, to barricade, to block, to blockade, to dam, to defend, to embank, to protect, to shield against",
+      "yitasi": "their things, theirs",
+      "ay": "and",
+      "yexer": "to do business, to labor, to work",
+      "yan": "ensemble, together"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 1801.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.7778,
+      "word_overlap_f1": 0.8235
+    }
+  },
+  {
+    "idx": 11,
+    "id": "pair-0913",
+    "source": "ha tixuti tyoyape tistam hyajub oy hijub ha tixuti tyoyapeye tam",
+    "gold": "the students walk to school every day but today the students are walking home",
+    "pred": "The students walk to school every day, but today the students are walking home.",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "tixut": "mentor, student",
+      "tistam": "school, schoolhouse",
+      "hyajub": "every day",
+      "oy": "but, except, however, yet",
+      "hijub": "today",
+      "tam": "abode, home, house"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 12975.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 16,
+    "id": "pair-0401",
+    "source": "duven ha mari se manika",
+    "gold": "are the stars bright",
+    "pred": "Are the stars bright?",
+    "error": null,
+    "word_equivalents": {
+      "mar": "star",
+      "manika": "bright, luminous"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8208.9,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 18,
+    "id": "pair-0780",
+    "source": "it peye tam oy it yexo be tam",
+    "gold": "he or she is going home but he or she will work at home",
+    "pred": "He is going home but he will work at home.",
+    "error": null,
+    "word_equivalents": {
+      "per": "to get, to go, to go to",
+      "tam": "abode, home, house",
+      "oy": "but, except, however, yet",
+      "it": "he, her, him, she",
+      "yexer": "to do business, to labor, to work",
+      "be": "at"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 8202.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 0.8,
+      "word_overlap_f1": 0.8889
+    }
+  },
+  {
+    "idx": 22,
+    "id": "pair-0789",
+    "source": "yit peya tam oy yit upa him",
+    "gold": "they were going home but they came here",
+    "pred": "They went home but they came here.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "per": "to get, to go, to go to",
+      "tam": "abode, home, house",
+      "oy": "but, except, however, yet",
+      "uper": "to come",
+      "him": "here, hither, this place"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 3404.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8333,
+      "word_overlap_recall": 0.7143,
+      "word_overlap_f1": 0.7692
+    }
+  },
+  {
+    "idx": 19,
+    "id": "pair-0820",
+    "source": "duven yat te hom et pa ay hom yit tambese",
+    "gold": "do we know where you went and where they live",
+    "pred": "Do we know the place where you went and the place where they live?",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "hom": "the place that, the place where",
+      "et": "thee, thou, you",
+      "ay": "and",
+      "yit": "the girls, them, they"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7618.0,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.8182,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 0.9
+    }
+  },
+  {
+    "idx": 0,
+    "id": "pair-0956",
+    "source": "vo at voy te oy at doho",
+    "gold": "no i do not know but i will ask",
+    "pred": "No, I do not know, or my name.",
+    "error": null,
+    "word_equivalents": {
+      "vo": "nay, no, nope",
+      "at": "I, me",
+      "voy": "not",
+      "oy": "but, except, however, yet",
+      "nay": "vo, vod, vodokebid, vodud, voteuz",
+      "nay-sayer": "vodudut",
+      "nay-saying": "voduden",
+      "naja": "sepyet",
+      "naf": "daepatyan",
+      "naiad": "miltoyt",
+      "na": "nialk",
+      "nary": "hyoa",
+      "no": "hyoa, owa, vo",
+      "no-": "hyo-",
+      "no-no": "ofwas",
+      "no no": "vo-vo",
+      "nope": "vo",
+      "nothing": "hyosi, hyoson, hyosun, osun, owas",
+      "no kind of": "hyogela, hyosauna, hyoyena",
+      "none": "hyoglasi, owat",
+      "to nod no": "votebbaxer, votebsiuner",
+      "no such": "hyoyena",
+      "nock": "yoz"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 57977.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.625,
+      "word_overlap_recall": 0.625,
+      "word_overlap_f1": 0.625
+    }
+  },
+  {
+    "idx": 6,
+    "id": "pair-0911",
+    "source": "hia tom so nam ay hia tom su nam",
+    "gold": "this building will be a store and this building would be a store",
+    "pred": "This building will be a store and this building should be a store.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "tom": "building, edifice",
+      "so": "s, the letter s",
+      "nam": "retail establishment, shop, shoppe, store",
+      "ay": "and",
+      "su": "sou",
+      "these": "hi-, hia, hiati",
+      "these (things)": "hisi",
+      "these things": "hisi, hisuni",
+      "there": "be hum",
+      "these kind of things": "hisauanasi",
+      "this": "hi-, hia, hinog",
+      "these kinds of things": "hiyenasi",
+      "some": "gle, hea, hegan, hesag",
+      "this one": "hias, hiat, hiawa, hiawas",
+      "since this": "ji his",
+      "this kind of": "higela, hisauna, hiyena",
+      "this kind": "hisaun",
+      "this-and-that": "huis",
+      "this and that": "huix"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 58046.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.875,
+      "word_overlap_f1": 0.875
+    }
+  },
+  {
+    "idx": 21,
+    "id": "pair-0958",
+    "source": "pe ha nam ay nusbiu dyes av at",
+    "gold": "go to the store and buy a book for me",
+    "pred": "Go to the store and buy a book for me.",
+    "error": null,
+    "word_equivalents": {
+      "ha": "the",
+      "nam": "retail establishment, shop, shoppe, store",
+      "ay": "and",
+      "dyes": "book",
+      "av": "in favor of, in order to, on behalf of, per, pro, so as to",
+      "at": "I, me"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 7005.3,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 23,
+    "id": "pair-0828",
+    "source": "je van at so him at xo gle yex av et",
+    "gold": "while i am here i will do some work for you",
+    "pred": "While I am here, I will do much work for you.",
+    "error": null,
+    "word_equivalents": {
+      "je": "during",
+      "van": "let's, let..., may..., that, the fact that",
+      "at": "I, me",
+      "so": "s, the letter s",
+      "him": "here, hither, this place",
+      "gle": "fairly, rather, some, somewhat",
+      "yex": "labor, work",
+      "av": "in favor of, in order to, on behalf of, per, pro, so as to",
+      "et": "thee, thou, you"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5933.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9,
+      "word_overlap_recall": 0.9,
+      "word_overlap_f1": 0.9
+    }
+  },
+  {
+    "idx": 24,
+    "id": "pair-0500",
+    "source": "yit yexe gey be moji",
+    "gold": "they work even nights",
+    "pred": "They are also working at night.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "gey": "even",
+      "be": "at"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5725.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.1667,
+      "word_overlap_recall": 0.25,
+      "word_overlap_f1": 0.2
+    }
+  },
+  {
+    "idx": 26,
+    "id": "pair-0843",
+    "source": "yit voy ijo ju van yat puo him",
+    "gold": "they will not start until we get here",
+    "pred": "They will not begin until we arrive here.",
+    "error": null,
+    "word_equivalents": {
+      "ijer": "to begin, to commence, to start",
+      "puer": "to arrive",
+      "him": "here, hither, this place",
+      "voy": "not",
+      "ju": "til",
+      "van": "let's, let..., may..., that, the fact that",
+      "yit": "the girls, them, they",
+      "yat": "the people..."
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5655.7,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.75,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.75
+    }
+  },
+  {
+    "idx": 27,
+    "id": "pair-0894",
+    "source": "eta tuxut se fia oy ata tuxut se fua",
+    "gold": "your teacher is good but my teacher is bad",
+    "pred": "Your teacher is good, but my teacher is bad.",
+    "error": null,
+    "word_equivalents": {
+      "eta": "eta, thine, thy, your",
+      "ata": "my",
+      "tuxut": "lecturer, preceptor, teacher",
+      "fia": "alright, fine, good, nice, ok",
+      "fua": "bad, crappy, crummy, lousy, piss poor",
+      "oy": "but, except, however, yet"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5470.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 25,
+    "id": "pair-0816",
+    "source": "yit voy te hom it pa oy yit te hom yat tambese",
+    "gold": "they do not know where he or she went but they know where we live",
+    "pred": "They do not know where he/she went, but they know where we live.",
+    "error": null,
+    "word_equivalents": {
+      "yit": "the girls, them, they",
+      "voy": "not",
+      "hom": "the place that, the place where",
+      "it": "he, her, him, she",
+      "oy": "but, except, however, yet",
+      "yat": "the people..."
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 6341.1,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.9,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.8182
+    }
+  },
+  {
+    "idx": 29,
+    "id": "pair-0314",
+    "source": "yat tambese hom ha mep uje",
+    "gold": "we live where the road ends",
+    "pred": "We live where the road ends.",
+    "error": null,
+    "word_equivalents": {
+      "yat": "the people...",
+      "tambeser": "to be lodged, to dwell, to live, to lodge, to reside in",
+      "hom": "the place that, the place where",
+      "ha": "the",
+      "mep": "pathway, road, route, street, way",
+      "ujer": "to end up, to finish, to stop, to surcease, to terminate"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5047.1,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 28,
+    "id": "pair-0909",
+    "source": "hia tom se nam oy hia tom sa nam ja his",
+    "gold": "this building is a store but this building was a store before",
+    "pred": "This house is a store, but this house was a store before this.",
+    "error": null,
+    "word_equivalents": {
+      "hia": "these, this",
+      "tom": "building, edifice",
+      "se": "am, are, is",
+      "nam": "retail establishment, shop, shoppe, store",
+      "oy": "but, except, however, yet",
+      "ja": "afore, ante, prior to",
+      "his": "it, this thing"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 5359.8,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.875,
+      "word_overlap_recall": 0.875,
+      "word_overlap_f1": 0.875
+    }
+  }
+]

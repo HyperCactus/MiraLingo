@@ -621,7 +621,7 @@ def run_labeled_fewshot_eval(
         print(f"  Demo {i}: EN={demo.english_text[:50]!r}... WE={we_count} items")
 
     # ── Build module with k=0 (no RAG retrieval) ──────────────────────────────
-    module = DefaultTranslator(num_context_passages=5, use_compiled=False)
+    module = DefaultTranslator(num_context_passages=3, use_compiled=False)
 
     # ── Compile with LabeledFewShot ───────────────────────────────────────────
     from dspy import LabeledFewShot
@@ -842,7 +842,7 @@ def semantic_similarity_reverse_metric(example: dspy.Example, prediction: dspy.P
 def run_mir_to_en_baseline_eval(
     model: str | None = None,
     num_fewshot: int = 5,
-    num_context_passages: int = 5,
+    num_context_passages: int = 3,
     num_threads: int = 1,
     output_path: Optional[str] = None,
     lm_type: str = "deepinfra",
@@ -857,7 +857,7 @@ def run_mir_to_en_baseline_eval(
     Args:
         model: Model name (default: DeepSeek-V4-Flash).
         num_fewshot: Number of labeled few-shot examples (default: 5).
-        num_context_passages: Number of RAG context passages (default: 5).
+        num_context_passages: Number of RAG context passages (default: 3).
         num_threads: Parallel threads for evaluation (default: 1).
         output_path: Override output path for results JSON.
         lm_type: "deepinfra" for cloud API, "ollama" for local Ollama.

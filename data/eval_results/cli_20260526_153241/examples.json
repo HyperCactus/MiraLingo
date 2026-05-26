@@ -1,0 +1,186 @@
+[
+  {
+    "idx": 2,
+    "id": "pair-0324",
+    "source": "this building was a store",
+    "gold": "hia tom sa nam",
+    "pred": "Hia tom sa nam.",
+    "error": null,
+    "word_equivalents": {
+      "this": "hi-, hia, hinog",
+      "building": "-am, sexun, tom, tomsexen, tomxen",
+      "store": "nam, nunam, nyebam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 35977.4,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 5,
+    "id": "pair-0169",
+    "source": "i will be",
+    "gold": "at so",
+    "pred": "At so",
+    "error": null,
+    "word_equivalents": {
+      "will": "fan, fon, fwas, uja fondras",
+      "be": "baelk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 37302.0,
+    "scores": {
+      "normalized_match": 1.0,
+      "word_overlap_precision": 1.0,
+      "word_overlap_recall": 1.0,
+      "word_overlap_f1": 1.0
+    }
+  },
+  {
+    "idx": 6,
+    "id": "pair-0418",
+    "source": "do not be late",
+    "gold": "von et jwosu",
+    "pred": "Von jwo.",
+    "error": null,
+    "word_equivalents": {
+      "late": "jwo, jwoa, jwoay, tojya, ugla"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 40586.2,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.4
+    }
+  },
+  {
+    "idx": 1,
+    "id": "pair-0834",
+    "source": "while we are here we will work at home",
+    "gold": "je van yat so him yat yexo be tam",
+    "pred": "Je van yat se him, yat yako yexer be tam.",
+    "error": null,
+    "word_equivalents": {
+      "while": "je van",
+      "be": "baelk",
+      "here": "be him, hiim, him",
+      "work": "yex",
+      "home": "be tam, taam, tam",
+      "we": "aet, ayet, ayit, yat",
+      "at": "atulk"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 43743.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.6667,
+      "word_overlap_recall": 0.75,
+      "word_overlap_f1": 0.7059
+    }
+  },
+  {
+    "idx": 0,
+    "id": "pair-0327",
+    "source": "i am going home",
+    "gold": "at peye tam",
+    "pred": "At pye tampeye",
+    "error": null,
+    "word_equivalents": {
+      "home": "be tam, taam, tam"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 44498.6,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.3333,
+      "word_overlap_recall": 0.3333,
+      "word_overlap_f1": 0.3333
+    }
+  },
+  {
+    "idx": 3,
+    "id": "pair-0037",
+    "source": "our books",
+    "gold": "yata dyesi",
+    "pred": "ayeta dravesi",
+    "error": null,
+    "word_equivalents": {
+      "our": "aeta, ayet, ayita, yata",
+      "book": "draves, dyes"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 49700.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.0,
+      "word_overlap_recall": 0.0,
+      "word_overlap_f1": 0.0
+    }
+  },
+  {
+    "idx": 7,
+    "id": "pair-0388",
+    "source": "he or she knows",
+    "gold": "it te",
+    "pred": "it ter",
+    "error": null,
+    "word_equivalents": {
+      "knowing": "tea, ten",
+      "to know": "ter",
+      "know that": "ter van",
+      "known": "trawa, twa",
+      "something known": "twas"
+    },
+    "context_passages": [],
+    "used_rule_ids": [
+      "General rules apply"
+    ],
+    "elapsed_ms": 51131.5,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.5,
+      "word_overlap_recall": 0.5,
+      "word_overlap_f1": 0.5
+    }
+  },
+  {
+    "idx": 4,
+    "id": "pair-0826",
+    "source": "do we work at a grocery store near here and live downtown now",
+    "gold": "duven yat yexe be tolnam yub bi him ay tambese zedom hij",
+    "pred": "Duven yat yex be telnam yub bi him? Yat teja be zedom hij.",
+    "error": null,
+    "word_equivalents": {
+      "we": "aet, ayet, ayit, yat",
+      "work": "yex",
+      "at": "atulk",
+      "store": "nam, nunam, nyebam",
+      "near": "yub bi, yuba, yubna",
+      "here": "be him, hiim, him",
+      "live": "teja, tejya",
+      "downtown": "zedom, zedoma",
+      "now": "ejay, hiij, hij, hijob"
+    },
+    "context_passages": [],
+    "used_rule_ids": [],
+    "elapsed_ms": 62711.4,
+    "scores": {
+      "normalized_match": 0.0,
+      "word_overlap_precision": 0.7273,
+      "word_overlap_recall": 0.6667,
+      "word_overlap_f1": 0.6957
+    }
+  }
+]

@@ -1,0 +1,89 @@
+# =============================================================================
+# Evaluation Config Schema
+# =============================================================================
+# Copy this file to eval_config.yaml and edit values.
+# Run:  python scripts/run_evaluation.py --config eval_config.yaml
+#   or:  python scripts/run_evaluation.py --data data/eval/test.json --n 30 --direction en_to_mir --parallel 8
+#
+# CLI flags override config file values.
+
+# ── Model ────────────────────────────────────────────────────────────────────
+model:
+  # DSPy model name. For DeepInfra: "openai/<model_name>"
+  provider: "deepinfra"
+  model: "deepseek-ai/DeepSeek-V4-Flash"
+  api_key_env: "DEEPINFRA_API_KEY"      # env var name containing the key
+  api_base: "https://api.deepinfra.com/v1/openai"
+  timeout: 120                          # seconds per API call
+
+# ── Data ─────────────────────────────────────────────────────────────────────
+data:
+  # Path to JSON file or CSV with english,mirad columns
+  # Supports data/eval/*.json (generic {source,target} or {english,mirad})
+  # and data/phrases/english-mirad-sentence-pairs.csv
+  path: "data/eval/test.json"
+
+  # How to interpret the JSON "source" field:
+  #   "en_to_mir"  → source=English, target=Mirad
+  #   "mir_to_en"  → source=Mirad, target=English
+  direction: "en_to_mir"
+
+  # Minimum number of English words a sentence must have to be included.
+  # Set to 0 to include all sentences regardless of length.
+  min_english_words: 0
+
+  # How many samples to evaluate (0 = use all from loaded file).
+  # Use this for quick sanity checks without loading the full split.
+  n_samples: 0
+
+  # Random seed for sampling (only used when n_samples < total rows).
+  random_seed: 20260526
+
+# ── Translator ────────────────────────────────────────────────────────────────
+translator:
+  # Which translator to use:
+  #   "default"     → DefaultTranslator factory (en_to_mir / mir_to_en)
+  #   "compiled"    → load_compiled_translator (En→Mir only)
+  #   "custom"      → provide a Python import path string below
+  type: "default"
+
+  db_path: "data/mirad-db.sqlite"
+
+  # For "default" / "compiled" translators:
+  num_context_passages: 3     # ChromaDB grammar rule retrieval (0 disables); k=3 won the sweep
+  use_compiled: false         # use pre-compiled DSPy program
+  use_postprocessor: true      # apply postprocess_mirad to En→Mir output
+  semantic_lexicon: true       # use semantic (embedding) lexicon lookup
+  top_k_per_word: 0        # 0 won the sweep — lexicon lookup hurts en→mir; disable it
+  max_total_pairs: 50
+  min_similarity: 0.5
+
+# ── Evaluation ───────────────────────────────────────────────────────────────
+evaluation:
+  # Number of parallel translation calls.
+  # WARNING: high parallelism may hit DeepInfra rate limits.
+  parallel: 8
+
+  # Metrics to compute per sample.
+  #   "normalized_match"  → 1 if normalized strings match, else 0
+  #   "word_overlap"       → F1 word-level overlap (precision + recall)
+  #   "semantic_similarity"→ cosine similarity of predicted vs gold English
+  #                           (only meaningful for mir_to_en direction)
+  metrics:
+    - "normalized_match"
+    - "word_overlap"
+
+# ── Output ───────────────────────────────────────────────────────────────────
+output:
+  # Directory to save results. Defaults to:
+  #   data/eval_results/<run_id>/
+  #   where run_id = "{config_name}_{timestamp}" or "cli_{timestamp}"
+  out_dir: ""
+
+  # Filenames within out_dir
+  examples_file: "examples.json"
+  report_file: "report.md"
+  summary_file: "run_summary.json"
+
+  # Overwrite existing out_dir?
+  overwrite: false

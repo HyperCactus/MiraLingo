@@ -1,0 +1,9 @@
+top_k,direction,accuracy_percent,avg_ms_per_sample,total_samples,summary_path
+0,en_to_mir,13.3,17365.5,30,data/eval_results/top_k_sweep/topk0/en_to_mir/20260526_172756/run_summary.json
+0,mir_to_en,40.0,15936.7,30,data/eval_results/top_k_sweep/topk0/mir_to_en/20260526_172928/run_summary.json
+3,en_to_mir,10.0,34958.7,30,data/eval_results/top_k_sweep/topk3/en_to_mir/20260526_173043/run_summary.json
+3,mir_to_en,40.0,17341.0,30,data/eval_results/top_k_sweep/topk3/mir_to_en/20260526_173317/run_summary.json
+5,en_to_mir,10.0,15502.1,30,data/eval_results/top_k_sweep/topk5/en_to_mir/20260526_173442/run_summary.json
+5,mir_to_en,40.0,15787.3,30,data/eval_results/top_k_sweep/topk5/mir_to_en/20260526_173549/run_summary.json
+8,en_to_mir,10.0,16701.9,30,data/eval_results/top_k_sweep/topk8/en_to_mir/20260526_173658/run_summary.json
+8,mir_to_en,36.7,16570.2,30,data/eval_results/top_k_sweep/topk8/mir_to_en/20260526_173815/run_summary.json

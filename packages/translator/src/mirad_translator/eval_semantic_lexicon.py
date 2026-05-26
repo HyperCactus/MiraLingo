@@ -138,7 +138,7 @@ def run_semantic_eval(
 
     # ── Evaluate with EXACT lookup (baseline) ───────────────────────────────
     print("\n[eval] === EXACT lexicon lookup (baseline) ===")
-    exact_module = TranslatorModule(db_path=None, num_context_passages=5, use_postprocessor=True)
+    exact_module = TranslatorModule(db_path=None, num_context_passages=3, use_postprocessor=True)
 
     exact_results = []
     exact_start = time.time()
@@ -168,7 +168,7 @@ def run_semantic_eval(
 
     # Create a TranslatorModule that uses semantic lookup
     # We build a fresh module and swap the lexicon_lookup submodule
-    semantic_module = TranslatorModule(db_path=None, num_context_passages=5, use_postprocessor=True)
+    semantic_module = TranslatorModule(db_path=None, num_context_passages=3, use_postprocessor=True)
     semantic_module.lexicon_lookup = MiradSemanticLexiconLookup(
         db_path=None,
         top_k_per_word=top_k,
