@@ -1,0 +1,50 @@
+{
+    "mirad_text": "at pipe ga fi vyel et",
+    "winner_index": 0,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "at pipe ga fi vyel et",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is fully correct, with proper grammar, verb morphology, comparative structure, and no English bleed."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "At pipe ga fi vyel et.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 18.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 20.0,
+                "total_score": 93.0,
+                "rationale": "The translation is largely correct, but loses points for English bleed due to the period at the end."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "at pie ga fi vyel et",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 10.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 15.0,
+                "total_score": 65.0,
+                "rationale": "The main weakness is using \"pie\" (from \"per\" = to go) instead of \"pipe\" (from \"piper\" = to swim), making the verb incorrect."
+            }
+        }
+    ],
+    "rationale": "The translation is fully correct, with proper grammar, verb morphology, comparative structure, and no English bleed."
+}

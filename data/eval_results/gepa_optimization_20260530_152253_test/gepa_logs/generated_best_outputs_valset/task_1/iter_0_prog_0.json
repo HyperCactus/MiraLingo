@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Je van yit se be him, yit yexo be tam.",
+    "total_score": 91.0,
+    "winner_index": 1,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "je van yit se be him, yit yexo be tam",
+            "judge": {
+                "grammar_score": 16.0,
+                "morphology_score": 18.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 19.0,
+                "completeness_score": 16.0,
+                "total_score": 84.0,
+                "rationale": "Main weakness: wrong conjunction \"van\" for \"while\" should be \"je\", causing a -15 penalty."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.4,
+            "mirad_text": "Je van yit se be him, yit yexo be tam.",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 18.0,
+                "total_score": 91.0,
+                "rationale": "The translation is strong but the verb \"yexo\" should use the progressive future aspect (\"yexoe\") to fully capture the original's implication of ongoing action during their stay."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.8,
+            "mirad_text": "Je van yit se him, yit yexo be tam.",
+            "judge": {
+                "grammar_score": 17.0,
+                "morphology_score": 18.0,
+                "vocabulary_score": 18.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 18.0,
+                "total_score": 91.0,
+                "rationale": "The translation is mostly correct but uses \"Je van\" instead of the standard temporal conjunction \"Je\" alone, which slightly affects readability but not meaning."
+            }
+        }
+    ],
+    "rationale": "The translation is strong but the verb \"yexo\" should use the progressive future aspect (\"yexoe\") to fully capture the original's implication of ongoing action during their stay."
+}

@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Duhonog ivla at se van et upa.",
+    "winner_index": 0,
+    "total_score": 98.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Duhonog ivla at se van et upa.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 18.0,
+                "completeness_score": 20.0,
+                "total_score": 98.0,
+                "rationale": "The translation is nearly perfect, but loses 2 points for English bleed due to capitalization and a period."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Duhonog ivla at se van et upa.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 18.0,
+                "completeness_score": 20.0,
+                "total_score": 98.0,
+                "rationale": "The translation is nearly perfect, but loses 2 points for English bleed due to capitalization and a period."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Duho ivla at se van et upa.",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 10.0,
+                "completeness_score": 10.0,
+                "total_score": 55.0,
+                "rationale": "The main weaknesses are unnatural word order for an exclamation, use of English-like structure, and missing the joyful exclamatory particle \"iv\" or proper idiomatic phrasing."
+            }
+        }
+    ],
+    "rationale": "The translation is nearly perfect, but loses 2 points for English bleed due to capitalization and a period."
+}

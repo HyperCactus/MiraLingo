@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Du yit te duhom yat pa ay duhom et bese?",
+    "winner_index": 2,
+    "total_score": 75.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Du yit te duhom yat pa ay duhom et teje?",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 5.0,
+                "completeness_score": 5.0,
+                "total_score": 10.0,
+                "rationale": "The translation incorrectly uses the imperative \"Du\" instead of forming a question or declarative statement, and uses \"duhom\" as a relative conjunction in a way that distorts the meaning, resulting in a completely incorrect sentence structure."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Du yit te ho yat pa ay ho et teje?",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 5.0,
+                "total_score": 55.0,
+                "rationale": "The main weakness is using the imperative \"Du\" instead of a declarative/question structure, and ending with a period instead of a question mark, making the translation incomplete and grammatically wrong."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Du yit te duhom yat pa ay duhom et bese?",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 10.0,
+                "total_score": 75.0,
+                "rationale": "The main weakness is using the imperative \"Du\" instead of a proper question structure, which changes the meaning from \"do they know?\" to \"say/tell\"."
+            }
+        }
+    ],
+    "rationale": "The main weakness is using the imperative \"Du\" instead of a proper question structure, which changes the meaning from \"do they know?\" to \"say/tell\"."
+}

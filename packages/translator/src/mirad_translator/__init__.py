@@ -23,6 +23,7 @@ from mirad_translator.translate import (
 
 from mirad_translator.semantic_lexicon import (
     semantic_lookup,
+    semantic_lookup_mirad,
     semantic_lookup_multi,
     MiradSemanticLexiconLookup,
 )

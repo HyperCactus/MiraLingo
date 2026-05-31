@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Et yefe xer is ga igay ga yafwa.",
+    "winner_index": 2,
+    "total_score": 93.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Yefu xer is ga igay vyel yafwa.",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 10.0,
+                "total_score": 65.0,
+                "rationale": "The main weakness is the incorrect rendering of \"as quickly as possible\" using \"vyel yafwa\" instead of the proper Mirad comparative structure, plus minor capitalization bleed."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Et yefe xer is igay ge yafwa.",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 18.0,
+                "completeness_score": 12.0,
+                "total_score": 70.0,
+                "rationale": "The main weaknesses are the unidiomatic \"ge yafwa\" instead of \"ge yafway\" for \"as possible\" and the capitalization of \"Et\"."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Et yefe xer is ga igay ga yafwa.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 18.0,
+                "total_score": 93.0,
+                "rationale": "The translation is mostly correct but loses points for the non-idiomatic rendering of \"as quickly as possible\" as \"ga igay ga yafwa\" instead of the more standard \"ga igay ga yafwa\" or a more natural structure."
+            }
+        }
+    ],
+    "rationale": "The translation is mostly correct but loses points for the non-idiomatic rendering of \"as quickly as possible\" as \"ga igay ga yafwa\" instead of the more standard \"ga igay ga yafwa\" or a more natural structure."
+}

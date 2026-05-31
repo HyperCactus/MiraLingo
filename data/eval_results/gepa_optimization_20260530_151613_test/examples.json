@@ -1,0 +1,134 @@
+[
+  {
+    "id": "pair-0917",
+    "english_text": "do they walk to school every day",
+    "gold": "duven yit tyoyape tistam hyajub",
+    "pred": "Yit tyope bu tistam hyajub?",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 1,
+    "rationale": "The translation is fully correct, natural, and complete with no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du yit tyope bu tistam hya jub?",
+        "total_score": 40.0,
+        "grammar": 5.0,
+        "morphology": 10.0,
+        "vocab": 12.0,
+        "bleed": 8.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.4,
+        "mirad": "Yit tyope bu tistam hyajub?",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.8,
+        "mirad": "Du yit tyope bu tistam hya jub?",
+        "total_score": 40.0,
+        "grammar": 5.0,
+        "morphology": 10.0,
+        "vocab": 12.0,
+        "bleed": 8.0,
+        "complete": 5.0
+      }
+    ],
+    "elapsed_s": 83.587
+  },
+  {
+    "id": "pair-0835",
+    "english_text": "while they are here they will work at home",
+    "gold": "je van yit so him yit yexo be tam",
+    "pred": "Je van yit se him, yit yexo be tam.",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 91.0,
+    "winner_index": 1,
+    "rationale": "The translation is mostly correct but uses \"Je van\" instead of the standard temporal conjunction \"Je\" alone, which slightly affects readability but not meaning.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "je van yit se be him yit yexo be tam",
+        "total_score": 73.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 14.0,
+        "bleed": 18.0,
+        "complete": 14.0
+      },
+      {
+        "temp": 0.4,
+        "mirad": "Je van yit se him, yit yexo be tam.",
+        "total_score": 91.0,
+        "grammar": 17.0,
+        "morphology": 18.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.8,
+        "mirad": "je van yit se be him yit yexo be tam",
+        "total_score": 73.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 14.0,
+        "bleed": 18.0,
+        "complete": 14.0
+      }
+    ],
+    "elapsed_s": 68.99
+  },
+  {
+    "id": "pair-0335",
+    "english_text": "he or she was going home",
+    "gold": "it peya tam",
+    "pred": "it pa be tam",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 41.0,
+    "winner_index": 1,
+    "rationale": "Wrong subject \"it\" instead of \"wit\", wrong preposition \"be\" instead of \"bu\", and dropped \"ha\" before \"tam\" for definiteness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "It tampra.",
+        "total_score": 10.0,
+        "grammar": 5.0,
+        "morphology": 0.0,
+        "vocab": 5.0,
+        "bleed": 0.0,
+        "complete": 0.0
+      },
+      {
+        "temp": 0.4,
+        "mirad": "it pa be tam",
+        "total_score": 41.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 8.0,
+        "bleed": 5.0,
+        "complete": 8.0
+      },
+      {
+        "temp": 0.8,
+        "mirad": "It sa peyea tam.",
+        "total_score": 33.0,
+        "grammar": 6.0,
+        "morphology": 10.0,
+        "vocab": 8.0,
+        "bleed": 5.0,
+        "complete": 4.0
+      }
+    ],
+    "elapsed_s": 67.359
+  }
+]

@@ -181,6 +181,98 @@ def semantic_lookup(
     return semantic_hits[:top_k]
 
 
+def semantic_lookup_mirad(
+    mirad_word: str,
+    top_k: int = 3,
+    min_similarity: float = 0.5,
+    include_exact: bool = True,
+) -> list[dict]:
+    """Look up a Mirad word by finding related English words and their Mirad translations.
+
+    Correct pipeline:
+        1. Exact-match the Mirad word in SQLite to get its English translations.
+        2. For each English translation, find semantically similar English words via
+           the existing ``lexicon`` ChromaDB collection (English embedding model).
+        3. Look up those similar English words back to Mirad.
+
+    This reuses the high-quality English embedding model instead of trying to
+    embed Mirad text with an English model (which yields meaningless vectors).
+
+    Returns up to ``top_k`` results sorted by relevance, each containing:
+        - mirad: The Mirad translation of the semantically similar English word
+        - english: The English word that is semantically related to the input Mirad
+        - distance: ChromaDB L2 distance (lower = more similar)
+        - cosine_similarity: Approximate cosine similarity (0-1)
+        - is_exact: Whether this is an exact match for the original Mirad word
+
+    Args:
+        mirad_word: The Mirad word to look up.
+        top_k: Maximum number of semantic neighbors to return.
+        min_similarity: Minimum cosine similarity (0-1) to include a result.
+        include_exact: Whether to include the exact-match translation first.
+
+    Returns:
+        List of dicts with mirad, english, distance, cosine_similarity, is_exact.
+    """
+    # Step 1: exact match in SQLite to get English translations
+    exact_ens = lookup_mirad_word_candidates(mirad_word=mirad_word.strip())
+    if not exact_ens:
+        return []
+
+    exact_mirad = mirad_word.strip().lower()
+
+    # Step 2: for each English translation, find semantically similar English words
+    collection = _get_lexicon_collection()
+    embedder = _get_embedder()
+
+    # Collect all English words we'll query + expand
+    english_words_to_expand = set(exact_ens)
+    all_neighbors = []
+
+    for en in exact_ens:
+        q_embedding = embedder.encode([en.lower()], show_progress_bar=False).tolist()
+        results = collection.query(query_embeddings=q_embedding, n_results=top_k + 1)
+        for doc, dist, meta in zip(
+            results["documents"][0],
+            results["distances"][0],
+            results["metadatas"][0],
+        ):
+            cos_sim = max(0, 1.0 - (dist * dist) / 2.0)
+            all_neighbors.append({
+                "mirad": meta["mirad"],
+                "english": doc,
+                "distance": dist,
+                "cosine_similarity": round(cos_sim, 4),
+                "is_exact": (doc.lower() in {e.lower() for e in exact_ens}),
+            })
+            english_words_to_expand.add(doc.lower())
+
+    if not all_neighbors:
+        return []
+
+    # Sort by similarity (descending), deduplicate by English word, keep best mirad
+    seen_en = set()
+    hits = []
+    for h in sorted(all_neighbors, key=lambda x: x["cosine_similarity"], reverse=True):
+        en_key = h["english"].lower()
+        if en_key not in seen_en:
+            seen_en.add(en_key)
+            hits.append(h)
+
+    # Prepend exact match
+    if include_exact:
+        exact_en_str = ", ".join(exact_ens)
+        hits.insert(0, {
+            "mirad": exact_en_str,
+            "english": exact_en_str,
+            "distance": 0.0,
+            "cosine_similarity": 1.0,
+            "is_exact": True,
+        })
+
+    return hits[:top_k]
+
+
 def semantic_lookup_multi(
     english_text: str,
     top_k_per_word: int = 5,

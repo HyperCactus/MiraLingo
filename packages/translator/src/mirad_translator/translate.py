@@ -760,6 +760,8 @@ class MultiHopTranslatorModule(StructuredRetrievalMixin, dspy.Module):
             grammar_search_terms=grammar_terms,
             vocabulary_search_terms=vocab_terms,
             word_equivalents=word_equivalents,
+            relevant_words=relevant_words,
+            back_translation=back_translation,
             context=all_context_passages,
         )
 
@@ -923,17 +925,20 @@ class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
                 if k not in all_pairs:
                     all_pairs[k] = v
             we_str = _format_word_equivalents(word_equivalents_dict, relevant_words, back_translation)
-            # Use merged dict for return value
-            word_equivalents_dict = all_pairs
+            # word_equivalents stays as the merged dict for backward compatibility;
+            # relevant_words and back_translation are returned separately.
+            we_dict = all_pairs
         else:
             we_str = word_equivalents
             # Parse provided string back to dict for return value
-            word_equivalents_dict = {}
+            we_dict = {}
+            relevant_words = {}
+            back_translation = {}
             for line in word_equivalents.split("\n"):
                 line = line.strip()
                 if " → " in line:
                     en, mi = line.split(" → ", 1)
-                    word_equivalents_dict[en.strip()] = mi.strip()
+                    we_dict[en.strip()] = mi.strip()
 
         grammar_rules = []
         if not context_passages:
@@ -965,7 +970,9 @@ class TranslatorModule(StructuredRetrievalMixin, dspy.Module):
             normalized_structure=normalized_structure,
             grammar_search_terms=grammar_terms,
             vocabulary_search_terms=vocab_terms,
-            word_equivalents=word_equivalents_dict,
+            word_equivalents=we_dict,
+            relevant_words=relevant_words,
+            back_translation=back_translation,
             context=context_passages_list,
         )
 

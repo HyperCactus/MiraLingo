@@ -116,7 +116,7 @@ def _get_teacher_model() -> str:
 def _make_lm(temperature: float) -> dspy.LM:
     """Build a DeepInfra LM at the given temperature."""
     return dspy.LM(
-        model=f"openai/{_get_teacher_model()}",
+        model=_get_teacher_model(),
         temperature=temperature,
         cache=False,
         api_key=_get_api_key(),
@@ -129,35 +129,28 @@ def _make_lm(temperature: float) -> dspy.LM:
 # ---------------------------------------------------------------------------
 
 class CandidateJudgeSignature(dspy.Signature):
-    """Judge an English→Mirad translation for grammar compliance.
+    """Judge an English→Mirad translation. Be strict. Wrong translations: 40-65 pts. Correct: 80-100.
 
-    You are a Mirad grammar expert. The candidate should look like authentic Mirad,
-    not English written in Mirad words. Score honestly — scores below 10 indicate
-    clear violations.
+    Scoring rubric (each 0-20 pts):
 
-    Scoring rubric (each dimension: 0-20 pts):
+    1. Grammar: SVO order, bi/be/bu prepositions, no dummy "it" or English article words.
 
-    1. Grammar correctness (0-20): word order (SVO), correct use of bi/be/bu prepositions,
-       no dummy "it" inserted, no English article words ("the", "a", "an").
+    2. Verb morphology: correct tense (-e/-a/-o/-u), progressive -eye not -ie, passive -w-, no invented roots.
 
-    2. Verb morphology (0-20): correct tense ending (-e/-a/-o/-u), progressive
-       aspect (-eye preserved, not truncated to -ie), passive (-w-), no invented verb roots.
+    3. Vocabulary: dictionary lookups used correctly, correct -i noun plural, -a pronoun possessive.
 
-    3. Word choice / vocabulary (0-20): dictionary lookups used correctly, no
-       plausible-but-wrong roots, correct plural -i on nouns, correct possessive -a on pronouns.
+    4. English bleed: 20=zero bleed (all-lowercase, no period), 0=lots of bleed.
 
-    4. English bleed (0-20): LOWER score = more English bleed (e.g. capitalization,
-       punctuation, extra words not in source, article words, "that" omitted).
-       Authentic Mirad: all-lowercase, no period, no extra particles.
-       Score 20 = zero English bleed. Score 0 = looks like English with Mirad words.
+    5. Completeness: all source meaning components present, required particles (se, bi, voy) not dropped.
 
-    5. Structural completeness (0-20): all source words/meaning components present?
-       Required particles (se=copula, bi=possession, voy=negation) not dropped.
+    PENALTIES: deduct from TOTAL score after summing the 5 dimensions above.
+    - WRONG CONJUNCTION PARTICLE: if English has "but" but Mirad uses "ay" (not "oy"), -15.
+    - MISSING HA ARTICLE: if gold has "ha" before noun but candidate drops it, -10.
+    - MISSING SE COPULA: if predicate adjective missing required "se", -10.
+    - COMPLETELY WRONG WORDS: if candidate uses unrelated words, -20.
 
-    Total score: 0-100 (sum of all 5 dimensions).
-
-    Prefer candidates with higher structural completeness and less English bleed.
-    Grammar and morphology matter more than looking polished.
+    Output: grammar_score, morphology_score, vocabulary_score, english_bleed_score,
+    completeness_score (all 0-20), total_score (0-100 after penalties), rationale.
     """
     original_english    = dspy.InputField(desc="Original English source text")
     candidate_mirad     = dspy.InputField(desc="Candidate Mirad translation")
@@ -166,7 +159,7 @@ class CandidateJudgeSignature(dspy.Signature):
     vocabulary_score    = dspy.OutputField(desc="Integer 0-20: word choice / vocabulary")
     english_bleed_score = dspy.OutputField(desc="Integer 0-20: LOWER = more English bleed (20=perfect Mirad style)")
     completeness_score  = dspy.OutputField(desc="Integer 0-20: structural completeness vs source")
-    total_score         = dspy.OutputField(desc="Integer 0-100: sum of all 5 dimensions")
+    total_score         = dspy.OutputField(desc="Integer 0-100: sum minus any penalties")
     rationale           = dspy.OutputField(desc="One-sentence explanation of main weaknesses")
 
 
@@ -206,6 +199,85 @@ class CandidateJudge(dspy.Module):
         try:
             s = str(value).strip()
             # Extract first number (can be float or integer)
+            m = re.search(r"-?\d+(?:\.\d+)?", s)
+            if m:
+                return float(m.group())
+            return default
+        except Exception:
+            return default
+
+
+# ---------------------------------------------------------------------------
+# Mirad→English Candidate Judge
+# ---------------------------------------------------------------------------
+
+class MiradToEnglishCandidateJudgeSignature(dspy.Signature):
+    """Judge a Mirad→English translation. Be strict. Wrong translations: 40-65 pts. Correct: 80-100.
+
+    Scoring rubric (each 0-20 pts):
+
+    1. Semantic Fidelity: does the English capture all meaning components from the Mirad?
+       Check: correct verb tense/aspect, correct pronoun reference, correct negation, not missing
+       required arguments. Deduct for subject/object swaps, quantifier errors, missing clauses.
+
+    2. Grammar: natural English word order (SVO), correct subject-verb agreement,
+       correct article usage (a/an/the), correct preposition choices.
+
+    3. Direction Correctness: no Mirad grammar patterns leaking into English output.
+       Mirad has no "it" dummy subjects, no "ha" articles, no verb-fronting for questions.
+       If any Mirad-specific construct appears in the English, deduct.
+
+    4. Literalness: translate what Mirad says, not what you think it means.
+       Don't add information not in the source. Don't omit required subjects/objects.
+       "ata" = "my/mine" not "I have". "se fia" = "is good" not "it is good".
+
+    Output: semantic_fidelity, grammar_score, direction_correctness, literalness
+    (all 0-20), total_score (0-100), rationale.
+    """
+    original_mirad     = dspy.InputField(desc="Original Mirad source text")
+    candidate_english  = dspy.InputField(desc="Candidate English translation")
+    semantic_fidelity  = dspy.OutputField(desc="Integer 0-20: meaning preserved vs Mirad source")
+    grammar_score      = dspy.OutputField(desc="Integer 0-20: natural English grammar")
+    direction_correctness = dspy.OutputField(desc="Integer 0-20: no Mirad patterns leaking into English")
+    literalness        = dspy.OutputField(desc="Integer 0-20: translation is literal, not interpretive")
+    total_score        = dspy.OutputField(desc="Integer 0-100: sum of four dimensions")
+    rationale          = dspy.OutputField(desc="One-sentence explanation of main weaknesses")
+
+
+class MiradToEnglishCandidateJudge(dspy.Module):
+    """DSPy Module that judges a Mirad→English candidate translation.
+
+    Wraps MiradToEnglishCandidateJudgeSignature with ChainOfThought reasoning.
+    The judge has Mirad grammar knowledge embedded so it can catch direction errors
+    (e.g., dummy "it" added, "ha" treated as English article) without needing
+    grammar retrieval passed as context.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._judge = dspy.ChainOfThought(MiradToEnglishCandidateJudgeSignature)
+
+    def forward(
+        self,
+        original_mirad: str,
+        candidate_english: str,
+    ) -> dspy.Prediction:
+        pred = self._judge(
+            original_mirad=original_mirad,
+            candidate_english=candidate_english,
+        )
+        return dspy.Prediction(
+            semantic_fidelity=self._parse_float(getattr(pred, "semantic_fidelity", "0"), default=0),
+            grammar_score=self._parse_float(getattr(pred, "grammar_score", "0"), default=0),
+            direction_correctness=self._parse_float(getattr(pred, "direction_correctness", "0"), default=0),
+            literalness=self._parse_float(getattr(pred, "literalness", "0"), default=0),
+            total_score=self._parse_float(getattr(pred, "total_score", "0"), default=0),
+            rationale=str(getattr(pred, "rationale", "")),
+        )
+
+    def _parse_float(self, value, default: float = 0.0) -> float:
+        try:
+            s = str(value).strip()
             m = re.search(r"-?\d+(?:\.\d+)?", s)
             if m:
                 return float(m.group())
@@ -372,6 +444,115 @@ class MultiCandidateTranslator(dspy.Module):
         best = candidates[winner_index]
         return dspy.Prediction(
             mirad_text=best["mirad_text"],
+            winner_index=winner_index,
+            total_score=winner_score,
+            candidates=candidates,
+            rationale=winner_rationale,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Mirad→English multi-candidate translator
+# ---------------------------------------------------------------------------
+
+class MiradToEnglishMultiCandidateTranslator(dspy.Module):
+    """Mirad→English counterpart to MultiCandidateTranslator.
+
+    Generates N translation candidates at different temperatures via
+    MiradToEnglishModule and picks the best via MiradToEnglishCandidateJudge.
+
+    Args:
+        num_candidates: Number of candidates to generate (default 2).
+        temperatures: List of temperatures (default [0.1, 0.7]).
+        db_path: Path to lexicon SQLite DB.
+        num_context_passages: Grammar retrieval k (default 3).
+        top_k_per_word: Semantic lexicon k (default 0 = disabled).
+    """
+
+    def __init__(
+        self,
+        num_candidates: int = 2,
+        temperatures: Optional[list[float]] = None,
+        db_path=None,
+        num_context_passages: int = 3,
+        top_k_per_word: int = 0,
+    ):
+        super().__init__()
+        self.num_candidates = num_candidates
+        self.temperatures = (
+            list(temperatures)
+            if temperatures is not None
+            else [0.1, 0.7]
+        )
+        self.num_context_passages = num_context_passages
+        self._db_path = db_path
+        self._top_k_per_word = top_k_per_word
+        self._translator: Optional[dspy.Module] = None
+        self._judge = MiradToEnglishCandidateJudge()
+
+    def _ensure_translator(self):
+        if self._translator is not None:
+            return
+        from mirad_translator.translate import (
+            DefaultTranslator,
+        )
+        self._translator = DefaultTranslator(
+            db_path=self._db_path,
+            num_context_passages=self.num_context_passages,
+            top_k_per_word=self._top_k_per_word,
+            direction="mir_to_en",
+            use_compiled=False,
+            semantic_lexicon=False,
+        )
+
+    def _generate_candidate(self, mirad_text: str, temperature: float) -> str:
+        self._ensure_translator()
+        with dspy.context(lm=_make_lm(temperature)):
+            pred = self._translator(mirad_text=mirad_text)
+        return str(getattr(pred, "english_text", ""))
+
+    def forward(self, mirad_text: str) -> dspy.Prediction:
+        self._ensure_translator()
+
+        candidates: list[dict] = []
+        for i in range(self.num_candidates):
+            temperature = self.temperatures[i % len(self.temperatures)]
+            candidate_text = self._generate_candidate(mirad_text, temperature)
+            candidates.append({
+                "index": i,
+                "temperature": temperature,
+                "english_text": candidate_text,
+            })
+
+        winner_index = 0
+        winner_score = -1
+        winner_rationale = ""
+
+        for i, cand in enumerate(candidates):
+            english = cand["english_text"]
+            judge_pred = self._judge(
+                original_mirad=mirad_text,
+                candidate_english=english,
+            )
+            total = judge_pred.total_score
+            cand["judge"] = {
+                "semantic_fidelity": judge_pred.semantic_fidelity,
+                "grammar_score": judge_pred.grammar_score,
+                "direction_correctness": judge_pred.direction_correctness,
+                "literalness": judge_pred.literalness,
+                "total_score": total,
+                "rationale": judge_pred.rationale,
+            }
+
+            if total > winner_score:
+                winner_score = total
+                winner_index = i
+                winner_rationale = judge_pred.rationale
+
+        best = candidates[winner_index]
+        return dspy.Prediction(
+            english_text=best["english_text"],
+            mirad_text=best["english_text"],  # mirror field name for eval compat
             winner_index=winner_index,
             total_score=winner_score,
             candidates=candidates,

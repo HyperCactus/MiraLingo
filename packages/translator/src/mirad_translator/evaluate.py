@@ -47,21 +47,22 @@ EVAL_CSV_PATH = os.environ.get(
 
 
 def save_compiled_program(compiled: dspy.Module, path: str) -> None:
-    """Save a compiled DSPy program to a JSON file for later reuse.
+    """Save a compiled DSPy program to a directory via cloudpickle for later reuse.
 
     The saved program can be reloaded with ``load_compiled_program``.
 
     Args:
         compiled: A compiled dspy.Module (e.g. from compile_with_bootstrap).
-        path: File path to save to (convention: data/eval_results/compiled_<method>_<config>.json).
+        path: Directory path to save to (e.g. data/eval_results/compiled_bsfs/).
     """
     from pathlib import Path
     import datetime
 
-    out_path = Path(path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    save_dir = Path(path)
+    save_dir.mkdir(parents=True, exist_ok=True)
 
-    save_data = dspy.export(program=compiled)
+    compiled.save(save_dir, save_program=True)
+
     meta = {
         "saved_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "module_type": type(compiled).__name__,
@@ -69,28 +70,24 @@ def save_compiled_program(compiled: dspy.Module, path: str) -> None:
         "note": "Reload with mirad_translator.evaluate.load_compiled_program(path)",
     }
 
-    payload = {**save_data, "_meta": meta}
+    meta_path = save_dir / "_meta.json"
+    import json as _json
+    with open(meta_path, "w", encoding="utf-8") as f:
+        _json.dump(meta, f, indent=2)
 
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-    print(f"[save_compiled_program] Saved compiled program → {out_path}")
+    print(f"[save_compiled_program] Saved compiled program → {save_dir}")
 
 
 def load_compiled_program(path: str) -> dspy.Module:
-    """Reload a compiled DSPy program from a JSON file.
+    """Reload a compiled DSPy program from a directory saved with save_compiled_program.
 
     Args:
-        path: Path to the saved JSON file.
+        path: Path to the saved directory.
 
     Returns:
         The reloaded compiled dspy.Module.
     """
-    with open(path, encoding="utf-8") as f:
-        payload = json.load(f)
-    # Strip meta before loading
-    payload.pop("_meta", None)
-    return dspy.load(program=payload)
+    return dspy.load(path)
 
 
 # ---------------------------------------------------------------------------
@@ -160,18 +157,83 @@ def exact_match_metric(example: dspy.Example, prediction: dspy.Prediction, trace
 def normalized_match_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
     """Punctuation- and whitespace-tolerant match metric.
 
-    Strips all punctuation and normalizes whitespace, then compares.
-    Catches cases like trailing periods, comma spacing, etc.
+    Strips all punctuation and lowercases before comparing.
+    Catches cases like trailing periods, comma spacing, capitalization, etc.
     """
-    gold = _normalize(example.mirad_text)
-    pred = _normalize(prediction.mirad_text)
-
     def strip_punct(s: str) -> str:
         # Remove all punctuation except Mirad-specific chars (hyphens in compounds)
         s = re.sub(r'[.,!?;:()"\'\[\]{}]', "", s)
-        return re.sub(r"\s+", " ", s).strip()
+        return re.sub(r"\s+", " ", s).strip().lower()
 
-    return 1.0 if strip_punct(gold) == strip_punct(pred) else 0.0
+    gold = strip_punct(example.mirad_text)
+    pred = strip_punct(prediction.mirad_text)
+    return 1.0 if gold == pred else 0.0
+
+
+# ---------------------------------------------------------------------------
+# Mirad→English direction metrics
+# ---------------------------------------------------------------------------
+
+def mirad_to_english_exact_match_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Exact string match for Mirad→English direction.
+
+    Checks the ``english_text`` prediction field against the gold ``english_text``
+    field of the example. Used for mir_to_en bootstrap optimization and eval.
+    Returns 1.0 for exact match, 0.0 otherwise.
+    """
+    gold = _normalize(example.english_text)
+    pred_text = getattr(prediction, "english_text", None) or getattr(prediction, "mirad_text", "")
+    pred = _normalize(pred_text)
+    return 1.0 if gold == pred else 0.0
+
+
+def mirad_to_english_normalized_match_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Punctuation- and whitespace-tolerant match for Mirad→English direction.
+
+    Strips punctuation, lowercases, and normalizes whitespace before comparing.
+    Uses the ``english_text`` prediction field (falls back to ``mirad_text``
+    for programs that set both fields).
+    """
+    def strip_punct(s: str) -> str:
+        s = re.sub(r'[.,!?;:()"\'\-]', "", s)
+        return re.sub(r"\s+", " ", s).strip().lower()
+
+    pred_text = getattr(prediction, "english_text", None) or getattr(prediction, "mirad_text", "")
+    gold = strip_punct(example.english_text)
+    pred = strip_punct(pred_text)
+    return 1.0 if gold == pred else 0.0
+
+
+def translation_match_metric(example: dspy.Example, prediction: dspy.Prediction, trace=None) -> float:
+    """Direction-aware translation metric.
+
+    Detects which direction to score based on the example's available input
+    fields:
+    - Mir→En (example has english_text): compares english_text fields
+    - En→Mir (example has mirad_text):  compares mirad_text fields
+
+    Falls back to english_text if mirad_text is unavailable.
+    Uses normalized comparison (punctuation/whitespace-tolerant).
+    """
+    gold_en = getattr(example, "english_text", None)
+    gold_mir = getattr(example, "mirad_text", None)
+
+    pred_en = getattr(prediction, "english_text", None)
+    pred_mir = getattr(prediction, "mirad_text", None)
+
+    def _nm(gold: str, pred_raw: str) -> float:
+        def strip_punct(s: str) -> str:
+            s = re.sub(r'[.,!?;:()"\'\-]', "", s)
+            return re.sub(r"\s+", " ", s).strip()
+        return 1.0 if strip_punct(_normalize(gold)) == strip_punct(_normalize(pred_raw)) else 0.0
+
+    if gold_en is not None:
+        pred_raw = pred_en if pred_en else pred_mir
+        return _nm(gold_en, pred_raw) if pred_raw else 0.0
+    if gold_mir is not None:
+        pred_raw = pred_mir if pred_mir else pred_en
+        return _nm(gold_mir, pred_raw) if pred_raw else 0.0
+    return 0.0
 
 
 class RoundTripSemanticRetentionSignature(dspy.Signature):

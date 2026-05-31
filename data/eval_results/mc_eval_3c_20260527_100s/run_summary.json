@@ -1,0 +1,30 @@
+{
+  "config": {
+    "num_candidates": 3,
+    "temperatures": [
+      0.1,
+      0.5,
+      0.9
+    ],
+    "num_context_passages": 3,
+    "top_k_per_word": 0,
+    "parallel": 32,
+    "random_seed": 20260526,
+    "n_samples": 100
+  },
+  "metrics": {
+    "normalized_match": 0.43,
+    "exact_match": 0.33,
+    "avg_judge_score": 88.01
+  },
+  "counts": {
+    "total": 100,
+    "normalized_match_correct": 43,
+    "exact_match_correct": 33,
+    "errors": 0
+  },
+  "timing": {
+    "total_wall_s": 619.6,
+    "avg_per_sample_s": 6.2
+  }
+}

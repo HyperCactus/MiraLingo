@@ -1,11 +1,11 @@
 <script>
   import "./app.css";
+  import { getPracticeAudioUrl } from "./lib/api/audio";
+  import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register } from "./lib/api/auth";
+  import { getPracticeProgress, getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
+  import { getSettings, updateSettings } from "./lib/api/settings";
 
   // ── helpers ─────────────────────────────────────────────────────────────
-  async function readJson(response) {
-    const text = await response.text();
-    try { return JSON.parse(text); } catch { return { error: "bad json", detail: text }; }
-  }
   const langLabel = (l) => ({ mirad: "Mirad", english: "English", practice: "" }[String(l ?? "").trim().toLowerCase()] ?? "");
   const promptTag = (c) => langLabel(c?.prompt_language);
   const answerTag = (c) => langLabel(c?.answer_language);
@@ -157,8 +157,7 @@
   async function loadCurrentUser() {
     errMsg="";
     try {
-      const r = await fetch("/auth/current-user", { headers:{"Accept":"application/json"} });
-      const p = await readJson(r);
+      const { response: r, payload: p } = await fetchCurrentUser();
       if (r.ok && p.authenticated) {
         user=p.user; authState="authenticated"; activeSection="menu";
         resetPracticeSurface(); resetAnalyticsSurface(); resetSettingsSurface();
@@ -175,8 +174,7 @@
     submitting=true;
     errMsg=""; authMsg="";
     try {
-      const r = await fetch("/auth/login", { method:"POST", headers:{"Accept":"application/json","Content-Type":"application/json"}, body:JSON.stringify({username,password}) });
-      const p = await readJson(r);
+      const { response: r, payload: p } = await login(username, password);
       // State changes ONLY after await to avoid Svelte 5 reactive re-render destroying the form
       if (!r.ok || !p.authenticated) { user=null; authState="login-failed"; errMsg=p?.detail ?? "Login failed."; submitting=false; return; }
       user=p.user; password=""; authState="authenticated"; activeSection="menu";
@@ -192,8 +190,7 @@
     submitting=true;
     errMsg=""; authMsg="";
     try {
-      const r = await fetch("/auth/register", { method:"POST", headers:{"Accept":"application/json","Content-Type":"application/json"}, body:JSON.stringify({username:regU,password:regP}) });
-      const p = await readJson(r);
+      const { response: r, payload: p } = await register(regU, regP);
       // State changes ONLY after await to avoid Svelte 5 reactive re-render destroying the form
       if (!r.ok || !p.authenticated) { user=null; authState="registration-failed"; errMsg=p?.detail ?? "Registration failed."; submitting=false; return; }
       user=p.user; regP=""; authState="authenticated"; activeSection="menu";
@@ -213,7 +210,7 @@
 
   async function logout() {
     clearAuthMsgs();
-    try { await fetch("/auth/logout", {method:"POST",headers:{"Accept":"application/json"}}); }
+    try { await logoutRequest(); }
     finally { resetPracticeSurface(); resetSettingsSurface(); clearAuthAppState(); }
   }
 
@@ -223,8 +220,7 @@
     if (!force && settingsLoadedForUser===user?.username && settingsState!=="idle") return;
     settingsState="loading"; settingsErr=""; settingsStatus="";
     try {
-      const r = await fetch("/settings", {headers:{"Accept":"application/json"}});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await getSettings();
       if (!r.ok || p.ok===false) { settingsState="error"; settingsPhase=p?.phase??"settings_get"; settingsErr=p?.detail??"Could not reach saved settings."; return; }
       syncSettings(p.settings, {state:"ready",phase:p.phase??"settings_get"});
       settingsLoadedForUser=user.username;
@@ -241,8 +237,7 @@
     settingsState="saving"; settingsPhase="settings_update"; settingsErr=""; settingsStatus="Saving…";
     const body = { theme: coerceTheme(settingsForm.theme), tts_speed: coerceSpeed(settingsForm.tts_speed) };
     try {
-      const r = await fetch("/settings", {method:"PUT",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(body)});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await updateSettings(body);
       if (!r.ok || p.ok===false) { settingsState="error"; settingsPhase=p?.phase??"settings_update"; settingsErr=p?.detail??"Could not save."; settingsStatus=""; return; }
       syncSettings(p.settings, {state:"ready",phase:p.phase??"settings_update",msg:"Saved."});
       settingsLoadedForUser=user?.username ?? settingsLoadedForUser;
@@ -256,10 +251,8 @@
     if (!silent) practiceState="loading";
     practiceErr="";
     const LIMIT = 50;
-    const qmap = { mixed:`/practice/queue?mode=mixed&limit=${LIMIT}`, revision:`/practice/queue?mode=revision&limit=${LIMIT}`, build_vocabulary:`/practice/queue?mode=build_vocabulary&limit=${LIMIT}` };
     try {
-      const r = await fetch(qmap[mode] ?? qmap.mixed, {headers:{"Accept":"application/json"}});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await getPracticeQueue(mode, LIMIT);
       if (!r.ok || p.ok===false) {
         practiceQueue=p; practiceQueueCards=[]; practiceQueueIndex=0; practiceQueueMode=null;
         currentCard=null; activeCardId=null; lastAudioCardId=null; resetAnswer();
@@ -312,8 +305,7 @@
     if (!currentCard || answerSubmitting) return;
     answerSubmitting=true; practiceErr=""; answerErr="";
     try {
-      const r = await fetch("/practice/answers", {method:"POST",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(body)});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await submitPracticeAnswer(body);
       if (!r.ok || p.ok===false) { practiceState="ready"; practiceErr=p?.detail??"Answer rejected."; return; }
       answerResult = { ...p, expected_answer: p.expected_answer ?? currentCard.answer, submitted_answer: p.submitted_answer ?? body.answer ?? "" };
       miradAudioUnlocked = true;
@@ -337,7 +329,7 @@
     const spd = effSpd();
     try {
       const cid = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
-      const r = await fetch(`/practice/audio/${encodeURIComponent(cid)}`, {headers:{"Accept":"audio/wav,application/json"}});
+      const r = await fetch(getPracticeAudioUrl(cid), {headers:{"Accept":"audio/wav,application/json"}});
       const ct = r.headers.get("content-type") ?? "";
       if (!r.ok || ct.includes("application/json")) {
         const p = await readJson(r);
@@ -364,8 +356,7 @@
   async function loadAnalytics() {
     analyticsState="loading"; analyticsErr="";
     try {
-      const r = await fetch("/practice/progress", {headers:{"Accept":"application/json"}});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await getPracticeProgress();
       if (!r.ok || p.ok===false) { analyticsPayload=p; analyticsState="error"; analyticsErr=p?.detail??"Analytics unavailable."; return; }
       analyticsPayload=p; analyticsState="ready";
     } catch(_) { analyticsPayload=null; analyticsState="error"; analyticsErr="Could not reach analytics."; }
@@ -376,8 +367,7 @@
     if (deleteAccountState==="submitting" || !user?.username || !canDeleteAccount()) return;
     deleteAccountState="submitting"; deleteAccountErr=""; deleteAccountStatus="Deleting…";
     try {
-      const r = await fetch("/auth/account", {method:"DELETE",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({username:deleteAccountUsername,confirmation:deleteAccountConfirm})});
-      const p = await readJson(r);
+      const { response: r, payload: p } = await deleteAccount(deleteAccountUsername, deleteAccountConfirm);
       if (!r.ok || p.ok===false) { deleteAccountState="error"; deleteAccountErr=p?.detail??"Could not delete."; deleteAccountStatus=""; return; }
       deleteAccountState="done"; deleteAccountStatus="Account deleted."; deleteAccountErr="";
       clearAuthAppState("Account deleted. Create a new account or log in again.");

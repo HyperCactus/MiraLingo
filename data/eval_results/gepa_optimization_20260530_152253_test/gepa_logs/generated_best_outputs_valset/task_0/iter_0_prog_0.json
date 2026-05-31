@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Yit tyope bu tistam hya jub.",
+    "total_score": 85.0,
+    "winner_index": 0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Yit tyope bu tistam hya jub.",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 10.0,
+                "total_score": 85.0,
+                "rationale": "The main weakness is that the candidate produced a declarative statement instead of a yes/no question, missing the required interrogative structure."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.4,
+            "mirad_text": "Du yit tyope bu tistam hyajub?",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 12.0,
+                "vocabulary_score": 14.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 10.0,
+                "total_score": 66.0,
+                "rationale": "Main weakness: The translation uses the imperative \"Du\" instead of a question marker or auxiliary, and \"tyope\" is a nonstandard spelling of \"tyope\" (walk), making the sentence grammatically incorrect as a question."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.8,
+            "mirad_text": "Duven yit tyope bu tistam hya jub?",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 17.0,
+                "vocabulary_score": 16.0,
+                "english_bleed_score": 5.0,
+                "completeness_score": 18.0,
+                "total_score": 54.0,
+                "rationale": "Main weaknesses: minor misspelling in \"tyope\" (should be \"tyop\"), \"hya jub\" lacks correct adverbial form (\"hya juba\" or \"jubey\"), and capitalization/period indicate English bleed, reducing total score."
+            }
+        }
+    ],
+    "rationale": "The main weakness is that the candidate produced a declarative statement instead of a yes/no question, missing the required interrogative structure."
+}

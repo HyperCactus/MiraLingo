@@ -1,0 +1,134 @@
+[
+  {
+    "id": "pair-0917",
+    "english_text": "do they walk to school every day",
+    "gold": "duven yit tyoyape tistam hyajub",
+    "pred": "Yit tyope bu tistam hya jub?",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 95.0,
+    "winner_index": 0,
+    "rationale": "The translation is correct but loses 5 points for English bleed due to capitalization and a question mark.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Yit tyope bu tistam hya jub?",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "Du yit tyope bu tistam hya jub?",
+        "total_score": 55.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Du yit tyope bu tistam hya jub?",
+        "total_score": 55.0,
+        "grammar": 5.0,
+        "morphology": 15.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      }
+    ],
+    "elapsed_s": 100.309
+  },
+  {
+    "id": "pair-0835",
+    "english_text": "while they are here they will work at home",
+    "gold": "je van yit so him yit yexo be tam",
+    "pred": "je van yit se him, yit yexo be tam",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 93.0,
+    "winner_index": 1,
+    "rationale": "The main weakness is the incorrect conjunction phrase \"je van\" instead of just \"je\" for \"while,\" incurring a grammar penalty.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Je van yit se him, yit yexo be tam.",
+        "total_score": 92.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 19.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "je van yit se him, yit yexo be tam",
+        "total_score": 93.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 18.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "Je van yit se him, yit yexo be tam.",
+        "total_score": 92.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 19.0
+      }
+    ],
+    "elapsed_s": 105.298
+  },
+  {
+    "id": "pair-0335",
+    "english_text": "he or she was going home",
+    "gold": "it peya tam",
+    "pred": "it sa pea be tam",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 50.0,
+    "winner_index": 0,
+    "rationale": "The main weakness is incorrect verb morphology: \"sa pea\" is not a valid Mirad past progressive; the correct form should be \"peyea\" or \"peya\" with proper tense.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "it sa pea be tam",
+        "total_score": 50.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 10.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "it pa tam",
+        "total_score": 20.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 5.0,
+        "bleed": 0.0,
+        "complete": 5.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "it sa pea tam",
+        "total_score": 35.0,
+        "grammar": 5.0,
+        "morphology": 5.0,
+        "vocab": 15.0,
+        "bleed": 5.0,
+        "complete": 5.0
+      }
+    ],
+    "elapsed_s": 103.218
+  }
+]

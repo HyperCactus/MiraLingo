@@ -1,0 +1,50 @@
+{
+    "mirad_text": "ha tudet jey tuje",
+    "winner_index": 0,
+    "total_score": 75.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "ha tudet jey tuje",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 10.0,
+                "vocabulary_score": 18.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 12.0,
+                "total_score": 75.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"tuje\" is simple present, not progressive; the progressive requires the suffix \"-eye\" or the construction \"se tujeye\"."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "ha tudet jey tuje",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 10.0,
+                "vocabulary_score": 18.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 12.0,
+                "total_score": 75.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"tuje\" is simple present, not progressive; the progressive requires the suffix \"-eye\" or the construction \"se tujeye\"."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "ha tudet gaj tujea",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 10.0,
+                "total_score": 60.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"tujea\" should be \"tujeye\" (progressive) and the sentence requires the copula \"se\" before it."
+            }
+        }
+    ],
+    "rationale": "The main weakness is incorrect verb morphology: \"tuje\" is simple present, not progressive; the progressive requires the suffix \"-eye\" or the construction \"se tujeye\"."
+}

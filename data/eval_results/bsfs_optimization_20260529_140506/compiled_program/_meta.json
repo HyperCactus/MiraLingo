@@ -1,0 +1,6 @@
+{
+  "saved_at": "2026-05-29T04:08:26.106344+00:00",
+  "module_type": "MultiCandidateTranslator",
+  "dspy_version": "3.2.1",
+  "note": "Reload with mirad_translator.evaluate.load_compiled_program(path)"
+}

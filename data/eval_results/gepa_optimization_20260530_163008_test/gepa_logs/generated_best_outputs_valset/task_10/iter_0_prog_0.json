@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Tease at van",
+    "winner_index": 0,
+    "total_score": 60.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Tease at van",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 10.0,
+                "total_score": 60.0,
+                "rationale": "The translation drops the required preposition \"bu\" for the indirect object and has English bleed due to capitalization of \"Tease\"."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Tease av at van",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 10.0,
+                "completeness_score": 10.0,
+                "total_score": 40.0,
+                "rationale": "The translation is incorrect because it omits the required copula \"se\" and uses an invalid verb form \"Tease\" instead of \"se teasa\", resulting in poor grammar and morphological errors."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Sewe at van",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 8.0,
+                "english_bleed_score": 10.0,
+                "completeness_score": 5.0,
+                "total_score": 33.0,
+                "rationale": "The main weakness is using the invented verb form \"Sewe\" instead of the correct impersonal construction \"se at van\"."
+            }
+        }
+    ],
+    "rationale": "The translation drops the required preposition \"bu\" for the indirect object and has English bleed due to capitalization of \"Tease\"."
+}

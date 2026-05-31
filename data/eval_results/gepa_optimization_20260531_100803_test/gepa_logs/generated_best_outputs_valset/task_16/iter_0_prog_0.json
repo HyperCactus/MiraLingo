@@ -1,0 +1,50 @@
+{
+    "mirad_text": "hia tuxut se fia oy hua tixut se fua",
+    "winner_index": 0,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "hia tuxut se fia oy hua tixut se fua",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is flawless, correctly using demonstratives, the copula, adjectives, and the contrastive conjunction with no errors or English bleed."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "hia tuxut se fia oy hua tixut se fua",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is flawless, correctly using demonstratives, the copula, adjectives, and the contrastive conjunction with no errors or English bleed."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "hia tuxut se fia oy hua tixut se fua",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is flawless, correctly using demonstratives, the copula, adjectives, and the contrastive conjunction with no errors or English bleed."
+            }
+        }
+    ],
+    "rationale": "The translation is flawless, correctly using demonstratives, the copula, adjectives, and the contrastive conjunction with no errors or English bleed."
+}

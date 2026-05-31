@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Hia tam se voy ge aga vyel atas.",
+    "winner_index": 2,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Hia tam voy se ge aga vyel atas.",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 20.0,
+                "total_score": 93.0,
+                "rationale": "The main weaknesses are the capitalization of \"Hia\" and the period at the end, which introduce minor English bleed."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "hia tam se voy ge aga vyel atas",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 17.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 95.0,
+                "rationale": "The translation is largely correct, but \"vyel\" is typically used for \"than\" in inequality comparisons, while equality comparisons \"as...as\" more properly use \"ge...as\" or \"ge...vyel\" is acceptable but slightly off; otherwise, no errors."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Hia tam se voy ge aga vyel atas.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is fully correct, with proper comparative structure, vocabulary, and no errors or English bleed."
+            }
+        }
+    ],
+    "rationale": "The translation is fully correct, with proper comparative structure, vocabulary, and no errors or English bleed."
+}

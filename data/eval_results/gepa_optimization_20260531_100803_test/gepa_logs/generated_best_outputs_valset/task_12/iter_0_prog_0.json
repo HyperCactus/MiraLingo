@@ -1,0 +1,50 @@
+{
+    "mirad_text": "yat pu tam oy yat su iva him",
+    "winner_index": 0,
+    "total_score": 69.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "yat pu tam oy yat su iva him",
+            "judge": {
+                "grammar_score": 12.0,
+                "morphology_score": 8.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 14.0,
+                "total_score": 69.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"pu\" lacks the progressive aspect \"-eye\" needed for \"would be going,\" and \"su\" is correct but the clause structure is incomplete."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "yat pu tam oy yat su iva him",
+            "judge": {
+                "grammar_score": 12.0,
+                "morphology_score": 8.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 14.0,
+                "total_score": 69.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"pu\" lacks the progressive aspect \"-eye\" needed for \"would be going,\" and \"su\" is correct but the clause structure is incomplete."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "yat pu tam oy yat su iva him",
+            "judge": {
+                "grammar_score": 12.0,
+                "morphology_score": 8.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 14.0,
+                "total_score": 69.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"pu\" lacks the progressive aspect \"-eye\" needed for \"would be going,\" and \"su\" is correct but the clause structure is incomplete."
+            }
+        }
+    ],
+    "rationale": "The main weakness is incorrect verb morphology: \"pu\" lacks the progressive aspect \"-eye\" needed for \"would be going,\" and \"su\" is correct but the clause structure is incomplete."
+}

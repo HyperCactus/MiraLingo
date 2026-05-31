@@ -140,6 +140,56 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         payload["source"] = source
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
+    @app.get("/lookup", tags=["lexicon"])
+    def lookup(
+        q: str = Query(..., min_length=1),
+        direction: Literal["en_to_mir", "mir_to_en"] = Query(...),
+        top_k: int = Query(default=3, ge=1),
+    ) -> JSONResponse:
+        """Return open semantic lexicon results for English or Mirad queries."""
+        try:
+            from mirad_translator.semantic_lexicon import semantic_lookup, semantic_lookup_mirad
+
+            if direction == "en_to_mir":
+                hits = semantic_lookup(
+                    english_word=q,
+                    top_k=top_k,
+                    min_similarity=0.5,
+                    include_exact=True,
+                )
+                payload = [
+                    {
+                        "english": hit["english"],
+                        "mirad": hit["mirad"],
+                        "cosine_similarity": hit["cosine_similarity"],
+                        "is_exact": hit["is_exact"],
+                    }
+                    for hit in hits
+                ]
+            else:
+                hits = semantic_lookup_mirad(
+                    mirad_word=q,
+                    top_k=top_k,
+                    min_similarity=0.5,
+                    include_exact=True,
+                )
+                payload = [
+                    {
+                        "mirad": hit["mirad"],
+                        "english": hit["english"],
+                        "cosine_similarity": hit["cosine_similarity"],
+                        "is_exact": hit["is_exact"],
+                    }
+                    for hit in hits
+                ]
+        except (ImportError, ModuleNotFoundError, RuntimeError):
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"error": "semantic search unavailable"},
+            )
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+
     @app.get("/auth/current-user", tags=["auth"])
     def current_user(request: Request) -> JSONResponse:
         """Return the current authenticated user or an explicit logged-out state."""

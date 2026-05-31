@@ -1,0 +1,45 @@
+{
+  "optimizer": "GEPA",
+  "config": {
+    "auto": "light",
+    "num_threads": 24,
+    "log_dir": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval_results/gepa_optimization_20260530_151613_test/gepa_logs",
+    "num_candidates": 3,
+    "temperatures": [
+      0.1,
+      0.4,
+      0.8
+    ],
+    "num_context_passages": 3,
+    "track_stats": true,
+    "seed": 42,
+    "metric": "normalized_match"
+  },
+  "data": {
+    "n_samples": 3,
+    "min_english_words": 5,
+    "data_path": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval/train.json"
+  },
+  "metrics": {
+    "normalized_match": 0.0,
+    "exact_match": 0.0,
+    "avg_judge_score": 77.3
+  },
+  "counts": {
+    "total": 3,
+    "normalized_match_correct": 0,
+    "exact_match_correct": 0
+  },
+  "timing": {
+    "compile_time_s": 0,
+    "compile_time_min": 0.0,
+    "eval_time_s": 219.9,
+    "eval_time_min": 3.67,
+    "avg_per_sample_s": 73.312
+  },
+  "output": {
+    "program_path": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval_results/gepa_optimization_20260530_151613_test/program.pkl",
+    "log_dir": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval_results/gepa_optimization_20260530_151613_test/gepa_logs"
+  },
+  "timestamp": "2026-05-30T05:19:57.248795+00:00"
+}

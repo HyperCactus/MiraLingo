@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Tease at van",
+    "winner_index": 1,
+    "total_score": 60.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "tease pu at van",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 5.0,
+                "english_bleed_score": 0.0,
+                "completeness_score": 5.0,
+                "total_score": 20.0,
+                "rationale": "The translation uses the English word \"tease\" instead of Mirad, resulting in severe English bleed and a completely incorrect structure."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Tease at van",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 10.0,
+                "total_score": 60.0,
+                "rationale": "The translation drops the required preposition \"bu\" for the indirect object and has English bleed due to capitalization of \"Tease\"."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "tease bu at van",
+            "judge": {
+                "grammar_score": 5.0,
+                "morphology_score": 5.0,
+                "vocabulary_score": 0.0,
+                "english_bleed_score": 0.0,
+                "completeness_score": 5.0,
+                "total_score": 0.0,
+                "rationale": "The translation uses the English word \"tease\" instead of the correct Mirad verb \"tese\" for \"seems\", making it completely wrong and unintelligible."
+            }
+        }
+    ],
+    "rationale": "The translation drops the required preposition \"bu\" for the indirect object and has English bleed due to capitalization of \"Tease\"."
+}

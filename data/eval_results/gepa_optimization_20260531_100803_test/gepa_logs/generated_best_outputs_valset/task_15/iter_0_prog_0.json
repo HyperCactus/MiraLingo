@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Yit te duhom yat pa ay duhom et bese?",
+    "winner_index": 2,
+    "total_score": 84.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Du yit te duhom yat pa ay duhom et bese?",
+            "judge": {
+                "grammar_score": 10.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 10.0,
+                "total_score": 75.0,
+                "rationale": "The main weakness is using the imperative \"Du\" instead of a proper question structure, which changes the meaning from \"do they know?\" to \"say/tell\"."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Du yit te hem yat pa ay hem et teje?",
+            "judge": {
+                "grammar_score": 8.0,
+                "morphology_score": 12.0,
+                "vocabulary_score": 10.0,
+                "english_bleed_score": 10.0,
+                "completeness_score": 10.0,
+                "total_score": 50.0,
+                "rationale": "Main weaknesses: incorrect use of imperative \"Du\" instead of a declarative question, wrong vocabulary \"hem\" for \"hom\" (where), and English bleed from capitalization."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Yit te duhom yat pa ay duhom et bese?",
+            "judge": {
+                "grammar_score": 17.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 17.0,
+                "english_bleed_score": 12.0,
+                "completeness_score": 18.0,
+                "total_score": 84.0,
+                "rationale": "The translation is largely correct but loses points for English bleed (capitalization and question mark) and slightly unnatural word order with \"duhom\" used as a relative pronoun."
+            }
+        }
+    ],
+    "rationale": "The translation is largely correct but loses points for English bleed (capitalization and question mark) and slightly unnatural word order with \"duhom\" used as a relative pronoun."
+}

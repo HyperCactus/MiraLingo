@@ -1,0 +1,53 @@
+{
+  "config": {
+    "n_candidates": 3,
+    "temperatures": [
+      0.1,
+      0.3,
+      0.7
+    ],
+    "num_context_passages": 3,
+    "top_k_per_word": 0,
+    "max_bootstrapped_demos": 18,
+    "max_labeled_demos": 0,
+    "max_rounds": 1,
+    "max_errors": 5,
+    "num_retries": 3,
+    "bootstrap_n": 100,
+    "train_eval_n": 100,
+    "parallel": 16,
+    "max_in_flight": 16,
+    "max_trace_size": 10000,
+    "max_tokens": 4096,
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "trainset_size": 100,
+    "valset_size": 100
+  },
+  "timing": {
+    "bootstrap_s": 183.9,
+    "eval_train_s": 774.0,
+    "eval_val_s": 729.3,
+    "exact_match_train_s": 769.4,
+    "exact_match_val_s": 915.1,
+    "total_wall_s": 3371.6
+  },
+  "metrics": {
+    "train": {
+      "normalized_match": 0.5,
+      "exact_match": 0.46,
+      "correct_normalized": 50,
+      "correct_exact": 46,
+      "total": 100
+    },
+    "val": {
+      "normalized_match": 0.62,
+      "exact_match": 0.55,
+      "correct_normalized": 62,
+      "correct_exact": 55,
+      "total": 100
+    }
+  },
+  "compiled_program_path": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval_results/bsfs_optimization_20260529_141519/compiled_program",
+  "output_dir": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval_results/bsfs_optimization_20260529_141519",
+  "timestamp": "2026-05-29T15:11:31.216816"
+}

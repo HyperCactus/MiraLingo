@@ -1,0 +1,222 @@
+[
+  {
+    "id": "pair-0976",
+    "idx": 0,
+    "english_text": "whose book is this and whose are these books",
+    "gold": "duhota dyes se his ay duhotasi se hia dyesi",
+    "pred": "Duhota dyes hias ay duhota dyesi hiasi?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 2,
+    "total_score": 61.0,
+    "rationale": "Main weaknesses: missing copula \"se\" in both clauses, capitalization and period introduce English bleed, and the second question lacks a verb, reducing completeness.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Duhota dyes hia se ay duhota hia dyesi se?",
+        "total_score": 36.0,
+        "grammar": 6.0,
+        "morphology": 10.0,
+        "vocab": 8.0,
+        "bleed": 5.0,
+        "complete": 7.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Duhota dyes hia ay duhota dyesi hia?",
+        "total_score": 48.0,
+        "grammar": 10.0,
+        "morphology": 10.0,
+        "vocab": 12.0,
+        "bleed": 8.0,
+        "complete": 8.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Duhota dyes hias ay duhota dyesi hiasi?",
+        "total_score": 61.0,
+        "grammar": 12.0,
+        "morphology": 15.0,
+        "vocab": 16.0,
+        "bleed": 8.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0013",
+    "idx": 1,
+    "english_text": "small houses",
+    "gold": "oga tami",
+    "pred": "oga tami",
+    "exact_match": true,
+    "normalized_match": true,
+    "winner_index": 0,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless: correct vocabulary, proper plural morphology, no English bleed, and fully complete.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "oga tami",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "oga tami",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "oga tami",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0359",
+    "idx": 2,
+    "english_text": "do you all walk to school",
+    "gold": "duven yet tyoyape tistam",
+    "pred": "Duven yet tyope bu tistam?",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 1,
+    "total_score": 98.0,
+    "rationale": "Main weakness: minor English bleed due to the unnecessary question mark at the end.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Du yet tyope bu tistam?",
+        "total_score": 62.0,
+        "grammar": 12.0,
+        "morphology": 10.0,
+        "vocab": 15.0,
+        "bleed": 10.0,
+        "complete": 15.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Duven yet tyope bu tistam?",
+        "total_score": 98.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 18.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Du yet tyoper bu tistam?",
+        "total_score": 75.0,
+        "grammar": 15.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 10.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0895",
+    "idx": 3,
+    "english_text": "our teacher is good but their teacher is bad",
+    "gold": "yata tuxut se fia oy yita tuxut se fua",
+    "pred": "Yata tuxut se fia oy yita tuxut se fua.",
+    "exact_match": false,
+    "normalized_match": true,
+    "winner_index": 2,
+    "total_score": 100.0,
+    "rationale": "The translation is flawless, with perfect grammar, morphology, vocabulary, no English bleed, and complete structural correspondence to the source.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yata fia tuxut se oy yita fua tuxut se",
+        "total_score": 99.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 19.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Aeta tuxut se fia, oy yita tuxut se fua.",
+        "total_score": 88.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 10.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Yata tuxut se fia oy yita tuxut se fua.",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  },
+  {
+    "id": "pair-0488",
+    "idx": 4,
+    "english_text": "this guy s house is on fire",
+    "gold": "hwuta tam magseye",
+    "pred": "Hia twoba tam se magsea.",
+    "exact_match": false,
+    "normalized_match": false,
+    "winner_index": 2,
+    "total_score": 96.0,
+    "rationale": "The translation is nearly perfect, with only a minor vocabulary nuance (using \"twoba tam\" instead of the more possessive \"twobas tam\") and no English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Huaota tam magsea.",
+        "total_score": 48.0,
+        "grammar": 10.0,
+        "morphology": 15.0,
+        "vocab": 8.0,
+        "bleed": 5.0,
+        "complete": 10.0
+      },
+      {
+        "temp": 0.5,
+        "mirad": "Hia twoba tam se magsea.",
+        "total_score": 78.0,
+        "grammar": 16.0,
+        "morphology": 15.0,
+        "vocab": 18.0,
+        "bleed": 12.0,
+        "complete": 17.0
+      },
+      {
+        "temp": 0.9,
+        "mirad": "Hia twoba tam se magsea.",
+        "total_score": 96.0,
+        "grammar": 18.0,
+        "morphology": 20.0,
+        "vocab": 18.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ]
+  }
+]

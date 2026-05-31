@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Gey ven at ovtexe, et yabexo at.",
+    "winner_index": 2,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "Gey ven at ovtexe, et bolo at.",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 15.0,
+                "vocabulary_score": 5.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 15.0,
+                "total_score": 45.0,
+                "rationale": "The main weakness is the use of \"bolo\" for \"support,\" which is not a valid Mirad word, incurring a severe vocabulary penalty."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "gey ven at ovtexe, et yabexo at",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 15.0,
+                "completeness_score": 20.0,
+                "total_score": 93.0,
+                "rationale": "The translation is correct but loses 5 points for English bleed due to an unnecessary comma."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "Gey ven at ovtexe, et yabexo at.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is flawless, correctly using \"gey ven\" for \"even if,\" proper verb tenses and pronouns, and no English bleed."
+            }
+        }
+    ],
+    "rationale": "The translation is flawless, correctly using \"gey ven\" for \"even if,\" proper verb tenses and pronouns, and no English bleed."
+}

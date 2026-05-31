@@ -1,0 +1,50 @@
+{
+    "mirad_text": "ha tudet jey se tujea",
+    "winner_index": 1,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "ha tudet jey tujea",
+            "judge": {
+                "grammar_score": 18.0,
+                "morphology_score": 10.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 18.0,
+                "total_score": 86.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"tujea\" uses the participial suffix \"-ea\" instead of the progressive \"-eye\", so it should be \"tujeye\"."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "ha tudet jey se tujea",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is fully correct, with proper grammar, verb morphology, vocabulary, and no English bleed, earning a perfect score."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "ha tudet jey tuje",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 10.0,
+                "vocabulary_score": 18.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 12.0,
+                "total_score": 75.0,
+                "rationale": "The main weakness is incorrect verb morphology: \"tuje\" is simple present, not progressive; the progressive requires the suffix \"-eye\" or the construction \"se tujeye\"."
+            }
+        }
+    ],
+    "rationale": "The translation is fully correct, with proper grammar, verb morphology, vocabulary, and no English bleed, earning a perfect score."
+}

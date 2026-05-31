@@ -1,0 +1,122 @@
+[
+  {
+    "id": "val-01",
+    "english": "this is the biggest house in our neighborhood",
+    "mirad": "His se ha gwa aga tam bi yata yubem.",
+    "notes": "Hard: superlative, preposition bi vs be, noun form yubem"
+  },
+  {
+    "id": "val-02",
+    "english": "you must do it as quickly as possible",
+    "mirad": "Et yefe xer gwa ig.",
+    "notes": "Hard: degree expression gwa ig, verb xer (to do), imperative"
+  },
+  {
+    "id": "val-03",
+    "english": "this house is not as big as mine",
+    "mirad": "Hia tam voy se ge aga vyel atas.",
+    "notes": "Hard: comparative ge vyel, voy se, possessive atas"
+  },
+  {
+    "id": "val-04",
+    "english": "how glad I am that you came",
+    "mirad": "Hoogla iva se at van et upa.",
+    "notes": "Hard: exclamatory hoogla, emotion word iva, past upa"
+  },
+  {
+    "id": "val-05",
+    "english": "the whole world knows about you",
+    "mirad": "Ha ayna mir te ayv et.",
+    "notes": "Hard: ayv (about/concerning) vs be, ayna (all/every)"
+  },
+  {
+    "id": "val-06",
+    "english": "I think, therefore I am",
+    "mirad": "At texe, av hus, at ese.",
+    "notes": "Hard: ese (copula present), av hus (therefore), comma separation"
+  },
+  {
+    "id": "val-07",
+    "english": "what a day this has been",
+    "mirad": "Hooa jub his saye.",
+    "notes": "Hard: exclamatory hooa, saye (has been), his (this) vs hia"
+  },
+  {
+    "id": "val-08",
+    "english": "the baby is still sleeping",
+    "mirad": "Ha tobud gaj tujeye.",
+    "notes": "Hard: tobud (baby), still/sleeping morphology, progressive -eye"
+  },
+  {
+    "id": "val-09",
+    "english": "I swim better than you",
+    "mirad": "At pipe ga fi vyel et.",
+    "notes": "Hard: verb derivation pipe (swim), comparative ga fi vyel"
+  },
+  {
+    "id": "val-10",
+    "english": "I am not your father",
+    "mirad": "At voy se eta ted.",
+    "notes": "Hard: voy se (is not), possessive ted (father) not twed"
+  },
+  {
+    "id": "val-11",
+    "english": "it seems to me that",
+    "mirad": "Tease bu at van.",
+    "notes": "Hard: missing bu preposition after teaser, requires bu at"
+  },
+  {
+    "id": "val-12",
+    "english": "it does not bother me",
+    "mirad": "Voy tepoboxe at.",
+    "notes": "Hard: voy-prefix negation tepoboxe, dummy it not used"
+  },
+  {
+    "id": "val-13",
+    "english": "we would be going home but we would be happy here",
+    "mirad": "Yat peyu tam, oy yat su iva him.",
+    "notes": "Hard: conditional future peyu, oy (but) vs ay, su iva (would be happy)"
+  },
+  {
+    "id": "val-14",
+    "english": "we know that he or she will come and we will be happy",
+    "mirad": "Yat te van it upo ay yat so iva.",
+    "notes": "Hard: upo vs upu, su vs so (conditional vs future), it (gender-neutral)"
+  },
+  {
+    "id": "val-15",
+    "english": "we do not know where he or she went but we know where you live",
+    "mirad": "Yat voy te hom it pa, oy yat te hom et tambese.",
+    "notes": "Hard: complex embedded clause, oy vs ay, where-clauses"
+  },
+  {
+    "id": "val-16",
+    "english": "do they know where we went and where you live",
+    "mirad": "Duven yit te hom yat pa ay hom et tambese?",
+    "notes": "Medium: question particle duven, embedded where-clauses, hom placement"
+  },
+  {
+    "id": "val-17",
+    "english": "this teacher is good but that student is bad",
+    "mirad": "Hia tuxut se fia, oy hua tixut se fua.",
+    "notes": "Medium: hia/hua demonstratives, fia/fua adjective pair, clause conjunction"
+  },
+  {
+    "id": "val-18",
+    "english": "even if I disagree you will support me",
+    "mirad": "Gey ven at yontexe, et bolo at.",
+    "notes": "Hard: gey ven (even if), yontexe (disagree), bolo (support future)"
+  },
+  {
+    "id": "val-19",
+    "english": "you will never gain perfect happiness",
+    "mirad": "Et hyoj ako fika ivan.",
+    "notes": "Easy: future hyoj, ko/fi positive/negative quality, ivan (happiness)"
+  },
+  {
+    "id": "val-20",
+    "english": "my house is bigger than yours",
+    "mirad": "Ata tam se ga aga vyel etas.",
+    "notes": "Easy: possessive ata/etas, comparative ga vyel, regular morphology"
+  }
+]

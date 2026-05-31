@@ -1,0 +1,50 @@
+{
+    "mirad_text": "Hia se ha gwaaga tam bi yata yubem.",
+    "winner_index": 1,
+    "total_score": 100.0,
+    "candidates": [
+        {
+            "index": 0,
+            "temperature": 0.1,
+            "mirad_text": "his se ha gwaaga tam bi yata yubem",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 15.0,
+                "total_score": 85.0,
+                "rationale": "The main weakness is using \"bi\" (of) instead of \"be\" (in) for the locative, and missing the preposition for \"in our neighborhood\"."
+            }
+        },
+        {
+            "index": 1,
+            "temperature": 0.3,
+            "mirad_text": "Hia se ha gwaaga tam bi yata yubem.",
+            "judge": {
+                "grammar_score": 20.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 20.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 20.0,
+                "total_score": 100.0,
+                "rationale": "The translation is flawless, correctly using the superlative, copula, and possessive pronouns with no errors or English bleed."
+            }
+        },
+        {
+            "index": 2,
+            "temperature": 0.7,
+            "mirad_text": "his se ha gwaaga tam bi yata yubem",
+            "judge": {
+                "grammar_score": 15.0,
+                "morphology_score": 20.0,
+                "vocabulary_score": 15.0,
+                "english_bleed_score": 20.0,
+                "completeness_score": 15.0,
+                "total_score": 85.0,
+                "rationale": "The main weakness is using \"bi\" (of) instead of \"be\" (in) for the locative, and missing the preposition for \"in our neighborhood\"."
+            }
+        }
+    ],
+    "rationale": "The translation is flawless, correctly using the superlative, copula, and possessive pronouns with no errors or English bleed."
+}
