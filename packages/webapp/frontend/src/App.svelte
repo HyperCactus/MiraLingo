@@ -7,6 +7,7 @@
   import { authError, authMessage, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
   import { currentMode, currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
   import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, theme, ttsSpeed } from "./lib/stores/settings";
+  import Welcome from "./lib/pages/Welcome.svelte";
 
   // ── helpers ─────────────────────────────────────────────────────────────
   const langLabel = (l) => ({ mirad: "Mirad", english: "English", practice: "" }[String(l ?? "").trim().toLowerCase()] ?? "");
@@ -624,39 +625,18 @@
 </main>
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     LOGIN / REGISTER
+     WELCOME
      ══════════════════════════════════════════════════════════════════════ -->
 {:else}
-<main class="shell shell--welcome">
-  <div class="welcome-wrap">
-    <div class="hero">
-      <h1 class="hero-title">MiraLingo</h1>
-      <p class="hero-sub">Practice Mirad pronunciation and translation.</p>
-    </div>
-
-    <div class="auth-forms">
-      <form id="register" class="auth-card" on:submit|preventDefault={submitRegistration}>
-        <h2>Create account</h2>
-        {#if $authError && $authState==="registration-failed"}<p class="err-msg" role="alert">{$authError}</p>{/if}
-        <label>Username<input autocomplete="username" bind:value={regU} required /></label>
-        <label>Password<input autocomplete="new-password" bind:value={regP} required type="password" /></label>
-        <button class="btn btn--primary" disabled={submitting} type="submit">{submitting ? "Creating…" : "Create account"}</button>
-      </form>
-
-      <form id="login" class="auth-card" on:submit|preventDefault={submitLogin}>
-        <h2>Log in</h2>
-        {#if $authError && $authState!=="registration-failed"}<p class="err-msg" role="alert">{$authError}</p>{/if}
-        <label>Username<input autocomplete="username" bind:value={username} required /></label>
-        <label>Password<input autocomplete="current-password" bind:value={password} required type="password" /></label>
-        <button class="btn btn--primary" disabled={submitting} type="submit">{submitting ? "Signing in…" : "Log in"}</button>
-      </form>
-    </div>
-
-    <p class="docs-link">
-      <a href="https://en.wikibooks.org/wiki/Mirad_Grammar" target="_blank" rel="noopener">Mirad Grammar</a>
-      &nbsp;·&nbsp;
-      <a href="https://www.mirad.org/" target="_blank" rel="noopener">mirad.org</a>
-    </p>
-  </div>
-</main>
+<Welcome
+  bind:loginUsername={username}
+  bind:loginPassword={password}
+  bind:registrationUsername={regU}
+  bind:registrationPassword={regP}
+  {submitting}
+  authState={$authState}
+  authError={$authError}
+  on:createAccount={submitRegistration}
+  on:logIn={submitLogin}
+/>
 {/if}
