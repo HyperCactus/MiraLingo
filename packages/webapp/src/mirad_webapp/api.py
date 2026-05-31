@@ -64,6 +64,7 @@ class UserSettingsUpdateRequest(BaseModel):
 
     theme: Literal["light", "dark", "system"]
     tts_speed: float = Field(gt=0, le=2.0)
+    tts_autoplay: bool = True
 
 
 class DeleteAccountRequest(BaseModel):
@@ -253,6 +254,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 username=user.username,
                 theme=payload.theme,
                 tts_speed=payload.tts_speed,
+                tts_autoplay=payload.tts_autoplay,
             )
         except StorageError as exc:
             return storage_failure_response(exc)

@@ -3,6 +3,7 @@ import { readJson } from './auth';
 export type UserSettings = {
   theme: 'light' | 'dark' | 'system';
   tts_speed: number;
+  tts_autoplay: boolean;
   voice?: {
     id: string;
     label: string;

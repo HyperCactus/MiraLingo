@@ -36,7 +36,7 @@ def test_settings_requires_authenticated_session(tmp_path: Path) -> None:
     client = TestClient(create_app(_settings(tmp_path)))
 
     get_response = client.get("/settings")
-    put_response = client.put("/settings", json={"theme": "dark", "tts_speed": 0.8})
+    put_response = client.put("/settings", json={"theme": "dark", "tts_speed": 0.8, "tts_autoplay": False})
 
     assert get_response.status_code == 401
     assert get_response.json() == {
@@ -67,6 +67,7 @@ def test_settings_get_returns_defaults_and_single_voice_metadata(tmp_path: Path)
         "settings": {
             "theme": "system",
             "tts_speed": 0.8,
+            "tts_autoplay": True,
             "voice": {
                 "id": "de6",
                 "label": "Mirad de6",
@@ -82,10 +83,11 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     first = TestClient(create_app(_settings(tmp_path, database_path)))
     _register(first, username="mira")
 
-    update = first.put("/settings", json={"theme": "dark", "tts_speed": 1.1})
+    update = first.put("/settings", json={"theme": "dark", "tts_speed": 1.1, "tts_autoplay": False})
     assert update.status_code == 200
     assert update.json()["settings"]["theme"] == "dark"
     assert update.json()["settings"]["tts_speed"] == 1.1
+    assert update.json()["settings"]["tts_autoplay"] is False
     assert first.post("/auth/logout").status_code == 200
 
     second = TestClient(create_app(_settings(tmp_path, database_path)))
@@ -94,6 +96,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     assert sara_defaults.status_code == 200
     assert sara_defaults.json()["settings"]["theme"] == "system"
     assert sara_defaults.json()["settings"]["tts_speed"] == 0.8
+    assert sara_defaults.json()["settings"]["tts_autoplay"] is True
     assert second.post("/auth/logout").status_code == 200
 
     recreated = TestClient(create_app(_settings(tmp_path, database_path)))
@@ -106,6 +109,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     assert fetched.json()["settings"] == {
         "theme": "dark",
         "tts_speed": 1.1,
+        "tts_autoplay": False,
         "voice": {
             "id": "de6",
             "label": "Mirad de6",
@@ -115,11 +119,11 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     }
     with sqlite3.connect(database_path) as connection:
         rows = connection.execute(
-            "SELECT username, theme, tts_speed, voice_id FROM user_settings ORDER BY username"
+            "SELECT username, theme, tts_speed, tts_autoplay, voice_id FROM user_settings ORDER BY username"
         ).fetchall()
     assert rows == [
-        ("mira", "dark", 1.1, "de6"),
-        ("sara", "system", 0.8, "de6"),
+        ("mira", "dark", 1.1, 0, "de6"),
+        ("sara", "system", 0.8, 1, "de6"),
     ]
 
 
@@ -128,9 +132,9 @@ def test_settings_update_rejects_invalid_theme_and_speed_without_mutating_storag
     client = TestClient(create_app(_settings(tmp_path, database_path)))
     _register(client)
 
-    bad_theme = client.put("/settings", json={"theme": "neon", "tts_speed": 0.8})
-    bad_speed = client.put("/settings", json={"theme": "light", "tts_speed": 0})
-    bad_type = client.put("/settings", json={"theme": "light", "tts_speed": "fast"})
+    bad_theme = client.put("/settings", json={"theme": "neon", "tts_speed": 0.8, "tts_autoplay": True})
+    bad_speed = client.put("/settings", json={"theme": "light", "tts_speed": 0, "tts_autoplay": True})
+    bad_type = client.put("/settings", json={"theme": "light", "tts_speed": "fast", "tts_autoplay": True})
     fetched = client.get("/settings")
 
     assert bad_theme.status_code == 422
@@ -139,9 +143,10 @@ def test_settings_update_rejects_invalid_theme_and_speed_without_mutating_storag
     assert fetched.status_code == 200
     assert fetched.json()["settings"]["theme"] == "system"
     assert fetched.json()["settings"]["tts_speed"] == 0.8
+    assert fetched.json()["settings"]["tts_autoplay"] is True
     with sqlite3.connect(database_path) as connection:
-        rows = connection.execute("SELECT username, theme, tts_speed FROM user_settings").fetchall()
-    assert rows == [("mira", "system", 0.8)]
+        rows = connection.execute("SELECT username, theme, tts_speed, tts_autoplay FROM user_settings").fetchall()
+    assert rows == [("mira", "system", 0.8, 1)]
 
 
 def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) -> None:
@@ -152,7 +157,7 @@ def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) ->
     def fail_get(*, username: str):
         raise StorageError(phase="settings_get", detail="Could not read settings.")
 
-    def fail_put(*, username: str, theme: str, tts_speed: float):
+    def fail_put(*, username: str, theme: str, tts_speed: float, tts_autoplay: bool):
         raise StorageError(phase="settings_update", detail="Could not update settings.")
 
     app.state.storage.get_user_settings = fail_get
@@ -167,7 +172,7 @@ def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) ->
 
     app.state.storage.get_user_settings = lambda *, username: None
     app.state.storage.upsert_user_settings = fail_put
-    put_response = client.put("/settings", json={"theme": "light", "tts_speed": 0.9})
+    put_response = client.put("/settings", json={"theme": "light", "tts_speed": 0.9, "tts_autoplay": False})
     assert put_response.status_code == 503
     assert put_response.json() == {
         "ok": False,

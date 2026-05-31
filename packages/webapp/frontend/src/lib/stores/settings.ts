@@ -24,7 +24,7 @@ const defaultVoice: AppVoice = {
 const defaultSettings: AppSettings = {
   theme: 'system',
   ttsSpeed: 0.8,
-  ttsAutoplay: false,
+  ttsAutoplay: true,
   voice: defaultVoice,
 };
 

@@ -125,7 +125,9 @@ def record_practice_answer(
     item = items_by_id[resolved_id]
     submitted = str(submitted_answer).strip()
     expected = item["answer"]
-    is_correct = bool(correct) if correct is not None else _normalize_text(submitted) == _normalize_text(expected)
+    expected_alternatives = _normalize_answer_alternatives(expected)
+    normalized_submitted = _normalize_text(submitted)
+    is_correct = bool(correct) if correct is not None else normalized_submitted in expected_alternatives
     event = {
         "card_id": item["id"],
         "base_card_id": item["base_card_id"],
@@ -513,6 +515,11 @@ def _recent_accuracy(events: list[dict[str, Any]]) -> float | None:
         return None
     recent = events[-5:]
     return sum(1 for event in recent if event["correct"]) / len(recent)
+
+
+def _normalize_answer_alternatives(value: Any) -> set[str]:
+    normalized = {_normalize_text(part) for part in str(value).split(",")}
+    return {part for part in normalized if part}
 
 
 def _normalize_text(value: Any) -> str:

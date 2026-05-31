@@ -70,6 +70,7 @@
     {:else}
       <FeedbackPanel
         audioLoading={audioLoading}
+        audioLabel={autoplayEnabled ? 'Replay Mirad answer' : 'Hear Mirad answer'}
         audioMessage={audioMessage}
         canPlayAudio={audioEnabled}
         correct={Boolean(answerResult.correct)}

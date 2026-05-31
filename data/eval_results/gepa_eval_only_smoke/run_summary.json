@@ -1,0 +1,66 @@
+{
+  "optimizer": "GEPA",
+  "config": {
+    "auto": "eval-only",
+    "num_threads": 24,
+    "log_dir": "data/eval_results/gepa_eval_only_smoke/gepa_logs",
+    "num_candidates": 3,
+    "temperatures": [
+      0.1,
+      0.4,
+      0.8
+    ],
+    "num_context_passages": 3,
+    "track_stats": true,
+    "seed": 42,
+    "metric": "normalized_match"
+  },
+  "data": {
+    "n_samples": 5,
+    "min_english_words": 5,
+    "data_path": "/mnt/s/projects/Project_earthlingish/Mirad-phonemes-engine/data/eval/train.json"
+  },
+  "metrics": {
+    "normalized_match": 0.8,
+    "exact_match": 0.8,
+    "avg_judge_score": 100.0
+  },
+  "counts": {
+    "total": 5,
+    "normalized_match_correct": 4,
+    "exact_match_correct": 4
+  },
+  "timing": {
+    "compile_time_s": 0.0,
+    "compile_time_min": 0.0,
+    "eval_time_s": 382.4,
+    "eval_time_min": 6.37,
+    "avg_per_sample_s": 76.474
+  },
+  "output": {
+    "program_path": "data/eval_results/gepa_eval_only_smoke/program.pkl",
+    "log_dir": "data/eval_results/gepa_eval_only_smoke/gepa_logs"
+  },
+  "cost": {
+    "model": "deepseek-chat",
+    "pricing": {
+      "input_per_1m": 0.1,
+      "output_per_1m": 0.2,
+      "cached_per_1m": 0.02,
+      "currency": "USD"
+    },
+    "tokens": {
+      "prompt_tokens": 723737,
+      "prompt_cache_hit_tokens": 0,
+      "completion_tokens": 8657
+    },
+    "cost_usd": {
+      "input": 0.0724,
+      "cached": 0.0,
+      "output": 0.0017,
+      "total": 0.0741
+    },
+    "total_llm_calls": 2
+  },
+  "timestamp": "2026-05-31T13:59:08.128239+00:00"
+}

@@ -288,6 +288,28 @@ def test_practice_answer_typed_submission_infers_correctness_and_persists_answer
     assert events[0].correct is True
 
 
+def test_practice_answer_accepts_comma_separated_expected_answers(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te, tay", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    response = client.post(
+        "/practice/answers",
+        json={"card_id": "word:the#english-to-mirad", "answer": "  TAY  "},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["correct"] is True
+
+    events = app.state.storage.list_answer_events(username="admin", phase="practice_answer")
+    assert len(events) == 1
+    assert events[0].submitted_answer == "TAY"
+    assert events[0].expected_answer == "te, tay"
+    assert events[0].correct is True
+
+
 def test_practice_answer_typed_submission_records_wrong_answer_without_correct_flag(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
     app = _app(tmp_path)

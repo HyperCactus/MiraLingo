@@ -264,6 +264,51 @@ def load_gepa_val_data(path: Path) -> list[dspy.Example]:
     return examples
 
 
+def load_eval_pairs(
+    path: Path,
+    *,
+    min_english_words: int = 0,
+    max_samples: int = 0,
+    seed: int = 42,
+) -> list[dspy.Example]:
+    """Load eval/train/test/val pairs from json and return dspy.Example rows."""
+    with open(path, encoding="utf-8") as f:
+        raw = json.load(f)
+
+    if isinstance(raw, dict) and "pairs" in raw:
+        pairs = raw["pairs"]
+    elif isinstance(raw, list):
+        pairs = raw
+    else:
+        raise ValueError(f"Unexpected dataset format for {path}: {type(raw)}")
+
+    normalized = [
+        {
+            "english": d.get("english") or d.get("source") or "",
+            "mirad": d.get("mirad") or d.get("target") or "",
+            "id": d.get("id", ""),
+        }
+        for d in pairs
+    ]
+
+    if min_english_words > 0:
+        normalized = [
+            d for d in normalized if len(d["english"].split()) >= min_english_words
+        ]
+
+    rng = random.Random(seed)
+    rng.shuffle(normalized)
+
+    if max_samples > 0:
+        normalized = normalized[:max_samples]
+
+    return [
+        dspy.Example(english_text=d["english"], mirad_text=d["mirad"], id=d["id"])
+        .with_inputs("english_text")
+        for d in normalized
+    ]
+
+
 def load_bootstrap_program(path: Path) -> dspy.Module | None:
     """
     Load a compiled bootstrap program from a cloudpickle .pkl file.
@@ -428,8 +473,11 @@ def evaluate(
     else:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        with ThreadPoolExecutor(max_workers=parallel) as ex:
-            futures = {ex.submit(_eval_one, program, ex): i for i, ex in enumerate(examples)}
+        with ThreadPoolExecutor(max_workers=parallel) as executor:
+            futures = {
+                executor.submit(_eval_one, program, example): i
+                for i, example in enumerate(examples)
+            }
             results = [None] * len(examples)
             for future in as_completed(futures):
                 i = futures[future]
@@ -777,8 +825,9 @@ def estimate_full_run_time(
     # Per-val-set-eval second: test measured eval on test_n val examples
     per_val_eval_s = (test_eval_s / test_n) if test_n > 0 else 30.0
 
-    # Compile: metric_calls × per_call_time (linear scaling with valset size)
-    est_full_compile_s = test_compile_s * (est_metric_calls_full / max(test_n, 1))
+    # Compile budget is driven by GEPA auto/val settings, not by full_n train sample count.
+    # Use measured compile time directly when extrapolating a same-config full run.
+    est_full_compile_s = test_compile_s
 
     # Full eval on trainset: per-sample timing (measured ~73s/sample at 1-thread baseline)
     per_train_sample_s = 73.0
@@ -789,12 +838,17 @@ def estimate_full_run_time(
 
     llm_per_metric_call = 3 * DEFAULT_NUM_CANDIDATES
 
+    est_metric_calls_test = est_metric_calls_full
+    est_llm_calls_test = est_metric_calls_test * llm_per_metric_call
+
     return {
         "auto": auto,
         "num_candidates": n_candidates,
         "num_trials": num_trials,
         "minibatch_size": minibatch_size,
+        "est_metric_calls_test": est_metric_calls_test,
         "est_metric_calls_full": est_metric_calls_full,
+        "est_llm_calls_test": est_llm_calls_test,
         "est_llm_calls_full": est_metric_calls_full * llm_per_metric_call,
         "test_n": test_n,
         "full_n": full_n,
@@ -909,6 +963,29 @@ the pipeline works correctly. After confirming the setup, re-run with
 # Main
 # ============================================================================
 
+def _load_prior_summary(out_dir: Path) -> dict | None:
+    summary_path = out_dir / "run_summary.json"
+    if not summary_path.exists():
+        return None
+    try:
+        return json.loads(summary_path.read_text())
+    except Exception:
+        return None
+
+
+def _resolve_estimate_compile_time(current_compile_time: float, prior_summary: dict | None) -> float:
+    if current_compile_time > 0:
+        return current_compile_time
+    if prior_summary:
+        try:
+            prior = float(prior_summary.get("timing", {}).get("compile_time_s", 0))
+            if prior > 0:
+                return prior
+        except Exception:
+            pass
+    return current_compile_time
+
+
 def main():
     parser = argparse.ArgumentParser(description="GEPA optimization for En→Mir translator")
     parser.add_argument(
@@ -973,6 +1050,29 @@ def main():
         action="store_true",
         help="After compilation, evaluate on full trainset (slow ~1-2h). Default: eval only on valset (~1 min).",
     )
+    parser.add_argument(
+        "--eval-only",
+        action="store_true",
+        help="Skip optimization and evaluate an already-compiled program.",
+    )
+    parser.add_argument(
+        "--eval-set",
+        choices=["gepa-val", "val", "test", "train"],
+        default="gepa-val",
+        help="Dataset to evaluate in --eval-only mode (default: gepa-val).",
+    )
+    parser.add_argument(
+        "--eval-max-samples",
+        type=int,
+        default=0,
+        help="Max examples for --eval-only mode (0 = all available).",
+    )
+    parser.add_argument(
+        "--compiled-program-path",
+        type=Path,
+        default=None,
+        help="Path to compiled program .pkl for --eval-only mode. Defaults to <out-dir>/program.pkl.",
+    )
     args = parser.parse_args()
 
     # Determine run mode
@@ -992,10 +1092,83 @@ def main():
         out_dir = OUT_DIR_BASE / f"gepa_optimization_{ts}_{suffix}"
     out_dir.mkdir(parents=True, exist_ok=True)
     print(f"\n[OUT] Output directory: {out_dir}")
+    prior_summary = _load_prior_summary(out_dir)
 
     # GEPA log directory (inside out_dir)
     gepa_log_dir = str(out_dir / "gepa_logs")
     print(f"[LOG] GEPA log directory: {gepa_log_dir}")
+
+    if args.eval_only:
+        print("\n[EVAL-ONLY] Skipping optimization; loading compiled program...")
+        eval_program_path = args.compiled_program_path or (out_dir / "program.pkl")
+        compiled = load_bootstrap_program(eval_program_path)
+        if compiled is None:
+            raise FileNotFoundError(f"Could not load compiled program from {eval_program_path}")
+
+        print("\n[LM] Configuring DeepInfra LM...")
+        from dspy.utils.usage_tracker import UsageTracker
+        tracker = UsageTracker()
+        dspy.settings.usage_tracker = tracker
+        configure_lm()
+        print("[LM] Configured")
+        print("[COST] Usage tracking enabled (DeepSeek V4 Flash pricing)")
+
+        eval_path_map = {
+            "gepa-val": GEPA_VAL_PATH,
+            "val": PROJECT_ROOT / "data" / "eval" / "val.json",
+            "test": PROJECT_ROOT / "data" / "eval" / "test.json",
+            "train": DATA_PATH,
+        }
+        eval_path = eval_path_map[args.eval_set]
+        if args.eval_set == "gepa-val":
+            eval_target = load_gepa_val_data(eval_path)
+        else:
+            eval_target = load_eval_pairs(
+                eval_path,
+                min_english_words=0,
+                max_samples=args.eval_max_samples,
+                seed=42,
+            )
+        print(f"\n[EVAL-ONLY] Loaded {len(eval_target)} examples from {eval_path}")
+        eval_results, eval_elapsed = evaluate(
+            compiled,
+            eval_target,
+            parallel=args.threads,
+            num_candidates=args.num_candidates,
+            temperatures=DEFAULT_TEMPERATURES,
+        )
+        try:
+            usage_by_model = tracker.get_total_tokens()
+            cost_info = compute_cost_from_usage(usage_by_model)
+        except Exception as e:
+            cost_info = None
+            print(f"\n[COST] Could not collect usage: {e}")
+
+        summary = save_results(
+            out_dir=out_dir,
+            compiled=compiled,
+            compile_time=0.0,
+            eval_results=eval_results,
+            eval_elapsed=eval_elapsed,
+            config={
+                "auto": "eval-only",
+                "num_threads": args.threads,
+                "num_candidates": args.num_candidates,
+                "temperatures": DEFAULT_TEMPERATURES,
+                "num_context_passages": 3,
+                "track_stats": True,
+                "seed": 42,
+            },
+            n_samples=len(eval_target),
+            geoparam_log_dir=gepa_log_dir,
+            cost_info=cost_info,
+        )
+        print(
+            f"\n[EVAL-ONLY] Normalized match: {summary['metrics']['normalized_match']:.1%} "
+            f"({summary['counts']['normalized_match_correct']}/{summary['counts']['total']})"
+        )
+        print(f"[EVAL-ONLY] Output: {out_dir}")
+        return summary
 
     # ── 0b. Load GEPA val set (used for metric eval during optimization) ─────
     val_path = args.val_path
@@ -1178,21 +1351,20 @@ def main():
     # ── 9b. Timing & cost estimate ─────────────────────────────────────────────
     val_n = len(valset) if valset else GEPA_VAL_SIZE
     if n_samples == TEST_SAMPLE_SIZE:
+        estimate_compile_s = _resolve_estimate_compile_time(compile_time, prior_summary)
         estimate = estimate_full_run_time(
             test_n=TEST_SAMPLE_SIZE,
-            test_compile_s=compile_time,
+            test_compile_s=estimate_compile_s,
             test_eval_s=eval_elapsed,
             full_n=FULL_TRAIN_SIZE,
             num_threads=args.threads,
             auto=args.auto,
             full_val_n=val_n,
         )
-        # Estimate cost from metric calls (excludes final eval)
         cost_estimate = estimate_run_cost(
             num_metric_calls=estimate["est_metric_calls_full"],
             num_candidates=config["num_candidates"],
         )
-        # Add final eval cost (trainset eval)
         eval_cost = estimate_run_cost(
             num_metric_calls=len(trainset) * config["num_candidates"],
             num_candidates=config["num_candidates"],
@@ -1211,12 +1383,11 @@ def main():
             "total_prompt_tokens": cost_estimate["total_prompt_tokens"] + eval_cost["total_prompt_tokens"],
             "total_completion_tokens": cost_estimate["total_completion_tokens"] + eval_cost["total_completion_tokens"],
         }
-        write_timing_estimate(out_dir, estimate, cost_estimate=full_cost)
+        write_timing_estimate(out_dir, estimate, full_run_cost=full_cost)
 
-        # Print the estimate summary
         print(f"\n{'=' * 70}")
         print(f"TIMING & COST ESTIMATE (full run: {FULL_TRAIN_SIZE} train + {val_n} val examples)")
-        print(f"  Model: DeepSeek V4 Flash | $0.10/$0.20 per 1M tokens")
+        print("  Model: DeepSeek V4 Flash | $0.10/$0.20 per 1M tokens")
         print(f"{'=' * 70}")
         print(f"  GEPA candidates:   {estimate['num_candidates']} (auto={estimate['auto']})")
         print(f"  Num trials:       {estimate['num_trials']}")
@@ -1225,16 +1396,16 @@ def main():
         print(f"  Est compile:      ~{estimate['est_full_compile_s']:.0f}s ({estimate['est_full_compile_s']/60:.1f} min)")
         print(f"  Est trainset eval: ~{estimate['est_full_eval_s']:.0f}s ({estimate['est_full_eval_s']/60:.1f} min)")
         print(f"  Est total time:    ~{estimate['est_full_total_s']:.0f}s (~{estimate['est_full_total_min']} min)")
-        print(f"  --- Cost ---")
+        print("  --- Cost ---")
         print(f"  Compile cost:     ~${full_cost['compile_cost_usd']:.4f} ({full_cost['compile_llm_calls']:,} calls)")
         print(f"  Final eval cost:  ~${full_cost['final_eval_cost_usd']:.4f} ({full_cost['eval_llm_calls']:,} calls)")
         print(f"  Est total cost:   ~${full_cost['estimate_total_usd']:.4f} ({full_cost['total_llm_calls']:,} calls)")
         print(f"  Est tokens:        ~{(full_cost['total_prompt_tokens'] + full_cost['total_completion_tokens'])/1000:.1f}K total")
         print(f"{'=' * 70}")
         print(f"\nTo run the full optimization on {FULL_TRAIN_SIZE} train samples:")
-        print(f"  python run_gepa_optimization.py --full")
+        print("  python run_gepa_optimization.py --full")
         print(f"To also evaluate on full trainset after compilation (~{estimate['est_full_eval_s']/60:.0f} min extra, ~${full_cost['final_eval_cost_usd']:.4f}):")
-        print(f"  python run_gepa_optimization.py --full --final-eval-train")
+        print("  python run_gepa_optimization.py --full --final-eval-train")
     else:
         print(f"\n[COMPLETE] Full run saved to: {out_dir}")
         print(f"  Normalized match: {nm_rate:.1%} ({nm_hits}/{len(eval_results)})")
@@ -1255,7 +1426,10 @@ def main():
     if cost_info:
         print(f"  Cost (API):        ${cost_info['cost_usd']['total']:.4f} USD")
         print(f"  LLM calls:         {cost_info['total_llm_calls']:,}")
-        print(f"  Tokens in/out:     {cost_info['tokens']['prompt_tokens'] + cost_info['tokens']['prompt_cache_hit_tokens']:,} / {cost_info['tokens']['completion_tokens']:,}")
+        print(
+            f"  Tokens in/out:     {cost_info['tokens']['prompt_tokens'] + cost_info['tokens']['prompt_cache_hit_tokens']:,} "
+            f"/ {cost_info['tokens']['completion_tokens']:,}"
+        )
     print(f"  Output:            {out_dir}")
     print(f"{'=' * 70}")
 

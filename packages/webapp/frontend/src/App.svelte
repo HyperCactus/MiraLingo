@@ -15,6 +15,7 @@
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
   import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
+  import Lexicon from "./lib/pages/Lexicon.svelte";
   import Welcome from "./lib/pages/Welcome.svelte";
 
   const fmtPct = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
@@ -69,6 +70,7 @@
   let settingsErr = $state("");
   let settingsStatus = $state("");
   let settingsPhase = $state("");
+  let ttsAutoplayEnabled = $state(true);
 
   let deleteAccountState = $state("idle");
   let deleteAccountErr = $state("");
@@ -279,7 +281,7 @@
     settingsStatus = "Saving…";
 
     try {
-      const body = { theme: coerceTheme($theme), tts_speed: coerceSpeed($ttsSpeed) };
+      const body = { theme: coerceTheme($theme), tts_speed: coerceSpeed($ttsSpeed), tts_autoplay: Boolean(ttsAutoplayEnabled) };
       const { response, payload } = await updateSettings(body);
       if (!response.ok || payload.ok === false) {
         settingsState = "error";
@@ -557,6 +559,15 @@
   });
 
   $effect(() => {
+    const revealCardId = answerResult && currentCard ? (currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id) : null;
+    if (!revealCardId || !ttsAutoplayEnabled || !canPlayAudio()) return;
+    if (revealCardId === lastAutoplayRevealCardId) return;
+
+    lastAutoplayRevealCardId = revealCardId;
+    void playCardAudio();
+  });
+
+  $effect(() => {
     applyTheme($theme);
   });
 
@@ -711,6 +722,14 @@
             </div>
           </fieldset>
 
+          <fieldset class="space-y-3">
+            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Autoplay Mirad audio</legend>
+            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
+              <input bind:checked={ttsAutoplayEnabled} type="checkbox" />
+              <span>Play Mirad TTS automatically after revealing the answer</span>
+            </label>
+          </fieldset>
+
           <AppButton type="submit" className="min-h-12 justify-center" disabled={settingsState === "saving"}>
             {settingsState === "saving" ? "Saving…" : "Save settings"}
           </AppButton>
@@ -740,22 +759,11 @@
     </svelte:fragment>
   </AppShell>
 {:else if $authState === "authenticated" && $currentSection === "lexicon"}
-  <AppShell
-    title="Lexicon"
-    subtitle="Search will land here without changing backend contracts"
-    showBackButton={true}
-    backLabel="Back to today"
-    userLabel="Placeholder"
-    avatarLabel={$currentUser?.username ?? "Learner"}
+  <Lexicon
+    userName={$currentUser?.username ?? "Learner"}
     navItems={navItemsFor($currentSection)}
-    on:click={goToMenu}
-  >
-    <AppCard className="space-y-3">
-      <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">Lexicon Search</p>
-      <p class="text-sm text-slate-500 dark:text-slate-400">The dashboard can route here now. Search UI can be added in a later slice without reworking the section router.</p>
-      <AppButton variant="secondary" className="min-h-12 justify-center" on:click={() => navigateToSection("dashboard")}>Return to Today</AppButton>
-    </AppCard>
-  </AppShell>
+    on:back={goToMenu}
+  />
 {:else}
   <Welcome
     bind:loginUsername={username}

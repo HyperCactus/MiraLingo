@@ -1,0 +1,222 @@
+[
+  {
+    "id": "pair-0216",
+    "english_text": "we came",
+    "gold": "yat upa",
+    "pred": "yat upa",
+    "normalized_match": true,
+    "exact_match": true,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "The translation is perfect: correct pronoun, correct past tense verb morphology, and no English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yat upa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "yat upa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yat upa",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ],
+    "elapsed_s": 63.515
+  },
+  {
+    "id": "pair-0043",
+    "english_text": "people",
+    "gold": "tobi",
+    "pred": "tyod",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "The translation is perfectly correct: \"tyod\" accurately translates \"people\" with no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "tyod",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "tyod",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "tyod",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ],
+    "elapsed_s": 63.341
+  },
+  {
+    "id": "pair-0737",
+    "english_text": "they do not come",
+    "gold": "yit voy upe",
+    "pred": "yit voy upe",
+    "normalized_match": true,
+    "exact_match": true,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "The translation is flawless, with correct word order, proper negation, accurate verb morphology, and no English errors.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "yit voy upe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "yit voy upe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "yit oy upe",
+        "total_score": 65.0,
+        "grammar": 10.0,
+        "morphology": 15.0,
+        "vocab": 10.0,
+        "bleed": 20.0,
+        "complete": 10.0
+      }
+    ],
+    "elapsed_s": 93.344
+  },
+  {
+    "id": "pair-0641",
+    "english_text": "your desk is clean",
+    "gold": "eta dresem se vyia",
+    "pred": "eta dresem se vyia",
+    "normalized_match": true,
+    "exact_match": true,
+    "judge_score": 100.0,
+    "winner_index": 1,
+    "rationale": "The translation is flawless, with correct possessive pronoun, noun, copula, and adjective, and no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "Eta dresem se vyia.",
+        "total_score": 95.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 15.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "eta dresem se vyia",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "eta dresem se vyia",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ],
+    "elapsed_s": 89.412
+  },
+  {
+    "id": "pair-0183",
+    "english_text": "you do",
+    "gold": "et xe",
+    "pred": "et xe",
+    "normalized_match": true,
+    "exact_match": true,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "The translation is perfect: correct subject pronoun, proper present tense verb, and no errors or English bleed.",
+    "candidates": [
+      {
+        "temp": 0.1,
+        "mirad": "et xe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.3,
+        "mirad": "et xe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      },
+      {
+        "temp": 0.7,
+        "mirad": "et xe",
+        "total_score": 100.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "vocab": 20.0,
+        "bleed": 20.0,
+        "complete": 20.0
+      }
+    ],
+    "elapsed_s": 72.759
+  }
+]

@@ -345,6 +345,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert len(user_rows_before_delete) == 1
     assert settings_rows_before_delete[0]["theme"] == "dark"
     assert settings_rows_before_delete[0]["tts_speed"] == 0.8
+    assert settings_rows_before_delete[0]["tts_autoplay"] == 0
     assert {row["card_type"] for row in shown_rows_before_delete} == {"word", "phrase"}
     assert {row["direction"] for row in shown_rows_before_delete} == {"english_to_mirad", "mirad_to_english"}
     assert [row["card_id"] for row in answer_rows_before_delete] == [phrase_card["id"], word_card["id"]]
