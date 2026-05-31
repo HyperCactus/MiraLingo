@@ -4,6 +4,9 @@
   import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register } from "./lib/api/auth";
   import { getPracticeProgress, getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
   import { getSettings, updateSettings } from "./lib/api/settings";
+  import { authError, authMessage, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
+  import { currentMode, currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
+  import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, theme, ttsSpeed } from "./lib/stores/settings";
 
   // ── helpers ─────────────────────────────────────────────────────────────
   const langLabel = (l) => ({ mirad: "Mirad", english: "English", practice: "" }[String(l ?? "").trim().toLowerCase()] ?? "");
@@ -14,7 +17,7 @@
   const fmtPct = (v) => (typeof v === "number" ? `${Math.round(v * 100)}%` : "—");
   const fmtN = (v) => (typeof v === "number" ? v : "—");
   const spd = (s) => `${Number(s).toFixed(1)}×`;
-  const effSpd = () => { const n = parseFloat(settingsForm?.tts_speed); return isFinite(n) ? n : 0.8; };
+  const effSpd = () => { const n = Number($ttsSpeed); return Number.isFinite(n) ? n : 0.8; };
   const icKey = (c) => `${c?.audio_card_id ?? c?.base_card_id ?? c?.id ?? "x"}:${String(c?.prompt ?? "").trim().toLowerCase()}`;
   const icGlyph = (c) => (c?.type === "phrase" ? "❐" : "◌");
   const stopwords = new Set(["the","a","an","to","of","and","for","in","on","at","my","your","is","it","be","or","not","you","i","he","she","we","they","what","which","who","this","that"]);
@@ -85,8 +88,7 @@
 
   // ── state ───────────────────────────────────────────────────────────────
   let username = $state("admin"), password = $state(""), regU = $state(""), regP = $state("");
-  let authState = $state("checking"), user = $state(null), errMsg = $state(""), authMsg = $state(""), submitting = $state(false);
-  let activeSection = $state("menu");
+  let submitting = $state(false);
 
   let practiceState = $state("idle"), practiceErr = $state(""), practiceQueue = $state(null);
   let practiceQueueCards = $state([]), practiceQueueIndex = $state(0), practiceQueueMode = $state(null);
@@ -100,9 +102,6 @@
   let analyticsState = $state("idle"), analyticsErr = $state(""), analyticsPayload = $state(null);
 
   let settingsState = $state("idle"), settingsErr = $state(""), settingsStatus = $state(""), settingsPhase = $state("");
-  let settingsLoadedForUser = $state(null);
-  let settingsForm = $state({ theme: "system", tts_speed: 0.8 });
-  let persistedSettings = $state({ theme: "system", tts_speed: 0.8, voice: { id: "de6", label: "Mirad de6", provider: "mbrola", mutable: false } });
 
   let deleteAccountState = $state("idle"), deleteAccountErr = $state(""), deleteAccountStatus = $state("");
   let deleteAccountConfirm = $state(""), deleteAccountUsername = $state("");
@@ -125,29 +124,21 @@
   };
   const resetAnalyticsSurface = () => { analyticsState="idle"; analyticsErr=""; analyticsPayload=null; };
   const resetSettingsSurface = () => {
-    settingsState="idle"; settingsErr=""; settingsStatus=""; settingsPhase=""; settingsLoadedForUser=null;
-    settingsForm={ theme:"system", tts_speed:0.8 }; persistedSettings={ theme:"system", tts_speed:0.8, voice:{id:"de6",label:"Mirad de6",provider:"mbrola",mutable:false} };
+    settingsState="idle"; settingsErr=""; settingsStatus=""; settingsPhase="";
+    resetSettingsStore();
     deleteAccountState="idle"; deleteAccountErr=""; deleteAccountStatus=""; deleteAccountUsername=""; deleteAccountConfirm="";
   };
-  const clearAuthMsgs = () => { errMsg=""; authMsg=""; };
+  const clearAuthMsgs = () => { authError.set(""); authMessage.set(""); };
 
   // ── settings helpers ─────────────────────────────────────────────────────
   const coerceTheme = (t) => (["light","dark"].includes(t) ? t : "system");
   const coerceSpeed = (s) => { const n = parseFloat(s); return isFinite(n) && n >= 0.5 && n <= 2.0 ? n : 0.8; };
-  const coercePayload = (p) => ({
-    theme: coerceTheme(p?.theme),
-    tts_speed: coerceSpeed(p?.tts_speed),
-    voice: { id: String(p?.voice?.id ?? "de6"), label: String(p?.voice?.label ?? "Mirad de6"), provider: String(p?.voice?.provider ?? "mbrola"), mutable: Boolean(p?.voice?.mutable ?? false) }
-  });
   const syncSettings = (p, extra={}) => {
-    const s = coercePayload(p ?? {});
-    persistedSettings = s; settingsForm = { theme: s.theme, tts_speed: s.tts_speed };
+    applySettingsPayload(p ?? {});
     if (extra.state) settingsState = extra.state;
     if (extra.phase) settingsPhase = extra.phase;
     if (extra.msg) settingsStatus = extra.msg;
   };
-  const currentThemeLabel = (t) => ({ light:"Light", dark:"Dark", system:"System" }[t] ?? "System");
-
   function applyTheme(theme) {
     if (typeof document === "undefined") return;
     document.documentElement.setAttribute("data-theme", coerceTheme(theme));
@@ -155,57 +146,57 @@
 
   // ── auth ─────────────────────────────────────────────────────────────────
   async function loadCurrentUser() {
-    errMsg="";
+    authError.set("");
     try {
       const { response: r, payload: p } = await fetchCurrentUser();
-      if (r.ok && p.authenticated) {
-        user=p.user; authState="authenticated"; activeSection="menu";
+      if (r.ok && p.authenticated && p.user) {
+        setAuthenticated(p.user); goToDashboard();
         resetPracticeSurface(); resetAnalyticsSurface(); resetSettingsSurface();
         deleteAccountUsername=p.user?.username ?? "";
         await loadSettings({force:true});
         preloadPracticeQueue("mixed");
         return;
       }
-      user=null; authState="anonymous"; resetSettingsSurface();
-    } catch(_) { user=null; authState="anonymous"; resetSettingsSurface(); errMsg="Could not reach MiraLingo auth."; }
+      setAnonymous();
+      resetSettingsSurface();
+    } catch(_) { setAnonymous(); resetSettingsSurface(); authError.set("Could not reach MiraLingo auth."); }
   }
 
   async function submitLogin() {
     submitting=true;
-    errMsg=""; authMsg="";
+    authError.set(""); authMessage.set("");
     try {
       const { response: r, payload: p } = await login(username, password);
-      // State changes ONLY after await to avoid Svelte 5 reactive re-render destroying the form
-      if (!r.ok || !p.authenticated) { user=null; authState="login-failed"; errMsg=p?.detail ?? "Login failed."; submitting=false; return; }
-      user=p.user; password=""; authState="authenticated"; activeSection="menu";
+      if (!r.ok || !p.authenticated || !p.user) { setAuthFailure("login-failed", p?.detail ?? "Login failed."); submitting=false; return; }
+      setAuthenticated(p.user); password=""; goToDashboard();
       resetPracticeSurface(); resetAnalyticsSurface(); resetSettingsSurface();
       deleteAccountUsername=p.user?.username ?? "";
       await loadSettings({force:true});
       preloadPracticeQueue("mixed");
-    } catch(_) { user=null; authState="login-failed"; errMsg="Could not reach MiraLingo auth."; }
+    } catch(_) { setAuthFailure("login-failed", "Could not reach MiraLingo auth."); }
     finally { submitting=false; }
   }
 
   async function submitRegistration() {
     submitting=true;
-    errMsg=""; authMsg="";
+    authError.set(""); authMessage.set("");
     try {
       const { response: r, payload: p } = await register(regU, regP);
-      // State changes ONLY after await to avoid Svelte 5 reactive re-render destroying the form
-      if (!r.ok || !p.authenticated) { user=null; authState="registration-failed"; errMsg=p?.detail ?? "Registration failed."; submitting=false; return; }
-      user=p.user; regP=""; authState="authenticated"; activeSection="menu";
+      if (!r.ok || !p.authenticated || !p.user) { setAuthFailure("registration-failed", p?.detail ?? "Registration failed."); submitting=false; return; }
+      setAuthenticated(p.user); regP=""; goToDashboard();
       resetPracticeSurface(); resetAnalyticsSurface(); resetSettingsSurface();
       deleteAccountUsername=p.user?.username ?? "";
       await loadSettings({force:true});
       preloadPracticeQueue("mixed");
-    } catch(_) { user=null; authState="registration-failed"; errMsg="Could not reach MiraLingo registration."; }
+    } catch(_) { setAuthFailure("registration-failed", "Could not reach MiraLingo registration."); }
     finally { submitting=false; }
   }
 
   function clearAuthAppState(msg="") {
     resetPracticeSurface(); resetAnalyticsSurface(); resetSettingsSurface();
-    user=null; username="admin"; password=""; regU=""; regP="";
-    authState="anonymous"; activeSection="menu"; authMsg=msg;
+    username="admin"; password=""; regU=""; regP="";
+    resetPracticeNavigation();
+    resetAuthStore(msg);
   }
 
   async function logout() {
@@ -217,17 +208,16 @@
   // ── settings ─────────────────────────────────────────────────────────────
   async function loadSettings({force=false}={}) {
     if (settingsState==="loading"||settingsState==="saving") return;
-    if (!force && settingsLoadedForUser===user?.username && settingsState!=="idle") return;
+    if (!force && $settingsLoadedForUser===$currentUser?.username && settingsState!=="idle") return;
     settingsState="loading"; settingsErr=""; settingsStatus="";
     try {
       const { response: r, payload: p } = await getSettings();
       if (!r.ok || p.ok===false) { settingsState="error"; settingsPhase=p?.phase??"settings_get"; settingsErr=p?.detail??"Could not reach saved settings."; return; }
       syncSettings(p.settings, {state:"ready",phase:p.phase??"settings_get"});
-      settingsLoadedForUser=user.username;
+      settingsLoadedForUser.set($currentUser?.username ?? null);
     } catch(_) {
-      settingsLoadedForUser=user.username;
-      const s = coercePayload({});
-      persistedSettings=s; settingsForm={theme:s.theme,tts_speed:s.tts_speed};
+      settingsLoadedForUser.set($currentUser?.username ?? null);
+      applySettingsPayload({});
       settingsState="error"; settingsPhase="settings_get"; settingsErr="Could not reach saved settings.";
     }
   }
@@ -235,12 +225,12 @@
   async function saveSettings() {
     if (settingsState==="saving") return;
     settingsState="saving"; settingsPhase="settings_update"; settingsErr=""; settingsStatus="Saving…";
-    const body = { theme: coerceTheme(settingsForm.theme), tts_speed: coerceSpeed(settingsForm.tts_speed) };
+    const body = { theme: coerceTheme($theme), tts_speed: coerceSpeed($ttsSpeed) };
     try {
       const { response: r, payload: p } = await updateSettings(body);
       if (!r.ok || p.ok===false) { settingsState="error"; settingsPhase=p?.phase??"settings_update"; settingsErr=p?.detail??"Could not save."; settingsStatus=""; return; }
       syncSettings(p.settings, {state:"ready",phase:p.phase??"settings_update",msg:"Saved."});
-      settingsLoadedForUser=user?.username ?? settingsLoadedForUser;
+      settingsLoadedForUser.set($currentUser?.username ?? $settingsLoadedForUser);
     } catch(_) { settingsState="error"; settingsPhase="settings_update"; settingsErr="Could not save settings."; settingsStatus=""; }
   }
 
@@ -260,7 +250,7 @@
       }
       practiceQueue=p;
       practiceQueueCards=Array.isArray(p.cards) ? p.cards : [];
-      practiceQueueIndex=0; practiceQueueMode=mode;
+      practiceQueueIndex=0; practiceQueueMode=mode; currentMode.set(mode);
       currentCard=practiceQueueCards[0] ?? null;
       practiceState=currentCard ? "ready" : "empty";
     } catch(_) {
@@ -276,8 +266,7 @@
   }
 
   async function openPracticeMode(mode) {
-    const sectionMap = { revision:"revision", build_vocabulary:"build_vocabulary" };
-    activeSection = sectionMap[mode] ?? "practice";
+    setPracticeMode(mode);
     resetAnalyticsSurface();
     if (practiceQueueCards.length && practiceQueueMode===mode) {
       resetAudio(); resetAnswer();
@@ -326,7 +315,7 @@
     if (!currentCard || audioState==="loading") return;
     if (!canPlayAudio()) { audioState="idle"; audioMsg="Reveal answer first."; return; }
     audioState="loading"; audioMsg="Preparing…";
-    const spd = effSpd();
+    const playbackRate = effSpd();
     try {
       const cid = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
       const r = await fetch(getPracticeAudioUrl(cid), {headers:{"Accept":"audio/wav,application/json"}});
@@ -341,7 +330,7 @@
       if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
       const url = URL.createObjectURL(blob);
       audioBlobUrl=url; activeAudio=new Audio(url);
-      try { activeAudio.playbackRate=spd; } catch(_) {}
+      try { activeAudio.playbackRate=playbackRate; } catch(_) {}
       activeAudio.addEventListener("ended", () => { audioState="idle"; audioMsg=""; });
       await activeAudio.play();
       audioState="playing"; audioMsg="";
@@ -364,7 +353,7 @@
 
   // ── account deletion ───────────────────────────────────────────────────────
   async function submitDeleteAccount() {
-    if (deleteAccountState==="submitting" || !user?.username || !canDeleteAccount()) return;
+    if (deleteAccountState==="submitting" || !$currentUser?.username || !canDeleteAccount()) return;
     deleteAccountState="submitting"; deleteAccountErr=""; deleteAccountStatus="Deleting…";
     try {
       const { response: r, payload: p } = await deleteAccount(deleteAccountUsername, deleteAccountConfirm);
@@ -374,20 +363,20 @@
     } catch(_) { deleteAccountState="error"; deleteAccountErr="Could not reach account deletion."; deleteAccountStatus=""; }
   }
 
-  const canDeleteAccount = () => (user?.username ?? "") !== "admin";
-  const deleteConfirmPhrase = () => `${user?.username ?? ""} DELETE`.trim();
+  const canDeleteAccount = () => ($currentUser?.username ?? "") !== "admin";
+  const deleteConfirmPhrase = () => `${$currentUser?.username ?? ""} DELETE`.trim();
   const canSubmitDelete = () =>
     canDeleteAccount() &&
-    deleteAccountUsername.trim()===(user?.username ?? "") &&
+    deleteAccountUsername.trim()===($currentUser?.username ?? "") &&
     deleteAccountConfirm.trim()===deleteConfirmPhrase() &&
     deleteAccountState!=="submitting";
 
   // ── navigation helpers ────────────────────────────────────────────────────
-  function goToMenu() { activeSection="menu"; resetPracticeSurface(); }
+  function goToMenu() { goToDashboard(); resetPracticeSurface(); }
   function activateItem(item) {
     if (item.action==="logout") { logout(); return; }
-    if (item.section==="analytics") { activeSection="analytics"; resetAudio(); resetAnswer(); loadAnalytics(); return; }
-    if (item.section==="settings") { activeSection="settings"; resetAudio(); resetAnswer(); deleteAccountUsername=user?.username ?? deleteAccountUsername; loadSettings(); return; }
+    if (item.section==="analytics") { setCurrentSection("analytics"); resetAudio(); resetAnswer(); loadAnalytics(); return; }
+    if (item.section==="settings") { setCurrentSection("settings"); resetAudio(); resetAnswer(); deleteAccountUsername=$currentUser?.username ?? deleteAccountUsername; loadSettings(); return; }
     if (item.mode) openPracticeMode(item.mode);
   }
 
@@ -395,10 +384,10 @@
   $effect(() => { if (currentCard?.id !== activeCardId) { activeCardId=currentCard?.id ?? null; resetAnswer(); } });
   $effect(() => { const id = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id ?? null; if (id !== lastAudioCardId) { resetAudio(); lastAudioCardId=id; } });
   $effect(() => { if (currentCard?.id) loadIc(currentCard); else resetIcon(); });
-  $effect(() => { applyTheme(settingsForm.theme); });
+  $effect(() => { applyTheme($theme); });
   const getPracticeTitle = () =>
-    activeSection === "revision" ? "Revision" :
-    activeSection === "build_vocabulary" ? "Vocabulary" : "Practice";
+    $currentSection === "revision" ? "Revision" :
+    $currentSection === "build_vocabulary" ? "Vocabulary" : "Practice";
 
   loadCurrentUser();
 </script>
@@ -411,7 +400,7 @@
 <!-- ══════════════════════════════════════════════════════════════════════
      PRACTICE — full-screen focused card
      ══════════════════════════════════════════════════════════════════════ -->
-{#if authState === "authenticated" && (activeSection === "practice" || activeSection === "revision" || activeSection === "build_vocabulary")}
+{#if $authState === "authenticated" && ($currentSection === "practice" || $currentSection === "revision" || $currentSection === "build_vocabulary")}
 <main class="shell shell--practice">
   <!-- top bar -->
   <nav class="topbar">
@@ -515,10 +504,10 @@
 <!-- ══════════════════════════════════════════════════════════════════════
      MENU
      ══════════════════════════════════════════════════════════════════════ -->
-{:else if authState === "authenticated" && activeSection === "menu"}
+{:else if $authState === "authenticated" && $currentSection === "dashboard"}
 <main class="shell shell--menu">
   <div class="menu-wrap">
-    <p class="welcome-name">Welcome back, {user?.username ?? "admin"}.</p>
+    <p class="welcome-name">Welcome back, {$currentUser?.username ?? "admin"}.</p>
     <nav class="menu-btns">
       <button class="menu-btn" on:click={() => activateItem({section:"practice",mode:"mixed"})}>
         <span class="menu-btn-title">Continue Practice</span>
@@ -550,7 +539,7 @@
 <!-- ══════════════════════════════════════════════════════════════════════
      ANALYTICS
      ══════════════════════════════════════════════════════════════════════ -->
-{:else if authState === "authenticated" && activeSection === "analytics"}
+{:else if $authState === "authenticated" && $currentSection === "analytics"}
 <main class="shell shell--section">
   <nav class="topbar">
     <button class="btn btn--ghost btn--sm" on:click={goToMenu}>&#x2190; Menu</button>
@@ -580,7 +569,7 @@
 <!-- ══════════════════════════════════════════════════════════════════════
      SETTINGS
      ══════════════════════════════════════════════════════════════════════ -->
-{:else if authState === "authenticated" && activeSection === "settings"}
+{:else if $authState === "authenticated" && $currentSection === "settings"}
 <main class="shell shell--section">
   <nav class="topbar">
     <button class="btn btn--ghost btn--sm" on:click={goToMenu}>&#x2190; Menu</button>
@@ -596,16 +585,16 @@
         <legend class="fset-legend">Theme</legend>
         <div class="toggle-row">
           {#each [{v:"system",l:"System"},{v:"light",l:"Light"},{v:"dark",l:"Dark"}] as o}
-            <label class="toggle"><input bind:group={settingsForm.theme} type="radio" value={o.v} />{o.l}</label>
+            <label class="toggle"><input bind:group={$theme} type="radio" value={o.v} />{o.l}</label>
           {/each}
         </div>
       </fieldset>
 
       <fieldset class="fset">
-        <legend class="fset-legend">TTS speed: {spd(settingsForm.tts_speed)}</legend>
+        <legend class="fset-legend">TTS speed: {spd($ttsSpeed)}</legend>
         <div class="toggle-row">
           {#each [0.7,0.8,0.9,1.0,1.1] as opt}
-            <label class="toggle"><input bind:group={settingsForm.tts_speed} type="radio" value={opt} />{spd(opt)}</label>
+            <label class="toggle"><input bind:group={$ttsSpeed} type="radio" value={opt} />{spd(opt)}</label>
           {/each}
         </div>
       </fieldset>
@@ -648,7 +637,7 @@
     <div class="auth-forms">
       <form id="register" class="auth-card" on:submit|preventDefault={submitRegistration}>
         <h2>Create account</h2>
-        {#if errMsg && authState==="registration-failed"}<p class="err-msg" role="alert">{errMsg}</p>{/if}
+        {#if $authError && $authState==="registration-failed"}<p class="err-msg" role="alert">{$authError}</p>{/if}
         <label>Username<input autocomplete="username" bind:value={regU} required /></label>
         <label>Password<input autocomplete="new-password" bind:value={regP} required type="password" /></label>
         <button class="btn btn--primary" disabled={submitting} type="submit">{submitting ? "Creating…" : "Create account"}</button>
@@ -656,7 +645,7 @@
 
       <form id="login" class="auth-card" on:submit|preventDefault={submitLogin}>
         <h2>Log in</h2>
-        {#if errMsg && authState!=="registration-failed"}<p class="err-msg" role="alert">{errMsg}</p>{/if}
+        {#if $authError && $authState!=="registration-failed"}<p class="err-msg" role="alert">{$authError}</p>{/if}
         <label>Username<input autocomplete="username" bind:value={username} required /></label>
         <label>Password<input autocomplete="current-password" bind:value={password} required type="password" /></label>
         <button class="btn btn--primary" disabled={submitting} type="submit">{submitting ? "Signing in…" : "Log in"}</button>
