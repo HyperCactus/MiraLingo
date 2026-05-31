@@ -35,8 +35,6 @@
   const promptSupportingText = (currentCard: PracticeCard | null) =>
     currentCard?.type === 'phrase' ? 'Answer with the full phrase before revealing the solution.' : 'Type the translated word before checking the answer.';
 
-  const isIntroCard = (currentCard: PracticeCard | null) => Boolean(currentCard?.intro_mode);
-
   function submit() {
     dispatch('submit', { answer: answer.trim() });
   }
@@ -72,27 +70,8 @@
     {:else}
       <FeedbackPanel
         audioLoading={audioLoading}
-        audioLabel={autoplayEnabled ? 'Replay Mirad answer' : 'Hear Mirad answer'}
+        audioLabel={'Replay Mirad answer'}
         audioMessage={audioMessage}
-        canPlayAudio={audioEnabled}
-        correct={Boolean(answerResult.correct)}
-        revealedAnswer={answerResult.expected_answer ?? card.answer ?? ''}
-        submittedAnswer={answerResult.submitted_answer ?? answer.trim()}
-        on:click={() => dispatch('audio')}
-      />
-
-      <AppButton className="min-h-12 w-full justify-center" on:click={() => dispatch('continue')}>
-        Continue
-      </AppButton>
-    {/if}
-  {:else}
-    <div class="space-y-2 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-      <p class="font-semibold text-slate-700 dark:text-slate-200">Practice card unavailable</p>
-      <p>Load a study item to continue the exercise flow.</p>
-    </div>
-  {/if}
-</AppCard>
-{audioMessage}
         canPlayAudio={audioEnabled}
         correct={Boolean(answerResult.correct)}
         revealedAnswer={answerResult.expected_answer ?? card.answer ?? ''}
