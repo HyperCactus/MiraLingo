@@ -387,6 +387,27 @@ class MiraLingoStorage:
             raise StorageError(phase="practice_progress", detail="Could not list shown cards.") from exc
         return list(reversed([record for row in rows if (record := _shown_card_from_row(row)) is not None]))
 
+    def list_shown_card_keys(self, *, username: str) -> set[tuple[str, str]]:
+        """Return all seen (base_card_id, direction) pairs for one learner."""
+        normalized_username = _require_username(username, phase="practice_queue")
+        try:
+            with self._connect("practice_queue") as connection:
+                rows = connection.execute(
+                    """
+                    SELECT base_card_id, direction
+                    FROM shown_cards
+                    WHERE username = ?
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_queue", detail="Could not list shown card keys.") from exc
+        return {
+            (str(row["base_card_id"]), str(row["direction"]))
+            for row in rows
+            if row["base_card_id"] and row["direction"]
+        }
+
     def get_user_settings(self, *, username: str) -> UserSettingsRecord:
         """Return one learner's durable settings, creating defaults on first access."""
         normalized_username = _require_username(username, phase="settings_get")

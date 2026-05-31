@@ -415,6 +415,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 limit=limit,
                 mode=mode,
             )
+            if payload.get("ok") and mode == "build_vocabulary":
+                seen_keys = request.app.state.storage.list_shown_card_keys(username=user.username)
+                for card in payload.get("cards", []):
+                    key = (str(card.get("base_card_id") or ""), str(card.get("direction") or ""))
+                    card["intro_mode"] = key not in seen_keys
             request.app.state.storage.record_cards_shown(username=user.username, cards=payload["cards"])
         except StorageError as exc:
             return storage_failure_response(exc)

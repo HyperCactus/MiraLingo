@@ -179,8 +179,14 @@ def test_practice_queue_build_vocabulary_mode_returns_only_new_word_base_cards(m
     ]
     assert all(card["type"] == "word" for card in payload["cards"])
     assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
+    assert all(card["intro_mode"] is True for card in payload["cards"])
     assert payload["repeat_gap"] == 10
     assert payload["repeat_gap_satisfied"] is False
+
+    second_response = client.get("/practice/queue?mode=build_vocabulary&limit=10")
+    assert second_response.status_code == 200
+    second_payload = second_response.json()
+    assert all(card["intro_mode"] is False for card in second_payload["cards"])
 
 
 def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_card(monkeypatch, tmp_path: Path) -> None:

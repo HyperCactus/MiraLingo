@@ -11,6 +11,7 @@ export type PracticeCard = {
   prompt_language?: string;
   answer_language?: string;
   type?: string;
+  intro_mode?: boolean;
 };
 
 export type PracticeQueueResponse = {
