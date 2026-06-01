@@ -561,6 +561,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
+    @app.get("/practice/sessions", tags=["practice"])
+    def practice_sessions(request: Request) -> JSONResponse:
+        """Return active durable session diagnostics for authenticated learners."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "practice_session",
+                    "detail": "Login is required to inspect practice sessions.",
+                },
+            )
+        try:
+            ensure_practice_storage_user("practice_session", user.username, user.role)
+            active = request.app.state.storage.get_or_start_active_practice_session(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "practice_session", "active_session": active})
+
     @app.get("/practice/audio/{card_id:path}", tags=["practice"])
     def practice_audio(request: Request, card_id: str):
         """Return MBROLA WAV audio for one authenticated configured practice card."""
@@ -684,7 +705,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=updated_events)
 
             latest_event = updated_events[-1]
-            request.app.state.storage.append_answer_event(username=user.username, **latest_event)
+            session = request.app.state.storage.get_or_start_active_practice_session(username=user.username)
+            request.app.state.storage.record_practice_lifecycle_answer(
+                username=user.username,
+                session_id=str(session["session_id"]),
+                base_card_id=str(latest_event["base_card_id"]),
+                direction=str(latest_event["direction"]),
+                correct=bool(latest_event["correct"]),
+                card_id=str(latest_event["card_id"]),
+                card_type=str(latest_event["card_type"]),
+                submitted_answer=str(latest_event["submitted_answer"]),
+                expected_answer=str(latest_event["expected_answer"]),
+                answered_at=latest_event.get("answered_at"),
+            )
             durable_events = answer_events_for_user(user.username, "practice_answer")
         except StorageError as exc:
             return storage_failure_response(exc)

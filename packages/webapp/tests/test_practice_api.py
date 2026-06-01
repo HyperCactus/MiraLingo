@@ -364,10 +364,10 @@ def test_practice_answer_storage_failure_returns_structured_practice_answer_payl
     client = TestClient(app)
     _login(client)
 
-    def fail_append(**_kwargs):
-        raise StorageError(phase="practice_answer", detail="Could not append practice answer.")
+    def fail_lifecycle(**_kwargs):
+        raise StorageError(phase="practice_lifecycle", detail="Could not record practice lifecycle answer.")
 
-    app.state.storage.append_answer_event = fail_append
+    app.state.storage.record_practice_lifecycle_answer = fail_lifecycle
     response = client.post(
         "/practice/answers",
         json={"card_id": "word:the#english-to-mirad", "answer": "te"},
@@ -377,8 +377,8 @@ def test_practice_answer_storage_failure_returns_structured_practice_answer_payl
     assert response.json() == {
         "ok": False,
         "error": "storage_error",
-        "phase": "practice_answer",
-        "detail": "Could not append practice answer.",
+        "phase": "practice_lifecycle",
+        "detail": "Could not record practice lifecycle answer.",
     }
 
 
