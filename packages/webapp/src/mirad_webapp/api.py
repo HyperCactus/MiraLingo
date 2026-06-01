@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.sessions import SessionMiddleware
 
+from .analytics import build_practice_analytics
 from .audio import AudioFailure, synthesize_card_audio, synthesize_text_audio
 from .auth import (
     LOCAL_ADMIN_USERNAME,
@@ -525,6 +526,54 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     key = (str(card.get("base_card_id") or ""), str(card.get("direction") or ""))
                     card["intro_mode"] = key not in seen_keys
             request.app.state.storage.record_cards_shown(username=user.username, cards=payload["cards"])
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+
+    @app.get("/practice/analytics", tags=["practice"])
+    def practice_analytics(
+        request: Request,
+        window_days: int = Query(default=30, ge=0, le=365),
+        include_cards: bool = Query(default=False),
+    ) -> JSONResponse:
+        """Return compact+drilldown analytics for authenticated learner history."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "practice_analytics",
+                    "detail": "Login is required to request practice analytics.",
+                },
+            )
+        try:
+            result = imported_card_content()
+        except CardContentSourceMissingError as exc:
+            payload = error_to_payload(exc)
+            payload["practice_phase"] = "practice_analytics"
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=payload)
+        except CardContentImportError as exc:
+            payload = error_to_payload(exc)
+            payload["practice_phase"] = "practice_analytics"
+            return JSONResponse(status_code=status.HTTP_502_BAD_GATEWAY, content=payload)
+
+        try:
+            ensure_practice_storage_user("practice_analytics", user.username, user.role)
+            storage = request.app.state.storage
+            events = answer_events_for_user(user.username, "practice_analytics")
+            sessions = [s.public_dict() for s in storage.list_practice_sessions(username=user.username, phase="practice_analytics")]
+            lifecycle_rows = [row.public_dict() for row in storage.list_practice_lifecycle(username=user.username)]
+            shown_cards = [row.public_dict() for row in storage.list_shown_cards(username=user.username)] if include_cards else []
+            payload = build_practice_analytics(
+                cards=result.cards,
+                events=events,
+                sessions=sessions,
+                lifecycle_rows=lifecycle_rows,
+                shown_cards=shown_cards,
+                filters={"window_days": window_days, "include_cards": include_cards},
+            )
         except StorageError as exc:
             return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)

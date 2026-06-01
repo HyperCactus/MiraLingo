@@ -592,6 +592,34 @@ class MiraLingoStorage:
             "promoted_at": row["promoted_at"], "regression_count": int(row["regression_count"]), "last_regressed_at": row["last_regressed_at"],
         }
 
+    def list_practice_sessions(self, *, username: str, limit: int = MAX_EVENTS, phase: str = "practice_analytics") -> list[PracticeSessionRecord]:
+        """Return newest bounded practice sessions in chronological order."""
+        normalized_username = _require_username(username, phase=phase)
+        bounded_limit = _bounded_limit(limit)
+        try:
+            with self._connect(phase) as connection:
+                rows = connection.execute(
+                    """
+                    SELECT session_id, username, started_at, ended_at
+                    FROM practice_sessions
+                    WHERE username = ?
+                    ORDER BY started_at DESC
+                    LIMIT ?
+                    """,
+                    (normalized_username, bounded_limit),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not list practice sessions.") from exc
+        return [
+            PracticeSessionRecord(
+                session_id=str(row["session_id"]),
+                username=str(row["username"]),
+                started_at=str(row["started_at"]),
+                ended_at=row["ended_at"],
+            )
+            for row in reversed(rows)
+        ]
+
     def list_practice_lifecycle(self, *, username: str) -> list[PracticeLifecycleRecord]:
         """Return all lifecycle rows for a learner in a queue-ready shape."""
         normalized_username = _require_username(username, phase="practice_queue")
