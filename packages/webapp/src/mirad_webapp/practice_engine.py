@@ -45,6 +45,8 @@ def build_practice_queue(
     *,
     cards: list[dict[str, Any]],
     events: list[dict[str, Any]] | None,
+    lifecycle_rows: list[dict[str, Any]] | None = None,
+    exposure_by_item: dict[str, int] | None = None,
     now: datetime | None = None,
     limit: int = 10,
     mode: str = MIXED_MODE,
@@ -104,6 +106,8 @@ def build_practice_queue(
             all_items=practice_items,
             stats=stats,
             repeat_gap_satisfied=repeat_gap_satisfied,
+            lifecycle_rows=lifecycle_rows or [],
+            exposure_by_item=exposure_by_item or {},
         )
 
     return result
@@ -412,6 +416,8 @@ def _build_mixed_mode_diagnostics(
     all_items: list[dict[str, Any]],
     stats: dict[str, dict[str, Any]],
     repeat_gap_satisfied: bool,
+    lifecycle_rows: list[dict[str, Any]],
+    exposure_by_item: dict[str, int],
 ) -> dict[str, Any]:
     requested_active_revision_ratio = {"active": 0.7, "revision": 0.3}
     requested_word_phrase_mix = {"word": 0.5, "phrase": 0.5}
@@ -449,6 +455,11 @@ def _build_mixed_mode_diagnostics(
     if abs(actual_word - requested_word_phrase_mix["word"]) > 0.2:
         fallback_reasons.append("mix_drift")
 
+    lifecycle_counts = {
+        "active": sum(1 for row in lifecycle_rows if str(row.get("lifecycle") or "") == "active"),
+        "revision": sum(1 for row in lifecycle_rows if str(row.get("lifecycle") or "") == "revision"),
+    }
+
     return {
         "requested_active_revision_ratio": requested_active_revision_ratio,
         "actual_active_revision_ratio": {"active": actual_active, "revision": actual_revision},
@@ -456,6 +467,8 @@ def _build_mixed_mode_diagnostics(
         "actual_word_phrase_mix": {"word": actual_word, "phrase": actual_phrase},
         "weighting_inputs": {"exposure_weight": 0.5, "recent_performance_weight": 0.5},
         "per_card_weights": per_card_weights,
+        "lifecycle_counts": lifecycle_counts,
+        "exposure_by_item": exposure_by_item,
         "repeat_gap": _REPEAT_GAP,
         "repeat_gap_satisfied": repeat_gap_satisfied,
         "repeat_gap_relaxed": not repeat_gap_satisfied,

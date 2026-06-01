@@ -509,9 +509,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             ensure_practice_storage_user("practice_queue", user.username, user.role)
             events = answer_events_for_user(user.username, "practice_queue")
+            lifecycle_rows = [row.public_dict() for row in request.app.state.storage.list_practice_lifecycle(username=user.username)]
+            exposure_by_item = request.app.state.storage.exposure_summary(username=user.username)
             payload = build_practice_queue(
                 cards=result.cards,
                 events=events,
+                lifecycle_rows=lifecycle_rows,
+                exposure_by_item=exposure_by_item,
                 limit=limit,
                 mode=mode,
             )

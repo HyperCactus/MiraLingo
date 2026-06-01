@@ -558,6 +558,59 @@ class MiraLingoStorage:
             "promoted_at": row["promoted_at"], "regression_count": int(row["regression_count"]), "last_regressed_at": row["last_regressed_at"],
         }
 
+    def list_practice_lifecycle(self, *, username: str) -> list[PracticeLifecycleRecord]:
+        """Return all lifecycle rows for a learner in a queue-ready shape."""
+        normalized_username = _require_username(username, phase="practice_queue")
+        try:
+            with self._connect("practice_queue") as connection:
+                rows = connection.execute(
+                    """
+                    SELECT username, base_card_id, direction, lifecycle,
+                           first_seen_at, last_seen_at, consecutive_correct,
+                           correct_session_streak, promoted_at, regression_count,
+                           last_regressed_at
+                    FROM practice_lifecycle
+                    WHERE username = ?
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_queue", detail="Could not list practice lifecycle rows.") from exc
+        return [
+            PracticeLifecycleRecord(
+                username=str(row["username"]),
+                base_card_id=str(row["base_card_id"]),
+                direction=str(row["direction"]),
+                lifecycle=str(row["lifecycle"]),
+                first_seen_at=str(row["first_seen_at"]),
+                last_seen_at=str(row["last_seen_at"]),
+                correct_streak=int(row["consecutive_correct"]),
+                session_streak=int(row["correct_session_streak"]),
+                promoted_at=row["promoted_at"],
+                regression_count=int(row["regression_count"]),
+                last_regressed_at=row["last_regressed_at"],
+            )
+            for row in rows
+        ]
+
+    def exposure_summary(self, *, username: str) -> dict[str, int]:
+        """Return shown-card exposure counts keyed by '<base_card_id>#<direction>'."""
+        normalized_username = _require_username(username, phase="practice_queue")
+        try:
+            with self._connect("practice_queue") as connection:
+                rows = connection.execute(
+                    """
+                    SELECT base_card_id, direction, COUNT(*) AS shown_count
+                    FROM shown_cards
+                    WHERE username = ?
+                    GROUP BY base_card_id, direction
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_queue", detail="Could not summarize shown-card exposure.") from exc
+        return {f"{row['base_card_id']}#{row['direction']}": int(row["shown_count"]) for row in rows}
+
     def list_answer_events(
         self, *, username: str, limit: int = MAX_EVENTS, phase: str = "practice_progress"
     ) -> list[AnswerEventRecord]:

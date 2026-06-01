@@ -155,6 +155,10 @@ def test_practice_queue_api_returns_weighted_policy_diagnostics_with_compatible_
         "requested_word_phrase_mix",
         "actual_word_phrase_mix",
         "weighting_inputs",
+        "lifecycle_counts",
+        "exposure_by_item",
         "repeat_gap_relaxed",
         "fallback_reasons",
     }
+    assert diagnostics["lifecycle_counts"]["revision"] >= 1
+    assert isinstance(diagnostics["exposure_by_item"], dict)
