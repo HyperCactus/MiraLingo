@@ -3,7 +3,7 @@
   import "./app.css";
   import { getPracticeAudioUrl } from "./lib/api/audio";
   import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register } from "./lib/api/auth";
-  import { getPracticeProgress, getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
+  import { getPracticeAnalytics, getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
   import { getSettings, updateSettings } from "./lib/api/settings";
   import AppShell from "./lib/components/layout/AppShell.svelte";
   import StudyShell from "./lib/components/layout/StudyShell.svelte";
@@ -476,7 +476,7 @@
     analyticsErr = "";
 
     try {
-      const { response, payload } = await getPracticeProgress();
+      const { response, payload } = await getPracticeAnalytics();
       if (!response.ok || payload.ok === false) {
         analyticsPayload = payload;
         analyticsState = "error";
@@ -736,6 +736,11 @@
           <p role="alert">{analyticsErr}</p>
         </AppCard>
       {:else if analyticsPayload}
+        {#if analyticsPayload.sparse_history}
+          <AppCard className="sm:col-span-2 xl:col-span-3">
+            <p class="text-sm text-slate-500 dark:text-slate-400">Sparse history: complete more practice sessions to unlock deeper analytics.</p>
+          </AppCard>
+        {/if}
         <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Answered</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.event_count ?? 0)}</p></AppCard>
         <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Accuracy</p><p class="mt-3 text-3xl font-semibold">{fmtPct(analyticsPayload.accuracy)}</p></AppCard>
         <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Weak cards</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.weak_count ?? 0)}</p></AppCard>

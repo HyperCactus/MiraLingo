@@ -53,6 +53,25 @@ export type PracticeProgressResponse = {
   [key: string]: unknown;
 };
 
+export type PracticeAnalyticsResponse = {
+  ok?: boolean;
+  detail?: string;
+  error?: string;
+  phase?: string;
+  event_count?: number;
+  accuracy?: number;
+  session_count?: number;
+  lifecycle_count?: number;
+  sparse_history?: boolean;
+  timing?: Record<string, unknown>;
+  streak?: Record<string, unknown>;
+  lifecycle?: Record<string, unknown>;
+  direction_breakdown?: Record<string, unknown>;
+  card_type_breakdown?: Record<string, unknown>;
+  per_card?: unknown[];
+  [key: string]: unknown;
+};
+
 export async function getPracticeQueue(mode: PracticeMode, limit = 50) {
   const query = new URLSearchParams({ mode, limit: String(limit) });
   const response = await fetch(`/practice/queue?${query.toString()}`, {
@@ -77,5 +96,13 @@ export async function getPracticeProgress() {
     headers: { Accept: 'application/json' },
   });
   const payload = await readJson<PracticeProgressResponse>(response);
+  return { response, payload };
+}
+
+export async function getPracticeAnalytics() {
+  const response = await fetch('/practice/analytics', {
+    headers: { Accept: 'application/json' },
+  });
+  const payload = await readJson<PracticeAnalyticsResponse>(response);
   return { response, payload };
 }
