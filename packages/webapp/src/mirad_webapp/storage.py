@@ -11,6 +11,7 @@ from typing import Any
 
 from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_USERNAME, _hash_password, normalize_username, validate_registration_inputs
 from .practice import MAX_EVENTS
+from .practice_engine import ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH
 
 SUPPORTED_THEMES = ("light", "dark", "system")
 DEFAULT_THEME = "system"
@@ -116,14 +117,61 @@ class UserSettingsRecord:
         return {
             "theme": self.theme,
             "tts_speed": self.tts_speed,
-            "tts_autoplay": self.tts_autoplay,
-            "sfx_enabled": self.sfx_enabled,
             "voice": {
                 "id": self.voice_id,
                 "label": DEFAULT_VOICE_LABEL,
                 "provider": DEFAULT_VOICE_PROVIDER,
                 "mutable": False,
             },
+        }
+
+
+VALID_PRACTICE_DIRECTIONS = {ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH}
+
+
+@dataclass(frozen=True)
+class PracticeSessionRecord:
+    session_id: str
+    username: str
+    started_at: str
+    ended_at: str | None
+
+    def public_dict(self) -> dict[str, Any]:
+        return {
+            "session_id": self.session_id,
+            "username": self.username,
+            "started_at": self.started_at,
+            "ended_at": self.ended_at,
+        }
+
+
+@dataclass(frozen=True)
+class PracticeLifecycleRecord:
+    username: str
+    base_card_id: str
+    direction: str
+    lifecycle: str
+    first_seen_at: str
+    last_seen_at: str
+    correct_streak: int
+    session_streak: int
+    promoted_at: str | None
+    regression_count: int
+    last_regressed_at: str | None
+
+    def public_dict(self) -> dict[str, Any]:
+        return {
+            "username": self.username,
+            "base_card_id": self.base_card_id,
+            "direction": self.direction,
+            "lifecycle": self.lifecycle,
+            "first_seen_at": self.first_seen_at,
+            "last_seen_at": self.last_seen_at,
+            "correct_streak": self.correct_streak,
+            "session_streak": self.session_streak,
+            "promoted_at": self.promoted_at,
+            "regression_count": self.regression_count,
+            "last_regressed_at": self.last_regressed_at,
         }
 
 
@@ -345,6 +393,146 @@ class MiraLingoStorage:
             answered_at=values[8],
         )
 
+    def start_practice_session(self, *, username: str, started_at: datetime | str | None = None) -> dict[str, Any]:
+        normalized_username = _require_username(username, phase="practice_session")
+        session_id = token_bytes(16).hex()
+        timestamp = _coerce_timestamp(started_at)
+        try:
+            with self._connect("practice_session") as connection:
+                connection.execute(
+                    "INSERT INTO practice_sessions (session_id, username, started_at) VALUES (?, ?, ?)",
+                    (session_id, normalized_username, timestamp),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_session", detail="Could not start practice session.") from exc
+        return {"session_id": session_id, "username": normalized_username, "started_at": timestamp, "ended_at": None}
+
+    def record_practice_lifecycle_answer(
+        self,
+        *,
+        username: str,
+        session_id: str,
+        base_card_id: str,
+        direction: str,
+        correct: bool,
+        card_id: str | None = None,
+        card_type: str = "word",
+        submitted_answer: str = "",
+        expected_answer: str = "",
+        answered_at: datetime | str | None = None,
+    ) -> dict[str, Any]:
+        normalized_username = _require_username(username, phase="practice_lifecycle")
+        normalized_direction = _require_direction(direction, phase="practice_lifecycle")
+        normalized_base_card_id = str(base_card_id or "").strip()
+        normalized_session_id = str(session_id or "").strip()
+        if not normalized_base_card_id or not normalized_session_id:
+            raise StorageError(phase="practice_lifecycle", detail="A base_card_id and session_id are required.", error="invalid_practice_item")
+        timestamp = _coerce_timestamp(answered_at)
+        normalized_card_id = str(card_id or normalized_base_card_id)
+        try:
+            with self._connect("practice_lifecycle") as connection:
+                session_row = connection.execute(
+                    "SELECT session_id FROM practice_sessions WHERE session_id = ? AND username = ?",
+                    (normalized_session_id, normalized_username),
+                ).fetchone()
+                if session_row is None:
+                    raise StorageError(phase="practice_lifecycle", detail="Practice session not found.", error="invalid_session")
+                connection.execute(
+                    """
+                    INSERT INTO answer_events (username, card_id, base_card_id, direction, card_type, submitted_answer, expected_answer, correct, answered_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (normalized_username, normalized_card_id, normalized_base_card_id, normalized_direction, str(card_type), str(submitted_answer), str(expected_answer), 1 if bool(correct) else 0, timestamp),
+                )
+                row = connection.execute(
+                    "SELECT * FROM practice_lifecycle WHERE username=? AND base_card_id=? AND direction=?",
+                    (normalized_username, normalized_base_card_id, normalized_direction),
+                ).fetchone()
+                if row is None:
+                    connection.execute(
+                        """INSERT INTO practice_lifecycle
+                        (username, base_card_id, direction, lifecycle, first_seen_at, last_seen_at, consecutive_correct, correct_session_streak, promoted_at, regression_count, last_regressed_at, last_session_id_counted)
+                        VALUES (?, ?, ?, 'active', ?, ?, 0, 0, NULL, 0, NULL, NULL)
+                        """,
+                        (normalized_username, normalized_base_card_id, normalized_direction, timestamp, timestamp),
+                    )
+                    row = connection.execute(
+                        "SELECT * FROM practice_lifecycle WHERE username=? AND base_card_id=? AND direction=?",
+                        (normalized_username, normalized_base_card_id, normalized_direction),
+                    ).fetchone()
+                lifecycle = str(row["lifecycle"])
+                consecutive = int(row["consecutive_correct"])
+                session_streak = int(row["correct_session_streak"])
+                last_session_counted = row["last_session_id_counted"]
+                regression_count = int(row["regression_count"])
+                promoted_at = row["promoted_at"]
+                last_regressed_at = row["last_regressed_at"]
+
+                if bool(correct):
+                    consecutive += 1
+                    if last_session_counted != normalized_session_id:
+                        session_streak += 1
+                        last_session_counted = normalized_session_id
+                    if lifecycle != "revision" and consecutive >= 4 and session_streak >= 2:
+                        lifecycle = "revision"
+                        promoted_at = timestamp
+                else:
+                    if lifecycle == "revision":
+                        regression_count += 1
+                        last_regressed_at = timestamp
+                    lifecycle = "active"
+                    consecutive = 0
+                    session_streak = 0
+                    last_session_counted = None
+                    promoted_at = None
+
+                connection.execute(
+                    """UPDATE practice_lifecycle SET lifecycle=?, last_seen_at=?, consecutive_correct=?, correct_session_streak=?, promoted_at=?, regression_count=?, last_regressed_at=?, last_session_id_counted=?
+                       WHERE username=? AND base_card_id=? AND direction=?""",
+                    (lifecycle, timestamp, consecutive, session_streak, promoted_at, regression_count, last_regressed_at, last_session_counted, normalized_username, normalized_base_card_id, normalized_direction),
+                )
+        except StorageError:
+            raise
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_lifecycle", detail="Could not record practice lifecycle answer.") from exc
+
+        return self.get_practice_lifecycle(username=normalized_username, base_card_id=normalized_base_card_id, direction=normalized_direction)
+
+    def get_practice_lifecycle(self, *, username: str, base_card_id: str, direction: str) -> dict[str, Any]:
+        normalized_username = _require_username(username, phase="practice_lifecycle")
+        normalized_direction = _require_direction(direction, phase="practice_lifecycle")
+        normalized_base_card_id = str(base_card_id or "").strip()
+        if not normalized_base_card_id:
+            raise StorageError(phase="practice_lifecycle", detail="A base_card_id is required.", error="invalid_practice_item")
+        try:
+            with self._connect("practice_lifecycle") as connection:
+                row = connection.execute(
+                    "SELECT * FROM practice_lifecycle WHERE username=? AND base_card_id=? AND direction=?",
+                    (normalized_username, normalized_base_card_id, normalized_direction),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_lifecycle", detail="Could not read practice lifecycle.") from exc
+        if row is None:
+            return {
+                "username": normalized_username,
+                "base_card_id": normalized_base_card_id,
+                "direction": normalized_direction,
+                "lifecycle": "active",
+                "first_seen_at": None,
+                "last_seen_at": None,
+                "correct_streak": 0,
+                "session_streak": 0,
+                "promoted_at": None,
+                "regression_count": 0,
+                "last_regressed_at": None,
+            }
+        return {
+            "username": str(row["username"]), "base_card_id": str(row["base_card_id"]), "direction": str(row["direction"]),
+            "lifecycle": str(row["lifecycle"]), "first_seen_at": row["first_seen_at"], "last_seen_at": row["last_seen_at"],
+            "correct_streak": int(row["consecutive_correct"]), "session_streak": int(row["correct_session_streak"]),
+            "promoted_at": row["promoted_at"], "regression_count": int(row["regression_count"]), "last_regressed_at": row["last_regressed_at"],
+        }
+
     def list_answer_events(
         self, *, username: str, limit: int = MAX_EVENTS, phase: str = "practice_progress"
     ) -> list[AnswerEventRecord]:
@@ -438,7 +626,7 @@ class MiraLingoStorage:
             voice_id=str(row["voice_id"] or DEFAULT_VOICE_ID),
         )
 
-    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool, sfx_enabled: bool) -> UserSettingsRecord:
+    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool = True, sfx_enabled: bool = True) -> UserSettingsRecord:
         """Create or update durable learner settings for supported theme/speed values."""
         normalized_username = _require_username(username, phase="settings_update")
         normalized_theme = _require_theme(theme, phase="settings_update")
@@ -552,6 +740,34 @@ class MiraLingoStorage:
                     CREATE INDEX IF NOT EXISTS idx_shown_cards_user_card ON shown_cards(username, card_id);
                     CREATE INDEX IF NOT EXISTS idx_answer_events_user_time ON answer_events(username, answered_at);
                     CREATE INDEX IF NOT EXISTS idx_answer_events_user_card ON answer_events(username, card_id);
+
+                    CREATE TABLE IF NOT EXISTS practice_sessions (
+                        session_id TEXT PRIMARY KEY,
+                        username TEXT NOT NULL,
+                        started_at TEXT NOT NULL,
+                        ended_at TEXT,
+                        FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
+                    CREATE TABLE IF NOT EXISTS practice_lifecycle (
+                        username TEXT NOT NULL,
+                        base_card_id TEXT NOT NULL,
+                        direction TEXT NOT NULL,
+                        lifecycle TEXT NOT NULL DEFAULT 'active' CHECK(lifecycle IN ('active','revision')),
+                        first_seen_at TEXT NOT NULL,
+                        last_seen_at TEXT NOT NULL,
+                        consecutive_correct INTEGER NOT NULL DEFAULT 0,
+                        correct_session_streak INTEGER NOT NULL DEFAULT 0,
+                        promoted_at TEXT,
+                        regression_count INTEGER NOT NULL DEFAULT 0,
+                        last_regressed_at TEXT,
+                        last_session_id_counted TEXT,
+                        PRIMARY KEY (username, base_card_id, direction),
+                        FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_practice_sessions_user_started ON practice_sessions(username, started_at);
+                    CREATE INDEX IF NOT EXISTS idx_practice_lifecycle_lookup ON practice_lifecycle(username, base_card_id, direction);
                     """
                 )
                 _ensure_column(connection, "shown_cards", "prompt_language", "TEXT NOT NULL DEFAULT ''")
@@ -593,6 +809,13 @@ def _require_username(username: str, *, phase: str) -> str:
     normalized = normalize_username(username)
     if normalized is None:
         raise StorageError(phase=phase, detail="A non-blank username is required.", error="invalid_username")
+    return normalized
+
+
+def _require_direction(direction: str, *, phase: str) -> str:
+    normalized = str(direction or "").strip().lower()
+    if normalized not in VALID_PRACTICE_DIRECTIONS:
+        raise StorageError(phase=phase, detail="Direction must be english_to_mirad or mirad_to_english.", error="invalid_direction")
     return normalized
 
 
