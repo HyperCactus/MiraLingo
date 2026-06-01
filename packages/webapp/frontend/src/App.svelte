@@ -3,7 +3,7 @@
   import "./app.css";
   import { getPracticeAudioUrl } from "./lib/api/audio";
   import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register } from "./lib/api/auth";
-  import { getPracticeAnalytics, getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
+  import { getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
   import { getSettings, updateSettings } from "./lib/api/settings";
   import AppShell from "./lib/components/layout/AppShell.svelte";
   import StudyShell from "./lib/components/layout/StudyShell.svelte";
@@ -15,6 +15,7 @@
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
   import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
+  import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
   import Welcome from "./lib/pages/Welcome.svelte";
 
@@ -68,9 +69,6 @@
   let lastAudioCardId = $state(null);
   let lastAutoplayRevealCardId = $state(null);
 
-  let analyticsState = $state("idle");
-  let analyticsErr = $state("");
-  let analyticsPayload = $state(null);
 
   let settingsState = $state("idle");
   let settingsErr = $state("");
@@ -131,11 +129,6 @@
     lastAudioCardId = null;
   };
 
-  const resetAnalyticsSurface = () => {
-    analyticsState = "idle";
-    analyticsErr = "";
-    analyticsPayload = null;
-  };
 
   const resetSettingsSurface = () => {
     settingsState = "idle";
@@ -166,8 +159,7 @@
       if (response.ok && payload.authenticated && payload.user) {
         setAuthenticated(payload.user);
         resetPracticeSurface();
-        resetAnalyticsSurface();
-        resetSettingsSurface();
+          resetSettingsSurface();
         deleteAccountUsername = payload.user.username ?? "";
         await loadSettings({ force: true });
         await preloadPracticeQueue("mixed");
@@ -198,7 +190,6 @@
       setAuthenticated(payload.user);
       password = "";
       resetPracticeSurface();
-      resetAnalyticsSurface();
       resetSettingsSurface();
       deleteAccountUsername = payload.user.username ?? "";
       await loadSettings({ force: true });
@@ -223,7 +214,6 @@
       setAuthenticated(payload.user);
       regP = "";
       resetPracticeSurface();
-      resetAnalyticsSurface();
       resetSettingsSurface();
       deleteAccountUsername = payload.user.username ?? "";
       await loadSettings({ force: true });
@@ -471,25 +461,6 @@
     return currentCard.prompt_language !== "english" || miradAudioUnlocked;
   }
 
-  async function loadAnalytics() {
-    analyticsState = "loading";
-    analyticsErr = "";
-
-    try {
-      const { response, payload } = await getPracticeAnalytics();
-      if (!response.ok || payload.ok === false) {
-        analyticsPayload = payload;
-        analyticsState = "error";
-        analyticsErr = payload?.detail ?? "Analytics unavailable.";
-        return;
-      }
-      analyticsPayload = payload;
-      analyticsState = "ready";
-    } catch (_) {
-      analyticsState = "error";
-      analyticsErr = "Analytics unavailable.";
-    }
-  }
 
   async function submitDeleteAccount() {
     if (!canSubmitDelete()) return;
@@ -549,11 +520,6 @@
     resetAnswer();
     setCurrentSection(section);
     replaceHash(section);
-
-    if (section === "analytics") {
-      await loadAnalytics();
-      return;
-    }
 
     if (section === "settings") {
       deleteAccountUsername = $currentUser?.username ?? deleteAccountUsername;
@@ -656,6 +622,7 @@
     backLabel="Back to today"
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   >
     <svelte:fragment slot="status">
@@ -711,59 +678,18 @@
     on:buildVocabulary={() => navigateToSection("build_vocabulary")}
     on:lexicon={() => navigateToSection("lexicon")}
     on:settings={() => navigateToSection("settings")}
+    on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   />
 {:else if $authState === "authenticated" && $currentSection === "analytics"}
-  <AppShell
-    title="Analytics"
-    subtitle="Current backend progress, without API reshaping"
-    showBackButton={true}
-    backLabel="Back to today"
-    userLabel="Progress"
-    avatarLabel={$currentUser?.username ?? "Learner"}
+  <Analytics
+    userName={$currentUser?.username ?? "Learner"}
+    activeSection={$currentSection}
     navItems={navItemsFor($currentSection)}
-    on:click={goToMenu}
-    on:settings={() => navigateToSection("settings")}
-    on:logout={logout}
-  >
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {#if analyticsState === "loading"}
-        <AppCard className="sm:col-span-2 xl:col-span-3">
-          <p class="text-sm text-slate-500 dark:text-slate-400">Loading analytics…</p>
-        </AppCard>
-      {:else if analyticsErr}
-        <AppCard className="sm:col-span-2 xl:col-span-3 border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-          <p role="alert">{analyticsErr}</p>
-        </AppCard>
-      {:else if analyticsPayload}
-        {#if analyticsPayload.sparse_history}
-          <AppCard className="sm:col-span-2 xl:col-span-3">
-            <p class="text-sm text-slate-500 dark:text-slate-400">Sparse history: complete more practice sessions to unlock deeper analytics.</p>
-          </AppCard>
-        {/if}
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Answered</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.event_count ?? 0)}</p></AppCard>
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Accuracy</p><p class="mt-3 text-3xl font-semibold">{fmtPct(analyticsPayload.accuracy)}</p></AppCard>
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Weak cards</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.weak_count ?? 0)}</p></AppCard>
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Mastered</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.mastered_count ?? 0)}</p></AppCard>
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Stale</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.stale_count ?? 0)}</p></AppCard>
-        <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">New</p><p class="mt-3 text-3xl font-semibold">{fmtN(analyticsPayload.new_count ?? 0)}</p></AppCard>
-      {:else}
-        <AppCard className="sm:col-span-2 xl:col-span-3">
-          <p class="text-sm text-slate-500 dark:text-slate-400">No analytics yet.</p>
-        </AppCard>
-      {/if}
-    </div>
-
-    <svelte:fragment slot="sidebar">
-      <AppCard className="space-y-3">
-        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Refresh from backend</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400">This surface stays honest to the existing <code>/practice/progress</code> response.</p>
-        <AppButton variant="secondary" className="min-h-12 w-full justify-center" on:click={loadAnalytics} disabled={analyticsState === "loading"}>
-          {analyticsState === "loading" ? "Refreshing…" : "Refresh analytics"}
-        </AppButton>
-      </AppCard>
-    </svelte:fragment>
-  </AppShell>
+    onBack={goToMenu}
+    onSettings={() => navigateToSection("settings")}
+    onLogout={logout}
+  />
 {:else if $authState === "authenticated" && $currentSection === "settings"}
   <AppShell
     title="Settings"
@@ -775,6 +701,7 @@
     navItems={navItemsFor($currentSection)}
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   >
     <div class="space-y-4">
@@ -867,6 +794,7 @@
     navItems={navItemsFor($currentSection)}
     on:back={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   />
 {:else}

@@ -12,6 +12,7 @@
     buildVocabulary: void;
     lexicon: void;
     settings: void;
+    analytics: void;
     logout: void;
   }>();
 
@@ -159,6 +160,10 @@
       <AppButton variant="secondary" className="min-h-12 w-full justify-between" on:click={() => dispatch('buildVocabulary')}>
         <span>Build Vocabulary</span>
         <span aria-hidden="true">→</span>
+      </AppButton>
+      <AppButton variant="ghost" className="min-h-12 w-full justify-between border border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-900/60 dark:text-violet-300 dark:hover:bg-violet-950/30" on:click={() => dispatch('analytics')}>
+        <span>View detailed analytics</span>
+        <span aria-hidden="true">↗</span>
       </AppButton>
       <AppButton variant="ghost" className="min-h-12 w-full justify-between border border-slate-200 dark:border-slate-800" on:click={() => dispatch('lexicon')}>
         <span>Lexicon Search</span>
