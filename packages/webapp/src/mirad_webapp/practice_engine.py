@@ -84,7 +84,7 @@ def build_practice_queue(
         repeat_gap_satisfied = False
         mode_detail = "empty_pool"
 
-    return {
+    result = {
         "ok": True,
         "phase": "practice_queue",
         "mode": normalized_mode,
@@ -97,6 +97,16 @@ def build_practice_queue(
         "limit": bounded_limit,
         "cards": spaced[:bounded_limit],
     }
+
+    if normalized_mode == MIXED_MODE and (practice_items or valid_events):
+        result["diagnostics"] = _build_mixed_mode_diagnostics(
+            selected_cards=spaced[:bounded_limit],
+            all_items=practice_items,
+            stats=stats,
+            repeat_gap_satisfied=repeat_gap_satisfied,
+        )
+
+    return result
 
 
 def record_practice_answer(
@@ -362,27 +372,15 @@ def _prioritize_intro_content(ordered: list[dict[str, Any]], base_cards_with_his
 
 
 def _diversify_mixed_queue(items: list[dict[str, Any]], mode: str) -> list[dict[str, Any]]:
-    """Keep mixed mode adaptive while guaranteeing directional/content variety."""
+    """Keep mixed mode adaptive without displacing high-priority weak/review items."""
     if mode != MIXED_MODE or not items:
         return items
 
     weak = [item for item in items if item.get("scheduler_reason") == "weak_recent_performance"]
     non_weak = [item for item in items if item.get("scheduler_reason") != "weak_recent_performance"]
 
-    # Prevent weak-only loops: keep first chunk adaptive, but inject fresh/review items.
     weak_cap = max(6, int(len(items) * 0.6))
-    trimmed = weak[:weak_cap] + non_weak
-
-    en_to_mir = [item for item in trimmed if item.get("direction") == ENGLISH_TO_MIRAD]
-    mir_to_en = [item for item in trimmed if item.get("direction") == MIRAD_TO_ENGLISH]
-
-    balanced: list[dict[str, Any]] = []
-    while en_to_mir or mir_to_en:
-        if en_to_mir:
-            balanced.append(en_to_mir.pop(0))
-        if mir_to_en:
-            balanced.append(mir_to_en.pop(0))
-    return balanced
+    return weak[:weak_cap] + non_weak
 
 
 def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
@@ -406,6 +404,63 @@ def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]
                 if by_group[group]:
                     ordered.append(by_group[group].pop(0)[1])
     return ordered
+
+
+def _build_mixed_mode_diagnostics(
+    *,
+    selected_cards: list[dict[str, Any]],
+    all_items: list[dict[str, Any]],
+    stats: dict[str, dict[str, Any]],
+    repeat_gap_satisfied: bool,
+) -> dict[str, Any]:
+    requested_active_revision_ratio = {"active": 0.7, "revision": 0.3}
+    requested_word_phrase_mix = {"word": 0.5, "phrase": 0.5}
+
+    active_count = sum(1 for card in selected_cards if card.get("scheduler_reason") in {"new_item", "new_item_gated_by_weak_recent_performance", "weak_recent_performance"})
+    revision_count = max(0, len(selected_cards) - active_count)
+    total = len(selected_cards) or 1
+
+    word_count = sum(1 for card in selected_cards if card.get("type") == "word")
+    phrase_count = sum(1 for card in selected_cards if card.get("type") == "phrase")
+
+    per_card_weights: dict[str, dict[str, float]] = {}
+    max_attempts = max((stats.get(item["id"], _empty_stats())["attempts"] for item in all_items), default=0)
+    for item in all_items:
+        item_stats = stats.get(item["id"], _empty_stats())
+        attempts = item_stats["attempts"]
+        accuracy = 1.0 if attempts == 0 else (item_stats["correct"] / attempts)
+        exposure_factor = 1.0 + max(0.0, (max_attempts - attempts) / max(1, max_attempts or 1))
+        recent_performance_factor = 1.0 + max(0.0, 1.0 - accuracy)
+        per_card_weights[item["id"]] = {
+            "exposure_factor": exposure_factor,
+            "recent_performance_factor": recent_performance_factor,
+        }
+
+    unique_bases = len({item.get("base_card_id") for item in all_items})
+    fallback_reasons: list[str] = []
+    if unique_bases <= _REPEAT_GAP:
+        fallback_reasons.append("small_pool")
+    actual_active = active_count / total
+    actual_revision = revision_count / total
+    actual_word = word_count / total
+    actual_phrase = phrase_count / total
+    if abs(actual_active - requested_active_revision_ratio["active"]) > 0.2:
+        fallback_reasons.append("ratio_drift")
+    if abs(actual_word - requested_word_phrase_mix["word"]) > 0.2:
+        fallback_reasons.append("mix_drift")
+
+    return {
+        "requested_active_revision_ratio": requested_active_revision_ratio,
+        "actual_active_revision_ratio": {"active": actual_active, "revision": actual_revision},
+        "requested_word_phrase_mix": requested_word_phrase_mix,
+        "actual_word_phrase_mix": {"word": actual_word, "phrase": actual_phrase},
+        "weighting_inputs": {"exposure_weight": 0.5, "recent_performance_weight": 0.5},
+        "per_card_weights": per_card_weights,
+        "repeat_gap": _REPEAT_GAP,
+        "repeat_gap_satisfied": repeat_gap_satisfied,
+        "repeat_gap_relaxed": not repeat_gap_satisfied,
+        "fallback_reasons": fallback_reasons,
+    }
 
 
 def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int) -> tuple[list[dict[str, Any]], bool]:
