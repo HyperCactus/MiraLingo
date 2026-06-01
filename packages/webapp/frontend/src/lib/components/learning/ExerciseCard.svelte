@@ -32,8 +32,6 @@
   const inputLabel = (currentCard: PracticeCard | null) => `Your ${languageLabel(currentCard?.answer_language)} answer`;
   const inputPlaceholder = (currentCard: PracticeCard | null) => `Type the ${languageLabel(currentCard?.answer_language).toLowerCase()} answer`;
   const promptEyebrow = (currentCard: PracticeCard | null) => `${languageLabel(currentCard?.prompt_language)} prompt`;
-  const promptSupportingText = (currentCard: PracticeCard | null) =>
-    currentCard?.type === 'phrase' ? 'Answer with the full phrase before revealing the solution.' : 'Type the translated word before checking the answer.';
 
   function submit() {
     dispatch('submit', { answer: answer.trim() });
@@ -45,7 +43,7 @@
     <ExercisePrompt
       eyebrow={promptEyebrow(card)}
       text={card.prompt ?? 'Prompt unavailable'}
-      supportingText={promptSupportingText(card)}
+      supportingText=""
     />
 
     {#if !answerResult}
@@ -60,7 +58,7 @@
 
         <div class="grid gap-3">
           <AppButton type="submit" disabled={submitting || !answer.trim()} className="min-h-12 w-full justify-center">
-            {submitting ? 'Submitting…' : 'Submit answer'}
+            {submitting ? 'Checking…' : 'Submit answer'}
           </AppButton>
           <AppButton variant="secondary" disabled={submitting} className="min-h-12 w-full justify-center" on:click={() => dispatch('reveal')}>
             Show answer
@@ -70,13 +68,13 @@
     {:else}
       <FeedbackPanel
         audioLoading={audioLoading}
-        audioLabel={'Replay Mirad answer'}
+        audioLabel={'Play Mirad audio'}
         audioMessage={audioMessage}
         canPlayAudio={audioEnabled}
         correct={Boolean(answerResult.correct)}
         revealedAnswer={answerResult.expected_answer ?? card.answer ?? ''}
         submittedAnswer={answerResult.submitted_answer ?? answer.trim()}
-        on:click={() => dispatch('audio')}
+        on:audio={() => dispatch('audio')}
       />
 
       <AppButton className="min-h-12 w-full justify-center" on:click={() => dispatch('continue')}>

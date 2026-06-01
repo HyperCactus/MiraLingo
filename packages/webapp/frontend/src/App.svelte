@@ -30,6 +30,11 @@
   const practiceTitle = (section) => (
     section === "revision" ? "Revision" : section === "build_vocabulary" ? "Vocabulary" : "Practice"
   );
+  const emptyPracticeMessage = (mode) => {
+    if (mode === "revision") return "Nothing to revise yet. Go to Practice or Build Vocabulary to learn new words.";
+    if (mode === "build_vocabulary") return "No new vocabulary is ready right now. Try Practice or Revision instead.";
+    return "No practice cards are ready right now.";
+  };
   const navItemsFor = (section) => [
     { id: "dashboard", label: "Today", href: "#dashboard", active: section === "dashboard" },
     { id: "practice", label: "Practice", href: "#practice", active: practiceSection(section) },
@@ -61,6 +66,7 @@
   let audioBlobUrl = $state("");
   let activeAudio = $state(null);
   let lastAudioCardId = $state(null);
+  let lastAutoplayRevealCardId = $state(null);
 
   let analyticsState = $state("idle");
   let analyticsErr = $state("");
@@ -71,6 +77,10 @@
   let settingsStatus = $state("");
   let settingsPhase = $state("");
   let ttsAutoplayEnabled = $state(true);
+  let soundEffectsEnabled = $state(true);
+
+  let dashboardRefreshSignal = $state(0);
+  let dashboardRefreshTimer = null;
 
   let deleteAccountState = $state("idle");
   let deleteAccountErr = $state("");
@@ -142,6 +152,8 @@
 
   const syncSettings = (payload, extra = {}) => {
     applySettingsPayload(payload ?? {});
+    ttsAutoplayEnabled = Boolean(payload?.tts_autoplay ?? true);
+    soundEffectsEnabled = Boolean(payload?.sfx_enabled ?? true);
     if (extra.state) settingsState = extra.state;
     if (extra.phase) settingsPhase = extra.phase;
     if (extra.msg) settingsStatus = extra.msg;
@@ -281,7 +293,12 @@
     settingsStatus = "Saving…";
 
     try {
-      const body = { theme: coerceTheme($theme), tts_speed: coerceSpeed($ttsSpeed), tts_autoplay: Boolean(ttsAutoplayEnabled) };
+      const body = {
+        theme: coerceTheme($theme),
+        tts_speed: coerceSpeed($ttsSpeed),
+        tts_autoplay: Boolean(ttsAutoplayEnabled),
+        sfx_enabled: Boolean(soundEffectsEnabled),
+      };
       const { response, payload } = await updateSettings(body);
       if (!response.ok || payload.ok === false) {
         settingsState = "error";
@@ -321,7 +338,7 @@
       practiceQueueMode = mode;
       currentCard = cards[0] ?? null;
       practiceState = cards.length ? "ready" : "empty";
-      practiceErr = cards.length ? "" : "No cards. Import content first.";
+      practiceErr = cards.length ? "" : emptyPracticeMessage(mode);
       resetAnswer();
       resetAudio();
     } catch (_) {
@@ -345,6 +362,7 @@
     goToDashboard();
     replaceHash("dashboard");
     resetPracticeSurface();
+    scheduleDashboardRefresh(200);
   }
 
   async function advancePracticeCard() {
@@ -356,7 +374,27 @@
     await loadPracticeQueue(practiceQueueMode ?? "mixed");
   }
 
-  async function recordAnswer(body) {
+  async function playFeedbackSound(correct) {
+    if (!soundEffectsEnabled) return;
+    const src = correct ? "/assets/sound_effects/correct_answer.wav" : "/assets/sound_effects/incorrect_answer.wav";
+    try {
+      const effect = new Audio(src);
+      effect.volume = correct ? 1.0 : 0.6;
+      await effect.play();
+    } catch (_) {
+      // Non-blocking UX hint only.
+    }
+  }
+
+  function scheduleDashboardRefresh(delay = 400) {
+    if (dashboardRefreshTimer) clearTimeout(dashboardRefreshTimer);
+    dashboardRefreshTimer = setTimeout(() => {
+      dashboardRefreshSignal += 1;
+      dashboardRefreshTimer = null;
+    }, delay);
+  }
+
+  async function recordAnswer(body, options = {}) {
     answerSubmitting = true;
     answerErr = "";
     practiceErr = "";
@@ -369,6 +407,10 @@
       }
       answerResult = payload;
       miradAudioUnlocked = true;
+      scheduleDashboardRefresh();
+      if (options.playSfx !== false) {
+        void playFeedbackSound(Boolean(payload?.correct));
+      }
     } catch (_) {
       practiceErr = "Could not record answer.";
     } finally {
@@ -389,7 +431,7 @@
   async function submitGiveUp() {
     if (!currentCard?.id) return;
     answerErr = "";
-    await recordAnswer({ card_id: currentCard.id, correct: false });
+    await recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false });
   }
 
   async function playCardAudio() {
@@ -484,6 +526,7 @@
       goToDashboard();
       replaceHash("dashboard");
       resetPracticeSurface();
+      scheduleDashboardRefresh(200);
       return;
     }
 
@@ -564,7 +607,12 @@
     if (revealCardId === lastAutoplayRevealCardId) return;
 
     lastAutoplayRevealCardId = revealCardId;
-    void playCardAudio();
+    void (async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const currentRevealCardId = currentCard ? (currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id) : null;
+      if (currentRevealCardId !== revealCardId) return;
+      await playCardAudio();
+    })();
   });
 
   $effect(() => {
@@ -596,36 +644,55 @@
       {#if practiceState === "loading"}
         <p class="mb-4 text-center text-sm text-slate-500 dark:text-slate-400">Loading practice queue…</p>
       {:else if practiceState === "empty"}
-        <p class="mb-4 text-center text-sm text-slate-500 dark:text-slate-400">No cards. Import content first.</p>
+        <p class="mb-4 text-center text-sm text-slate-500 dark:text-slate-400">{practiceErr}</p>
       {:else if practiceState === "error"}
         <p class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{practiceErr}</p>
       {/if}
     </svelte:fragment>
 
-    <ExerciseCard
-      card={currentCard}
-      answer={typedAnswer}
-      answerError={answerErr}
-      practiceError={practiceErr}
-      submitting={answerSubmitting}
-      {answerResult}
-      audioLoading={audioState === "loading"}
-      audioMessage={audioState === "error" || audioState === "unavailable" ? audioMsg : ""}
-      audioEnabled={canPlayAudio()}
-      on:submit={submitAnswer}
-      on:reveal={submitGiveUp}
-      on:continue={advancePracticeCard}
-      on:audio={playCardAudio}
-    />
+    {#if practiceState === "empty"}
+      <AppCard className="mx-auto w-full max-w-sm space-y-4 rounded-[2rem] p-6 text-center shadow-lg sm:max-w-md">
+        <div class="space-y-2">
+          <p class="text-lg font-semibold text-slate-900 dark:text-slate-50">{practiceTitle($currentSection)} is clear</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{practiceErr}</p>
+        </div>
+        <div class="grid gap-3">
+          {#if $currentSection !== "practice"}
+            <AppButton className="min-h-12 w-full justify-center" on:click={() => navigateToSection("practice")}>Go to Practice</AppButton>
+          {/if}
+          {#if $currentSection !== "build_vocabulary"}
+            <AppButton variant="secondary" className="min-h-12 w-full justify-center" on:click={() => navigateToSection("build_vocabulary")}>Build Vocabulary</AppButton>
+          {/if}
+        </div>
+      </AppCard>
+    {:else}
+      <ExerciseCard
+        card={currentCard}
+        answer={typedAnswer}
+        answerError={answerErr}
+        practiceError={practiceErr}
+        submitting={answerSubmitting}
+        {answerResult}
+        audioLoading={audioState === "loading"}
+        audioMessage={audioState === "error" || audioState === "unavailable" ? audioMsg : ""}
+        audioEnabled={canPlayAudio()}
+        on:submit={submitAnswer}
+        on:reveal={submitGiveUp}
+        on:continue={advancePracticeCard}
+        on:audio={playCardAudio}
+      />
+    {/if}
   </StudyShell>
 {:else if $authState === "authenticated" && $currentSection === "dashboard"}
   <Dashboard
     userName={$currentUser?.username ?? "Learner"}
     activeSection={$currentSection}
+    refreshSignal={dashboardRefreshSignal}
     on:continuePractice={() => navigateToSection("practice")}
     on:revision={() => navigateToSection("revision")}
     on:buildVocabulary={() => navigateToSection("build_vocabulary")}
     on:lexicon={() => navigateToSection("lexicon")}
+    on:logout={logout}
   />
 {:else if $authState === "authenticated" && $currentSection === "analytics"}
   <AppShell
@@ -727,6 +794,14 @@
             <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
               <input bind:checked={ttsAutoplayEnabled} type="checkbox" />
               <span>Play Mirad TTS automatically after revealing the answer</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="space-y-3">
+            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Sound effects</legend>
+            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
+              <input bind:checked={soundEffectsEnabled} type="checkbox" />
+              <span>Play correct/incorrect feedback sounds after answer submission</span>
             </label>
           </fieldset>
 

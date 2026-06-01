@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import FastAPI, Query, Request, status
@@ -10,7 +11,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.sessions import SessionMiddleware
 
-from .audio import AudioFailure, synthesize_card_audio
+from .audio import AudioFailure, synthesize_card_audio, synthesize_text_audio
 from .auth import (
     LOCAL_ADMIN_USERNAME,
     SESSION_USER_KEY,
@@ -65,6 +66,7 @@ class UserSettingsUpdateRequest(BaseModel):
     theme: Literal["light", "dark", "system"]
     tts_speed: float = Field(gt=0, le=2.0)
     tts_autoplay: bool = True
+    sfx_enabled: bool = True
 
 
 class DeleteAccountRequest(BaseModel):
@@ -76,12 +78,21 @@ class DeleteAccountRequest(BaseModel):
     confirmation: str
 
 
+class TextToSpeechRequest(BaseModel):
+    """Authenticated arbitrary Mirad text preview request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(min_length=1, max_length=500)
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Create the MiraLingo API application."""
     runtime_settings = settings or load_settings()
     app = FastAPI(title=f"{APP_NAME} API")
     app.add_middleware(SessionMiddleware, secret_key=runtime_settings.session_secret)
     app.state.storage = MiraLingoStorage(runtime_settings.database_path)
+    app.state.card_content_cache = {"result": None, "phrase_mtime_ns": None}
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -115,6 +126,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         storage: MiraLingoStorage = app.state.storage
         storage.ensure_session_user(username=username, role=role, phase=user_phase)
 
+    def imported_card_content(*, word_limit: int = 500, force_refresh: bool = False):
+        phrase_path = Path(runtime_settings.phrase_csv_path)
+        cache = app.state.card_content_cache
+        phrase_mtime_ns = phrase_path.stat().st_mtime_ns if phrase_path.exists() else None
+        cached_result = cache.get("result")
+
+        if not force_refresh and cached_result is not None and cache.get("phrase_mtime_ns") == phrase_mtime_ns:
+            return cached_result
+
+        result = import_card_content(
+            phrase_csv_path=runtime_settings.phrase_csv_path,
+            word_limit=word_limit,
+        )
+        cache["result"] = result
+        cache["phrase_mtime_ns"] = phrase_mtime_ns
+        return result
+
     @app.get("/content/import/preview", tags=["content"])
     def content_import_preview(
         word_limit: int = Query(default=500, ge=0, le=5000),
@@ -127,8 +155,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         bounded word-candidate limit.
         """
         try:
-            result = import_card_content(
-                phrase_csv_path=runtime_settings.phrase_csv_path,
+            result = imported_card_content(
                 word_limit=word_limit,
             )
         except CardContentSourceMissingError as exc:
@@ -255,6 +282,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 theme=payload.theme,
                 tts_speed=payload.tts_speed,
                 tts_autoplay=payload.tts_autoplay,
+                sfx_enabled=payload.sfx_enabled,
             )
         except StorageError as exc:
             return storage_failure_response(exc)
@@ -396,7 +424,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 },
             )
         try:
-            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+            result = imported_card_content()
         except CardContentSourceMissingError as exc:
             payload = error_to_payload(exc)
             payload["practice_phase"] = "practice_queue"
@@ -440,7 +468,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 },
             )
         try:
-            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+            result = imported_card_content()
         except CardContentSourceMissingError as exc:
             payload = error_to_payload(exc)
             payload["practice_phase"] = "practice_progress"
@@ -480,7 +508,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             request.app.state.storage.ensure_session_user(username=user.username, role=user.role, phase="audio_synthesis")
             settings_record = request.app.state.storage.get_user_settings(username=user.username)
-            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+            result = imported_card_content()
         except StorageError as exc:
             return storage_failure_response(exc)
         except CardContentSourceMissingError as exc:
@@ -510,6 +538,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             headers=headers,
         )
 
+    @app.post("/tts/mbrola", tags=["practice"])
+    def mbrola_text_audio(request: Request, payload: TextToSpeechRequest):
+        """Return MBROLA WAV audio for authenticated arbitrary Mirad text previews."""
+        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "audio_synthesis",
+                    "backend": "mbrola",
+                    "detail": "Login is required to request text audio.",
+                },
+            )
+        try:
+            request.app.state.storage.ensure_session_user(username=user.username, role=user.role, phase="audio_synthesis")
+            settings_record = request.app.state.storage.get_user_settings(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+
+        audio_result = synthesize_text_audio(payload.text)
+        if isinstance(audio_result, AudioFailure):
+            return JSONResponse(status_code=audio_result.status_code, content=audio_result.payload)
+
+        headers = {
+            "Cache-Control": "no-store",
+            "X-MiraLingo-Audio-Phase": audio_result.diagnostics["phase"],
+            "X-MiraLingo-Audio-Backend": audio_result.diagnostics["backend"],
+            "X-MiraLingo-TTS-Speed": str(settings_record.tts_speed),
+            "X-MiraLingo-Voice-Id": settings_record.voice_id,
+        }
+        return Response(content=audio_result.wav_bytes, media_type=audio_result.content_type, headers=headers)
+
     @app.post("/practice/answers", tags=["practice"])
     @app.post("/practice/answer", tags=["practice"], include_in_schema=False)
     def practice_answer(request: Request, submission: PracticeAnswerRequest) -> JSONResponse:
@@ -526,7 +588,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 },
             )
         try:
-            result = import_card_content(phrase_csv_path=runtime_settings.phrase_csv_path)
+            result = imported_card_content()
         except CardContentSourceMissingError as exc:
             payload = error_to_payload(exc)
             payload["practice_phase"] = "practice_answer"

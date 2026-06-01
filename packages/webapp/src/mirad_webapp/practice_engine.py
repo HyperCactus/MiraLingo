@@ -77,7 +77,8 @@ def build_practice_queue(
 
     ordered = _interleave_same_priority_cards(ranked)
     filtered, mode_detail = _filter_queue_for_mode(ordered, normalized_mode, base_cards_with_history)
-    spaced, repeat_gap_satisfied = _apply_repeat_gap(filtered, repeat_gap=_REPEAT_GAP)
+    diversified = _diversify_mixed_queue(filtered, normalized_mode)
+    spaced, repeat_gap_satisfied = _apply_repeat_gap(diversified, repeat_gap=_REPEAT_GAP)
     bounded_limit = max(0, min(int(limit), len(spaced)))
     if not spaced and not filtered:
         repeat_gap_satisfied = False
@@ -309,7 +310,7 @@ def _filter_queue_for_mode(
             and item["base_card_id"] not in base_cards_with_history
             and item["scheduler_reason"] in {"new_item", "new_item_gated_by_weak_recent_performance"}
         ], "new_words_only"
-    return ordered, "default_mixed"
+    return _prioritize_intro_content(ordered, base_cards_with_history), "default_mixed"
 
 
 def _resolve_practice_item_id(card_id: str, items_by_id: dict[str, dict[str, Any]], legacy_aliases: dict[str, str]) -> str | None:
@@ -317,6 +318,71 @@ def _resolve_practice_item_id(card_id: str, items_by_id: dict[str, dict[str, Any
     if normalized in items_by_id:
         return normalized
     return legacy_aliases.get(normalized)
+
+
+def _prioritize_intro_content(ordered: list[dict[str, Any]], base_cards_with_history: set[str]) -> list[dict[str, Any]]:
+    """Bias early mixed-mode cards toward onboarding phrases for new learners."""
+    if not ordered:
+        return ordered
+    if base_cards_with_history:
+        return ordered
+
+    unseen = [item for item in ordered if item["base_card_id"] not in base_cards_with_history]
+    seen = [item for item in ordered if item["base_card_id"] in base_cards_with_history]
+
+    # Starter phrase: "my name is ..." should appear early for brand-new users.
+    starter = [
+        item for item in unseen
+        if item["type"] == "phrase"
+        and item["direction"] == ENGLISH_TO_MIRAD
+        and str(item.get("english_text") or "").strip().casefold().startswith("my name is")
+    ]
+    starter_ids = {item["id"] for item in starter}
+
+    remaining_unseen = [item for item in unseen if item["id"] not in starter_ids]
+    phrase_unseen = [item for item in remaining_unseen if item["type"] == "phrase"]
+    word_unseen = [item for item in remaining_unseen if item["type"] == "word"]
+
+    prefix: list[dict[str, Any]] = []
+    if starter:
+        prefix.extend(starter[:1])
+
+    # Keep first impression mixed: alternate phrase/word for initial run.
+    while len(prefix) < 12 and (phrase_unseen or word_unseen):
+        if phrase_unseen:
+            prefix.append(phrase_unseen.pop(0))
+        if len(prefix) >= 12:
+            break
+        if word_unseen:
+            prefix.append(word_unseen.pop(0))
+
+    used_ids = {item["id"] for item in prefix}
+    tail = [item for item in ordered if item["id"] not in used_ids]
+    return prefix + tail
+
+
+def _diversify_mixed_queue(items: list[dict[str, Any]], mode: str) -> list[dict[str, Any]]:
+    """Keep mixed mode adaptive while guaranteeing directional/content variety."""
+    if mode != MIXED_MODE or not items:
+        return items
+
+    weak = [item for item in items if item.get("scheduler_reason") == "weak_recent_performance"]
+    non_weak = [item for item in items if item.get("scheduler_reason") != "weak_recent_performance"]
+
+    # Prevent weak-only loops: keep first chunk adaptive, but inject fresh/review items.
+    weak_cap = max(6, int(len(items) * 0.6))
+    trimmed = weak[:weak_cap] + non_weak
+
+    en_to_mir = [item for item in trimmed if item.get("direction") == ENGLISH_TO_MIRAD]
+    mir_to_en = [item for item in trimmed if item.get("direction") == MIRAD_TO_ENGLISH]
+
+    balanced: list[dict[str, Any]] = []
+    while en_to_mir or mir_to_en:
+        if en_to_mir:
+            balanced.append(en_to_mir.pop(0))
+        if mir_to_en:
+            balanced.append(mir_to_en.pop(0))
+    return balanced
 
 
 def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
@@ -523,7 +589,9 @@ def _normalize_answer_alternatives(value: Any) -> set[str]:
 
 
 def _normalize_text(value: Any) -> str:
-    return " ".join(str(value).casefold().split())
+    text = str(value).casefold()
+    text = re.sub(r"[^\w\s']", " ", text)
+    return " ".join(text.split())
 
 
 def _as_aware_datetime(value: datetime | None) -> datetime:

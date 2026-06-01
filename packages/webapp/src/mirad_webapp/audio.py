@@ -37,12 +37,7 @@ AudioResult = AudioSuccess | AudioFailure
 
 
 def synthesize_card_audio(card_id: str, cards: list[dict[str, Any]]) -> AudioResult:
-    """Synthesize one configured card answer to WAV bytes.
-
-    Only card ids resolved from imported content are accepted; clients never
-    provide arbitrary text or output paths. Temporary WAV files are deleted after
-    bytes are read.
-    """
+    """Synthesize one configured card answer to WAV bytes."""
     normalized_card_id = str(card_id or "").strip()
     if not _valid_card_id(normalized_card_id):
         return _failure(
@@ -70,6 +65,23 @@ def synthesize_card_audio(card_id: str, cards: list[dict[str, Any]]) -> AudioRes
             "Practice card has no Mirad answer to synthesize.",
         )
 
+    return synthesize_text_audio(answer, diagnostic_id=normalized_card_id)
+
+
+def synthesize_text_audio(text: str, *, diagnostic_id: str = "text:preview") -> AudioResult:
+    """Synthesize arbitrary Mirad text to MBROLA WAV bytes.
+
+    Used by Lexicon previews where the user clicks a semantic lookup result that
+    may not correspond to an imported practice card. Text is never used as a
+    filesystem path; synthesis happens through a deleted temporary WAV file.
+    """
+    normalized_text = " ".join(str(text or "").split())
+    safe_id = str(diagnostic_id or "text:preview").strip()[:120] or "text:preview"
+    if not normalized_text:
+        return _failure(422, safe_id, "invalid_tts_text", "Text must not be empty.")
+    if len(normalized_text) > 500:
+        return _failure(422, safe_id, "invalid_tts_text", "Text must be 500 characters or fewer.")
+
     try:
         from mirad_tts.mbrola_backend import (  # type: ignore
             MbrolaError,
@@ -81,7 +93,7 @@ def synthesize_card_audio(card_id: str, cards: list[dict[str, Any]]) -> AudioRes
     except ImportError as exc:
         return _failure(
             503,
-            normalized_card_id,
+            safe_id,
             "audio_backend_unavailable",
             f"MBROLA backend import failed: {exc.name or 'mirad_tts'}",
         )
@@ -90,7 +102,7 @@ def synthesize_card_audio(card_id: str, cards: list[dict[str, Any]]) -> AudioRes
     try:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
             wav_path = Path(handle.name)
-        synthesize_to_wav(answer, wav_path)
+        synthesize_to_wav(normalized_text, wav_path)
         wav_bytes = wav_path.read_bytes()
         if not wav_bytes:
             raise MbrolaSynthesisError("MBROLA produced empty WAV output.")
@@ -101,17 +113,17 @@ def synthesize_card_audio(card_id: str, cards: list[dict[str, Any]]) -> AudioRes
                 "ok": True,
                 "phase": AUDIO_PHASE,
                 "backend": AUDIO_BACKEND,
-                "card_id": normalized_card_id,
+                "card_id": safe_id,
                 "content_type": AUDIO_CONTENT_TYPE,
                 "byte_count": len(wav_bytes),
             },
         )
     except MbrolaNotFoundError as exc:
-        return _failure(503, normalized_card_id, "mbrola_unavailable", _safe_detail(exc))
+        return _failure(503, safe_id, "mbrola_unavailable", _safe_detail(exc))
     except MbrolaVoiceNotFoundError as exc:
-        return _failure(503, normalized_card_id, "mbrola_voice_unavailable", _safe_detail(exc))
+        return _failure(503, safe_id, "mbrola_voice_unavailable", _safe_detail(exc))
     except (MbrolaSynthesisError, MbrolaError, ValueError, OSError) as exc:
-        return _failure(502, normalized_card_id, "audio_synthesis_failed", _safe_detail(exc))
+        return _failure(502, safe_id, "audio_synthesis_failed", _safe_detail(exc))
     finally:
         if wav_path is not None:
             try:
@@ -157,4 +169,5 @@ __all__ = [
     "AudioResult",
     "AudioSuccess",
     "synthesize_card_audio",
+    "synthesize_text_audio",
 ]

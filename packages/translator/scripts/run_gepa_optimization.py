@@ -502,15 +502,25 @@ def _eval_one(program: dspy.Module, example: dspy.Example) -> dict:
     cand_summaries = []
     for c in (pred.candidates or []):
         j = c.get("judge", {})
+        v = c.get("verifier", {})
+        rp = c.get("rule_precheck", {})
         cand_summaries.append({
+            "candidate_id": c.get("candidate_id"),
+            "rank": c.get("rank"),
+            "winner": c.get("winner", False),
             "temp": c.get("temperature"),
             "mirad": c.get("mirad_text"),
             "total_score": j.get("total_score", 0),
+            "semantic_fidelity": j.get("semantic_fidelity", 0),
             "grammar": j.get("grammar_score", 0),
             "morphology": j.get("morphology_score", 0),
-            "vocab": j.get("vocabulary_score", 0),
-            "bleed": j.get("english_bleed_score", 0),
-            "complete": j.get("completeness_score", 0),
+            "rule_hard_failures": rp.get("hard_failures", []),
+            "rule_soft_errors": rp.get("soft_errors", []),
+            "rule_notes": rp.get("notes", []),
+            "verifier_hard_failures": v.get("hard_failures", []),
+            "verifier_soft_errors": v.get("soft_errors", []),
+            "weighted_score": v.get("weighted_score", 0),
+            "rationale": j.get("rationale", ""),
         })
 
     return {
@@ -726,8 +736,9 @@ def save_results(
     for i, r in enumerate(eval_results):
         mark = "✓" if r["normalized_match"] else "✗"
         winner_temp = "?"
-        if r["candidates"]:
-            winner_temp = r["candidates"][r["winner_index"]].get("temp", "?")
+        winner_candidate = next((c for c in r["candidates"] if c.get("winner")), None)
+        if winner_candidate is not None:
+            winner_temp = winner_candidate.get("temp", "?")
         rows.append(
             f"| {i:3d} | {mark} | {r['judge_score']:5.1f} | "
             f"T={winner_temp} | {r['english_text'][:55]} → {r['pred'][:40]} |"
@@ -1071,7 +1082,7 @@ def main():
         "--compiled-program-path",
         type=Path,
         default=None,
-        help="Path to compiled program .pkl for --eval-only mode. Defaults to <out-dir>/program.pkl.",
+        help="Path to compiled program .pkl for --eval-only mode. Defaults to <out-dir>/program.pkl; if missing, a fresh uncompiled EnMiradGEPA baseline is built.",
     )
     args = parser.parse_args()
 
@@ -1099,11 +1110,16 @@ def main():
     print(f"[LOG] GEPA log directory: {gepa_log_dir}")
 
     if args.eval_only:
-        print("\n[EVAL-ONLY] Skipping optimization; loading compiled program...")
+        print("\n[EVAL-ONLY] Skipping optimization; building/loading program for evaluation...")
         eval_program_path = args.compiled_program_path or (out_dir / "program.pkl")
         compiled = load_bootstrap_program(eval_program_path)
         if compiled is None:
-            raise FileNotFoundError(f"Could not load compiled program from {eval_program_path}")
+            print(f"[EVAL-ONLY] No compiled program found at {eval_program_path}; building fresh EnMiradGEPA.")
+            compiled = EnMiradGEPA(
+                num_candidates=args.num_candidates,
+                temperatures=DEFAULT_TEMPERATURES,
+                num_context_passages=3,
+            )
 
         print("\n[LM] Configuring DeepInfra LM...")
         from dspy.utils.usage_tracker import UsageTracker

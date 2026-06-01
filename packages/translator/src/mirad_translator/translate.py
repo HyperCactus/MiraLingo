@@ -801,8 +801,16 @@ class MiradContextRetrieve(dspy.Retrieve):
     """
 
     def __init__(self, k: int = 5):
-        # Don't call super().__init__ with a rm since we use custom ChromaDB
+        # Keep DSPy Retrieve compatibility fields for serialization/checkpointing.
+        self.k = k
         self._k = k
+
+    def dump_state(self, json_mode: bool = False):
+        return {"k": self.k}
+
+    def load_state(self, state):
+        self.k = int(state.get("k", self.k))
+        self._k = self.k
 
     def forward(self, query: str) -> dspy.Prediction:
         """Retrieve structured grammar rules for the query.

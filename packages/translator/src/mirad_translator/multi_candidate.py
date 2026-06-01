@@ -125,165 +125,331 @@ def _make_lm(temperature: float) -> dspy.LM:
 
 
 # ---------------------------------------------------------------------------
-# Candidate Judge Signature
+# Joint candidate verifier + deterministic reranker
 # ---------------------------------------------------------------------------
 
-class CandidateJudgeSignature(dspy.Signature):
-    """Judge an English→Mirad translation. Be strict. Wrong translations: 40-65 pts. Correct: 80-100.
+_EN_TO_MIR_FAIL_CASES = [
+    "semantic_mismatch",
+    "missing_negation",
+    "wrong_negation",
+    "wrong_tense_or_aspect",
+    "wrong_conjunction_particle",
+    "dropped_clause_or_argument",
+    "missing_required_copula_or_article",
+    "invented_or_unrelated_wording",
+]
 
-    Scoring rubric (each 0-20 pts):
+_MIR_TO_EN_FAIL_CASES = [
+    "semantic_mismatch",
+    "missing_negation",
+    "wrong_negation",
+    "wrong_tense_or_aspect",
+    "dropped_clause_or_argument",
+    "subject_object_swap",
+    "hallucinated_information",
+    "direction_leakage",
+]
 
-    1. Grammar: SVO order, bi/be/bu prepositions, no dummy "it" or English article words.
 
-    2. Verb morphology: correct tense (-e/-a/-o/-u), progressive -eye not -ie, passive -w-, no invented roots.
+class CandidateSetVerifierSignature(dspy.Signature):
+    """Verify and rank English→Mirad candidates together.
 
-    3. Vocabulary: dictionary lookups used correctly, correct -i noun plural, -a pronoun possessive.
+    You see whole candidate set at once. Do NOT judge candidates independently.
+    Compare them against each other and source sentence.
 
-    4. English bleed: 20=zero bleed (all-lowercase, no period), 0=lots of bleed.
+    Priority order for ranking:
+    1. semantic fidelity
+    2. morphology / tense / negation correctness
+    3. grammar / style
 
-    5. Completeness: all source meaning components present, required particles (se, bi, voy) not dropped.
+    Hard-fail cases for English→Mirad:
+    - semantic_mismatch: meaning differs materially from source
+    - missing_negation or wrong_negation
+    - wrong_tense_or_aspect
+    - wrong_conjunction_particle (for example but -> oy, not ay)
+    - dropped_clause_or_argument
+    - missing_required_copula_or_article when source clearly requires it
+    - invented_or_unrelated_wording
 
-    PENALTIES: deduct from TOTAL score after summing the 5 dimensions above.
-    - WRONG CONJUNCTION PARTICLE: if English has "but" but Mirad uses "ay" (not "oy"), -15.
-    - MISSING HA ARTICLE: if gold has "ha" before noun but candidate drops it, -10.
-    - MISSING SE COPULA: if predicate adjective missing required "se", -10.
-    - COMPLETELY WRONG WORDS: if candidate uses unrelated words, -20.
+    Output STRICT JSON only with this schema:
+    {
+      "winner_id": "cand-2",
+      "ranking": ["cand-2", "cand-1", "cand-3"],
+      "winner_explanation": "short sentence",
+      "candidates": [
+        {
+          "candidate_id": "cand-1",
+          "semantic_fidelity": 0.0,
+          "morphology_tense_negation": 0.0,
+          "grammar_style": 0.0,
+          "hard_failures": ["wrong_negation"],
+          "soft_errors": ["awkward_style"],
+          "justification": "short sentence"
+        }
+      ]
+    }
 
-    Output: grammar_score, morphology_score, vocabulary_score, english_bleed_score,
-    completeness_score (all 0-20), total_score (0-100 after penalties), rationale.
+    Scores must be between 0 and 1. Empty arrays allowed. No markdown fences.
     """
-    original_english    = dspy.InputField(desc="Original English source text")
-    candidate_mirad     = dspy.InputField(desc="Candidate Mirad translation")
-    grammar_score       = dspy.OutputField(desc="Integer 0-20: grammar correctness")
-    morphology_score    = dspy.OutputField(desc="Integer 0-20: verb morphology")
-    vocabulary_score    = dspy.OutputField(desc="Integer 0-20: word choice / vocabulary")
-    english_bleed_score = dspy.OutputField(desc="Integer 0-20: LOWER = more English bleed (20=perfect Mirad style)")
-    completeness_score  = dspy.OutputField(desc="Integer 0-20: structural completeness vs source")
-    total_score         = dspy.OutputField(desc="Integer 0-100: sum minus any penalties")
-    rationale           = dspy.OutputField(desc="One-sentence explanation of main weaknesses")
+    original_english = dspy.InputField(desc="Original English source text")
+    candidate_payload_json = dspy.InputField(desc="JSON array of candidate_id + candidate_mirad text")
+    verifier_json = dspy.OutputField(desc="Strict JSON object matching schema")
 
 
-class CandidateJudge(dspy.Module):
-    """DSPy Module that judges a candidate translation.
+class MiradToEnglishCandidateSetVerifierSignature(dspy.Signature):
+    """Verify and rank Mirad→English candidates together.
 
-    Wraps CandidateJudgeSignature with ChainOfThought reasoning.
-    The judge has Mirad grammar rules embedded in its docstring so it can
-    evaluate morphology and idiom correctness accurately without needing
-    grammar retrieval passed as context.
+    Compare all candidates jointly against source. Do NOT use back-translation.
+
+    Priority order for ranking:
+    1. semantic fidelity
+    2. morphology / tense / negation correctness
+    3. grammar / style
+
+    Hard-fail cases for Mirad→English:
+    - semantic_mismatch
+    - missing_negation or wrong_negation
+    - wrong_tense_or_aspect
+    - dropped_clause_or_argument
+    - subject_object_swap
+    - hallucinated_information
+    - direction_leakage (Mirad patterns leaking into English)
+
+    Output STRICT JSON only with same schema as English→Mirad variant, but
+    candidate text is English and fail cases come from Mirad→English list.
     """
+    original_mirad = dspy.InputField(desc="Original Mirad source text")
+    candidate_payload_json = dspy.InputField(desc="JSON array of candidate_id + candidate_english text")
+    verifier_json = dspy.OutputField(desc="Strict JSON object matching schema")
 
+
+class CandidateSetVerifier(dspy.Module):
     def __init__(self):
         super().__init__()
-        self._judge = dspy.ChainOfThought(CandidateJudgeSignature)
+        self._verify = dspy.ChainOfThought(CandidateSetVerifierSignature)
 
-    def forward(
-        self,
-        original_english: str,
-        candidate_mirad: str,
-    ) -> dspy.Prediction:
-        pred = self._judge(
+    def forward(self, *, original_english: str, candidate_payload_json: str) -> dict:
+        pred = self._verify(
             original_english=original_english,
-            candidate_mirad=candidate_mirad,
+            candidate_payload_json=candidate_payload_json,
         )
-        return dspy.Prediction(
-            grammar_score=self._parse_float(getattr(pred, "grammar_score", "0"), default=0),
-            morphology_score=self._parse_float(getattr(pred, "morphology_score", "0"), default=0),
-            vocabulary_score=self._parse_float(getattr(pred, "vocabulary_score", "0"), default=0),
-            english_bleed_score=self._parse_float(getattr(pred, "english_bleed_score", "0"), default=0),
-            completeness_score=self._parse_float(getattr(pred, "completeness_score", "0"), default=0),
-            total_score=self._parse_float(getattr(pred, "total_score", "0"), default=0),
-            rationale=str(getattr(pred, "rationale", "")),
-        )
-
-    def _parse_float(self, value, default: float = 0.0) -> float:
-        try:
-            s = str(value).strip()
-            # Extract first number (can be float or integer)
-            m = re.search(r"-?\d+(?:\.\d+)?", s)
-            if m:
-                return float(m.group())
-            return default
-        except Exception:
-            return default
+        return _parse_verifier_payload(getattr(pred, "verifier_json", ""), direction="en_to_mir")
 
 
-# ---------------------------------------------------------------------------
-# Mirad→English Candidate Judge
-# ---------------------------------------------------------------------------
-
-class MiradToEnglishCandidateJudgeSignature(dspy.Signature):
-    """Judge a Mirad→English translation. Be strict. Wrong translations: 40-65 pts. Correct: 80-100.
-
-    Scoring rubric (each 0-20 pts):
-
-    1. Semantic Fidelity: does the English capture all meaning components from the Mirad?
-       Check: correct verb tense/aspect, correct pronoun reference, correct negation, not missing
-       required arguments. Deduct for subject/object swaps, quantifier errors, missing clauses.
-
-    2. Grammar: natural English word order (SVO), correct subject-verb agreement,
-       correct article usage (a/an/the), correct preposition choices.
-
-    3. Direction Correctness: no Mirad grammar patterns leaking into English output.
-       Mirad has no "it" dummy subjects, no "ha" articles, no verb-fronting for questions.
-       If any Mirad-specific construct appears in the English, deduct.
-
-    4. Literalness: translate what Mirad says, not what you think it means.
-       Don't add information not in the source. Don't omit required subjects/objects.
-       "ata" = "my/mine" not "I have". "se fia" = "is good" not "it is good".
-
-    Output: semantic_fidelity, grammar_score, direction_correctness, literalness
-    (all 0-20), total_score (0-100), rationale.
-    """
-    original_mirad     = dspy.InputField(desc="Original Mirad source text")
-    candidate_english  = dspy.InputField(desc="Candidate English translation")
-    semantic_fidelity  = dspy.OutputField(desc="Integer 0-20: meaning preserved vs Mirad source")
-    grammar_score      = dspy.OutputField(desc="Integer 0-20: natural English grammar")
-    direction_correctness = dspy.OutputField(desc="Integer 0-20: no Mirad patterns leaking into English")
-    literalness        = dspy.OutputField(desc="Integer 0-20: translation is literal, not interpretive")
-    total_score        = dspy.OutputField(desc="Integer 0-100: sum of four dimensions")
-    rationale          = dspy.OutputField(desc="One-sentence explanation of main weaknesses")
-
-
-class MiradToEnglishCandidateJudge(dspy.Module):
-    """DSPy Module that judges a Mirad→English candidate translation.
-
-    Wraps MiradToEnglishCandidateJudgeSignature with ChainOfThought reasoning.
-    The judge has Mirad grammar knowledge embedded so it can catch direction errors
-    (e.g., dummy "it" added, "ha" treated as English article) without needing
-    grammar retrieval passed as context.
-    """
-
+class MiradToEnglishCandidateSetVerifier(dspy.Module):
     def __init__(self):
         super().__init__()
-        self._judge = dspy.ChainOfThought(MiradToEnglishCandidateJudgeSignature)
+        self._verify = dspy.ChainOfThought(MiradToEnglishCandidateSetVerifierSignature)
 
-    def forward(
-        self,
-        original_mirad: str,
-        candidate_english: str,
-    ) -> dspy.Prediction:
-        pred = self._judge(
+    def forward(self, *, original_mirad: str, candidate_payload_json: str) -> dict:
+        pred = self._verify(
             original_mirad=original_mirad,
-            candidate_english=candidate_english,
+            candidate_payload_json=candidate_payload_json,
         )
-        return dspy.Prediction(
-            semantic_fidelity=self._parse_float(getattr(pred, "semantic_fidelity", "0"), default=0),
-            grammar_score=self._parse_float(getattr(pred, "grammar_score", "0"), default=0),
-            direction_correctness=self._parse_float(getattr(pred, "direction_correctness", "0"), default=0),
-            literalness=self._parse_float(getattr(pred, "literalness", "0"), default=0),
-            total_score=self._parse_float(getattr(pred, "total_score", "0"), default=0),
-            rationale=str(getattr(pred, "rationale", "")),
+        return _parse_verifier_payload(getattr(pred, "verifier_json", ""), direction="mir_to_en")
+
+
+def _parse_verifier_payload(raw: str, *, direction: str) -> dict:
+    allowed_fails = set(_EN_TO_MIR_FAIL_CASES if direction == "en_to_mir" else _MIR_TO_EN_FAIL_CASES)
+    text = str(raw or "").strip()
+    if "```" in text:
+        text = re.sub(r"^```(?:json)?|```$", "", text, flags=re.MULTILINE).strip()
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        return {"winner_id": None, "ranking": [], "winner_explanation": "Verifier returned no parseable JSON.", "candidates": []}
+    try:
+        payload = json.loads(text[start:end + 1])
+    except Exception:
+        return {"winner_id": None, "ranking": [], "winner_explanation": "Verifier JSON parse failed.", "candidates": []}
+
+    candidates = []
+    for row in payload.get("candidates", []) or []:
+        if not isinstance(row, dict):
+            continue
+        hard_failures = [
+            str(item).strip() for item in (row.get("hard_failures") or [])
+            if str(item).strip() in allowed_fails
+        ]
+        soft_errors = [str(item).strip() for item in (row.get("soft_errors") or []) if str(item).strip()]
+        candidates.append({
+            "candidate_id": str(row.get("candidate_id", "")).strip(),
+            "semantic_fidelity": _clamp01(row.get("semantic_fidelity", 0.0)),
+            "morphology_tense_negation": _clamp01(row.get("morphology_tense_negation", 0.0)),
+            "grammar_style": _clamp01(row.get("grammar_style", 0.0)),
+            "hard_failures": hard_failures,
+            "soft_errors": soft_errors,
+            "justification": str(row.get("justification", "")).strip(),
+        })
+
+    return {
+        "winner_id": str(payload.get("winner_id", "")).strip() or None,
+        "ranking": [str(x).strip() for x in (payload.get("ranking") or []) if str(x).strip()],
+        "winner_explanation": str(payload.get("winner_explanation", "")).strip(),
+        "candidates": candidates,
+    }
+
+
+def _clamp01(value) -> float:
+    try:
+        x = float(value)
+    except Exception:
+        return 0.0
+    return max(0.0, min(1.0, x))
+
+
+def _normalize_simple(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "").strip().lower())
+
+
+def _contains_any(text: str, needles: list[str]) -> bool:
+    hay = _normalize_simple(text)
+    return any(n in hay for n in needles)
+
+
+def _rule_precheck_en_to_mir(original_english: str, candidate_mirad: str) -> dict:
+    text_en = _normalize_simple(original_english)
+    text_mir = _normalize_simple(candidate_mirad)
+    hard_failures: list[str] = []
+    soft_errors: list[str] = []
+    notes: list[str] = []
+
+    english_has_neg = _contains_any(text_en, [" not ", "n't", " never ", " no "]) or text_en.startswith("not ")
+    mirad_has_neg = " voy " in f" {text_mir} " or text_mir.startswith("voy ")
+    if english_has_neg and not mirad_has_neg:
+        hard_failures.append("missing_negation")
+        notes.append("English source is negative but Mirad candidate lacks voy.")
+
+    if " but " in f" {text_en} " and " oy " not in f" {text_mir} ":
+        hard_failures.append("wrong_conjunction_particle")
+        notes.append("English source contains 'but' but candidate lacks oy.")
+
+    if any(token in text_en.split() for token in ["is", "are", "am", "was", "were"]) and " se " not in f" {text_mir} " and " sa " not in f" {text_mir} ":
+        soft_errors.append("possible_missing_copula")
+        notes.append("Copular English source but candidate lacks obvious se/sa copula.")
+
+    if re.search(r"\bthe\b", text_en) and " ha " not in f" {text_mir} ":
+        soft_errors.append("possible_missing_article")
+        notes.append("English source contains 'the' but candidate lacks obvious ha article.")
+
+    if re.search(r"\b(will|going to)\b", text_en) and not re.search(r"\b\w+o\b", text_mir):
+        soft_errors.append("possible_future_tense_mismatch")
+        notes.append("English source looks future but candidate lacks obvious -o verb ending.")
+    if re.search(r"\b(was|were|did|had)\b", text_en) and not re.search(r"\b\w+a\b", text_mir):
+        soft_errors.append("possible_past_tense_mismatch")
+        notes.append("English source looks past but candidate lacks obvious -a verb ending.")
+
+    return {"hard_failures": hard_failures, "soft_errors": soft_errors, "notes": notes}
+
+
+def _rule_precheck_mir_to_en(original_mirad: str, candidate_english: str) -> dict:
+    text_mir = _normalize_simple(original_mirad)
+    text_en = _normalize_simple(candidate_english)
+    hard_failures: list[str] = []
+    soft_errors: list[str] = []
+    notes: list[str] = []
+
+    mirad_has_neg = " voy " in f" {text_mir} " or text_mir.startswith("voy ")
+    english_has_neg = _contains_any(text_en, [" not ", "n't", " never ", " no "]) or text_en.startswith("not ")
+    if mirad_has_neg and not english_has_neg:
+        hard_failures.append("missing_negation")
+        notes.append("Mirad source is negative but English candidate is not.")
+
+    if " ay " in f" {text_mir} " and " but " in f" {text_en} ":
+        hard_failures.append("semantic_mismatch")
+        notes.append("Candidate maps ay as 'but', likely conjunction confusion.")
+
+    if re.search(r"\b(ha|voy|van|ven|duven)\b", text_en):
+        hard_failures.append("direction_leakage")
+        notes.append("English candidate leaks Mirad function words.")
+
+    if re.search(r"\b\w+a\b", text_mir) and not re.search(r"\b(was|were|did|had)\b", text_en):
+        soft_errors.append("possible_past_tense_mismatch")
+        notes.append("Mirad source may be past-tense but English candidate lacks obvious past marking.")
+    if re.search(r"\b\w+o\b", text_mir) and not re.search(r"\b(will|going to)\b", text_en):
+        soft_errors.append("possible_future_tense_mismatch")
+        notes.append("Mirad source may be future-tense but English candidate lacks obvious future marking.")
+
+    return {"hard_failures": hard_failures, "soft_errors": soft_errors, "notes": notes}
+
+
+def _rerank_verified_candidates(
+    candidates: list[dict],
+    verifier_payload: dict,
+    *,
+    direction: str,
+    source_text: str,
+) -> tuple[int, float, str, list[dict]]:
+    by_id = {str(c.get("candidate_id", f"cand-{i}")): c for i, c in enumerate(candidates)}
+    verifier_rows = {row.get("candidate_id"): row for row in verifier_payload.get("candidates", []) if row.get("candidate_id")}
+
+    enriched: list[dict] = []
+    for i, cand in enumerate(candidates):
+        candidate_id = cand.get("candidate_id") or f"cand-{i + 1}"
+        row = verifier_rows.get(candidate_id, {})
+        semantic = _clamp01(row.get("semantic_fidelity", 0.0))
+        morph = _clamp01(row.get("morphology_tense_negation", 0.0))
+        grammar = _clamp01(row.get("grammar_style", 0.0))
+        llm_hard_failures = list(row.get("hard_failures") or [])
+        llm_soft_errors = list(row.get("soft_errors") or [])
+        rule_precheck = (
+            _rule_precheck_en_to_mir(source_text, cand.get("mirad_text", ""))
+            if direction == "en_to_mir"
+            else _rule_precheck_mir_to_en(source_text, cand.get("english_text", ""))
+        )
+        hard_failures = list(dict.fromkeys(rule_precheck["hard_failures"] + llm_hard_failures))
+        soft_errors = list(dict.fromkeys(rule_precheck["soft_errors"] + llm_soft_errors))
+        weighted = (semantic * 0.6) + (morph * 0.3) + (grammar * 0.1)
+        total_score = max(0.0, min(100.0, round(weighted * 100 - len(hard_failures) * 25 - len(soft_errors) * 3, 2)))
+        enriched_cand = dict(cand)
+        enriched_cand["rule_precheck"] = rule_precheck
+        enriched_cand["verifier"] = {
+            "semantic_fidelity": semantic,
+            "morphology_tense_negation": morph,
+            "grammar_style": grammar,
+            "hard_failures": hard_failures,
+            "soft_errors": soft_errors,
+            "weighted_score": round(weighted, 4),
+            "justification": str(row.get("justification", "")).strip(),
+            "llm_hard_failures": llm_hard_failures,
+            "llm_soft_errors": llm_soft_errors,
+        }
+        enriched_cand["judge"] = {
+            "semantic_fidelity": round(semantic * 20, 1),
+            "morphology_score": round(morph * 20, 1),
+            "grammar_score": round(grammar * 20, 1),
+            "total_score": total_score,
+            "rationale": str(row.get("justification", "")).strip(),
+        }
+        enriched.append(enriched_cand)
+
+    ranking_order = [candidate_id for candidate_id in verifier_payload.get("ranking", []) if candidate_id in by_id]
+    ranking_index = {candidate_id: idx for idx, candidate_id in enumerate(ranking_order)}
+
+    def sort_key(cand: dict):
+        candidate_id = cand["candidate_id"]
+        v = cand["verifier"]
+        return (
+            len(v["hard_failures"]),
+            -v["semantic_fidelity"],
+            -v["morphology_tense_negation"],
+            -v["grammar_style"],
+            ranking_index.get(candidate_id, 10_000),
+            -cand["judge"]["total_score"],
         )
 
-    def _parse_float(self, value, default: float = 0.0) -> float:
-        try:
-            s = str(value).strip()
-            m = re.search(r"-?\d+(?:\.\d+)?", s)
-            if m:
-                return float(m.group())
-            return default
-        except Exception:
-            return default
+    ranked = sorted(enriched, key=sort_key)
+    winner = ranked[0]
+    winner_id = winner["candidate_id"]
+    winner_explanation = verifier_payload.get("winner_explanation") or winner["verifier"].get("justification") or "Highest semantic fidelity after hard-constraint reranking."
+    winner_score = winner["judge"]["total_score"]
+
+    rank_by_id = {cand["candidate_id"]: idx for idx, cand in enumerate(ranked)}
+    for cand in enriched:
+        cand["rank"] = rank_by_id[cand["candidate_id"]]
+        cand["winner"] = cand["candidate_id"] == winner_id
+
+    return winner["index"], winner_score, winner_explanation, enriched
 
 
 # ---------------------------------------------------------------------------
@@ -336,7 +502,7 @@ class MultiCandidateTranslator(dspy.Module):
 
         # Modules (built lazily on first forward to allow dspy.trace-ability)
         self._translator: Optional[dspy.Module] = None
-        self._judge = CandidateJudge()
+        self._judge = CandidateSetVerifier()
 
     def _ensure_translator(self):
         if self._translator is not None:
@@ -403,50 +569,44 @@ class MultiCandidateTranslator(dspy.Module):
         """
         self._ensure_translator()
 
-        # Generate all candidates
         candidates: list[dict] = []
         for i in range(self.num_candidates):
             temperature = self.temperatures[i % len(self.temperatures)]
             candidate_text = self._generate_candidate(english_text, temperature)
             candidates.append({
                 "index": i,
+                "candidate_id": f"cand-{i + 1}",
                 "temperature": temperature,
                 "mirad_text": candidate_text,
             })
 
-        # Judge each candidate and pick the highest total_score
-        winner_index = 0
-        winner_score = -1
-        winner_rationale = ""
+        verifier_payload = json.dumps(
+            [
+                {
+                    "candidate_id": cand["candidate_id"],
+                    "candidate_mirad": cand["mirad_text"],
+                }
+                for cand in candidates
+            ],
+            ensure_ascii=False,
+        )
+        verifier_result = self._judge(
+            original_english=english_text,
+            candidate_payload_json=verifier_payload,
+        )
+        winner_index, winner_score, winner_rationale, ranked_candidates = _rerank_verified_candidates(
+            candidates,
+            verifier_result,
+            direction="en_to_mir",
+            source_text=english_text,
+        )
 
-        for i, cand in enumerate(candidates):
-            mirad = cand["mirad_text"]
-            judge_pred = self._judge(
-                original_english=english_text,
-                candidate_mirad=mirad,
-            )
-            total = judge_pred.total_score
-            cand["judge"] = {
-                "grammar_score": judge_pred.grammar_score,
-                "morphology_score": judge_pred.morphology_score,
-                "vocabulary_score": judge_pred.vocabulary_score,
-                "english_bleed_score": judge_pred.english_bleed_score,
-                "completeness_score": judge_pred.completeness_score,
-                "total_score": total,
-                "rationale": judge_pred.rationale,
-            }
-
-            if total > winner_score:
-                winner_score = total
-                winner_index = i
-                winner_rationale = judge_pred.rationale
-
-        best = candidates[winner_index]
+        best = next(c for c in ranked_candidates if c["index"] == winner_index)
         return dspy.Prediction(
             mirad_text=best["mirad_text"],
             winner_index=winner_index,
             total_score=winner_score,
-            candidates=candidates,
+            candidates=ranked_candidates,
             rationale=winner_rationale,
         )
 
@@ -488,7 +648,7 @@ class MiradToEnglishMultiCandidateTranslator(dspy.Module):
         self._db_path = db_path
         self._top_k_per_word = top_k_per_word
         self._translator: Optional[dspy.Module] = None
-        self._judge = MiradToEnglishCandidateJudge()
+        self._judge = MiradToEnglishCandidateSetVerifier()
 
     def _ensure_translator(self):
         if self._translator is not None:
@@ -520,42 +680,39 @@ class MiradToEnglishMultiCandidateTranslator(dspy.Module):
             candidate_text = self._generate_candidate(mirad_text, temperature)
             candidates.append({
                 "index": i,
+                "candidate_id": f"cand-{i + 1}",
                 "temperature": temperature,
                 "english_text": candidate_text,
             })
 
-        winner_index = 0
-        winner_score = -1
-        winner_rationale = ""
+        verifier_payload = json.dumps(
+            [
+                {
+                    "candidate_id": cand["candidate_id"],
+                    "candidate_english": cand["english_text"],
+                }
+                for cand in candidates
+            ],
+            ensure_ascii=False,
+        )
+        verifier_result = self._judge(
+            original_mirad=mirad_text,
+            candidate_payload_json=verifier_payload,
+        )
+        winner_index, winner_score, winner_rationale, ranked_candidates = _rerank_verified_candidates(
+            candidates,
+            verifier_result,
+            direction="mir_to_en",
+            source_text=mirad_text,
+        )
 
-        for i, cand in enumerate(candidates):
-            english = cand["english_text"]
-            judge_pred = self._judge(
-                original_mirad=mirad_text,
-                candidate_english=english,
-            )
-            total = judge_pred.total_score
-            cand["judge"] = {
-                "semantic_fidelity": judge_pred.semantic_fidelity,
-                "grammar_score": judge_pred.grammar_score,
-                "direction_correctness": judge_pred.direction_correctness,
-                "literalness": judge_pred.literalness,
-                "total_score": total,
-                "rationale": judge_pred.rationale,
-            }
-
-            if total > winner_score:
-                winner_score = total
-                winner_index = i
-                winner_rationale = judge_pred.rationale
-
-        best = candidates[winner_index]
+        best = next(c for c in ranked_candidates if c["index"] == winner_index)
         return dspy.Prediction(
             english_text=best["english_text"],
             mirad_text=best["english_text"],  # mirror field name for eval compat
             winner_index=winner_index,
             total_score=winner_score,
-            candidates=candidates,
+            candidates=ranked_candidates,
             rationale=winner_rationale,
         )
 

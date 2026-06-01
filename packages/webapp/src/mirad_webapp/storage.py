@@ -109,6 +109,7 @@ class UserSettingsRecord:
     theme: str = DEFAULT_THEME
     tts_speed: float = DEFAULT_TTS_SPEED
     tts_autoplay: bool = True
+    sfx_enabled: bool = True
     voice_id: str = DEFAULT_VOICE_ID
 
     def public_dict(self) -> dict[str, Any]:
@@ -116,6 +117,7 @@ class UserSettingsRecord:
             "theme": self.theme,
             "tts_speed": self.tts_speed,
             "tts_autoplay": self.tts_autoplay,
+            "sfx_enabled": self.sfx_enabled,
             "voice": {
                 "id": self.voice_id,
                 "label": DEFAULT_VOICE_LABEL,
@@ -416,7 +418,7 @@ class MiraLingoStorage:
                 self._ensure_user_settings_row(connection, normalized_username)
                 row = connection.execute(
                     """
-                    SELECT username, theme, tts_speed, tts_autoplay, voice_id
+                    SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, voice_id
                     FROM user_settings
                     WHERE username = ?
                     """,
@@ -432,25 +434,27 @@ class MiraLingoStorage:
             theme=str(row["theme"] or DEFAULT_THEME),
             tts_speed=float(row["tts_speed"]),
             tts_autoplay=bool(row["tts_autoplay"]),
+            sfx_enabled=bool(row["sfx_enabled"]),
             voice_id=str(row["voice_id"] or DEFAULT_VOICE_ID),
         )
 
-    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool) -> UserSettingsRecord:
+    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool, sfx_enabled: bool) -> UserSettingsRecord:
         """Create or update durable learner settings for supported theme/speed values."""
         normalized_username = _require_username(username, phase="settings_update")
         normalized_theme = _require_theme(theme, phase="settings_update")
         normalized_speed = _require_tts_speed(tts_speed, phase="settings_update")
         normalized_tts_autoplay = bool(tts_autoplay)
+        normalized_sfx_enabled = bool(sfx_enabled)
         try:
             with self._connect("settings_update") as connection:
                 self._ensure_user_settings_row(connection, normalized_username)
                 connection.execute(
                     """
                     UPDATE user_settings
-                    SET theme = ?, tts_speed = ?, tts_autoplay = ?, voice_id = ?
+                    SET theme = ?, tts_speed = ?, tts_autoplay = ?, sfx_enabled = ?, voice_id = ?
                     WHERE username = ?
                     """,
-                    (normalized_theme, normalized_speed, 1 if normalized_tts_autoplay else 0, DEFAULT_VOICE_ID, normalized_username),
+                    (normalized_theme, normalized_speed, 1 if normalized_tts_autoplay else 0, 1 if normalized_sfx_enabled else 0, DEFAULT_VOICE_ID, normalized_username),
                 )
         except sqlite3.Error as exc:
             raise StorageError(phase="settings_update", detail="Could not update settings.") from exc
@@ -459,6 +463,7 @@ class MiraLingoStorage:
             theme=normalized_theme,
             tts_speed=normalized_speed,
             tts_autoplay=normalized_tts_autoplay,
+            sfx_enabled=normalized_sfx_enabled,
             voice_id=DEFAULT_VOICE_ID,
         )
 
@@ -552,6 +557,7 @@ class MiraLingoStorage:
                 _ensure_column(connection, "shown_cards", "prompt_language", "TEXT NOT NULL DEFAULT ''")
                 _ensure_column(connection, "shown_cards", "answer_language", "TEXT NOT NULL DEFAULT ''")
                 _ensure_column(connection, "user_settings", "tts_autoplay", "INTEGER NOT NULL DEFAULT 1 CHECK(tts_autoplay IN (0, 1))")
+                _ensure_column(connection, "user_settings", "sfx_enabled", "INTEGER NOT NULL DEFAULT 1 CHECK(sfx_enabled IN (0, 1))")
                 _ensure_column(connection, "user_settings", "voice_id", "TEXT NOT NULL DEFAULT 'de6'")
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc

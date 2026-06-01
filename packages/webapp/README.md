@@ -104,7 +104,7 @@ Open the Vite URL shown by the command. When logged out, the page should show "W
 
 ## S03 Adaptive Practice Queue
 
-S03 adds a session-scoped adaptive practice loop for logged-in users. The frontend fetches one bounded queue at a time from `GET /practice/queue?limit=3`; it does not poll. The current card shows the English prompt, optional Mirad answer reveal, card type, scheduler reason, event count, mastery, and recency diagnostics. The `I knew it` and `I missed it` buttons submit explicit correctness to `POST /practice/answers` and are disabled while the answer request is in flight to avoid duplicate session events.
+S03 adds a session-scoped adaptive practice loop for logged-in users. The frontend fetches one bounded queue at a time from `GET /practice/queue?limit=3`; it does not poll. From the dashboard, users click **Continue Practice** to enter focused study mode. The current card shows the prompt, typed-answer input, optional Mirad answer reveal, and card diagnostics. **Submit answer** posts typed responses to `POST /practice/answers`; **Show answer** records a miss/reveal path, and controls are disabled while requests are in flight to avoid duplicate events.
 
 Useful authenticated API checks after logging in with a cookie jar:
 
@@ -215,7 +215,7 @@ Do not commit `node_modules`. Open the Vite URL, normally `http://127.0.0.1:5173
 1. Logged-out visitors see **Welcome to MiraLingo** and the local admin login card.
 2. Signing in as `admin` / `admin` succeeds only in development mode and clears the password field.
 3. The authenticated panel shows a mixed practice queue with both `word` and `phrase` card types when the configured content source is available.
-4. **I knew it** and **I missed it** submit answers, disable while in flight, refresh the queue, and update session progress without polling.
+4. Click **Continue Practice** to enter focused study mode, then use **Submit answer** (typed response) or **Show answer** (reveal/miss path); actions disable while in flight, refresh the queue, and update session progress without polling.
 5. **Hear Mirad answer** either plays a WAV response or shows a structured unavailable diagnostic such as `mbrola_unavailable` or `mbrola_voice_unavailable`; those diagnostics indicate local runtime setup, not an app failure.
 6. **Practice stats** changes after submitted answers, including attempts, correct/incorrect counts, accuracy, per-type summaries, latest answer, and weak/mastered/new/stale badges.
 7. Logging out returns to the welcome screen and removes practice/progress/audio state.

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
-  import { buildLexiconPracticeAudioCardId, getPracticeAudioUrl } from '../api/audio.ts';
+  import { fetchMbrolaTextAudio } from '../api/audio.ts';
   import { LookupError, lookupWord, type LookupDirection, type LookupResult } from '../api/lookup.ts';
   import AppShell from '../components/layout/AppShell.svelte';
   import DirectionToggle from '../components/lexicon/DirectionToggle.svelte';
@@ -45,7 +45,7 @@
     : 'Type a word to find similar English translations';
   $: noResultsMessage = `No similar words found for '${normalizedQuery}'.`;
   $: showNoResults = state === 'ready' && hasQuery && results.length === 0;
-  $: audioAvailable = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  $: audioAvailable = true;
 
   function clearPendingLookup() {
     if (debounceTimer) {
@@ -117,10 +117,8 @@
     return direction === 'en_to_mir' ? result.mirad : result.mirad;
   }
 
-  async function playPracticePreview(cardId: string, spokenWord: string) {
-    const response = await fetch(getPracticeAudioUrl(cardId), {
-      headers: { Accept: 'audio/wav,application/json' },
-    });
+  async function playMbrolaPreview(text: string, spokenWord: string) {
+    const response = await fetchMbrolaTextAudio(text);
     const contentType = response.headers.get('content-type') ?? '';
 
     if (!response.ok || !contentType.includes('audio')) {
@@ -159,46 +157,14 @@
       return;
     }
 
-    const practiceAudioCardId = result.is_exact ? buildLexiconPracticeAudioCardId(miradWord) : '';
     speakingWord = miradWord;
 
-    if (practiceAudioCardId) {
-      try {
-        await playPracticePreview(practiceAudioCardId, miradWord);
-        return;
-      } catch (_) {
-        // Fall through to browser TTS for lookup results that are not backed by a practice card.
-      }
-    }
-
-    if (!audioAvailable) {
+    try {
+      await playMbrolaPreview(miradWord, miradWord);
+    } catch (_) {
       speakingWord = '';
-      audioFeedback = 'Speech preview is unavailable in this browser.';
-      return;
+      audioFeedback = 'MBROLA preview is unavailable for this result right now.';
     }
-
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    resetPreviewAudio();
-    speakingWord = miradWord;
-
-    const utterance = new SpeechSynthesisUtterance(miradWord);
-    const configuredSpeed = Number(get(ttsSpeed));
-    utterance.rate = Number.isFinite(configuredSpeed) && configuredSpeed > 0 ? configuredSpeed : 0.8;
-
-    utterance.onend = () => {
-      if (speakingWord === miradWord) {
-        speakingWord = '';
-      }
-    };
-    utterance.onerror = () => {
-      if (speakingWord === miradWord) {
-        speakingWord = '';
-      }
-      audioFeedback = 'Speech preview could not play right now.';
-    };
-
-    synth.speak(utterance);
   }
 
   $: if (normalizedQuery || direction) {
@@ -305,7 +271,7 @@
       <ul class="space-y-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
         <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Search waits 300ms after typing before it calls <code>/lookup</code>.</li>
         <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Similarity badges show cosine distance ranking from the semantic search backend.</li>
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Audio preview tries <code>/practice/audio/word:&lt;mirad&gt;</code> for exact lexical matches, then falls back to browser speech for semantic-only results.</li>
+        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Audio preview uses authenticated MBROLA synthesis for the displayed Mirad text.</li>
       </ul>
     </AppCard>
 
