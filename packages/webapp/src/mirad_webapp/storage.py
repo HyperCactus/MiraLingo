@@ -432,6 +432,40 @@ class MiraLingoStorage:
             raise StorageError(phase="practice_session", detail="Could not read active practice session.") from exc
         return self.start_practice_session(username=normalized_username)
 
+    def end_active_practice_session(self, *, username: str, ended_at: datetime | str | None = None) -> dict[str, Any] | None:
+        """Mark the active practice session as ended and return its public record.
+
+        Returns None when no active session exists.
+        """
+        normalized_username = _require_username(username, phase="practice_session")
+        timestamp = _coerce_timestamp(ended_at)
+        try:
+            with self._connect("practice_session") as connection:
+                row = connection.execute(
+                    """
+                    SELECT session_id, username, started_at, ended_at
+                    FROM practice_sessions
+                    WHERE username = ? AND ended_at IS NULL
+                    ORDER BY started_at DESC
+                    LIMIT 1
+                    """,
+                    (normalized_username,),
+                ).fetchone()
+                if row is None:
+                    return None
+                connection.execute(
+                    "UPDATE practice_sessions SET ended_at = ? WHERE session_id = ?",
+                    (timestamp, str(row["session_id"])),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="practice_session", detail="Could not end active practice session.") from exc
+        return {
+            "session_id": str(row["session_id"]),
+            "username": str(row["username"]),
+            "started_at": row["started_at"],
+            "ended_at": timestamp,
+        }
+
     def record_practice_lifecycle_answer(
         self,
         *,

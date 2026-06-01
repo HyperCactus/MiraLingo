@@ -565,12 +565,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
-    @app.get("/practice/sessions", tags=["practice"])
-    def practice_sessions(request: Request) -> JSONResponse:
-        """Return active durable session diagnostics for authenticated learners."""
+    def _require_practice_session_user(request: Request) -> tuple[Any, JSONResponse | None]:
         user = user_from_session(request.session.get(SESSION_USER_KEY))
         if user is None:
-            return JSONResponse(
+            return None, JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={
                     "ok": False,
@@ -579,12 +577,49 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "detail": "Login is required to inspect practice sessions.",
                 },
             )
+        return user, None
+
+    @app.get("/practice/sessions", tags=["practice"])
+    def practice_sessions(request: Request) -> JSONResponse:
+        """Return active durable session diagnostics for authenticated learners."""
+        user, error_response = _require_practice_session_user(request)
+        if error_response is not None:
+            return error_response
         try:
             ensure_practice_storage_user("practice_session", user.username, user.role)
             active = request.app.state.storage.get_or_start_active_practice_session(username=user.username)
         except StorageError as exc:
             return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "practice_session", "active_session": active})
+
+    @app.post("/practice/sessions/start", tags=["practice"])
+    def practice_sessions_start(request: Request) -> JSONResponse:
+        """Idempotently continue or start an authenticated practice session."""
+        user, error_response = _require_practice_session_user(request)
+        if error_response is not None:
+            return error_response
+        try:
+            ensure_practice_storage_user("practice_session", user.username, user.role)
+            active = request.app.state.storage.get_or_start_active_practice_session(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "practice_session", "active_session": active})
+
+    @app.post("/practice/sessions/end", tags=["practice"])
+    def practice_sessions_end(request: Request) -> JSONResponse:
+        """End the current authenticated practice session if one is active."""
+        user, error_response = _require_practice_session_user(request)
+        if error_response is not None:
+            return error_response
+        try:
+            ensure_practice_storage_user("practice_session", user.username, user.role)
+            ended = request.app.state.storage.end_active_practice_session(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"ok": True, "phase": "practice_session", "active_session": None, "ended_session": ended},
+        )
 
     @app.get("/practice/audio/{card_id:path}", tags=["practice"])
     def practice_audio(request: Request, card_id: str):

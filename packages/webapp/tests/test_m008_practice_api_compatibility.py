@@ -173,16 +173,18 @@ def test_ending_active_session_then_answer_uses_new_active_session(tmp_path: Pat
     client = TestClient(app)
     _login(client)
 
-    before = client.get("/practice/sessions")
+    before = client.post("/practice/sessions/start")
     assert before.status_code == 200
     first_session_id = before.json()["active_session"]["session_id"]
 
-    # Simulate lifecycle end semantics via storage boundary (API end route may be added later).
-    with app.state.storage._connect("practice_session") as connection:
-        connection.execute(
-            "UPDATE practice_sessions SET ended_at = datetime('now') WHERE session_id = ?",
-            (first_session_id,),
-        )
+    ended = client.post("/practice/sessions/end")
+    assert ended.status_code == 200
+    ended_payload = ended.json()
+    assert ended_payload["ok"] is True
+    assert ended_payload["phase"] == "practice_session"
+    assert ended_payload["active_session"] is None
+    assert ended_payload["ended_session"]["session_id"] == first_session_id
+    assert ended_payload["ended_session"]["ended_at"] is not None
 
     queued = client.get("/practice/queue?limit=1")
     assert queued.status_code == 200
@@ -197,9 +199,13 @@ def test_ending_active_session_then_answer_uses_new_active_session(tmp_path: Pat
 
     assert second_session_id != first_session_id
 
+    repeated_end = client.post("/practice/sessions/end")
+    assert repeated_end.status_code == 200
+    assert repeated_end.json()["phase"] == "practice_session"
+
     with app.state.storage._connect("practice_session") as connection:
         active_count = connection.execute(
             "SELECT COUNT(*) FROM practice_sessions WHERE username = ? AND ended_at IS NULL",
             ("admin",),
         ).fetchone()[0]
-    assert active_count == 1
+    assert active_count == 0
