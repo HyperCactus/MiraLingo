@@ -2,7 +2,7 @@
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import { fetchMbrolaTextAudio } from '../api/audio.ts';
-  import { LookupError, lookupWord, type LookupDirection, type LookupResult } from '../api/lookup.ts';
+  import { LookupError, lookupWord, lookupExact, type LookupDirection, type LookupResult } from '../api/lookup.ts';
   import AppShell from '../components/layout/AppShell.svelte';
   import DirectionToggle from '../components/lexicon/DirectionToggle.svelte';
   import LexiconResultRow from '../components/lexicon/LexiconResultRow.svelte';
@@ -13,6 +13,8 @@
 
   const dispatch = createEventDispatcher<{
     back: void;
+    settings: void;
+    logout: void;
   }>();
 
   export let userName = 'Learner';
@@ -27,6 +29,7 @@
   let direction: LookupDirection = 'en_to_mir';
   let state: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   let results: LookupResult[] = [];
+  let exactResult: LookupResult | null = null;   // shown immediately
   let error = '';
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let lookupToken = 0;
@@ -44,7 +47,7 @@
     ? 'Type a word to find similar Mirad translations'
     : 'Type a word to find similar English translations';
   $: noResultsMessage = `No similar words found for '${normalizedQuery}'.`;
-  $: showNoResults = state === 'ready' && hasQuery && results.length === 0;
+  $: showNoResults = state === 'ready' && hasQuery && results.length === 0 && !exactResult;
   $: audioAvailable = true;
 
   function clearPendingLookup() {
@@ -59,6 +62,7 @@
     lookupToken += 1;
     state = 'idle';
     results = [];
+    exactResult = null;
     error = '';
   }
 
@@ -79,22 +83,43 @@
     state = 'loading';
     error = '';
     audioFeedback = '';
+    exactResult = null;
+    results = [];
 
+    // Fire both in parallel; track them independently so one can't overwrite the other
+    const exactPromise = lookupExact(expectedQuery, expectedDirection);
+    const semanticPromise = lookupWord(expectedQuery, expectedDirection);
+
+    // Phase 1: exact match from SQLite — sub-10ms, no embedder needed
+    const [exactHits] = await Promise.all([exactPromise]);
+    if (token !== lookupToken) return;
+    exactResult = exactHits[0] ?? null;
+
+    // Phase 2: full semantic lookup (may take ~2s on first query)
+    let semanticHits: LookupResult[] = [];
     try {
-      const nextResults = await lookupWord(expectedQuery, expectedDirection);
-      if (token !== lookupToken || expectedQuery !== normalizedQuery || expectedDirection !== direction) {
-        return;
-      }
-      results = nextResults;
-      state = 'ready';
+      semanticHits = await semanticPromise;
     } catch (cause) {
-      if (token !== lookupToken) {
+      if (token !== lookupToken) return;
+      // No semantic — if we have exact, degrade gracefully; otherwise hard error
+      if (!exactResult) {
+        results = [];
+        state = 'error';
+        error = cause instanceof LookupError ? cause.detail || cause.message : 'Search unavailable right now — try again later';
         return;
       }
-      results = [];
-      state = 'error';
-      error = cause instanceof LookupError ? cause.detail || cause.message : 'Search unavailable right now — try again later';
+      // exact covers us; semantic is a soft failure
     }
+
+    if (token !== lookupToken || expectedQuery !== normalizedQuery || expectedDirection !== direction) return;
+
+    if (semanticHits.length > 0) {
+      results = semanticHits;
+    } else if (exactResult) {
+      // Semantic found nothing but we have exact — still a valid result
+      results = [];
+    }
+    state = 'ready';
   }
 
   function scheduleLookup() {
@@ -190,6 +215,8 @@
   avatarLabel={userName}
   {navItems}
   on:click={() => dispatch('back')}
+  on:settings={() => dispatch('settings')}
+  on:logout={() => dispatch('logout')}
 >
   <svelte:fragment slot="hero">
     <AppCard className="space-y-5 bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500 text-white shadow-lg">
@@ -227,25 +254,66 @@
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{emptyPrompt}</p>
       </AppCard>
     {:else if state === 'loading'}
-      <div class="space-y-3" aria-live="polite" aria-busy="true">
-        <AppCard className="animate-pulse space-y-3 p-5">
-          <div class="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div class="h-8 w-2/5 rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div class="h-20 rounded-2xl bg-violet-100/70 dark:bg-violet-950/40"></div>
-        </AppCard>
-        <AppCard className="animate-pulse space-y-3 p-5">
-          <div class="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div class="h-8 w-1/3 rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div class="h-20 rounded-2xl bg-violet-100/70 dark:bg-violet-950/40"></div>
-        </AppCard>
-      </div>
+      {#if exactResult}
+        <!-- Show exact match immediately while semantic results load -->
+        <div class="space-y-2">
+          <p class="px-1 text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">Exact match</p>
+          <LexiconResultRow
+            result={exactResult}
+            {direction}
+            speaking={speakingWord === exactResult.mirad}
+            {audioAvailable}
+            on:speak={() => speakResult(exactResult)}
+          />
+          {#if results.length === 0}
+            <!-- No semantic results yet — show skeleton for "similar" section -->
+            <div class="mt-3 space-y-2">
+              <p class="px-1 text-xs font-medium text-slate-400 dark:text-slate-500">Similar words — searching…</p>
+              <AppCard className="animate-pulse space-y-3 p-4">
+                <div class="h-4 w-20 rounded bg-slate-200 dark:bg-slate-700"></div>
+                <div class="h-6 w-2/5 rounded bg-slate-200 dark:bg-slate-700"></div>
+                <div class="h-16 rounded-xl bg-violet-100/60 dark:bg-violet-950/30"></div>
+              </AppCard>
+            </div>
+          {:else}
+            <!-- Semantic results arrived — show similar section -->
+            <div class="mt-3 space-y-2">
+              <p class="px-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Similar words</p>
+              {#each results.filter(r => !r.is_exact) as result, index (`${direction}-${result.english}-${result.mirad}-sim-${index}`)}
+                <LexiconResultRow
+                  {result}
+                  {direction}
+                  speaking={speakingWord === result.mirad}
+                  {audioAvailable}
+                  on:speak={() => speakResult(result)}
+                />
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <!-- No exact match yet, show loading skeletons -->
+        <div class="space-y-3" aria-live="polite" aria-busy="true">
+          <AppCard className="animate-pulse space-y-3 p-5">
+            <div class="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
+            <div class="h-8 w-2/5 rounded bg-slate-200 dark:bg-slate-800"></div>
+            <div class="h-20 rounded-2xl bg-violet-100/70 dark:bg-violet-950/40"></div>
+          </AppCard>
+          <AppCard className="animate-pulse space-y-3 p-5">
+            <div class="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
+            <div class="h-8 w-1/3 rounded bg-slate-200 dark:bg-slate-800"></div>
+            <div class="h-20 rounded-2xl bg-violet-100/70 dark:bg-violet-950/40"></div>
+          </AppCard>
+        </div>
+      {/if}
     {:else if showNoResults}
       <AppCard>
         <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">No results yet</p>
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{noResultsMessage}</p>
       </AppCard>
     {:else}
-      <div class="space-y-3" aria-live="polite">
+      <!-- state === 'ready' — show all results (exact already included in results from backend) -->
+      <div class="space-y-2">
         {#each results as result, index (`${direction}-${result.english}-${result.mirad}-${index}`)}
           <LexiconResultRow
             {result}

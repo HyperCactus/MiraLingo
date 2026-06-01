@@ -48,6 +48,28 @@ function isLookupResultArray(payload: unknown): payload is LookupResult[] {
   });
 }
 
+/** Fast SQL-only exact match — sub-10ms, no embedder needed. Returns [] if no match. */
+export async function lookupExact(
+  query: string,
+  direction: LookupDirection,
+): Promise<LookupResult[]> {
+  const search = new URLSearchParams({
+    q: query.trim(),
+    direction,
+  });
+  let response: Response;
+  try {
+    response = await fetch(`/lookup/exact?${search.toString()}`, {
+      headers: { Accept: 'application/json' },
+    });
+  } catch (cause) {
+    return [];  // graceful: not critical if exact fails
+  }
+  const payload = await readJson<LookupResult[] | LookupFailureResponse>(response);
+  if (!isLookupResultArray(payload)) return [];
+  return payload;
+}
+
 export async function lookupWord(
   query: string,
   direction: LookupDirection,

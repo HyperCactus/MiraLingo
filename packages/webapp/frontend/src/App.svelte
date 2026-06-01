@@ -561,6 +561,22 @@
     }
   }
 
+  function scrollWelcomeTarget(id) {
+    if (typeof document === "undefined") return;
+    const node = document.getElementById(id);
+    if (!node) return;
+    node.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Fallback: scroll by px if element is off-screen
+    requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        el.scrollIntoView({ block: "center" });
+      }
+    });
+  }
+
   function syncRouteFromHash(fallback = "dashboard") {
     if (typeof window === "undefined" || $authState !== "authenticated") return;
     const hash = window.location.hash.replace(/^#/, "");
@@ -634,11 +650,13 @@
 {#if $authState === "authenticated" && practiceSection($currentSection)}
   <StudyShell
     title={practiceTitle($currentSection)}
-    subtitle="Focused study mode"
-    userLabel="Study mode"
+    subtitle=""
+    userLabel=""
     avatarLabel={$currentUser?.username ?? "Learner"}
     backLabel="Back to today"
     on:click={goToMenu}
+    on:settings={() => navigateToSection("settings")}
+    on:logout={logout}
   >
     <svelte:fragment slot="status">
       {#if practiceState === "loading"}
@@ -692,6 +710,7 @@
     on:revision={() => navigateToSection("revision")}
     on:buildVocabulary={() => navigateToSection("build_vocabulary")}
     on:lexicon={() => navigateToSection("lexicon")}
+    on:settings={() => navigateToSection("settings")}
     on:logout={logout}
   />
 {:else if $authState === "authenticated" && $currentSection === "analytics"}
@@ -704,6 +723,8 @@
     avatarLabel={$currentUser?.username ?? "Learner"}
     navItems={navItemsFor($currentSection)}
     on:click={goToMenu}
+    on:settings={() => navigateToSection("settings")}
+    on:logout={logout}
   >
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {#if analyticsState === "loading"}
@@ -748,6 +769,8 @@
     avatarLabel={$currentUser?.username ?? "Learner"}
     navItems={navItemsFor($currentSection)}
     on:click={goToMenu}
+    on:settings={() => navigateToSection("settings")}
+    on:logout={logout}
   >
     <div class="space-y-4">
       {#if settingsErr}
@@ -838,6 +861,8 @@
     userName={$currentUser?.username ?? "Learner"}
     navItems={navItemsFor($currentSection)}
     on:back={goToMenu}
+    on:settings={() => navigateToSection("settings")}
+    on:logout={logout}
   />
 {:else}
   <Welcome
@@ -850,5 +875,7 @@
     authError={$authError}
     on:createAccount={submitRegistration}
     on:logIn={submitLogin}
+    on:jumpCreateAccount={() => scrollWelcomeTarget("create-account-card")}
+    on:jumpLogin={() => scrollWelcomeTarget("login-card")}
   />
 {/if}

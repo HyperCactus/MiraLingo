@@ -6,6 +6,8 @@
   const dispatch = createEventDispatcher<{
     createAccount: void;
     logIn: void;
+    jumpCreateAccount: void;
+    jumpLogin: void;
   }>();
 
   export let loginUsername = 'admin';
@@ -48,10 +50,10 @@
         </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
-          <AppButton className="min-h-12 justify-center border border-slate-950/20 bg-slate-950 text-white hover:bg-slate-800 focus-visible:ring-white dark:border-white/20 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100" on:click={() => dispatch('createAccount')}>
+          <AppButton className="min-h-12 justify-center border border-slate-950/20 bg-slate-950 text-white hover:bg-slate-800 focus-visible:ring-white dark:border-white/20 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100" on:click={() => dispatch('jumpCreateAccount')}>
             Create Account
           </AppButton>
-          <AppButton variant="secondary" className="min-h-12 justify-center border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white" on:click={() => dispatch('logIn')}>
+          <AppButton variant="secondary" className="min-h-12 justify-center border-white/30 bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white" on:click={() => dispatch('jumpLogin')}>
             Log In
           </AppButton>
         </div>

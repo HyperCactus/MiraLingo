@@ -11,6 +11,7 @@
     revision: void;
     buildVocabulary: void;
     lexicon: void;
+    settings: void;
     logout: void;
   }>();
 
@@ -76,6 +77,9 @@
   userLabel="Logged in"
   avatarLabel={userName}
   {navItems}
+  on:click
+  on:settings={() => dispatch('settings')}
+  on:logout={() => dispatch('logout')}
 >
   <svelte:fragment slot="hero">
     <AppCard className="space-y-5 bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500 text-white shadow-lg">

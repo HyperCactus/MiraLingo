@@ -8,19 +8,92 @@ from fastapi.testclient import TestClient
 from mirad_webapp.api import create_app
 
 
+def _install_lexicon_db_module(
+    monkeypatch,
+    *,
+    lookup_word_candidates,
+    lookup_mirad_word_candidates,
+) -> None:
+    package = sys.modules.get("mirad_translator") or types.ModuleType("mirad_translator")
+    module = types.ModuleType("mirad_translator.lexicon_db")
+    module.lookup_word_candidates = lookup_word_candidates  # type: ignore[attr-defined]
+    module.lookup_mirad_word_candidates = lookup_mirad_word_candidates  # type: ignore[attr-defined]
+    package.lexicon_db = module  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "mirad_translator", package)
+    monkeypatch.setitem(sys.modules, "mirad_translator.lexicon_db", module)
+
+
 def _install_semantic_lexicon_module(
     monkeypatch,
     *,
     semantic_lookup,
     semantic_lookup_mirad,
 ) -> None:
-    package = types.ModuleType("mirad_translator")
+    package = sys.modules.get("mirad_translator") or types.ModuleType("mirad_translator")
     module = types.ModuleType("mirad_translator.semantic_lexicon")
     module.semantic_lookup = semantic_lookup  # type: ignore[attr-defined]
     module.semantic_lookup_mirad = semantic_lookup_mirad  # type: ignore[attr-defined]
     package.semantic_lexicon = module  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "mirad_translator", package)
     monkeypatch.setitem(sys.modules, "mirad_translator.semantic_lexicon", module)
+
+
+def test_lookup_exact_en_to_mir_returns_immediate_sql_hit(monkeypatch) -> None:
+    def fake_word_candidates(*, english_word: str, db_path=None):
+        assert english_word == "hello"
+        return ["hay"]
+
+    def unused_mirad_candidates(*, mirad_word: str, db_path=None):
+        raise AssertionError("mir_to_en exact lookup should not run for en_to_mir requests")
+
+    _install_lexicon_db_module(
+        monkeypatch,
+        lookup_word_candidates=fake_word_candidates,
+        lookup_mirad_word_candidates=unused_mirad_candidates,
+    )
+
+    client = TestClient(create_app())
+
+    response = client.get("/lookup/exact", params={"q": "hello", "direction": "en_to_mir"})
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "english": "hello",
+            "mirad": "hay",
+            "cosine_similarity": 1.0,
+            "is_exact": True,
+        }
+    ]
+
+
+def test_lookup_exact_mir_to_en_returns_immediate_sql_hit(monkeypatch) -> None:
+    def unused_word_candidates(*, english_word: str, db_path=None):
+        raise AssertionError("en_to_mir exact lookup should not run for mir_to_en requests")
+
+    def fake_mirad_candidates(*, mirad_word: str, db_path=None):
+        assert mirad_word == "te"
+        return ["the"]
+
+    _install_lexicon_db_module(
+        monkeypatch,
+        lookup_word_candidates=unused_word_candidates,
+        lookup_mirad_word_candidates=fake_mirad_candidates,
+    )
+
+    client = TestClient(create_app())
+
+    response = client.get("/lookup/exact", params={"q": "te", "direction": "mir_to_en"})
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "mirad": "te",
+            "english": "the",
+            "cosine_similarity": 1.0,
+            "is_exact": True,
+        }
+    ]
 
 
 def test_lookup_en_to_mir_returns_semantic_hits(monkeypatch) -> None:
@@ -147,4 +220,6 @@ def test_lookup_returns_service_unavailable_when_semantic_search_fails(monkeypat
     response = client.get("/lookup", params={"q": "run", "direction": "en_to_mir"})
 
     assert response.status_code == 503
-    assert response.json() == {"error": "semantic search unavailable"}
+    payload = response.json()
+    assert payload["error"] == "semantic search unavailable"
+    assert payload["detail"] == "chromadb not installed"

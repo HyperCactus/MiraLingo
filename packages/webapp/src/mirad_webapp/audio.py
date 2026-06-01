@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import importlib
 import re
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -83,13 +85,7 @@ def synthesize_text_audio(text: str, *, diagnostic_id: str = "text:preview") -> 
         return _failure(422, safe_id, "invalid_tts_text", "Text must be 500 characters or fewer.")
 
     try:
-        from mirad_tts.mbrola_backend import (  # type: ignore
-            MbrolaError,
-            MbrolaNotFoundError,
-            MbrolaSynthesisError,
-            MbrolaVoiceNotFoundError,
-            synthesize_to_wav,
-        )
+        MbrolaError, MbrolaNotFoundError, MbrolaSynthesisError, MbrolaVoiceNotFoundError, synthesize_to_wav = _load_mbrola_backend()
     except ImportError as exc:
         return _failure(
             503,
@@ -130,6 +126,26 @@ def synthesize_text_audio(text: str, *, diagnostic_id: str = "text:preview") -> 
                 wav_path.unlink(missing_ok=True)
             except OSError:
                 pass
+
+
+def _load_mbrola_backend():
+    """Import MBROLA backend with local-src fallback for dev runs."""
+    try:
+        module = importlib.import_module("mirad_tts.mbrola_backend")
+    except ImportError:
+        repo_root = Path(__file__).resolve().parents[4]
+        src_path = str(repo_root / "src")
+        if src_path not in sys.path:
+            sys.path.insert(0, src_path)
+        module = importlib.import_module("mirad_tts.mbrola_backend")
+
+    return (
+        module.MbrolaError,
+        module.MbrolaNotFoundError,
+        module.MbrolaSynthesisError,
+        module.MbrolaVoiceNotFoundError,
+        module.synthesize_to_wav,
+    )
 
 
 def _find_card(card_id: str, cards: list[dict[str, Any]]) -> dict[str, Any] | None:

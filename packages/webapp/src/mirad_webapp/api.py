@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Literal
 
@@ -89,10 +90,34 @@ class TextToSpeechRequest(BaseModel):
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Create the MiraLingo API application."""
     runtime_settings = settings or load_settings()
-    app = FastAPI(title=f"{APP_NAME} API")
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        """Preload lexicon resources so first lookup is warm."""
+        import asyncio
+
+        try:
+            loop = asyncio.get_running_loop()
+
+            def _load() -> int:
+                from mirad_translator.semantic_lexicon import _get_embedder, _get_lexicon_collection
+
+                embedder = _get_embedder()
+                collection = _get_lexicon_collection()
+                embedder.encode(["test"], show_progress_bar=False)
+                return collection.count()
+
+            await loop.run_in_executor(None, _load)
+        except Exception:
+            pass
+
+        yield
+
+    app = FastAPI(title=f"{APP_NAME} API", lifespan=lifespan)
     app.add_middleware(SessionMiddleware, secret_key=runtime_settings.session_secret)
     app.state.storage = MiraLingoStorage(runtime_settings.database_path)
     app.state.card_content_cache = {"result": None, "phrase_mtime_ns": None}
+
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -168,6 +193,48 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         payload["source"] = source
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
+    @app.get("/lookup/exact", tags=["lexicon"])
+    def lookup_exact(
+        q: str = Query(..., min_length=1),
+        direction: Literal["en_to_mir", "mir_to_en"] = Query(...),
+    ) -> JSONResponse:
+        """Return an immediate exact-match from SQLite — no embedder needed.
+
+        Sub-10ms response. Use this to show a result instantly while
+        /lookup (semantic) is fetching in the background.
+        """
+        try:
+            from mirad_translator.lexicon_db import lookup_word_candidates, lookup_mirad_word_candidates
+
+            candidates: list[str]
+            if direction == "en_to_mir":
+                candidates = lookup_word_candidates(english_word=q)
+                if candidates:
+                    return JSONResponse(
+                        status_code=200,
+                        content=[{
+                            "english": q.lower(),
+                            "mirad": ", ".join(candidates),
+                            "cosine_similarity": 1.0,
+                            "is_exact": True,
+                        }],
+                    )
+            else:
+                candidates = lookup_mirad_word_candidates(mirad_word=q)
+                if candidates:
+                    return JSONResponse(
+                        status_code=200,
+                        content=[{
+                            "mirad": q.lower(),
+                            "english": ", ".join(candidates),
+                            "cosine_similarity": 1.0,
+                            "is_exact": True,
+                        }],
+                    )
+            return JSONResponse(status_code=200, content=[])
+        except Exception:
+            return JSONResponse(status_code=200, content=[])
+
     @app.get("/lookup", tags=["lexicon"])
     def lookup(
         q: str = Query(..., min_length=1),
@@ -210,10 +277,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     }
                     for hit in hits
                 ]
-        except (ImportError, ModuleNotFoundError, RuntimeError):
+        except (ImportError, ModuleNotFoundError, RuntimeError) as exc:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                content={"error": "semantic search unavailable"},
+                content={"error": "semantic search unavailable", "detail": str(exc)[:200]},
+            )
+        except Exception as exc:
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"error": "semantic search unavailable", "detail": f"{type(exc).__name__}: {exc}"[:300]},
             )
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
