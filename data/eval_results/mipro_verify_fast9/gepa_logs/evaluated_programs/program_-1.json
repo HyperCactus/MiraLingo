@@ -1,0 +1,113 @@
+{
+  "_translator.generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Given the fields `english_text`, `normalized_structure`, `word_equivalents`, `context_passages`, produce the fields `mirad_text`, `used_rule_ids`.",
+      "fields": [
+        {
+          "prefix": "English Text:",
+          "description": "English text to translate"
+        },
+        {
+          "prefix": "Normalized Structure:",
+          "description": "Pre-translation structural analysis"
+        },
+        {
+          "prefix": "Word Equivalents:",
+          "description": "Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line"
+        },
+        {
+          "prefix": "Context Passages:",
+          "description": "Retrieved structured grammar rules relevant to the translation"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Mirad Text:",
+          "description": "Translated text in Mirad"
+        },
+        {
+          "prefix": "Used Rule Ids:",
+          "description": "Comma-separated IDs of retrieved grammar rules used"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "_translator.context_retrieve": {
+    "k": 3
+  },
+  "_translator.analyze.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Analyze text before translation.\n\nIdentify normalized input structure, grammar-rule search terms, and vocabulary\nsearch terms. Keep search terms concise and aligned with Mirad grammar concepts\nsuch as verb tense, progressive aspect, possession, comparison, pronouns,\nword order, negation, questions, clauses, prepositions, and noun phrases.",
+      "fields": [
+        {
+          "prefix": "Source Text:",
+          "description": "Text to translate"
+        },
+        {
+          "prefix": "Direction:",
+          "description": "Translation direction: en_to_mir or mir_to_en"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Normalized Structure:",
+          "description": "Normalized structural analysis of the input sentence(s)"
+        },
+        {
+          "prefix": "Grammar Search Terms:",
+          "description": "Comma-separated grammar concepts/rules to retrieve"
+        },
+        {
+          "prefix": "Vocabulary Search Terms:",
+          "description": "Comma-separated words/phrases to look up in the lexicon"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "_judge._verify.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Verify and rank English→Mirad candidates together.\n\nYou see whole candidate set at once. Do NOT judge candidates independently.\nCompare them against each other and source sentence.\n\nPriority order for ranking:\n1. semantic fidelity\n2. morphology / tense / negation correctness\n3. grammar / style\n\nHard-fail cases for English→Mirad:\n- semantic_mismatch: meaning differs materially from source\n- missing_negation or wrong_negation\n- wrong_tense_or_aspect\n- wrong_conjunction_particle (for example but -> oy, not ay)\n- dropped_clause_or_argument\n- missing_required_copula_or_article when source clearly requires it\n- invented_or_unrelated_wording\n\nOutput STRICT JSON only with this schema:\n{\n  \"winner_id\": \"cand-2\",\n  \"ranking\": [\"cand-2\", \"cand-1\", \"cand-3\"],\n  \"winner_explanation\": \"short sentence\",\n  \"candidates\": [\n    {\n      \"candidate_id\": \"cand-1\",\n      \"semantic_fidelity\": 0.0,\n      \"morphology_tense_negation\": 0.0,\n      \"grammar_style\": 0.0,\n      \"hard_failures\": [\"wrong_negation\"],\n      \"soft_errors\": [\"awkward_style\"],\n      \"justification\": \"short sentence\"\n    }\n  ]\n}\n\nScores must be between 0 and 1. Empty arrays allowed. No markdown fences.",
+      "fields": [
+        {
+          "prefix": "Original English:",
+          "description": "Original English source text"
+        },
+        {
+          "prefix": "Candidate Payload Json:",
+          "description": "JSON array of candidate_id + candidate_mirad text"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Verifier Json:",
+          "description": "Strict JSON object matching schema"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.10",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

@@ -1,0 +1,386 @@
+[
+  {
+    "id": "pair-0750",
+    "english_text": "let us go",
+    "gold": "van yat pu",
+    "pred": "Yat pu.",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 2,
+    "rationale": "Standard Mirad imperative for 'let us go' with correct capitalization and verb form.",
+    "candidates": [
+      {
+        "candidate_id": "cand-1",
+        "rank": 1,
+        "winner": false,
+        "temp": 0.1,
+        "mirad": "yat pu",
+        "total_score": 90.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 12.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [
+          "missing_capitalization",
+          "missing_period"
+        ],
+        "weighted_score": 0.96,
+        "rationale": "Correct meaning and verb form, but missing punctuation and capital."
+      },
+      {
+        "candidate_id": "cand-2",
+        "rank": 2,
+        "winner": false,
+        "temp": 0.4,
+        "mirad": "Yat pieu.",
+        "total_score": 85.0,
+        "semantic_fidelity": 16.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [
+          "minor_semantic_shift"
+        ],
+        "weighted_score": 0.88,
+        "rationale": "Means 'let us leave', acceptable but not exact match for 'go'."
+      },
+      {
+        "candidate_id": "cand-3",
+        "rank": 0,
+        "winner": true,
+        "temp": 0.8,
+        "mirad": "Yat pu.",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Perfect match: correct imperative form 'pu' and proper formatting."
+      }
+    ],
+    "elapsed_s": 97.968
+  },
+  {
+    "id": "pair-0663",
+    "english_text": "our name is beautiful",
+    "gold": "yata dyun se via",
+    "pred": "Yata dyun se via.",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "cand-1 correctly uses 'yata' for 'our', has proper predicative word order, and ends with a period.",
+    "candidates": [
+      {
+        "candidate_id": "cand-1",
+        "rank": 0,
+        "winner": true,
+        "temp": 0.1,
+        "mirad": "Yata dyun se via.",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Perfect translation."
+      },
+      {
+        "candidate_id": "cand-2",
+        "rank": 1,
+        "winner": false,
+        "temp": 0.4,
+        "mirad": "Yata via dyun se.",
+        "total_score": 89.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 10.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [
+          "possible_missing_copula"
+        ],
+        "rule_notes": [
+          "Copular English source but candidate lacks obvious se/sa copula."
+        ],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [
+          "possible_missing_copula",
+          "awkward_style"
+        ],
+        "weighted_score": 0.95,
+        "rationale": "Correct possessive but unnatural word order; reads as 'our beautiful name' instead of 'our name is beautiful'."
+      },
+      {
+        "candidate_id": "cand-3",
+        "rank": 2,
+        "winner": false,
+        "temp": 0.8,
+        "mirad": "aeta via dyun se",
+        "total_score": 0.0,
+        "semantic_fidelity": 0.0,
+        "grammar": 6.0,
+        "morphology": 10.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [
+          "semantic_mismatch"
+        ],
+        "verifier_soft_errors": [
+          "missing_punctuation"
+        ],
+        "weighted_score": 0.18,
+        "rationale": "Uses 'aeta' (your) instead of 'yata' (our), missing period, inverted word order."
+      }
+    ],
+    "elapsed_s": 97.674
+  },
+  {
+    "id": "pair-0740",
+    "english_text": "he or she does not go",
+    "gold": "it voy pe",
+    "pred": "It ey iyt voy pe.",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 2,
+    "rationale": "Candidate 3 correctly translates 'he or she' as 'It ey iyt', includes proper negation 'voy', and uses correct capitalization. Candidates 1 and 2 omit the 'or she' component.",
+    "candidates": [
+      {
+        "candidate_id": "cand-1",
+        "rank": 1,
+        "winner": false,
+        "temp": 0.1,
+        "mirad": "it voy pe",
+        "total_score": 43.0,
+        "semantic_fidelity": 12.0,
+        "grammar": 16.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [
+          "semantic_mismatch"
+        ],
+        "verifier_soft_errors": [
+          "missing_gender_phrase",
+          "capitalization"
+        ],
+        "weighted_score": 0.74,
+        "rationale": "Uses 'it' for 'he' but omits 'or she'; missing capitalization and gender nuance."
+      },
+      {
+        "candidate_id": "cand-2",
+        "rank": 2,
+        "winner": false,
+        "temp": 0.4,
+        "mirad": "it voy pe",
+        "total_score": 43.0,
+        "semantic_fidelity": 12.0,
+        "grammar": 16.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [
+          "semantic_mismatch"
+        ],
+        "verifier_soft_errors": [
+          "missing_gender_phrase",
+          "capitalization"
+        ],
+        "weighted_score": 0.74,
+        "rationale": "Duplicate of candidate 1, same issues."
+      },
+      {
+        "candidate_id": "cand-3",
+        "rank": 0,
+        "winner": true,
+        "temp": 0.8,
+        "mirad": "It ey iyt voy pe.",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Accurate translation with proper subject, negation, and capitalization."
+      }
+    ],
+    "elapsed_s": 101.487
+  },
+  {
+    "id": "pair-0288",
+    "english_text": "they were very far from here",
+    "gold": "yit sa gla yib bi him",
+    "pred": "Yit sa gla yiba bi him.",
+    "normalized_match": false,
+    "exact_match": false,
+    "judge_score": 100.0,
+    "winner_index": 2,
+    "rationale": "Only cand-3 includes past tense copula 'sa', matching 'were' in source.",
+    "candidates": [
+      {
+        "candidate_id": "cand-1",
+        "rank": 2,
+        "winner": false,
+        "temp": 0.1,
+        "mirad": "Yit gla yiba bi him.",
+        "total_score": 28.0,
+        "semantic_fidelity": 14.0,
+        "grammar": 16.0,
+        "morphology": 6.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [
+          "possible_missing_copula"
+        ],
+        "rule_notes": [
+          "Copular English source but candidate lacks obvious se/sa copula."
+        ],
+        "verifier_hard_failures": [
+          "wrong_tense_or_aspect"
+        ],
+        "verifier_soft_errors": [
+          "possible_missing_copula",
+          "missing_copula"
+        ],
+        "weighted_score": 0.59,
+        "rationale": "Missing past tense copula; reads as present tense."
+      },
+      {
+        "candidate_id": "cand-2",
+        "rank": 1,
+        "winner": false,
+        "temp": 0.4,
+        "mirad": "Yit gla yiba bi him.",
+        "total_score": 28.0,
+        "semantic_fidelity": 14.0,
+        "grammar": 16.0,
+        "morphology": 6.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [
+          "possible_missing_copula"
+        ],
+        "rule_notes": [
+          "Copular English source but candidate lacks obvious se/sa copula."
+        ],
+        "verifier_hard_failures": [
+          "wrong_tense_or_aspect"
+        ],
+        "verifier_soft_errors": [
+          "possible_missing_copula",
+          "missing_copula"
+        ],
+        "weighted_score": 0.59,
+        "rationale": "Missing past tense copula; reads as present tense."
+      },
+      {
+        "candidate_id": "cand-3",
+        "rank": 0,
+        "winner": true,
+        "temp": 0.8,
+        "mirad": "Yit sa gla yiba bi him.",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Correct tense, word order, and meaning."
+      }
+    ],
+    "elapsed_s": 114.925
+  },
+  {
+    "id": "pair-0154",
+    "english_text": "guilty",
+    "gold": "yova",
+    "pred": "yova",
+    "normalized_match": true,
+    "exact_match": true,
+    "judge_score": 100.0,
+    "winner_index": 0,
+    "rationale": "All candidates are identical and correctly translate 'guilty' to 'yova' with no errors.",
+    "candidates": [
+      {
+        "candidate_id": "cand-1",
+        "rank": 0,
+        "winner": true,
+        "temp": 0.1,
+        "mirad": "yova",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Perfect translation."
+      },
+      {
+        "candidate_id": "cand-2",
+        "rank": 1,
+        "winner": false,
+        "temp": 0.4,
+        "mirad": "yova",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Perfect translation."
+      },
+      {
+        "candidate_id": "cand-3",
+        "rank": 2,
+        "winner": false,
+        "temp": 0.8,
+        "mirad": "yova",
+        "total_score": 100.0,
+        "semantic_fidelity": 20.0,
+        "grammar": 20.0,
+        "morphology": 20.0,
+        "rule_hard_failures": [],
+        "rule_soft_errors": [],
+        "rule_notes": [],
+        "verifier_hard_failures": [],
+        "verifier_soft_errors": [],
+        "weighted_score": 1.0,
+        "rationale": "Perfect translation."
+      }
+    ],
+    "elapsed_s": 43.974
+  }
+]

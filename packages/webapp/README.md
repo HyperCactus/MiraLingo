@@ -72,11 +72,26 @@ Storage failures are returned as stacktrace-free JSON with stable `phase` values
 From the repository root:
 
 ```bash
-PYTHONPATH=packages/webapp/src \
+PYTHONPATH=packages/webapp/src:packages/translator/src:packages/tts/src:src \
   MIRALINGO_ENV=development \
   MIRALINGO_ENABLE_LOCAL_ADMIN=true \
   python -m uvicorn mirad_webapp.api:app --reload --app-dir packages/webapp/src
 ```
+
+## One-command local startup (recommended)
+
+Use the root launcher script to avoid Python path drift and frontend/backend mismatch:
+
+```bash
+./scripts/start_miralingo.sh
+```
+
+This script:
+- ensures frontend dependencies are installed,
+- starts backend with the required package paths (`webapp`, `translator`, `tts`, and root `src`),
+- starts frontend on port `5173`,
+- prints stable URLs for manual testing,
+- shuts both down cleanly on `Ctrl+C`.
 
 Useful backend checks:
 

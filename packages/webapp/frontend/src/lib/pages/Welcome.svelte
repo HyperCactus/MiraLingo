@@ -94,47 +94,51 @@
     </section>
 
     <section class="grid gap-4 lg:grid-cols-2">
-      <AppCard className="space-y-4" id="create-account-card">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">Create account</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">Start your study profile</h2>
-        </div>
-        {#if authError && authState === 'registration-failed'}
-          <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
-        {/if}
-        <form class="space-y-4" on:submit|preventDefault={() => dispatch('createAccount')}>
-          <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            <span>Username</span>
-            <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={registrationUsername} required />
-          </label>
-          <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            <span>Password</span>
-            <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} required type="password" />
-          </label>
-          <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Creating…' : 'Create Account'}</AppButton>
-        </form>
-      </AppCard>
+      <div id="create-account-card">
+        <AppCard className="space-y-4">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">Create account</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">Start your study profile</h2>
+          </div>
+          {#if authError && authState === 'registration-failed'}
+            <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
+          {/if}
+          <form class="space-y-4" on:submit|preventDefault={() => dispatch('createAccount')}>
+            <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span>Username</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={registrationUsername} required />
+            </label>
+            <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span>Password</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} required type="password" />
+            </label>
+            <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Creating…' : 'Create Account'}</AppButton>
+          </form>
+        </AppCard>
+      </div>
 
-      <AppCard className="space-y-4" id="login-card">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">Log in</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">Continue where you left off</h2>
-        </div>
-        {#if authError && authState !== 'registration-failed'}
-          <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
-        {/if}
-        <form class="space-y-4" on:submit|preventDefault={() => dispatch('logIn')}>
-          <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            <span>Username</span>
-            <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={loginUsername} required />
-          </label>
-          <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-            <span>Password</span>
-            <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="current-password" bind:value={loginPassword} required type="password" />
-          </label>
-          <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Signing in…' : 'Log In'}</AppButton>
-        </form>
-      </AppCard>
+      <div id="login-card">
+        <AppCard className="space-y-4">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">Log in</p>
+            <h2 class="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-50">Continue where you left off</h2>
+          </div>
+          {#if authError && authState !== 'registration-failed'}
+            <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
+          {/if}
+          <form class="space-y-4" on:submit|preventDefault={() => dispatch('logIn')}>
+            <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span>Username</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={loginUsername} required />
+            </label>
+            <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span>Password</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="current-password" bind:value={loginPassword} required type="password" />
+            </label>
+            <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Signing in…' : 'Log In'}</AppButton>
+          </form>
+        </AppCard>
+      </div>
     </section>
   </main>
 </div>
