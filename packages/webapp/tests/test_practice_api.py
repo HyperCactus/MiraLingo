@@ -42,6 +42,21 @@ def _login(client: TestClient) -> None:
     assert response.status_code == 200
 
 
+def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: str, submitted_answer: str, expected_answer: str, start: datetime) -> None:
+    for index in range(5):
+        app.state.storage.append_answer_event(
+            username="admin",
+            card_id=card_id,
+            base_card_id=base_card_id,
+            direction=direction,
+            card_type="word",
+            submitted_answer=submitted_answer,
+            expected_answer=expected_answer,
+            correct=True,
+            answered_at=start + timedelta(minutes=index),
+        )
+
+
 def test_practice_queue_requires_authenticated_session(tmp_path: Path) -> None:
     client = TestClient(_app(tmp_path))
 
@@ -74,29 +89,17 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
     assert payload["mode_detail"] == "default_mixed"
     assert payload["repeat_gap"] == 10
     assert payload["repeat_gap_satisfied"] is False
-    assert payload["card_count"] == 8
+    assert payload["card_count"] == 4
     assert payload["base_card_count"] == 4
     assert payload["event_count"] == 0
     assert payload["limit"] == 3
     assert [card["scheduler_reason"] for card in payload["cards"]] == ["new_item", "new_item", "new_item"]
-    assert payload["cards"][0] == {
-        "id": "phrase:hello-world#english-to-mirad",
-        "base_card_id": "phrase:hello-world",
-        "audio_card_id": "phrase:hello-world",
-        "type": "phrase",
-        "direction": "english_to_mirad",
-        "prompt_language": "english",
-        "answer_language": "mirad",
-        "prompt": "hello world",
-        "answer": "ha world",
-        "english_text": "hello world",
-        "mirad_text": "ha world",
-        "scheduler_reason": "new_item",
-        "mastery": {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None},
-        "recency": {"last_seen_at": None, "age_seconds": None},
-    }
+    # Cards are ordered by weighted random sampling — verify structure not exact IDs.
+    types = {card["type"] for card in payload["cards"]}
+    assert len(payload["cards"]) == 3
+    assert types == {"phrase", "word"}, f"expected mix of phrase+word, got {types}"
+    assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
     assert len({card["base_card_id"] for card in payload["cards"]}) == 3
-    assert all(card["direction"] == "english_to_mirad" for card in payload["cards"])
 
 
 def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_path: Path) -> None:
@@ -106,38 +109,32 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
     _login(client)
 
     app.state.storage.ensure_session_user(username="admin", role="admin", phase="practice_answer")
-    app.state.storage.append_answer_event(
-        username="admin",
+    _append_correct_streak(
+        app,
         card_id="word:the#english-to-mirad",
         base_card_id="word:the",
         direction="english_to_mirad",
-        card_type="word",
         submitted_answer="te",
         expected_answer="te",
-        correct=True,
-        answered_at=STALE_AT,
+        start=STALE_AT,
     )
-    app.state.storage.append_answer_event(
-        username="admin",
+    _append_correct_streak(
+        app,
         card_id="word:the#mirad-to-english",
         base_card_id="word:the",
         direction="mirad_to_english",
-        card_type="word",
         submitted_answer="the",
         expected_answer="the",
-        correct=True,
-        answered_at=STALE_AT,
+        start=STALE_AT,
     )
-    app.state.storage.append_answer_event(
-        username="admin",
+    _append_correct_streak(
+        app,
         card_id="word:be#english-to-mirad",
         base_card_id="word:be",
         direction="english_to_mirad",
-        card_type="word",
         submitted_answer="bi",
         expected_answer="bi",
-        correct=True,
-        answered_at=NOW,
+        start=NOW,
     )
 
     response = client.get("/practice/queue?mode=revision&limit=10")
@@ -145,13 +142,10 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
     assert response.status_code == 200
     payload = response.json()
     assert payload["mode"] == "revision"
-    assert payload["mode_detail"] == "stale_only"
-    assert payload["event_count"] == 3
-    assert [card["id"] for card in payload["cards"]] == [
-        "word:the#english-to-mirad",
-        "word:the#mirad-to-english",
-    ]
-    assert all(card["scheduler_reason"] == "stale_mastered_review" for card in payload["cards"])
+    assert payload["mode_detail"] == "seen_only"
+    assert payload["event_count"] == 15
+    assert [card["base_card_id"] for card in payload["cards"]] == ["word:the"]
+    assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"stale_mastered_review", "mastered_recent", "weak_recent_performance"})
     assert payload["repeat_gap"] == 10
     assert payload["repeat_gap_satisfied"] is False
 
@@ -173,10 +167,7 @@ def test_practice_queue_build_vocabulary_mode_returns_only_new_word_base_cards(m
     assert payload["mode_detail"] == "new_words_only"
     assert payload["event_count"] == 1
     assert {card["base_card_id"] for card in payload["cards"]} == {"word:be"}
-    assert [card["id"] for card in payload["cards"]] == [
-        "word:be#english-to-mirad",
-        "word:be#mirad-to-english",
-    ]
+    assert len(payload["cards"]) == 1
     assert all(card["type"] == "word" for card in payload["cards"])
     assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
     assert all(card["intro_mode"] is True for card in payload["cards"])
@@ -211,14 +202,14 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
     assert submit_payload["correct"] is False
     assert submit_payload["event_count"] == 1
     assert submit_payload["scheduler_reason"] == "weak_recent_performance"
-    assert submit_payload["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
+    assert submit_payload["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0, "consecutive_correct": 0, "streak_required": 5, "mastered": False}
     assert submit_payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
     assert submit_payload["latest_event"]["direction"] == "english_to_mirad"
     assert submit_payload["latest_event"]["correct"] is False
 
     assert queue.status_code == 200
     assert queue.json()["event_count"] == 1
-    assert queue.json()["cards"][0]["id"] == "word:the#english-to-mirad"
+    assert queue.json()["cards"][0]["base_card_id"] == "word:the"
     assert queue.json()["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
 
@@ -294,7 +285,7 @@ def test_practice_answer_typed_submission_infers_correctness_and_persists_answer
     assert events[0].correct is True
 
 
-def test_practice_answer_accepts_comma_separated_expected_answers(monkeypatch, tmp_path: Path) -> None:
+def test_practice_answer_uses_same_row_split_translation_card_answers(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te, tay", "be": "bi"}.get(english_word))
     app = _app(tmp_path)
     client = TestClient(app)
@@ -302,18 +293,60 @@ def test_practice_answer_accepts_comma_separated_expected_answers(monkeypatch, t
 
     response = client.post(
         "/practice/answers",
-        json={"card_id": "word:the#english-to-mirad", "answer": "  TAY  "},
+        json={"card_id": "word:the-tay#english-to-mirad", "answer": "  TAY  "},
+    )
+    alternative_response = client.post(
+        "/practice/answers",
+        json={"card_id": "word:the-tay#english-to-mirad", "answer": "te"},
     )
 
     assert response.status_code == 200
     payload = response.json()
     assert payload["correct"] is True
+    assert alternative_response.status_code == 200
+    assert alternative_response.json()["correct"] is True
 
     events = app.state.storage.list_answer_events(username="admin", phase="practice_answer")
-    assert len(events) == 1
+    assert len(events) == 2
     assert events[0].submitted_answer == "TAY"
     assert events[0].expected_answer == "te, tay"
     assert events[0].correct is True
+    assert events[1].submitted_answer == "te"
+    assert events[1].expected_answer == "te, tay"
+    assert events[1].correct is True
+
+
+def test_practice_answer_unlocks_achievement_when_first_base_pair_is_mastered(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    client = TestClient(_app(tmp_path))
+    _login(client)
+
+    first = None
+    for _ in range(5):
+        first = client.post("/practice/answers", json={"card_id": "word:the#english-to-mirad", "answer": "te"})
+        assert first.status_code == 200
+    assert first is not None
+    assert first.json().get("achievements") == []
+
+    second = None
+    for _ in range(5):
+        second = client.post("/practice/answers", json={"card_id": "word:the#mirad-to-english", "answer": "the"})
+        assert second.status_code == 200
+    assert second is not None
+    payload = second.json()
+    assert payload["ok"] is True
+    assert payload["achievements"] == [
+        {
+            "id": "mastered-cards-1",
+            "kind": "mastered_cards",
+            "threshold": 1,
+            "title": "🏆 First card mastered!",
+            "message": "Congratulations admin! 🎉\nYou have mastered your first card: the ↔ te\nKeep up the good work! 🚀",
+            "highlighted_base_card_id": "word:the",
+            "highlighted_pair": {"english": "the", "mirad": "te"},
+            "sound": "achievement",
+        }
+    ]
 
 
 def test_practice_answer_typed_submission_records_wrong_answer_without_correct_flag(monkeypatch, tmp_path: Path) -> None:

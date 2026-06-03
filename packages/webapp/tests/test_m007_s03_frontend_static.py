@@ -6,6 +6,7 @@ LAYOUT_ROOT = FRONTEND_ROOT / "lib" / "components" / "layout"
 PAGES_ROOT = FRONTEND_ROOT / "lib" / "pages"
 APP_FILE = FRONTEND_ROOT / "App.svelte"
 DASHBOARD_PAGE = PAGES_ROOT / "Dashboard.svelte"
+LEXICON_PAGE = PAGES_ROOT / "Lexicon.svelte"
 WELCOME_PAGE = PAGES_ROOT / "Welcome.svelte"
 EXERCISE_CARD = LEARNING_ROOT / "ExerciseCard.svelte"
 APP_SHELL = LAYOUT_ROOT / "AppShell.svelte"
@@ -13,7 +14,7 @@ STUDY_SHELL = LAYOUT_ROOT / "StudyShell.svelte"
 
 
 def test_slice_components_exist() -> None:
-    for path in [APP_FILE, DASHBOARD_PAGE, WELCOME_PAGE, EXERCISE_CARD, APP_SHELL, STUDY_SHELL]:
+    for path in [APP_FILE, DASHBOARD_PAGE, LEXICON_PAGE, WELCOME_PAGE, EXERCISE_CARD, APP_SHELL, STUDY_SHELL]:
         assert path.exists(), f"expected {path} to exist"
 
 
@@ -31,6 +32,14 @@ def test_welcome_copy_matches_logged_out_surface() -> None:
     assert "Welcome to Mirad" in source
     assert "Create Account" in source
     assert "Log In" in source
+
+
+def test_lexicon_tts_preserves_full_comma_separated_translation() -> None:
+    source = LEXICON_PAGE.read_text()
+    assert 'function getPreviewMiradText(result: LookupResult): string {' in source
+    assert ".replace(/\\s*,\\s*/g, ', ')" in source
+    assert '.split(/[;,|/]/g)' not in source
+    assert 'await playMbrolaPreview(previewText, speakingWord);' in source
 
 
 def test_app_routes_through_pages_and_shells() -> None:

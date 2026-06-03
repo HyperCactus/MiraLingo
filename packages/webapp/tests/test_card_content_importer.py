@@ -109,6 +109,48 @@ def test_word_candidates_are_looked_up_and_imported_in_deterministic_input_order
     assert _count(result, "word", "imported") == 3
 
 
+def test_comma_separated_word_translations_import_as_exact_follow_up_cards(tmp_path: Path) -> None:
+    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
+
+    result = _import(
+        phrase_csv,
+        word_candidates=["keyboard"],
+        lexicon={"keyboard": "buxnufsemes, byuxarsemes, raduzarfaof, sem raduzar"},
+    )
+
+    assert _cards_of_type(result, "word") == [
+        {
+            "id": "word:keyboard-buxnufsemes",
+            "type": "word",
+            "english": "keyboard",
+            "mirad": "buxnufsemes",
+            "follow_up_mirad": "buxnufsemes, byuxarsemes, raduzarfaof, sem raduzar",
+        },
+        {
+            "id": "word:keyboard-byuxarsemes",
+            "type": "word",
+            "english": "keyboard",
+            "mirad": "byuxarsemes",
+            "follow_up_mirad": "buxnufsemes, byuxarsemes, raduzarfaof, sem raduzar",
+        },
+        {
+            "id": "word:keyboard-raduzarfaof",
+            "type": "word",
+            "english": "keyboard",
+            "mirad": "raduzarfaof",
+            "follow_up_mirad": "buxnufsemes, byuxarsemes, raduzarfaof, sem raduzar",
+        },
+        {
+            "id": "word:keyboard-sem-raduzar",
+            "type": "word",
+            "english": "keyboard",
+            "mirad": "sem raduzar",
+            "follow_up_mirad": "buxnufsemes, byuxarsemes, raduzarfaof, sem raduzar",
+        },
+    ]
+    assert _count(result, "word", "imported") == 4
+
+
 def test_missing_word_translations_are_counted_as_misses_not_blank_cards(tmp_path: Path) -> None:
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
 

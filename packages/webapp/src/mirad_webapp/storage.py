@@ -111,12 +111,16 @@ class UserSettingsRecord:
     tts_speed: float = DEFAULT_TTS_SPEED
     tts_autoplay: bool = True
     sfx_enabled: bool = True
+    sfx_mode: str = "on_answer"
     voice_id: str = DEFAULT_VOICE_ID
 
     def public_dict(self) -> dict[str, Any]:
         return {
             "theme": self.theme,
             "tts_speed": self.tts_speed,
+            "tts_autoplay": self.tts_autoplay,
+            "sfx_enabled": self.sfx_enabled,
+            "sfx_mode": self.sfx_mode,
             "voice": {
                 "id": self.voice_id,
                 "label": DEFAULT_VOICE_LABEL,
@@ -532,7 +536,7 @@ class MiraLingoStorage:
                     if last_session_counted != normalized_session_id:
                         session_streak += 1
                         last_session_counted = normalized_session_id
-                    if lifecycle != "revision" and consecutive >= 4 and session_streak >= 2:
+                    if lifecycle != "revision" and consecutive >= 5:
                         lifecycle = "revision"
                         promoted_at = timestamp
                 else:
@@ -674,24 +678,39 @@ class MiraLingoStorage:
         return {f"{row['base_card_id']}#{row['direction']}": int(row["shown_count"]) for row in rows}
 
     def list_answer_events(
-        self, *, username: str, limit: int = MAX_EVENTS, phase: str = "practice_progress"
+        self, *, username: str, limit: int | None = MAX_EVENTS, phase: str = "practice_progress"
     ) -> list[AnswerEventRecord]:
-        """Return newest bounded answer events in chronological order, skipping malformed rows."""
+        """Return answer events in chronological order, skipping malformed rows.
+
+        When limit is None, returns full learner history.
+        """
         normalized_username = _require_username(username, phase=phase)
-        bounded_limit = _bounded_limit(limit)
         try:
             with self._connect(phase) as connection:
-                rows = connection.execute(
-                    """
-                    SELECT username, card_id, base_card_id, direction, card_type,
-                           submitted_answer, expected_answer, correct, answered_at
-                    FROM answer_events
-                    WHERE username = ?
-                    ORDER BY answered_at DESC, id DESC
-                    LIMIT ?
-                    """,
-                    (normalized_username, bounded_limit),
-                ).fetchall()
+                if limit is None:
+                    rows = connection.execute(
+                        """
+                        SELECT username, card_id, base_card_id, direction, card_type,
+                               submitted_answer, expected_answer, correct, answered_at
+                        FROM answer_events
+                        WHERE username = ?
+                        ORDER BY answered_at DESC, id DESC
+                        """,
+                        (normalized_username,),
+                    ).fetchall()
+                else:
+                    bounded_limit = _bounded_limit(limit)
+                    rows = connection.execute(
+                        """
+                        SELECT username, card_id, base_card_id, direction, card_type,
+                               submitted_answer, expected_answer, correct, answered_at
+                        FROM answer_events
+                        WHERE username = ?
+                        ORDER BY answered_at DESC, id DESC
+                        LIMIT ?
+                        """,
+                        (normalized_username, bounded_limit),
+                    ).fetchall()
         except sqlite3.Error as exc:
             raise StorageError(phase=phase, detail="Could not list answer events.") from exc
         return list(reversed([record for row in rows if (record := _answer_event_from_row(row)) is not None]))
@@ -746,7 +765,7 @@ class MiraLingoStorage:
                 self._ensure_user_settings_row(connection, normalized_username)
                 row = connection.execute(
                     """
-                    SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, voice_id
+                    SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, sfx_mode, voice_id
                     FROM user_settings
                     WHERE username = ?
                     """,
@@ -763,26 +782,30 @@ class MiraLingoStorage:
             tts_speed=float(row["tts_speed"]),
             tts_autoplay=bool(row["tts_autoplay"]),
             sfx_enabled=bool(row["sfx_enabled"]),
+            sfx_mode=str(row["sfx_mode"] or ("on_answer" if bool(row["sfx_enabled"]) else "off")),
             voice_id=str(row["voice_id"] or DEFAULT_VOICE_ID),
         )
 
-    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool = True, sfx_enabled: bool = True) -> UserSettingsRecord:
+    def upsert_user_settings(self, *, username: str, theme: str, tts_speed: float, tts_autoplay: bool = True, sfx_enabled: bool = True, sfx_mode: str | None = None) -> UserSettingsRecord:
         """Create or update durable learner settings for supported theme/speed values."""
         normalized_username = _require_username(username, phase="settings_update")
         normalized_theme = _require_theme(theme, phase="settings_update")
         normalized_speed = _require_tts_speed(tts_speed, phase="settings_update")
         normalized_tts_autoplay = bool(tts_autoplay)
         normalized_sfx_enabled = bool(sfx_enabled)
+        normalized_sfx_mode = _require_sfx_mode(sfx_mode if sfx_mode is not None else ("on_answer" if normalized_sfx_enabled else "off"), phase="settings_update")
+        if not normalized_sfx_enabled and normalized_sfx_mode != "off":
+            normalized_sfx_mode = "off"
         try:
             with self._connect("settings_update") as connection:
                 self._ensure_user_settings_row(connection, normalized_username)
                 connection.execute(
                     """
                     UPDATE user_settings
-                    SET theme = ?, tts_speed = ?, tts_autoplay = ?, sfx_enabled = ?, voice_id = ?
+                    SET theme = ?, tts_speed = ?, tts_autoplay = ?, sfx_enabled = ?, sfx_mode = ?, voice_id = ?
                     WHERE username = ?
                     """,
-                    (normalized_theme, normalized_speed, 1 if normalized_tts_autoplay else 0, 1 if normalized_sfx_enabled else 0, DEFAULT_VOICE_ID, normalized_username),
+                    (normalized_theme, normalized_speed, 1 if normalized_tts_autoplay else 0, 1 if normalized_sfx_enabled else 0, normalized_sfx_mode, DEFAULT_VOICE_ID, normalized_username),
                 )
         except sqlite3.Error as exc:
             raise StorageError(phase="settings_update", detail="Could not update settings.") from exc
@@ -792,6 +815,7 @@ class MiraLingoStorage:
             tts_speed=normalized_speed,
             tts_autoplay=normalized_tts_autoplay,
             sfx_enabled=normalized_sfx_enabled,
+            sfx_mode=normalized_sfx_mode,
             voice_id=DEFAULT_VOICE_ID,
         )
 
@@ -914,6 +938,7 @@ class MiraLingoStorage:
                 _ensure_column(connection, "shown_cards", "answer_language", "TEXT NOT NULL DEFAULT ''")
                 _ensure_column(connection, "user_settings", "tts_autoplay", "INTEGER NOT NULL DEFAULT 1 CHECK(tts_autoplay IN (0, 1))")
                 _ensure_column(connection, "user_settings", "sfx_enabled", "INTEGER NOT NULL DEFAULT 1 CHECK(sfx_enabled IN (0, 1))")
+                _ensure_column(connection, "user_settings", "sfx_mode", "TEXT NOT NULL DEFAULT 'on_answer' CHECK(sfx_mode IN ('all', 'on_answer', 'off'))")
                 _ensure_column(connection, "user_settings", "voice_id", "TEXT NOT NULL DEFAULT 'de6'")
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc
@@ -982,6 +1007,13 @@ def _require_tts_speed(tts_speed: float, *, phase: str) -> float:
             error="invalid_tts_speed",
         )
     return numeric
+
+
+def _require_sfx_mode(sfx_mode: str, *, phase: str) -> str:
+    normalized = str(sfx_mode or "").strip().lower()
+    if normalized not in {"all", "on_answer", "off"}:
+        raise StorageError(phase=phase, detail="SFX mode must be one of: all, on_answer, off.", error="invalid_sfx_mode")
+    return normalized
 
 
 def _utcnow_iso() -> str:

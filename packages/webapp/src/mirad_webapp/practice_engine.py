@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 import re
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -11,7 +12,10 @@ MAX_EVENTS = 200
 STALE_AFTER_SECONDS = 14 * 24 * 60 * 60
 _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
+_REINFORCE_MIN_ATTEMPTS = 3
 _REPEAT_GAP = 10
+_DIRECTION_EXPOSURE_BALANCE_WEIGHT = 0.35
+_DIRECTION_EXPOSURE_BALANCE_CAP = 4.0
 _ID_RE = re.compile(r"[^a-z0-9]+")
 
 MIXED_MODE = "mixed"
@@ -26,6 +30,9 @@ _DIRECTION_SUFFIXES = {
     MIRAD_TO_ENGLISH: "mirad-to-english",
 }
 _SUFFIX_TO_DIRECTION = {suffix: direction for direction, suffix in _DIRECTION_SUFFIXES.items()}
+_ACHIEVEMENT_BASE_MILESTONES = (1, 10, 20, 50, 80, 100)
+_ACHIEVEMENT_REPEAT_AFTER = 100
+_ACHIEVEMENT_REPEAT_STEP = 50
 
 
 def stable_card_id(card: dict[str, Any]) -> str:
@@ -61,26 +68,47 @@ def build_practice_queue(
     practice_items = _expand_practice_items(cards)
     valid_events = _normalize_events(events or [])
     stats = _stats_by_card(valid_events)
+    base_stats = _stats_by_base_card(valid_events)
     recent_accuracy = _recent_accuracy(valid_events)
     weak_recent = recent_accuracy is not None and recent_accuracy < _NEW_ITEM_ACCURACY_THRESHOLD
+    adaptive_state = _adaptive_session_state(valid_events)
     base_cards_with_history = {event["base_card_id"] for event in valid_events}
 
-    ranked: list[tuple[int, int, dict[str, Any]]] = []
-    for index, item in enumerate(practice_items):
-        card_stats = stats.get(item["id"], _empty_stats())
-        reason = _scheduler_reason(card_stats, current, weak_recent)
-        queue_item = {
-            **item,
-            "scheduler_reason": reason,
-            "mastery": _mastery_payload(card_stats),
-            "recency": _recency_payload(card_stats, current),
-        }
-        ranked.append((_rank(reason, card_stats, current), index, queue_item))
+    seed = int(current.timestamp() * 1_000_000)
+    rng = random.Random(seed)
 
-    ordered = _interleave_same_priority_cards(ranked)
+    ranked: list[tuple[int, int, dict[str, Any], dict[str, Any]]] = []
+    for index, card in enumerate(base_cards):
+        directional_items = [
+            _practice_item(card, ENGLISH_TO_MIRAD, rng=rng),
+            _practice_item(card, MIRAD_TO_ENGLISH, rng=rng),
+        ]
+        reason, chosen_item, chosen_stats = _queue_item_for_base_card(
+            card=card,
+            directional_items=directional_items,
+            stats=stats,
+            base_stats=base_stats,
+            now=current,
+            weak_recent=weak_recent,
+            adaptive_state=adaptive_state,
+            rng=rng,
+        )
+        queue_item = {
+            **chosen_item,
+            "scheduler_reason": reason,
+            "mastery": _mastery_payload(chosen_stats),
+            "recency": _recency_payload(chosen_stats, current),
+        }
+        ranked.append((_rank(reason, base_stats.get(card["id"], _empty_stats()), current, adaptive_state), index, queue_item, card))
+
+    ordered = _interleave_same_priority_cards(ranked, rng)
     filtered, mode_detail = _filter_queue_for_mode(ordered, normalized_mode, base_cards_with_history)
     diversified = _diversify_mixed_queue(filtered, normalized_mode)
-    spaced, repeat_gap_satisfied = _apply_repeat_gap(diversified, repeat_gap=_REPEAT_GAP)
+    spaced, repeat_gap_satisfied = _apply_repeat_gap(
+        diversified,
+        repeat_gap=_REPEAT_GAP,
+        adaptive_state=adaptive_state,
+    )
     bounded_limit = max(0, min(int(limit), len(spaced)))
     if not spaced and not filtered:
         repeat_gap_satisfied = False
@@ -93,7 +121,7 @@ def build_practice_queue(
         "mode_detail": mode_detail,
         "repeat_gap": _REPEAT_GAP,
         "repeat_gap_satisfied": repeat_gap_satisfied,
-        "card_count": len(practice_items),
+        "card_count": len(base_cards),
         "base_card_count": len(base_cards),
         "event_count": len(valid_events),
         "limit": bounded_limit,
@@ -140,7 +168,7 @@ def record_practice_answer(
     item = items_by_id[resolved_id]
     submitted = str(submitted_answer).strip()
     expected = item["answer"]
-    expected_alternatives = _normalize_answer_alternatives(expected)
+    expected_alternatives = _expected_answer_alternatives(item)
     normalized_submitted = _normalize_text(submitted)
     is_correct = bool(correct) if correct is not None else normalized_submitted in expected_alternatives
     event = {
@@ -160,22 +188,30 @@ def answer_summary(cards: list[dict[str, Any]], events: list[dict[str, Any]], ca
     """Return API-facing diagnostics for the latest answer."""
     items_by_id, legacy_aliases = _practice_item_maps(cards)
     resolved_id = _resolve_practice_item_id(card_id, items_by_id, legacy_aliases) or str(card_id)
+    normalized_events = _normalize_events(events)
     queue = build_practice_queue(cards=cards, events=events, now=now, limit=len(items_by_id))
-    selected = next((card for card in queue["cards"] if card["id"] == resolved_id), None) or {}
-    latest = next((event for event in reversed(_normalize_events(events)) if event["card_id"] == resolved_id), {})
+    selected = next((card for card in queue["cards"] if card["id"] == resolved_id), None)
+    latest = next((event for event in reversed(normalized_events) if event["card_id"] == resolved_id), {})
+    if selected is None and latest:
+        selected = next((card for card in queue["cards"] if card["base_card_id"] == latest.get("base_card_id")), None)
+
+    stats = _stats_by_card(normalized_events)
+    current = _as_aware_datetime(now)
+    latest_stat = stats.get(resolved_id, _empty_stats())
     latest_summary = _latest_event_summary(latest)
+    weak_recent = _recent_accuracy(normalized_events) is not None and _recent_accuracy(normalized_events) < _NEW_ITEM_ACCURACY_THRESHOLD
     return {
         "ok": True,
         "phase": "practice_answer",
         "card_id": resolved_id,
-        "base_card_id": latest.get("base_card_id") or selected.get("base_card_id"),
-        "direction": latest.get("direction") or selected.get("direction"),
-        "card_type": latest.get("card_type") or selected.get("type"),
+        "base_card_id": latest.get("base_card_id") or (selected or {}).get("base_card_id"),
+        "direction": latest.get("direction") or (selected or {}).get("direction"),
+        "card_type": latest.get("card_type") or (selected or {}).get("type"),
         "correct": latest.get("correct"),
         "event_count": queue["event_count"],
-        "scheduler_reason": selected.get("scheduler_reason"),
-        "mastery": selected.get("mastery"),
-        "recency": selected.get("recency"),
+        "scheduler_reason": _scheduler_reason(latest_stat, current, weak_recent) if latest else (selected or {}).get("scheduler_reason"),
+        "mastery": _mastery_payload(latest_stat) if latest else (selected or {}).get("mastery"),
+        "recency": _recency_payload(latest_stat, current) if latest else (selected or {}).get("recency"),
         "latest_event": latest_summary,
     }
 
@@ -250,6 +286,34 @@ def build_practice_progress(
     }
 
 
+def build_practice_achievements(
+    *, cards: list[dict[str, Any]], before_events: list[dict[str, Any]] | None, after_events: list[dict[str, Any]] | None, username: str, latest_card_id: str | None = None, now: datetime | None = None
+) -> list[dict[str, Any]]:
+    """Return newly unlocked achievement payloads for practice mastery milestones."""
+    before_progress = build_practice_progress(cards=cards, events=before_events or [], now=now)
+    after_progress = build_practice_progress(cards=cards, events=after_events or [], now=now)
+    before_mastered = _mastered_base_card_ids(before_progress)
+    after_mastered = _mastered_base_card_ids(after_progress)
+    if not after_mastered or len(after_mastered) <= len(before_mastered):
+        return []
+
+    latest_base_card_id = None
+    if latest_card_id:
+        items_by_id, legacy_aliases = _practice_item_maps(cards)
+        resolved_id = _resolve_practice_item_id(latest_card_id, items_by_id, legacy_aliases)
+        if resolved_id and resolved_id in items_by_id:
+            latest_base_card_id = str(items_by_id[resolved_id]["base_card_id"])
+        elif str(latest_card_id) in {str(card.get("id")) for card in _normalize_base_cards(cards)}:
+            latest_base_card_id = str(latest_card_id)
+
+    unlocked: list[dict[str, Any]] = []
+    for threshold in _achievement_milestones_up_to(len(after_mastered)):
+        if len(before_mastered) < threshold <= len(after_mastered):
+            highlighted_base_card_id = latest_base_card_id if latest_base_card_id in after_mastered else next(iter(sorted(after_mastered)))
+            unlocked.append(_achievement_payload(cards, username=username, threshold=threshold, highlighted_base_card_id=highlighted_base_card_id))
+    return unlocked
+
+
 def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for card in _normalize_base_cards(cards):
@@ -258,17 +322,28 @@ def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return items
 
 
-def _practice_item(card: dict[str, str], direction: str) -> dict[str, str]:
+def _choose_prompt_variant(value: str, *, card_type: str, rng: random.Random | None = None) -> str:
+    if card_type != "word":
+        return value
+    options = [part.strip() for part in str(value).split(",") if part.strip()]
+    if len(options) <= 1:
+        return value
+    if rng is None:
+        return options[0]
+    return options[rng.randrange(len(options))]
+
+
+def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random | None = None) -> dict[str, str]:
     if direction == ENGLISH_TO_MIRAD:
         prompt_language = "english"
         answer_language = "mirad"
-        prompt = card["english"]
-        answer = card["mirad"]
+        prompt = _choose_prompt_variant(card["english"], card_type=card["type"], rng=rng)
+        answer = card.get("follow_up_mirad") or card["mirad"]
     else:
         prompt_language = "mirad"
         answer_language = "english"
-        prompt = card["mirad"]
-        answer = card["english"]
+        prompt = _choose_prompt_variant(card["mirad"], card_type=card["type"], rng=rng)
+        answer = card.get("follow_up_english") or card["english"]
 
     return {
         "id": direction_item_id(card["id"], direction),
@@ -282,7 +357,39 @@ def _practice_item(card: dict[str, str], direction: str) -> dict[str, str]:
         "answer": answer,
         "english_text": card["english"],
         "mirad_text": card["mirad"],
+        "follow_up_english": card.get("follow_up_english", ""),
+        "follow_up_mirad": card.get("follow_up_mirad", ""),
     }
+
+
+def _queue_item_for_base_card(
+    *,
+    card: dict[str, str],
+    directional_items: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    base_stats: dict[str, dict[str, Any]],
+    now: datetime,
+    weak_recent: bool,
+    adaptive_state: str,
+    rng: random.Random,
+) -> tuple[str, dict[str, str], dict[str, Any]]:
+    direction_reasons = {
+        item["direction"]: _scheduler_reason(stats.get(item["id"], _empty_stats()), now, weak_recent)
+        for item in directional_items
+    }
+    reason = _base_scheduler_reason(directional_items, direction_reasons)
+    chosen_item = _choose_direction_for_base_card(
+        card=card,
+        directional_items=directional_items,
+        stats=stats,
+        base_stats=base_stats,
+        direction_reasons=direction_reasons,
+        now=now,
+        adaptive_state=adaptive_state,
+        rng=rng,
+    )
+    chosen_stats = stats.get(chosen_item["id"], _empty_stats())
+    return reason, chosen_item, chosen_stats
 
 
 def _practice_item_maps(cards: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
@@ -290,6 +397,89 @@ def _practice_item_maps(cards: list[dict[str, Any]]) -> tuple[dict[str, dict[str
     by_id = {item["id"]: item for item in items}
     legacy_aliases = {item["base_card_id"]: item["id"] for item in items if item["direction"] == ENGLISH_TO_MIRAD}
     return by_id, legacy_aliases
+
+
+def _base_scheduler_reason(directional_items: list[dict[str, str]], direction_reasons: dict[str, str]) -> str:
+    reasons = [direction_reasons[item["direction"]] for item in directional_items]
+    if "weak_recent_performance" in reasons:
+        return "weak_recent_performance"
+    if "stale_mastered_review" in reasons:
+        return "stale_mastered_review"
+    if any(reason in {"new_item", "new_item_gated_by_weak_recent_performance"} for reason in reasons):
+        return "new_item_gated_by_weak_recent_performance" if all(reason == "new_item_gated_by_weak_recent_performance" for reason in reasons if reason in {"new_item", "new_item_gated_by_weak_recent_performance"}) else "new_item"
+    return "mastered_recent"
+
+
+def _choose_direction_for_base_card(
+    *,
+    card: dict[str, str],
+    directional_items: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    base_stats: dict[str, dict[str, Any]],
+    direction_reasons: dict[str, str],
+    now: datetime,
+    adaptive_state: str,
+    rng: random.Random,
+) -> dict[str, str]:
+    latest_event = base_stats.get(card["id"], _empty_stats()).get("latest_event")
+    latest_direction = latest_event.get("direction") if isinstance(latest_event, dict) else None
+    latest_seen = _parse_datetime(latest_event.get("answered_at")) if isinstance(latest_event, dict) else None
+    latest_age_seconds = int((now - latest_seen).total_seconds()) if latest_seen else None
+    attempts_by_direction = {
+        item["direction"]: int(stats.get(item["id"], _empty_stats()).get("attempts") or 0)
+        for item in directional_items
+    }
+
+    weighted_items: list[tuple[float, dict[str, str]]] = []
+    for item in directional_items:
+        stat = stats.get(item["id"], _empty_stats())
+        reason = direction_reasons[item["direction"]]
+        weight = 1.0
+
+        if reason == "weak_recent_performance":
+            weight += 6.0
+        elif reason == "new_item":
+            weight += 4.0
+        elif reason == "new_item_gated_by_weak_recent_performance":
+            weight += 2.5
+        elif reason == "stale_mastered_review":
+            weight += 3.0
+        elif reason == "mastered_recent":
+            weight += 1.0
+
+        attempts = int(stat.get("attempts") or 0)
+        if attempts == 0:
+            weight += 2.0
+
+        incorrect = int(stat.get("incorrect") or 0)
+        if incorrect > 0:
+            weight += 2.0
+
+        opposite_direction = MIRAD_TO_ENGLISH if item["direction"] == ENGLISH_TO_MIRAD else ENGLISH_TO_MIRAD
+        exposure_gap = attempts_by_direction.get(opposite_direction, 0) - attempts
+        if exposure_gap > 0:
+            weight += min(_DIRECTION_EXPOSURE_BALANCE_CAP, exposure_gap * _DIRECTION_EXPOSURE_BALANCE_WEIGHT)
+
+        if latest_direction and item["direction"] != latest_direction:
+            weight += 1.5
+            if latest_age_seconds is not None and latest_age_seconds <= 24 * 60 * 60:
+                weight += 2.5
+        elif latest_direction and item["direction"] == latest_direction and latest_age_seconds is not None and latest_age_seconds <= 24 * 60 * 60:
+            weight -= 1.0
+
+        if adaptive_state == "struggling" and attempts > 0 and incorrect == 0:
+            weight -= 0.5
+
+        weighted_items.append((max(0.1, weight), item))
+
+    total_weight = sum(weight for weight, _ in weighted_items)
+    threshold = rng.random() * total_weight
+    cursor = 0.0
+    for weight, item in weighted_items:
+        cursor += weight
+        if threshold <= cursor:
+            return item
+    return directional_items[0]
 
 
 def _normalize_queue_mode(mode: Any) -> str | None:
@@ -312,7 +502,12 @@ def _filter_queue_for_mode(
     ordered: list[dict[str, Any]], mode: str, base_cards_with_history: set[str]
 ) -> tuple[list[dict[str, Any]], str]:
     if mode == REVISION_MODE:
-        return [item for item in ordered if item["scheduler_reason"] == "stale_mastered_review"], "stale_only"
+        revised = [
+            item for item in ordered
+            if item["scheduler_reason"] in {"stale_mastered_review", "mastered_recent", "weak_recent_performance"}
+            and item_is_seen(item)
+        ]
+        return revised, "seen_only"
     if mode == BUILD_VOCABULARY_MODE:
         return [
             {
@@ -342,7 +537,6 @@ def _prioritize_intro_content(ordered: list[dict[str, Any]], base_cards_with_his
         return ordered
 
     unseen = [item for item in ordered if item["base_card_id"] not in base_cards_with_history]
-    seen = [item for item in ordered if item["base_card_id"] in base_cards_with_history]
 
     # Starter phrase: "my name is ..." should appear early for brand-new users.
     starter = [
@@ -387,26 +581,31 @@ def _diversify_mixed_queue(items: list[dict[str, Any]], mode: str) -> list[dict[
     return weak[:weak_cap] + non_weak
 
 
-def _interleave_same_priority_cards(ranked: list[tuple[int, int, dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Order scheduler ranks while mixing card types and directions within equal-priority buckets."""
-    by_rank: dict[int, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
-    for rank, index, item in ranked:
-        by_rank[rank].append((index, item))
+def _interleave_same_priority_cards(
+    ranked: list[tuple[int, int, dict[str, Any], dict[str, Any]]], rng: random.Random
+) -> list[dict[str, Any]]:
+    """Order scheduler ranks while mixing card types at the base-pair level within equal-priority buckets."""
+    by_rank: dict[int, list[tuple[int, dict[str, Any], dict[str, Any]]]] = defaultdict(list)
+    for rank, index, item, card in ranked:
+        by_rank[rank].append((index, item, card))
 
     ordered: list[dict[str, Any]] = []
     for rank in sorted(by_rank):
-        by_group: dict[tuple[str, str], list[tuple[int, dict[str, Any]]]] = defaultdict(list)
-        group_order: list[tuple[str, str]] = []
-        for index, item in sorted(by_rank[rank], key=lambda row: row[0]):
-            group = (item["type"], item["direction"])
+        by_group: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        group_order: list[str] = []
+        for _, item, card in sorted(by_rank[rank], key=lambda row: row[0]):
+            group = card["type"]
             if group not in by_group:
                 group_order.append(group)
-            by_group[group].append((index, item))
+            by_group[group].append(item)
+
+        for group in group_order:
+            rng.shuffle(by_group[group])
 
         while any(by_group.values()):
             for group in group_order:
                 if by_group[group]:
-                    ordered.append(by_group[group].pop(0)[1])
+                    ordered.append(by_group[group].pop())
     return ordered
 
 
@@ -476,7 +675,7 @@ def _build_mixed_mode_diagnostics(
     }
 
 
-def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int) -> tuple[list[dict[str, Any]], bool]:
+def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int, adaptive_state: str = "neutral") -> tuple[list[dict[str, Any]], bool]:
     if not items:
         return [], False
 
@@ -487,10 +686,33 @@ def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int) -> tuple[
 
     while pending:
         blocked_bases = set(recent_base_ids[-repeat_gap:])
-        candidate_index = next((index for index, item in enumerate(pending) if item["base_card_id"] not in blocked_bases), None)
+        allowed_indexes = [index for index, item in enumerate(pending) if item["base_card_id"] not in blocked_bases]
+
+        if adaptive_state == "struggling" and allowed_indexes:
+            seen_allowed = [
+                index
+                for index in allowed_indexes
+                if item_is_seen(pending[index])
+            ]
+            if seen_allowed:
+                candidate_index = seen_allowed[0]
+            else:
+                seen_pending = [index for index, item in enumerate(pending) if item_is_seen(item)]
+                if seen_pending:
+                    repeat_gap_satisfied = False
+                    candidate_index = seen_pending[0]
+                else:
+                    candidate_index = allowed_indexes[0]
+        else:
+            candidate_index = allowed_indexes[0] if allowed_indexes else None
+
         if candidate_index is None:
             repeat_gap_satisfied = False
-            candidate_index = 0
+            if adaptive_state == "struggling":
+                seen_pending = [index for index, item in enumerate(pending) if item_is_seen(item)]
+                candidate_index = seen_pending[0] if seen_pending else 0
+            else:
+                candidate_index = 0
         chosen = pending.pop(candidate_index)
         scheduled.append(chosen)
         recent_base_ids.append(chosen["base_card_id"])
@@ -499,6 +721,10 @@ def _apply_repeat_gap(items: list[dict[str, Any]], *, repeat_gap: int) -> tuple[
         repeat_gap_satisfied = False
 
     return scheduled, repeat_gap_satisfied
+
+
+def item_is_seen(item: dict[str, Any]) -> bool:
+    return item.get("scheduler_reason") not in {"new_item", "new_item_gated_by_weak_recent_performance"}
 
 
 def _empty_type_stats() -> dict[str, Any]:
@@ -544,6 +770,70 @@ def _progress_state(reason: str) -> str:
     return "new"
 
 
+def _mastered_base_card_ids(progress_payload: dict[str, Any]) -> set[str]:
+    mastered_items = {
+        str(card_id)
+        for card_id in (progress_payload.get("mastered_cards") or [])
+        if isinstance(card_id, str) and card_id
+    }
+    per_direction: dict[str, set[str]] = defaultdict(set)
+    for item_id in mastered_items:
+        base_card_id = _base_card_id_from_event(item_id)
+        direction = _normalize_direction(None, item_id)
+        per_direction[base_card_id].add(direction)
+    return {
+        base_card_id
+        for base_card_id, directions in per_direction.items()
+        if ENGLISH_TO_MIRAD in directions and MIRAD_TO_ENGLISH in directions
+    }
+
+
+def _achievement_milestones_up_to(count: int) -> list[int]:
+    milestones = [value for value in _ACHIEVEMENT_BASE_MILESTONES if value <= count]
+    if count <= _ACHIEVEMENT_REPEAT_AFTER:
+        return milestones
+
+    next_threshold = _ACHIEVEMENT_REPEAT_AFTER + _ACHIEVEMENT_REPEAT_STEP
+    while next_threshold <= count:
+        milestones.append(next_threshold)
+        next_threshold += _ACHIEVEMENT_REPEAT_STEP
+    return milestones
+
+
+def _achievement_payload(cards: list[dict[str, Any]], *, username: str, threshold: int, highlighted_base_card_id: str) -> dict[str, Any]:
+    base_cards = {str(card.get("id")): card for card in _normalize_base_cards(cards)}
+    highlighted_card = base_cards.get(highlighted_base_card_id, {})
+    english = str(highlighted_card.get("english") or "this pair")
+    mirad = str(highlighted_card.get("mirad") or "Mirad")
+    pair_label = f"{english} ↔ {mirad}"
+
+    if threshold == 1:
+        title = "🏆 First card mastered!"
+        message = (
+            f"Congratulations {username}! 🎉\n"
+            f"You have mastered your first card: {pair_label}\n"
+            "Keep up the good work! 🚀"
+        )
+    else:
+        title = f"🏆 {threshold} cards mastered!"
+        message = (
+            f"Congratulations {username}! ✨\n"
+            f"You have now mastered {threshold} cards. Latest win: {pair_label}\n"
+            "Your Mirad is getting stronger every session! 🔥"
+        )
+
+    return {
+        "id": f"mastered-cards-{threshold}",
+        "kind": "mastered_cards",
+        "threshold": threshold,
+        "title": title,
+        "message": message,
+        "highlighted_base_card_id": highlighted_base_card_id,
+        "highlighted_pair": {"english": english, "mirad": mirad},
+        "sound": "achievement",
+    }
+
+
 def _normalize_base_cards(cards: list[dict[str, Any]]) -> list[dict[str, str]]:
     normalized: list[dict[str, str]] = []
     for card in cards:
@@ -557,6 +847,10 @@ def _normalize_base_cards(cards: list[dict[str, Any]]) -> list[dict[str, str]]:
 def _normalize_card(card: dict[str, Any]) -> dict[str, str]:
     typed = {"type": str(card.get("type") or "card"), "english": str(card.get("english") or "").strip(), "mirad": str(card.get("mirad") or "").strip()}
     typed["id"] = str(card.get("id") or stable_card_id(typed))
+    if card.get("follow_up_english"):
+        typed["follow_up_english"] = str(card.get("follow_up_english") or "").strip()
+    if card.get("follow_up_mirad"):
+        typed["follow_up_mirad"] = str(card.get("follow_up_mirad") or "").strip()
     return typed
 
 
@@ -606,17 +900,41 @@ def _stats_by_card(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         stat["attempts"] += 1
         stat["correct"] += 1 if event["correct"] else 0
         stat["incorrect"] += 0 if event["correct"] else 1
+        stat["consecutive_correct"] = stat["consecutive_correct"] + 1 if event["correct"] else 0
         stat["last_seen_at"] = event["answered_at"]
+        stat["latest_event"] = event
+    return dict(stats)
+
+
+def _stats_by_base_card(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    stats = defaultdict(_empty_stats)
+    for event in events:
+        stat = stats[event["base_card_id"]]
+        stat["attempts"] += 1
+        stat["correct"] += 1 if event["correct"] else 0
+        stat["incorrect"] += 0 if event["correct"] else 1
+        stat["consecutive_correct"] = stat["consecutive_correct"] + 1 if event["correct"] else 0
+        stat["last_seen_at"] = event["answered_at"]
+        stat["latest_event"] = event
     return dict(stats)
 
 
 def _empty_stats() -> dict[str, Any]:
-    return {"attempts": 0, "correct": 0, "incorrect": 0, "last_seen_at": None}
+    return {"attempts": 0, "correct": 0, "incorrect": 0, "consecutive_correct": 0, "last_seen_at": None, "latest_event": None}
 
 
 def _mastery_payload(stat: dict[str, Any]) -> dict[str, Any]:
     attempts = stat["attempts"]
-    return {"attempts": attempts, "correct": stat["correct"], "incorrect": stat["incorrect"], "accuracy": None if attempts == 0 else stat["correct"] / attempts}
+    consecutive_correct = int(stat.get("consecutive_correct") or 0)
+    return {
+        "attempts": attempts,
+        "correct": stat["correct"],
+        "incorrect": stat["incorrect"],
+        "accuracy": None if attempts == 0 else stat["correct"] / attempts,
+        "consecutive_correct": consecutive_correct,
+        "streak_required": 5,
+        "mastered": consecutive_correct >= 5,
+    }
 
 
 def _recency_payload(stat: dict[str, Any], now: datetime) -> dict[str, Any]:
@@ -631,17 +949,83 @@ def _scheduler_reason(stat: dict[str, Any], now: datetime, weak_recent: bool) ->
     if attempts == 0:
         return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     accuracy = stat["correct"] / attempts
+    consecutive_correct = int(stat.get("consecutive_correct") or 0)
     if stat["incorrect"] > 0 or accuracy < _WEAK_ACCURACY_THRESHOLD:
         return "weak_recent_performance"
+    if consecutive_correct < 5:
+        return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     seen = _parse_datetime(stat["last_seen_at"])
     if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:
         return "stale_mastered_review"
     return "mastered_recent"
 
 
-def _rank(reason: str, stat: dict[str, Any], now: datetime) -> int:
-    order = {"weak_recent_performance": 0, "stale_mastered_review": 1, "new_item": 2, "new_item_gated_by_weak_recent_performance": 3, "mastered_recent": 4}
-    return order.get(reason, 9)
+def _rank(reason: str, stat: dict[str, Any], now: datetime, adaptive_state: str = "neutral") -> int:
+    order = _rank_order_for_state(adaptive_state)
+    base = order.get(reason, 9) * 10
+    return base + _adaptive_rank_offset(reason, stat, now, adaptive_state)
+
+
+def _rank_order_for_state(adaptive_state: str) -> dict[str, int]:
+    """State-aware primary ordering.
+
+    Struggling sessions should avoid introducing new material too aggressively.
+    """
+    if adaptive_state == "struggling":
+        return {
+            "weak_recent_performance": 0,
+            "mastered_recent": 1,
+            "stale_mastered_review": 2,
+            "new_item": 3,
+            "new_item_gated_by_weak_recent_performance": 4,
+        }
+
+    return {
+        "weak_recent_performance": 0,
+        "stale_mastered_review": 1,
+        "new_item": 2,
+        "new_item_gated_by_weak_recent_performance": 3,
+        "mastered_recent": 4,
+    }
+
+
+def _adaptive_rank_offset(reason: str, stat: dict[str, Any], now: datetime, adaptive_state: str) -> int:
+    """Small in-band rank adjustment so session performance nudges recency selection efficiently."""
+    if reason != "mastered_recent":
+        return 0
+
+    attempts = int(stat.get("attempts") or 0)
+    # Keep low-exposure mastered items near the front so first-time correct cards
+    # are reinforced quickly instead of disappearing from rotation.
+    if attempts < _REINFORCE_MIN_ATTEMPTS:
+        return -3
+
+    seen_at_raw = stat.get("last_seen_at")
+    seen_at = _parse_datetime(seen_at_raw) if seen_at_raw else None
+    age_seconds = int((now - seen_at).total_seconds()) if seen_at else 0
+
+    # Struggling learners: favor recently seen mastered cards (lower offset = earlier).
+    if adaptive_state == "struggling":
+        return 0 if age_seconds <= 2 * 24 * 60 * 60 else 2
+
+    # Strong learners: favor less-recent mastered cards to widen spacing.
+    if adaptive_state == "strong":
+        return 0 if age_seconds >= 2 * 24 * 60 * 60 else 2
+
+    return 1
+
+
+def _adaptive_session_state(events: list[dict[str, Any]]) -> str:
+    """Classify session performance from a short trailing window: struggling/neutral/strong."""
+    if not events:
+        return "neutral"
+    recent = events[-8:]
+    accuracy = sum(1 for event in recent if event["correct"]) / len(recent)
+    if accuracy <= 0.4:
+        return "struggling"
+    if accuracy >= 0.85:
+        return "strong"
+    return "neutral"
 
 
 def _recent_accuracy(events: list[dict[str, Any]]) -> float | None:
@@ -654,6 +1038,10 @@ def _recent_accuracy(events: list[dict[str, Any]]) -> float | None:
 def _normalize_answer_alternatives(value: Any) -> set[str]:
     normalized = {_normalize_text(part) for part in str(value).split(",")}
     return {part for part in normalized if part}
+
+
+def _expected_answer_alternatives(item: dict[str, Any]) -> set[str]:
+    return _normalize_answer_alternatives(item.get("answer", ""))
 
 
 def _normalize_text(value: Any) -> str:

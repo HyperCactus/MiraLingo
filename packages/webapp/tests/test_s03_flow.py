@@ -59,7 +59,7 @@ def test_s03_logged_in_user_can_request_queue_submit_answer_and_see_adaptation(m
 
     assert adapted_queue.status_code == 200
     assert adapted_queue.json()["event_count"] == 1
-    assert adapted_queue.json()["cards"][0]["id"] == "word:the#english-to-mirad"
+    assert adapted_queue.json()["cards"][0]["base_card_id"] == "word:the"
     assert adapted_queue.json()["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
 
@@ -107,18 +107,13 @@ def test_s03_negative_paths_are_structured_and_do_not_expose_credentials(monkeyp
 def test_s03_frontend_source_contains_current_practice_fetch_and_submit_affordances() -> None:
     frontend_source = FRONTEND_APP.read_text(encoding="utf-8")
 
-    authenticated_branch = frontend_source.split('authState === "authenticated" && (activeSection === "practice"', maxsplit=1)[1].split("<!-- ══════════════════════════════════════════════════════════════\n     MENU", maxsplit=1)[0]
-    logged_out_branch = frontend_source.split("{:else}", maxsplit=1)[1]
-
-    assert '/practice/queue?mode=mixed&limit=${LIMIT}' in frontend_source
-    assert 'fetch(qmap[mode] ?? qmap.mixed, {headers:{"Accept":"application/json"}})' in frontend_source
-    assert 'fetch("/practice/answers"' in frontend_source
-    assert "{getPracticeTitle()}" in authenticated_branch
-    assert "Submit" in authenticated_branch
-    assert "inputLabel(currentCard)" in authenticated_branch
-    assert "Skip" in authenticated_branch
-    assert 'disabled={answerSubmitting || !typedAnswer.trim()}' in authenticated_branch
-    assert "Could not reach practice." in frontend_source
-    assert "No cards. Import content first." in frontend_source
-    assert "scheduler_reason" not in authenticated_branch
-    assert "Practice queue" not in logged_out_branch
+    assert 'import { getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";' in frontend_source
+    assert 'await getPracticeQueue(mode, 50);' in frontend_source
+    assert 'await submitPracticeAnswer(body);' in frontend_source
+    assert 'ExerciseCard' in frontend_source
+    assert 'on:submit={submitAnswer}' in frontend_source
+    assert 'on:reveal={submitGiveUp}' in frontend_source
+    assert '/assets/sound_effects/atchevement.wav' in frontend_source
+    assert '<AppModal open={Boolean(activeAchievement)}' in frontend_source
+    assert 'achievementMessageLines(activeAchievement)' in frontend_source
+    assert 'dismissAchievement' in frontend_source

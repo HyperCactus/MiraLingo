@@ -102,17 +102,11 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     queue_payload = initial_queue.json()
     assert queue_payload["ok"] is True
     assert queue_payload["phase"] == "practice_queue"
-    assert queue_payload["card_count"] == 8
+    assert queue_payload["card_count"] == 4
     assert queue_payload["base_card_count"] == 4
     assert queue_payload["event_count"] == 0
     assert {card["type"] for card in queue_payload["cards"]} == {"phrase", "word"}
-    assert {card["direction"] for card in queue_payload["cards"]} == {"english_to_mirad"}
-    assert [card["id"] for card in queue_payload["cards"]] == [
-        "phrase:hello-world#english-to-mirad",
-        "word:the#english-to-mirad",
-        "phrase:good-morning#english-to-mirad",
-        "word:be#english-to-mirad",
-    ]
+    assert len({card["base_card_id"] for card in queue_payload["cards"]}) == 4
 
     current_card = queue_payload["cards"][0]
     audio = client.get(f"/practice/audio/{current_card['audio_card_id']}")
@@ -137,7 +131,7 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert reprioritized_queue.status_code == 200
     reprioritized_payload = reprioritized_queue.json()
     assert reprioritized_payload["event_count"] == 2
-    assert reprioritized_payload["cards"][0]["id"] == "word:the#english-to-mirad"
+    assert reprioritized_payload["cards"][0]["base_card_id"] == "word:the"
     assert reprioritized_payload["cards"][0]["scheduler_reason"] == "weak_recent_performance"
 
     progress = client.get("/practice/progress")

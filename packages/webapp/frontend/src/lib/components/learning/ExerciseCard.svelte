@@ -12,6 +12,7 @@
     reveal: void;
     continue: void;
     audio: void;
+    lookup: { word: string; language: 'english' | 'mirad'; anchorRect: DOMRect };
   }>();
 
   export let card: PracticeCard | null = null;
@@ -23,6 +24,10 @@
   export let audioLoading = false;
   export let audioMessage = '';
   export let audioEnabled = false;
+
+  const showPromptAudio = (currentCard: PracticeCard | null, enabled: boolean) => Boolean(
+    currentCard && currentCard.prompt_language === 'mirad' && !answerResult && enabled
+  );
 
   const languageLabel = (value?: string) => {
     const normalized = String(value ?? '').trim().toLowerCase();
@@ -43,7 +48,12 @@
     <ExercisePrompt
       eyebrow={promptEyebrow(card)}
       text={card.prompt ?? 'Prompt unavailable'}
+      language={(card.prompt_language === 'mirad' ? 'mirad' : 'english')}
       supportingText=""
+      canPlayAudio={showPromptAudio(card, audioEnabled)}
+      {audioLoading}
+      on:audio={() => dispatch('audio')}
+      on:lookup={(event) => dispatch('lookup', event.detail)}
     />
 
     {#if !answerResult}
@@ -60,10 +70,20 @@
           <AppButton type="submit" disabled={submitting || !answer.trim()} className="min-h-12 w-full justify-center">
             {submitting ? 'Checking…' : 'Submit answer'}
           </AppButton>
-          <AppButton variant="secondary" disabled={submitting} className="min-h-12 w-full justify-center" on:click={() => dispatch('reveal')}>
+          <AppButton
+            variant="secondary"
+            disabled={submitting}
+            className="min-h-12 w-full justify-center"
+            playClickSound={false}
+            on:click={() => dispatch('reveal')}
+          >
             Show answer
           </AppButton>
         </div>
+
+        {#if audioMessage}
+          <p class="text-sm text-slate-500 dark:text-slate-400">{audioMessage}</p>
+        {/if}
       </form>
     {:else}
       <FeedbackPanel
@@ -74,7 +94,9 @@
         correct={Boolean(answerResult.correct)}
         revealedAnswer={answerResult.expected_answer ?? card.answer ?? ''}
         submittedAnswer={answerResult.submitted_answer ?? answer.trim()}
+        answerLanguage={(card.answer_language === 'mirad' ? 'mirad' : 'english')}
         on:audio={() => dispatch('audio')}
+        on:lookup={(event) => dispatch('lookup', event.detail)}
       />
 
       <AppButton className="min-h-12 w-full justify-center" on:click={() => dispatch('continue')}>

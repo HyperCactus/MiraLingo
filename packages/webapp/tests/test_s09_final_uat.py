@@ -122,18 +122,15 @@ def test_s09_final_uat_registration_practice_audio_progress_and_sqlite(monkeypat
     queue_payload = queue.json()
     assert queue_payload["ok"] is True
     assert queue_payload["phase"] == "practice_queue"
-    assert queue_payload["card_count"] == 8
+    assert queue_payload["card_count"] == 4
     assert queue_payload["base_card_count"] == 4
     assert queue_payload["event_count"] == 0
     assert {card["type"] for card in queue_payload["cards"]} == {"word", "phrase"}
-    assert {card["direction"] for card in queue_payload["cards"]} == {"english_to_mirad", "mirad_to_english"}
-    assert {card["id"].rsplit("#", 1)[1] for card in queue_payload["cards"]} == {
-        "english-to-mirad",
-        "mirad-to-english",
-    }
+    assert len({card["base_card_id"] for card in queue_payload["cards"]}) == 4
+    assert {card["direction"] for card in queue_payload["cards"]}.issubset({"english_to_mirad", "mirad_to_english"})
 
-    phrase_card = next(card for card in queue_payload["cards"] if card["type"] == "phrase" and card["direction"] == "english_to_mirad")
-    word_card = next(card for card in queue_payload["cards"] if card["type"] == "word" and card["direction"] == "mirad_to_english")
+    phrase_card = next(card for card in queue_payload["cards"] if card["type"] == "phrase")
+    word_card = next(card for card in queue_payload["cards"] if card["type"] == "word")
 
     audio = client.get(f"/practice/audio/{phrase_card['audio_card_id']}")
     assert audio.status_code == 200
@@ -169,7 +166,7 @@ def test_s09_final_uat_registration_practice_audio_progress_and_sqlite(monkeypat
     assert progress_payload["per_type"]["word"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
     assert progress_payload["latest_event"]["card_id"] == word_card["id"]
     assert progress_payload["latest_event"]["base_card_id"] == word_card["base_card_id"]
-    assert progress_payload["latest_event"]["direction"] == "mirad_to_english"
+    assert progress_payload["latest_event"]["direction"] == word_card["direction"]
     assert progress_payload["latest_event"]["card_type"] == "word"
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
@@ -179,7 +176,7 @@ def test_s09_final_uat_registration_practice_audio_progress_and_sqlite(monkeypat
 
     shown_rows = _sqlite_rows(settings.database_path, "shown_cards")
     answer_rows = _sqlite_rows(settings.database_path, "answer_events")
-    assert len(shown_rows) == 6
+    assert len(shown_rows) == 4
     assert len(answer_rows) == 2
     assert {row["username"] for row in shown_rows + answer_rows} == {LEARNER_USERNAME}
     assert {row["card_type"] for row in shown_rows} == {"word", "phrase"}

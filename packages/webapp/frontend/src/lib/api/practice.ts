@@ -30,6 +30,17 @@ export type PracticeAnswerRequest = {
   correct?: boolean;
 };
 
+export type PracticeAchievement = {
+  id: string;
+  kind?: string;
+  threshold?: number;
+  title?: string;
+  message?: string;
+  highlighted_base_card_id?: string;
+  highlighted_pair?: { english?: string; mirad?: string };
+  sound?: string;
+};
+
 export type PracticeAnswerResponse = {
   ok?: boolean;
   detail?: string;
@@ -37,6 +48,7 @@ export type PracticeAnswerResponse = {
   expected_answer?: string;
   submitted_answer?: string;
   correct?: boolean;
+  achievements?: PracticeAchievement[];
   [key: string]: unknown;
 };
 

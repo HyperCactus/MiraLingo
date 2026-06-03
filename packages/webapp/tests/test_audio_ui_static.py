@@ -23,6 +23,21 @@ def test_audio_control_fetches_mirad_audio_identifier_endpoint() -> None:
     assert "canPlayAudio()" in frontend_source  # TTS gating: only play after answer revealed
 
 
+def test_word_card_tts_uses_prompt_variant_not_full_card_content() -> None:
+    """Word-card audio must call fetchMbrolaTextAudio with the single shown prompt variant,
+    not the full card content (which contains all comma-separated alternatives)."""
+    frontend_source = _source()
+
+    # fetchMbrolaTextAudio must be imported so the frontend can call it with prompt text
+    assert "fetchMbrolaTextAudio" in frontend_source
+
+    # For word cards, TTS the shown prompt variant; for phrase cards, use card-ID endpoint
+    assert 'currentCard.type === "word"' in frontend_source
+    assert "fetchMbrolaTextAudio(currentCard.prompt ?? " in frontend_source
+    # The phrase/other path must still fall back to the card-ID audio endpoint via template-literal fetch
+    assert 'fetch(`/practice/audio/${encodeURIComponent(cid)}`,' in frontend_source
+
+
 def test_audio_control_has_accessible_speaker_affordance() -> None:
     frontend_source = _source()
 

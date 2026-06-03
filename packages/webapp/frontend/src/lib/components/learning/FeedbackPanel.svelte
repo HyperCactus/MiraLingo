@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import AudioButton from './AudioButton.svelte';
+  import ClickableTranslationText from './ClickableTranslationText.svelte';
 
   const dispatch = createEventDispatcher<{
     audio: void;
+    lookup: { word: string; language: 'english' | 'mirad'; anchorRect: DOMRect };
   }>();
 
   export let revealedAnswer = '';
@@ -13,6 +15,7 @@
   export let audioLoading = false;
   export let audioLabel = 'Play Mirad audio';
   export let audioMessage = '';
+  export let answerLanguage: 'english' | 'mirad' = 'mirad';
 </script>
 
 <section class="space-y-4 rounded-3xl border border-violet-100 bg-violet-50/70 p-4 dark:border-violet-900/70 dark:bg-violet-950/40">
@@ -28,8 +31,13 @@
   <div class="space-y-1">
     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Correct answer</p>
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p class="text-2xl font-semibold text-slate-900 dark:text-slate-50">{revealedAnswer}</p>
-      {#if canPlayAudio}
+      <ClickableTranslationText
+        text={revealedAnswer}
+        language={answerLanguage}
+        className="text-2xl font-semibold text-slate-900 dark:text-slate-50"
+        on:lookup={(event) => dispatch('lookup', event.detail)}
+      />
+      {#if canPlayAudio && answerLanguage === 'mirad'}
         <AudioButton disabled={audioLoading} loading={audioLoading} label={audioLabel} on:click={() => dispatch('audio')} />
       {/if}
     </div>

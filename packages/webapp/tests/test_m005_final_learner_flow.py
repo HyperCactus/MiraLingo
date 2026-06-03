@@ -160,6 +160,9 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         "settings": {
             "theme": "system",
             "tts_speed": 0.8,
+            "tts_autoplay": True,
+            "sfx_enabled": True,
+            "sfx_mode": "all",
             "voice": {
                 "id": "de6",
                 "label": "Mirad de6",
@@ -177,6 +180,9 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         "settings": {
             "theme": "dark",
             "tts_speed": 0.8,
+            "tts_autoplay": True,
+            "sfx_enabled": True,
+            "sfx_mode": "all",
             "voice": {
                 "id": "de6",
                 "label": "Mirad de6",
@@ -197,6 +203,9 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert persisted_settings.json()["settings"] == {
         "theme": "dark",
         "tts_speed": 0.8,
+        "tts_autoplay": True,
+        "sfx_enabled": True,
+        "sfx_mode": "all",
         "voice": {
             "id": "de6",
             "label": "Mirad de6",
@@ -214,8 +223,8 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert mixed_payload["mode_detail"] == "default_mixed"
     assert mixed_payload["repeat_gap"] == 10
     assert mixed_payload["repeat_gap_satisfied"] is False
-    assert mixed_payload["limit"] == 6
-    assert mixed_payload["card_count"] == 8
+    assert mixed_payload["limit"] == 4
+    assert mixed_payload["card_count"] == 4
     assert mixed_payload["base_card_count"] == 4
     assert mixed_payload["event_count"] == 0
     assert {card["type"] for card in mixed_payload["cards"]} == {"phrase", "word"}
@@ -224,12 +233,12 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     phrase_card = next(
         card
         for card in mixed_payload["cards"]
-        if card["type"] == "phrase" and card["direction"] == "english_to_mirad"
+        if card["type"] == "phrase"
     )
     word_card = next(
         card
         for card in mixed_payload["cards"]
-        if card["type"] == "word" and card["direction"] == "mirad_to_english"
+        if card["type"] == "word"
     )
 
     revision_before_answers = recreated.get("/practice/queue?mode=revision&limit=10")
@@ -307,45 +316,42 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     }
     assert progress_payload["latest_event"]["card_id"] == word_card["id"]
     assert progress_payload["latest_event"]["base_card_id"] == word_card["base_card_id"]
-    assert progress_payload["latest_event"]["direction"] == "mirad_to_english"
+    assert progress_payload["latest_event"]["direction"] == word_card["direction"]
     assert progress_payload["latest_event"]["card_type"] == "word"
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
-    assert progress_payload["mastered_count"] == 1
+    assert progress_payload["mastered_count"] == 0
     assert progress_payload["weak_count"] + progress_payload["mastered_count"] + progress_payload["stale_count"] + progress_payload["new_count"] == progress_payload["card_count"]
     assert word_card["id"] in progress_payload["weak_cards"]
-    assert phrase_card["id"] in progress_payload["mastered_cards"]
+    assert phrase_card["id"] not in progress_payload["mastered_cards"]
 
     build_vocab_after_answers = recreated.get("/practice/queue?mode=build_vocabulary&limit=10")
     assert build_vocab_after_answers.status_code == 200
     build_vocab_after_payload = build_vocab_after_answers.json()
     assert build_vocab_after_payload["mode"] == "build_vocabulary"
     assert build_vocab_after_payload["event_count"] == 2
-    assert {card["base_card_id"] for card in build_vocab_after_payload["cards"]} == {"word:be"}
-    assert {card["id"] for card in build_vocab_after_payload["cards"]} == {
-        "word:be#english-to-mirad",
-        "word:be#mirad-to-english",
-    }
+    assert {card["base_card_id"] for card in build_vocab_after_payload["cards"]} == ({"word:the", "word:be"} - {word_card["base_card_id"]})
+    assert len(build_vocab_after_payload["cards"]) == 1
 
     revision_after_answers = recreated.get("/practice/queue?mode=revision&limit=10")
     assert revision_after_answers.status_code == 200
     assert revision_after_answers.json()["mode"] == "revision"
-    assert revision_after_answers.json()["mode_detail"] == "empty_pool"
+    assert revision_after_answers.json()["mode_detail"] == "seen_only"
     assert revision_after_answers.json()["event_count"] == 2
-    assert revision_after_answers.json()["cards"] == []
+    assert revision_after_answers.json()["cards"]
 
     shown_rows_before_delete = _rows_for_user(settings.database_path, "shown_cards", username=LEARNER_USERNAME)
     answer_rows_before_delete = _rows_for_user(settings.database_path, "answer_events", username=LEARNER_USERNAME)
     settings_rows_before_delete = _rows_for_user(settings.database_path, "user_settings", username=LEARNER_USERNAME)
     user_rows_before_delete = _rows_for_user(settings.database_path, "users", username=LEARNER_USERNAME)
 
-    assert len(shown_rows_before_delete) == 12
+    assert len(shown_rows_before_delete) == 8
     assert len(answer_rows_before_delete) == 2
     assert len(settings_rows_before_delete) == 1
     assert len(user_rows_before_delete) == 1
     assert settings_rows_before_delete[0]["theme"] == "dark"
     assert settings_rows_before_delete[0]["tts_speed"] == 0.8
-    assert settings_rows_before_delete[0]["tts_autoplay"] == 0
+    assert settings_rows_before_delete[0]["tts_autoplay"] == 1
     assert {row["card_type"] for row in shown_rows_before_delete} == {"word", "phrase"}
     assert {row["direction"] for row in shown_rows_before_delete} == {"english_to_mirad", "mirad_to_english"}
     assert [row["card_id"] for row in answer_rows_before_delete] == [phrase_card["id"], word_card["id"]]

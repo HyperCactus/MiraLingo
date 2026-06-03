@@ -273,6 +273,9 @@ def test_storage_user_settings_default_update_and_delete_cascade(tmp_path: Path)
     assert defaults.public_dict() == {
         "theme": "system",
         "tts_speed": 0.8,
+        "tts_autoplay": True,
+        "sfx_enabled": True,
+        "sfx_mode": "on_answer",
         "voice": {"id": "de6", "label": "Mirad de6", "provider": "mbrola", "mutable": False},
     }
     assert updated.public_dict()["theme"] == "dark"

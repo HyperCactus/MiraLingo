@@ -5,6 +5,7 @@ export type UserSettings = {
   tts_speed: number;
   tts_autoplay: boolean;
   sfx_enabled: boolean;
+  sfx_mode?: 'all' | 'on_answer' | 'off';
   voice?: {
     id: string;
     label: string;
@@ -29,7 +30,7 @@ export async function getSettings() {
   return { response, payload };
 }
 
-export async function updateSettings(settings: Pick<UserSettings, 'theme' | 'tts_speed' | 'tts_autoplay' | 'sfx_enabled'>) {
+export async function updateSettings(settings: Pick<UserSettings, 'theme' | 'tts_speed' | 'tts_autoplay' | 'sfx_enabled' | 'sfx_mode'>) {
   const response = await fetch('/settings', {
     method: 'PUT',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },

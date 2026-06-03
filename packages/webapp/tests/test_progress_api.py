@@ -92,7 +92,7 @@ def test_practice_progress_starts_empty_after_login(monkeypatch, tmp_path: Path)
         "word:be#mirad-to-english",
     }
     assert payload["per_card"][0]["scheduler_reason"] == "new_item"
-    assert payload["per_card"][0]["mastery"] == {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None}
+    assert payload["per_card"][0]["mastery"] == {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None, "consecutive_correct": 0, "streak_required": 5, "mastered": False}
 
 
 def test_practice_progress_reflects_correct_and_incorrect_word_and_phrase_answers(monkeypatch, tmp_path: Path) -> None:
@@ -121,17 +121,17 @@ def test_practice_progress_reflects_correct_and_incorrect_word_and_phrase_answer
     assert payload["latest_event"]["card_type"] == "word"
     assert payload["latest_event"]["correct"] is False
     assert payload["weak_count"] == 1
-    assert payload["mastered_count"] == 1
-    assert payload["new_count"] == 6
+    assert payload["mastered_count"] == 0
+    assert payload["new_count"] == 7
     assert payload["weak_cards"] == ["word:the#english-to-mirad"]
-    assert payload["mastered_cards"] == ["phrase:hello-world#english-to-mirad"]
+    assert payload["mastered_cards"] == []
 
     cards = {card["id"]: card for card in payload["per_card"]}
     assert cards["word:the#english-to-mirad"]["scheduler_reason"] == "weak_recent_performance"
-    assert cards["word:the#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0}
+    assert cards["word:the#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0, "consecutive_correct": 0, "streak_required": 5, "mastered": False}
     assert cards["word:the#mirad-to-english"]["mastery"]["attempts"] == 0
-    assert cards["phrase:hello-world#english-to-mirad"]["scheduler_reason"] == "mastered_recent"
-    assert cards["phrase:hello-world#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0}
+    assert cards["phrase:hello-world#english-to-mirad"]["scheduler_reason"] == "new_item_gated_by_weak_recent_performance"
+    assert cards["phrase:hello-world#english-to-mirad"]["mastery"] == {"attempts": 1, "correct": 1, "incorrect": 0, "accuracy": 1.0, "consecutive_correct": 1, "streak_required": 5, "mastered": False}
 
 
 def test_practice_progress_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:

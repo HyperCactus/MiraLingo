@@ -35,6 +35,7 @@ def build_practice_analytics(
     direction_breakdown: dict[str, dict[str, int]] = defaultdict(lambda: {"attempts": 0, "correct": 0, "incorrect": 0})
     card_type_breakdown: dict[str, dict[str, int]] = defaultdict(lambda: {"attempts": 0, "correct": 0, "incorrect": 0})
     per_card: dict[str, dict[str, Any]] = {}
+    recent_by_base_direction: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
 
     latest_event = None
     latest_ts = None
@@ -75,6 +76,10 @@ def build_practice_analytics(
         card_type_breakdown[t]["incorrect"] += int(not bool(event.get("correct")))
 
         key = str(event.get("card_id") or f"{event.get('base_card_id')}#{str(event.get('direction') or '').replace('_', '-')}")
+        base_key = str(event.get("base_card_id") or "")
+        direction_key = str(event.get("direction") or "")
+        if base_key and direction_key:
+            recent_by_base_direction[base_key][direction_key].append(bool(event.get("correct")))
         row = per_card.setdefault(
             key,
             {
@@ -111,6 +116,18 @@ def build_practice_analytics(
         "reason": "new_learner" if total == 0 and session_count == 0 and lifecycle_count == 0 else "established",
     }
 
+    mastered_recent: dict[str, dict[str, Any]] = {}
+    for base_card_id, per_direction in recent_by_base_direction.items():
+        en_recent = per_direction.get("english_to_mirad", [])[-5:]
+        mi_recent = per_direction.get("mirad_to_english", [])[-5:]
+        en_pass = len(en_recent) == 5 and all(en_recent)
+        mi_pass = len(mi_recent) == 5 and all(mi_recent)
+        mastered_recent[base_card_id] = {
+            "english_to_mirad": {"window": 5, "attempts": len(en_recent), "all_correct": en_pass},
+            "mirad_to_english": {"window": 5, "attempts": len(mi_recent), "all_correct": mi_pass},
+            "mastered": en_pass and mi_pass,
+        }
+
     return {
         "ok": True,
         "phase": "practice_analytics",
@@ -134,6 +151,7 @@ def build_practice_analytics(
         "card_type_breakdown": dict(card_type_breakdown),
         "lifecycle": {"count": lifecycle_count, "active": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"), "revision": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision")},
         "per_card": per_card,
+        "mastered_recent": mastered_recent,
         "filters": filters or {},
         "shown_card_count": len(shown_cards or []),
     }

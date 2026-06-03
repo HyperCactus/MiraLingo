@@ -26,7 +26,7 @@ from .auth import (
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
-from .practice import answer_summary, build_practice_progress, build_practice_queue, record_practice_answer
+from .practice import answer_summary, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
 from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
@@ -69,6 +69,7 @@ class UserSettingsUpdateRequest(BaseModel):
     tts_speed: float = Field(gt=0, le=2.0)
     tts_autoplay: bool = True
     sfx_enabled: bool = True
+    sfx_mode: Literal["all", "on_answer", "off"] = "on_answer"
 
 
 class DeleteAccountRequest(BaseModel):
@@ -356,6 +357,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 tts_speed=payload.tts_speed,
                 tts_autoplay=payload.tts_autoplay,
                 sfx_enabled=payload.sfx_enabled,
+                sfx_mode=payload.sfx_mode,
             )
         except StorageError as exc:
             return storage_failure_response(exc)
@@ -522,9 +524,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
             if payload.get("ok") and mode == "build_vocabulary":
                 seen_keys = request.app.state.storage.list_shown_card_keys(username=user.username)
+                seen_base_ids = {base_card_id for base_card_id, _direction in seen_keys}
                 for card in payload.get("cards", []):
-                    key = (str(card.get("base_card_id") or ""), str(card.get("direction") or ""))
-                    card["intro_mode"] = key not in seen_keys
+                    base_card_id = str(card.get("base_card_id") or "")
+                    card["intro_mode"] = base_card_id not in seen_base_ids
             request.app.state.storage.record_cards_shown(username=user.username, cards=payload["cards"])
         except StorageError as exc:
             return storage_failure_response(exc)
@@ -562,7 +565,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             ensure_practice_storage_user("practice_analytics", user.username, user.role)
             storage = request.app.state.storage
-            events = answer_events_for_user(user.username, "practice_analytics")
+            events = [record.practice_event() for record in storage.list_answer_events(username=user.username, limit=None, phase="practice_analytics")]
             sessions = [s.public_dict() for s in storage.list_practice_sessions(username=user.username, phase="practice_analytics")]
             lifecycle_rows = [row.public_dict() for row in storage.list_practice_lifecycle(username=user.username)]
             shown_cards = [row.public_dict() for row in storage.list_shown_cards(username=user.username)] if include_cards else []
@@ -810,6 +813,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except StorageError as exc:
             return storage_failure_response(exc)
         payload = answer_summary(result.cards, durable_events, submission.card_id)
+        payload["achievements"] = build_practice_achievements(
+            cards=result.cards,
+            before_events=prior_events,
+            after_events=durable_events,
+            username=user.username,
+            latest_card_id=submission.card_id,
+        )
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     return app

@@ -69,6 +69,7 @@ def test_settings_get_returns_defaults_and_single_voice_metadata(tmp_path: Path)
             "tts_speed": 0.8,
             "tts_autoplay": True,
             "sfx_enabled": True,
+            "sfx_mode": "on_answer",
             "voice": {
                 "id": "de6",
                 "label": "Mirad de6",
@@ -90,6 +91,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     assert update.json()["settings"]["tts_speed"] == 1.1
     assert update.json()["settings"]["tts_autoplay"] is False
     assert update.json()["settings"]["sfx_enabled"] is False
+    assert update.json()["settings"]["sfx_mode"] == "off"
     assert first.post("/auth/logout").status_code == 200
 
     second = TestClient(create_app(_settings(tmp_path, database_path)))
@@ -100,6 +102,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     assert sara_defaults.json()["settings"]["tts_speed"] == 0.8
     assert sara_defaults.json()["settings"]["tts_autoplay"] is True
     assert sara_defaults.json()["settings"]["sfx_enabled"] is True
+    assert sara_defaults.json()["settings"]["sfx_mode"] == "on_answer"
     assert second.post("/auth/logout").status_code == 200
 
     recreated = TestClient(create_app(_settings(tmp_path, database_path)))
@@ -114,6 +117,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
         "tts_speed": 1.1,
         "tts_autoplay": False,
         "sfx_enabled": False,
+        "sfx_mode": "off",
         "voice": {
             "id": "de6",
             "label": "Mirad de6",
@@ -123,11 +127,11 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     }
     with sqlite3.connect(database_path) as connection:
         rows = connection.execute(
-            "SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, voice_id FROM user_settings ORDER BY username"
+            "SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, sfx_mode, voice_id FROM user_settings ORDER BY username"
         ).fetchall()
     assert rows == [
-        ("mira", "dark", 1.1, 0, 0, "de6"),
-        ("sara", "system", 0.8, 1, 1, "de6"),
+        ("mira", "dark", 1.1, 0, 0, "off", "de6"),
+        ("sara", "system", 0.8, 1, 1, "on_answer", "de6"),
     ]
 
 
@@ -149,9 +153,10 @@ def test_settings_update_rejects_invalid_theme_and_speed_without_mutating_storag
     assert fetched.json()["settings"]["tts_speed"] == 0.8
     assert fetched.json()["settings"]["tts_autoplay"] is True
     assert fetched.json()["settings"]["sfx_enabled"] is True
+    assert fetched.json()["settings"]["sfx_mode"] == "on_answer"
     with sqlite3.connect(database_path) as connection:
-        rows = connection.execute("SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled FROM user_settings").fetchall()
-    assert rows == [("mira", "system", 0.8, 1, 1)]
+        rows = connection.execute("SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, sfx_mode FROM user_settings").fetchall()
+    assert rows == [("mira", "system", 0.8, 1, 1, "on_answer")]
 
 
 def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) -> None:
@@ -162,7 +167,7 @@ def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) ->
     def fail_get(*, username: str):
         raise StorageError(phase="settings_get", detail="Could not read settings.")
 
-    def fail_put(*, username: str, theme: str, tts_speed: float, tts_autoplay: bool, sfx_enabled: bool):
+    def fail_put(*, username: str, theme: str, tts_speed: float, tts_autoplay: bool, sfx_enabled: bool, sfx_mode: str = "on_answer"):
         raise StorageError(phase="settings_update", detail="Could not update settings.")
 
     app.state.storage.get_user_settings = fail_get

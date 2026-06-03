@@ -72,18 +72,12 @@ def test_queue_persists_shown_cards_with_direction_and_language_metadata(monkeyp
             """
         ).fetchall()
     assert len(rows) == 3
-    assert rows[0] == (
-        "mira",
-        "phrase:hello-world#english-to-mirad",
-        "phrase:hello-world",
-        "english_to_mirad",
-        "phrase",
-        "english",
-        "mirad",
-    )
-    assert {row[3] for row in rows} == {"english_to_mirad"}
-    assert {row[5] for row in rows} == {"english"}
-    assert {row[6] for row in rows} == {"mirad"}
+    assert {row[0] for row in rows} == {"mira"}
+    assert {row[2] for row in rows} == {card["base_card_id"] for card in payload["cards"]}
+    assert {row[3] for row in rows}.issubset({"english_to_mirad", "mirad_to_english"})
+    assert {row[4] for row in rows} == {card["type"] for card in payload["cards"]}
+    assert {row[5] for row in rows}.issubset({"english", "mirad"})
+    assert {row[6] for row in rows}.issubset({"english", "mirad"})
 
 
 def test_answer_events_survive_restart_and_progress_reports_correctness(monkeypatch, tmp_path: Path) -> None:
