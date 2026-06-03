@@ -229,17 +229,70 @@ def _import_words(candidates: Iterable[str], lookup: LexiconLookup, state: _Impo
         if not mirad:
             state.counts["word"]["missed"]["lexicon_miss"] += 1
             continue
-        _add_card(state, "word", english, mirad.strip())
+        _add_word_cards(state, english, mirad.strip())
 
 
-def _add_card(state: _ImportState, card_type: CardType, english: str, mirad: str) -> None:
+def _add_word_cards(state: _ImportState, english: str, mirad: str) -> None:
+    english_terms = _split_translation_terms(english)
+    mirad_terms = _split_translation_terms(mirad)
+    if not english_terms or not mirad_terms:
+        state.counts["word"]["missed"]["lexicon_miss"] += 1
+        return
+
+    follow_up_english = ", ".join(english_terms)
+    follow_up_mirad = ", ".join(mirad_terms)
+    for english_term in english_terms:
+        for mirad_term in mirad_terms:
+            _add_card(
+                state,
+                "word",
+                english_term,
+                mirad_term,
+                follow_up_english=follow_up_english,
+                follow_up_mirad=follow_up_mirad,
+            )
+
+
+def _split_translation_terms(value: str) -> list[str]:
+    terms: list[str] = []
+    seen: set[str] = set()
+    for part in str(value).split(","):
+        term = part.strip()
+        normalized = _normalize_text(term)
+        if term and normalized not in seen:
+            terms.append(term)
+            seen.add(normalized)
+    return terms
+
+
+def _add_card(
+    state: _ImportState,
+    card_type: CardType,
+    english: str,
+    mirad: str,
+    *,
+    follow_up_english: str | None = None,
+    follow_up_mirad: str | None = None,
+) -> None:
     key = (_normalize_text(english), _normalize_text(mirad))
     if key in state.seen_pairs:
         state.counts[card_type]["duplicate"] += 1
         return
     state.seen_pairs.add(key)
-    state.cards.append({"type": card_type, "english": english, "mirad": mirad})
+    card = {"type": card_type, "english": english, "mirad": mirad}
+    if card_type == "word" and follow_up_mirad and follow_up_mirad != mirad:
+        card["id"] = f"word:{_id_slug(english)}-{_id_slug(mirad)}"
+    if follow_up_english and follow_up_english != english:
+        card["follow_up_english"] = follow_up_english
+    if follow_up_mirad and follow_up_mirad != mirad:
+        card["follow_up_mirad"] = follow_up_mirad
+    state.cards.append(card)
     state.counts[card_type]["imported"] += 1
+
+
+def _id_slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", _normalize_text(value)).strip("-")
+    return slug or "untitled"
 
 
 def _normalize_text(value: str) -> str:

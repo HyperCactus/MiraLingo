@@ -8,12 +8,14 @@
   import AppShell from "./lib/components/layout/AppShell.svelte";
   import StudyShell from "./lib/components/layout/StudyShell.svelte";
   import ExerciseCard from "./lib/components/learning/ExerciseCard.svelte";
+  import LexiconBubble from "./lib/components/learning/LexiconBubble.svelte";
+  import { lookupExact, lookupWord } from "./lib/api/lookup";
   import AppButton from "./lib/components/ui/AppButton.svelte";
   import AppCard from "./lib/components/ui/AppCard.svelte";
   import AppInput from "./lib/components/ui/AppInput.svelte";
   import { authError, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
-  import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, theme, ttsSpeed } from "./lib/stores/settings";
+  import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, soundEffectsEnabled, soundEffectsMode, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
   import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
@@ -75,16 +77,23 @@
   let settingsStatus = $state("");
   let settingsPhase = $state("");
   let ttsAutoplayEnabled = $state(true);
-  let soundEffectsEnabled = $state(true);
-
   let dashboardRefreshSignal = $state(0);
   let dashboardRefreshTimer = null;
 
+  let soundEffectsModeLocal = $soundEffectsMode;
   let deleteAccountState = $state("idle");
   let deleteAccountErr = $state("");
   let deleteAccountStatus = $state("");
   let deleteAccountConfirm = $state("");
   let deleteAccountUsername = $state("");
+
+  // Lexicon bubble state
+  let bubbleResults = $state([]);
+  let bubbleVisible = $state(false);
+  let bubbleAnchorRect = $state(null);
+  let bubbleDirection = $state('en_to_mir');
+  let bubbleLoading = $state(false);
+  let bubbleError = $state('');
 
   function replaceHash(section) {
     if (typeof window === "undefined") return;
@@ -135,6 +144,7 @@
     settingsErr = "";
     settingsStatus = "";
     settingsPhase = "";
+    settingsSaveEnabled = false;
     resetSettingsStore();
     deleteAccountState = "idle";
     deleteAccountErr = "";
@@ -146,10 +156,14 @@
   const syncSettings = (payload, extra = {}) => {
     applySettingsPayload(payload ?? {});
     ttsAutoplayEnabled = Boolean(payload?.tts_autoplay ?? true);
-    soundEffectsEnabled = Boolean(payload?.sfx_enabled ?? true);
+    if (payload?.sfx_mode) {
+      soundEffectsMode.set(payload.sfx_mode);
+    } else {
+      soundEffectsMode.set(Boolean(payload?.sfx_enabled ?? true) ? 'on_answer' : 'off');
+    }
     if (extra.state) settingsState = extra.state;
     if (extra.phase) settingsPhase = extra.phase;
-    if (extra.msg) settingsStatus = extra.msg;
+    settingsSaveEnabled = true;
   };
 
   async function loadCurrentUser() {
@@ -274,36 +288,22 @@
     }
   }
 
+  let settingsSaveEnabled = $state(false);
+
   async function saveSettings() {
-    if (settingsState === "saving") return;
-
+    if (!settingsSaveEnabled || !$currentUser?.username || settingsState === "saving") return;
     settingsState = "saving";
-    settingsPhase = "settings_update";
-    settingsErr = "";
-    settingsStatus = "Saving…";
-
     try {
       const body = {
         theme: coerceTheme($theme),
         tts_speed: coerceSpeed($ttsSpeed),
         tts_autoplay: Boolean(ttsAutoplayEnabled),
-        sfx_enabled: Boolean(soundEffectsEnabled),
+        sfx_mode: $soundEffectsMode,
       };
-      const { response, payload } = await updateSettings(body);
-      if (!response.ok || payload.ok === false) {
-        settingsState = "error";
-        settingsPhase = payload?.phase ?? "settings_update";
-        settingsErr = payload?.detail ?? "Could not save.";
-        settingsStatus = "";
-        return;
-      }
-      syncSettings(payload.settings, { state: "ready", phase: payload.phase ?? "settings_update", msg: "Saved." });
-      settingsLoadedForUser.set($currentUser?.username ?? $settingsLoadedForUser);
+      await updateSettings(body);
+      settingsState = "ready";
     } catch (_) {
-      settingsState = "error";
-      settingsPhase = "settings_update";
-      settingsErr = "Could not save settings.";
-      settingsStatus = "";
+      settingsState = "ready";
     }
   }
 
@@ -364,8 +364,19 @@
     await loadPracticeQueue(practiceQueueMode ?? "mixed");
   }
 
+  function playShowAnswerSound() {
+    if ($soundEffectsMode === "off") return;
+    try {
+      const effect = new Audio("/assets/sound_effects/show_answer.wav");
+      effect.volume = 0.7;
+      void effect.play();
+    } catch (_) {
+      // Non-blocking UX hint only.
+    }
+  }
+
   async function playFeedbackSound(correct) {
-    if (!soundEffectsEnabled) return;
+    if ($soundEffectsMode === "off") return;
     const src = correct ? "/assets/sound_effects/correct_answer.wav" : "/assets/sound_effects/incorrect_answer.wav";
     try {
       const effect = new Audio(src);
@@ -421,6 +432,7 @@
   async function submitGiveUp() {
     if (!currentCard?.id) return;
     answerErr = "";
+    playShowAnswerSound();
     await recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false });
   }
 
@@ -459,6 +471,31 @@
   function canPlayAudio() {
     if (!currentCard) return false;
     return currentCard.prompt_language !== "english" || miradAudioUnlocked;
+  }
+
+  async function handleLookup(event) {
+    const { word, language, anchorRect } = event.detail;
+    const direction = language === 'mirad' ? 'mir_to_en' : 'en_to_mir';
+    bubbleResults = [];
+    bubbleVisible = true;
+    bubbleAnchorRect = anchorRect;
+    bubbleDirection = direction;
+    bubbleLoading = true;
+    bubbleError = '';
+
+    try {
+      const exact = await lookupExact(word, direction);
+      if (exact.length > 0) {
+        bubbleResults = exact;
+      } else {
+        const semantic = await lookupWord(word, direction, 3);
+        bubbleResults = semantic;
+      }
+    } catch (err) {
+      bubbleError = err instanceof Error ? err.message : 'Lookup failed';
+    } finally {
+      bubbleLoading = false;
+    }
   }
 
 
@@ -665,6 +702,7 @@
         on:reveal={submitGiveUp}
         on:continue={advancePracticeCard}
         on:audio={playCardAudio}
+        on:lookup={handleLookup}
       />
     {/if}
   </StudyShell>
@@ -708,9 +746,6 @@
       {#if settingsErr}
         <AppCard className="border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"><p role="alert">{settingsErr}</p></AppCard>
       {/if}
-      {#if settingsStatus}
-        <AppCard className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"><p>{settingsStatus}</p></AppCard>
-      {/if}
       {#if deleteAccountErr}
         <AppCard className="border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"><p role="alert">{deleteAccountErr}</p></AppCard>
       {/if}
@@ -719,51 +754,61 @@
       {/if}
 
       <AppCard>
-        <form class="space-y-6" onsubmit={(event) => { event.preventDefault(); saveSettings(); }}>
+        <div class="space-y-6">
           <fieldset class="space-y-3">
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Theme</legend>
-            <div class="grid gap-3 sm:grid-cols-3">
+            <div class="inline-flex rounded-2xl border border-violet-100 bg-slate-50 p-1 dark:border-violet-900/60 dark:bg-slate-900/70">
               {#each [{ v: "system", l: "System" }, { v: "light", l: "Light" }, { v: "dark", l: "Dark" }] as option}
-                <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
-                  <input bind:group={$theme} type="radio" value={option.v} />
-                  <span>{option.l}</span>
+                {@const isSelected = $theme === option.v}
+                <label class="flex flex-1 cursor-pointer justify-center">
+                  <input class="sr-only" type="radio" value={option.v} bind:group={$theme} onchange={() => saveSettings()} />
+                  <span class="flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
+                    <span class="font-semibold">{option.l}</span>
+                  </span>
                 </label>
               {/each}
             </div>
           </fieldset>
 
           <fieldset class="space-y-3">
-            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">TTS speed: {spd($ttsSpeed)}</legend>
-            <div class="grid gap-3 sm:grid-cols-5">
-              {#each [0.7, 0.8, 0.9, 1.0, 1.1] as option}
-                <label class="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
-                  <input bind:group={$ttsSpeed} type="radio" value={option} />
-                  <span>{spd(option)}</span>
-                </label>
-              {/each}
+            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">TTS speed</legend>
+            <div class="flex flex-col gap-3">
+              <input class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-violet-600 dark:bg-slate-700 dark:accent-violet-400" max="1.2" min="0.5" step="0.1" type="range" bind:value={$ttsSpeed} onchange={() => saveSettings()} />
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-500 dark:text-slate-400">Slow (0.5×)</span>
+                <span class="font-semibold text-violet-600 dark:text-violet-400">{spd($ttsSpeed)}</span>
+                <span class="text-slate-500 dark:text-slate-400">Fast (1.2×)</span>
+              </div>
             </div>
           </fieldset>
 
           <fieldset class="space-y-3">
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Autoplay Mirad audio</legend>
-            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
-              <input bind:checked={ttsAutoplayEnabled} type="checkbox" />
+            <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
               <span>Play Mirad TTS automatically after revealing the answer</span>
+              <label class="relative inline-flex h-6 w-11 items-center cursor-pointer">
+                <input type="checkbox" class="peer sr-only" bind:checked={ttsAutoplayEnabled} onchange={() => saveSettings()} />
+                <span class="peer h-6 w-11 rounded-full bg-slate-300 transition-colors duration-200 hover:bg-slate-400 dark:bg-slate-700 dark:peer-checked:bg-violet-600 dark:hover:bg-slate-600"></span>
+                <span class="absolute left-0.5 top-0.5 inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-all duration-200 dark:bg-slate-950 peer-checked:translate-x-5"></span>
+              </label>
             </label>
           </fieldset>
 
           <fieldset class="space-y-3">
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Sound effects</legend>
-            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
-              <input bind:checked={soundEffectsEnabled} type="checkbox" />
-              <span>Play correct/incorrect feedback sounds after answer submission</span>
-            </label>
+            <div class="flex w-full rounded-2xl border border-violet-100 bg-slate-50 p-1 dark:border-violet-900/60 dark:bg-slate-900/70">
+              {#each [{ v: "all", l: "All" }, { v: "on_answer", l: "On Answer" }, { v: "off", l: "Off" }] as option}
+                {@const isSelected = $soundEffectsMode === option.v}
+                <label class="flex flex-1 cursor-pointer justify-center">
+                  <input class="sr-only" type="radio" value={option.v} bind:group={$soundEffectsMode} onchange={() => saveSettings()} />
+                  <span class="flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
+                    <span class="font-semibold">{option.l}</span>
+                  </span>
+                </label>
+              {/each}
+            </div>
           </fieldset>
-
-          <AppButton type="submit" className="min-h-12 justify-center" disabled={settingsState === "saving"}>
-            {settingsState === "saving" ? "Saving…" : "Save settings"}
-          </AppButton>
-        </form>
+        </div>
       </AppCard>
     </div>
 
@@ -812,3 +857,12 @@
     on:jumpLogin={() => scrollWelcomeTarget("login-card")}
   />
 {/if}
+
+<LexiconBubble
+  results={bubbleResults}
+  bind:visible={bubbleVisible}
+  anchorRect={bubbleAnchorRect}
+  direction={bubbleDirection}
+  loading={bubbleLoading}
+  error={bubbleError}
+/>
