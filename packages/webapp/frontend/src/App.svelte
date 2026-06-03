@@ -100,9 +100,19 @@
     window.history.replaceState(null, "", `#${section}`);
   }
 
+  function resolveTheme(themeValue) {
+    if (themeValue === "light" || themeValue === "dark") return themeValue;
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  }
+
   function applyTheme(themeValue) {
     if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-theme", coerceTheme(themeValue));
+    const resolvedTheme = resolveTheme(coerceTheme(themeValue));
+    document.documentElement.setAttribute("data-theme", resolvedTheme);
+    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
   }
 
   const resetAudio = () => {
@@ -639,7 +649,19 @@
   });
 
   onMount(() => {
+    const media = typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia("(prefers-color-scheme: dark)")
+      : null;
+    const handleSystemThemeChange = () => {
+      if ($theme === "system") applyTheme("system");
+    };
+
+    media?.addEventListener?.("change", handleSystemThemeChange);
     void loadCurrentUser();
+
+    return () => {
+      media?.removeEventListener?.("change", handleSystemThemeChange);
+    };
   });
 </script>
 
@@ -762,7 +784,8 @@
                 {@const isSelected = $theme === option.v}
                 <label class="flex flex-1 cursor-pointer justify-center">
                   <input class="sr-only" type="radio" value={option.v} bind:group={$theme} onchange={() => saveSettings()} />
-                  <span class="flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
+                  <!-- pointer-events-none lets clicks fall through to the hidden radio input -->
+                  <span class="pointer-events-none flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
                     <span class="font-semibold">{option.l}</span>
                   </span>
                 </label>
@@ -801,7 +824,7 @@
                 {@const isSelected = $soundEffectsMode === option.v}
                 <label class="flex flex-1 cursor-pointer justify-center">
                   <input class="sr-only" type="radio" value={option.v} bind:group={$soundEffectsMode} onchange={() => saveSettings()} />
-                  <span class="flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
+                  <span class="pointer-events-none flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
                     <span class="font-semibold">{option.l}</span>
                   </span>
                 </label>

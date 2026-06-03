@@ -17,7 +17,7 @@
       <label class="min-w-[8.5rem] cursor-pointer">
         <input class="sr-only" type="radio" name="lookup-direction" bind:group={value} value={option.value} {disabled} />
         <span
-          class={`flex flex-col rounded-xl px-4 py-3 text-left text-sm transition ${value === option.value ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'} ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
+          class={`pointer-events-none flex flex-col rounded-xl px-4 py-3 text-left text-sm transition ${value === option.value ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'} ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
         >
           <span class="font-semibold">{option.label}</span>
           <span class={`text-xs ${value === option.value ? 'text-violet-100 dark:text-slate-700' : 'text-slate-400 dark:text-slate-500'}`}>
