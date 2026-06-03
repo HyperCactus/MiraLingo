@@ -14,6 +14,7 @@
 <AppButton
   variant="secondary"
   {disabled}
+  playClickSound={false}
   className="min-h-12 min-w-12 px-3 justify-center rounded-full"
   aria-label={label}
   on:click={(event) => dispatch('click', event)}

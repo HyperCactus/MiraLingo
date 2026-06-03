@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { getPracticeProgress, type PracticeProgressResponse } from '../api/practice';
+  import { getPracticeAnalytics, getPracticeProgress, type PracticeAnalyticsResponse, type PracticeProgressResponse } from '../api/practice';
   import AppShell from '../components/layout/AppShell.svelte';
   import AppButton from '../components/ui/AppButton.svelte';
   import AppCard from '../components/ui/AppCard.svelte';
@@ -23,6 +23,7 @@
   let state: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   let error = '';
   let progress: PracticeProgressResponse | null = null;
+  let analytics: PracticeAnalyticsResponse | null = null;
 
   const navItems = [
     { id: 'dashboard', label: 'Today', href: '#dashboard', active: activeSection === 'dashboard' },
@@ -32,17 +33,32 @@
   ];
 
   const safeCount = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
-  $: progressAccuracy = typeof progress?.accuracy === 'number' && Number.isFinite(progress.accuracy)
-    ? Math.round(progress.accuracy * 100)
-    : safeCount(progress?.total) > 0
-      ? Math.round((safeCount(progress?.correct) / safeCount(progress?.total)) * 100)
-      : 0;
+  const masteredFromAnalytics = (value: unknown): number | null => {
+    if (value == null) return null;
+    if (typeof value !== 'object') return null;
+    return Object.values(value as Record<string, unknown>).filter((entry) => {
+      if (!entry || typeof entry !== 'object') return false;
+      return Boolean((entry as Record<string, unknown>).mastered);
+    }).length;
+  };
+
+  $: masteredCountUnified = masteredFromAnalytics(analytics?.mastered_recent) ?? safeCount(progress?.mastered_count);
+  $: progressAccuracy = typeof analytics?.accuracy === 'number' && Number.isFinite(analytics.accuracy)
+    ? Math.round(analytics.accuracy * 100)
+    : typeof progress?.accuracy === 'number' && Number.isFinite(progress.accuracy)
+      ? Math.round(progress.accuracy * 100)
+      : safeCount(progress?.total) > 0
+        ? Math.round((safeCount(progress?.correct) / safeCount(progress?.total)) * 100)
+        : 0;
 
   async function loadProgress() {
     state = progress ? 'ready' : 'loading';
     error = '';
     try {
-      const { response, payload } = await getPracticeProgress();
+      const [{ response, payload }, { response: analyticsResponse, payload: analyticsPayload }] = await Promise.all([
+        getPracticeProgress(),
+        getPracticeAnalytics(),
+      ]);
       if (!response.ok || payload.ok === false) {
         state = 'error';
         error = payload.detail ?? 'Could not load today\'s progress.';
@@ -50,6 +66,7 @@
         return;
       }
       progress = payload;
+      analytics = analyticsResponse.ok && analyticsPayload.ok !== false ? analyticsPayload : null;
       state = 'ready';
     } catch (_error) {
       state = 'error';
@@ -138,9 +155,9 @@
             </div>
             <span class="text-sm font-semibold text-violet-700 dark:text-violet-300">{safeCount(progress?.weak_count)} weak</span>
           </div>
-          <AppProgressBar value={safeCount(progress?.mastered_count)} max={Math.max(1, safeCount(progress?.mastered_count) + safeCount(progress?.new_count) + safeCount(progress?.stale_count) + safeCount(progress?.weak_count))} showLabel={true} />
+          <AppProgressBar value={masteredCountUnified} max={Math.max(1, masteredCountUnified + safeCount(progress?.new_count) + safeCount(progress?.stale_count) + safeCount(progress?.weak_count))} showLabel={true} />
           <div class="grid gap-3 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-3">
-            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Mastered</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(progress?.mastered_count)}</strong></div>
+            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Mastered</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{masteredCountUnified}</strong></div>
             <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Stale</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(progress?.stale_count)}</strong></div>
             <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">New</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(progress?.new_count)}</strong></div>
           </div>
@@ -183,7 +200,7 @@
       <dl class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
         <div class="flex items-center justify-between gap-4"><dt>Total events</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.event_count)}</dd></div>
         <div class="flex items-center justify-between gap-4"><dt>Weak cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.weak_count)}</dd></div>
-        <div class="flex items-center justify-between gap-4"><dt>Mastered cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.mastered_count)}</dd></div>
+        <div class="flex items-center justify-between gap-4"><dt>Mastered cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{masteredCountUnified}</dd></div>
       </dl>
     </AppCard>
   </svelte:fragment>

@@ -72,6 +72,14 @@ Thumbs.db
 # ── Node / Web ──
 node_modules/
 .next/
+.vite/
+
+# ── Data & runtime ──
+*.sqlite
+*.sqlite3
+data/eval_results/
+miralingo.sqlite3
+packages/webapp/.miralingo/
 
 # ── Project-specific ──
 

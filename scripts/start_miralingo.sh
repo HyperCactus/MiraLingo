@@ -39,12 +39,31 @@ python -m uvicorn mirad_webapp.api:app \
   > /tmp/miralingo-backend.log 2>&1 &
 BACKEND_PID=$!
 
-sleep 1
-if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
-  echo "Backend failed to start. Log: /tmp/miralingo-backend.log"
-  tail -n 80 /tmp/miralingo-backend.log || true
-  exit 1
-fi
+BACKEND_HEALTH_URL="http://${HOST}:${BACKEND_PORT}/health"
+BACKEND_WAIT_SECONDS="${BACKEND_WAIT_SECONDS:-90}"
+START_TS="$(date +%s)"
+
+while true; do
+  if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo "Backend failed to start. Log: /tmp/miralingo-backend.log"
+    tail -n 120 /tmp/miralingo-backend.log || true
+    exit 1
+  fi
+
+  if curl -fsS "$BACKEND_HEALTH_URL" >/dev/null 2>&1; then
+    echo "Backend is healthy at ${BACKEND_HEALTH_URL}"
+    break
+  fi
+
+  NOW_TS="$(date +%s)"
+  if (( NOW_TS - START_TS >= BACKEND_WAIT_SECONDS )); then
+    echo "Backend did not become healthy within ${BACKEND_WAIT_SECONDS}s. Log: /tmp/miralingo-backend.log"
+    tail -n 120 /tmp/miralingo-backend.log || true
+    exit 1
+  fi
+
+  sleep 1
+done
 
 echo "Starting frontend on http://${HOST}:${FRONTEND_PORT}"
 npm --prefix packages/webapp/frontend run dev -- --host "$HOST" --port "$FRONTEND_PORT" &

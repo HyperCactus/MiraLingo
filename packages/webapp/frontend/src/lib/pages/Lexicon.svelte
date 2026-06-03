@@ -2,6 +2,7 @@
   import { createEventDispatcher, onDestroy } from 'svelte';
   import { get } from 'svelte/store';
   import { fetchMbrolaTextAudio } from '../api/audio.ts';
+  import { readJson } from '../api/auth.ts';
   import { LookupError, lookupWord, lookupExact, type LookupDirection, type LookupResult } from '../api/lookup.ts';
   import AppShell from '../components/layout/AppShell.svelte';
   import DirectionToggle from '../components/lexicon/DirectionToggle.svelte';
@@ -139,7 +140,19 @@
   }
 
   function getMiradWord(result: LookupResult) {
-    return direction === 'en_to_mir' ? result.mirad : result.mirad;
+    return result.mirad;
+  }
+
+  function getPreviewMiradText(result: LookupResult): string {
+    const raw = getMiradWord(result).trim();
+    if (!raw) return '';
+
+    return raw
+      .replace(/[()\[\]{}"“”]/g, '')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/\s*;\s*/g, '; ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   async function playMbrolaPreview(text: string, spokenWord: string) {
@@ -147,7 +160,9 @@
     const contentType = response.headers.get('content-type') ?? '';
 
     if (!response.ok || !contentType.includes('audio')) {
-      throw new Error('practice-audio-unavailable');
+      const payload = await readJson<{ detail?: string; error?: string }>(response);
+      const detail = payload?.detail?.trim?.() || payload?.error?.trim?.() || 'Speech preview is unavailable for this result.';
+      throw new Error(detail);
     }
 
     const blob = await response.blob();
@@ -176,19 +191,21 @@
   async function speakResult(result: LookupResult) {
     audioFeedback = '';
     const miradWord = getMiradWord(result).trim();
+    const previewText = getPreviewMiradText(result);
 
-    if (!miradWord) {
+    if (!previewText) {
       audioFeedback = 'Speech preview is unavailable for this result.';
       return;
     }
 
-    speakingWord = miradWord;
+    speakingWord = miradWord || previewText;
 
     try {
-      await playMbrolaPreview(miradWord, miradWord);
-    } catch (_) {
+      await playMbrolaPreview(previewText, speakingWord);
+    } catch (error) {
       speakingWord = '';
-      audioFeedback = 'MBROLA preview is unavailable for this result right now.';
+      const detail = error instanceof Error ? error.message.trim() : '';
+      audioFeedback = detail || 'Speech preview could not play right now.';
     }
   }
 

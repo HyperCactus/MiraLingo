@@ -1,0 +1,741 @@
+[
+  {
+    "example_id": "pair-0366",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "this teacher is very good",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"hia tuxut se gla fia\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"hia gla fia tuxut\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-2\": 0.56}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-2\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+    "expected_text": "hia tuxut se gla fia",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "hia tuxut se gla fia",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "hia gla fia tuxut",
+        "human_label": {
+          "aggregate_score": 0.56,
+          "label": "major_error",
+          "notes": "Weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.45,
+            "grammar": 0.38,
+            "morphology": 0.34,
+            "fluency": 0.42
+          },
+          "error_tags": [
+            "copula",
+            "minor_error"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0616",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "the houses are ugly",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"ha vua tami se\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"ha tami se vua\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.88, \"cand-3\": 0.99}, \"confidence\": 0.99, \"ranking\": [\"cand-3\", \"cand-1\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun; keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-3\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun; keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+    "expected_text": "ha tami se vua",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "ha vua tami se",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "ha tami se vua",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun; keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0622",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "that house is beautiful",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"hua via tam se\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"hua tam se via\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.88, \"cand-2\": 0.99}, \"confidence\": 0.99, \"ranking\": [\"cand-2\", \"cand-1\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-2\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+    "expected_text": "hua tam se via",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "hua via tam se",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "hua tam se via",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0391",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "they know",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"yit te\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"yit tye\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-3\": 0.88}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-3\"], \"rationale\": \"Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-3 because acceptable candidate: adds unsupported token(s): tye, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-3 because acceptable candidate: adds unsupported token(s): tye, but core source meaning remains recoverable.",
+    "expected_text": "yit te",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "pronouns"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "yit te",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-3 because acceptable candidate: adds unsupported token(s): tye, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "pronouns"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "yit tye",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: adds unsupported token(s): tye, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "pronouns"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0014",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "the small house",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"ha oga tam\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"oga tam\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-3\": 0.64}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-3\"], \"rationale\": \"Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: drops a definite article from a definite noun phrase.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: drops a definite article from a definite noun phrase.",
+    "expected_text": "ha oga tam",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "lexical_choice"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "ha oga tam",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: drops a definite article from a definite noun phrase.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "lexical_choice"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "oga tam",
+        "human_label": {
+          "aggregate_score": 0.64,
+          "label": "minor_error",
+          "notes": "Partial candidate: drops a definite article from a definite noun phrase.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.72,
+            "grammar": 0.62,
+            "morphology": 0.58,
+            "fluency": 0.68
+          },
+          "error_tags": [
+            "lexical_choice",
+            "minor_error"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0151",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "captive",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"pixlawat\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"yuva\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.12, \"cand-3\": 0.99}, \"confidence\": 0.99, \"ranking\": [\"cand-3\", \"cand-1\"], \"rationale\": \"Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because bad candidate: adds unsupported token(s): pixlawat, so it should be ranked last or near last.\", \"selected_candidate_id\": \"cand-3\"}",
+    "rationale": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because bad candidate: adds unsupported token(s): pixlawat, so it should be ranked last or near last.",
+    "expected_text": "yuva",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "lexical_choice"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "pixlawat",
+        "human_label": {
+          "aggregate_score": 0.12,
+          "label": "completely_wrong",
+          "notes": "Bad candidate: adds unsupported token(s): pixlawat, so it should be ranked last or near last.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.18,
+            "grammar": 0.16,
+            "morphology": 0.12,
+            "fluency": 0.18
+          },
+          "error_tags": [
+            "completely_wrong",
+            "lexical_choice"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "yuva",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because bad candidate: adds unsupported token(s): pixlawat, so it should be ranked last or near last.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "lexical_choice"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0110",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "that student is good",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"hua tixut se fia\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"hua fia tixut se\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-2\": 0.88}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-2\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+    "expected_text": "hua tixut se fia",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "hua tixut se fia",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-2 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "hua fia tixut se",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0096",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "your teacher is good",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"eta fia tuxut se\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"eta tuxut se fia\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.88, \"cand-2\": 0.99}, \"confidence\": 0.99, \"ranking\": [\"cand-2\", \"cand-1\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-2\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+    "expected_text": "eta tuxut se fia",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "eta fia tuxut se",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "eta tuxut se fia",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because acceptable candidate: uses the right words but in an unnatural or rule-violating order, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0335",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "he or she was going home",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"it pa be tam\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"it peya tam\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"it pa bu tam\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.64, \"cand-2\": 0.99, \"cand-3\": 0.64}, \"confidence\": 0.99, \"ranking\": [\"cand-2\", \"cand-1\", \"cand-3\"], \"rationale\": \"Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because partial candidate: adds unsupported token(s): pa, be.\", \"selected_candidate_id\": \"cand-2\"}",
+    "rationale": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because partial candidate: adds unsupported token(s): pa, be.",
+    "expected_text": "it peya tam",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "pronouns",
+      "tense_aspect"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "it pa be tam",
+        "human_label": {
+          "aggregate_score": 0.64,
+          "label": "minor_error",
+          "notes": "Partial candidate: adds unsupported token(s): pa, be.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.72,
+            "grammar": 0.62,
+            "morphology": 0.58,
+            "fluency": 0.68
+          },
+          "error_tags": [
+            "minor_error",
+            "pronouns",
+            "tense_aspect"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "it peya tam",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-1 because partial candidate: adds unsupported token(s): pa, be.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "pronouns",
+            "tense_aspect"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "it pa bu tam",
+        "human_label": {
+          "aggregate_score": 0.64,
+          "label": "minor_error",
+          "notes": "Partial candidate: adds unsupported token(s): pa, bu.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.72,
+            "grammar": 0.62,
+            "morphology": 0.58,
+            "fluency": 0.68
+          },
+          "error_tags": [
+            "minor_error",
+            "pronouns",
+            "tense_aspect"
+          ],
+          "rank": 3,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0019",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "the cars",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"ha puri\"}, {\"candidate_id\": \"cand-3\", \"candidate_text\": \"ha puresi\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-3\": 0.64}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-3\"], \"rationale\": \"Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: adds unsupported token(s): puresi.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: adds unsupported token(s): puresi.",
+    "expected_text": "ha puri",
+    "source_reference": "data/eval_results/mc_eval_20260528_165529/examples.json",
+    "taxonomy_focus": [
+      "lexical_choice"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "ha puri",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: keeps the definite article where the source has a definite noun phrase, while preserving the source meaning. It beats cand-3 because partial candidate: adds unsupported token(s): puresi.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "lexical_choice"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-3",
+        "candidate_text": "ha puresi",
+        "human_label": {
+          "aggregate_score": 0.64,
+          "label": "minor_error",
+          "notes": "Partial candidate: adds unsupported token(s): puresi.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.72,
+            "grammar": 0.62,
+            "morphology": 0.58,
+            "fluency": 0.68
+          },
+          "error_tags": [
+            "lexical_choice",
+            "minor_error"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0120",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "your life is good",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"eta tej fia\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"eta tej se fia\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.56, \"cand-2\": 0.99}, \"confidence\": 0.99, \"ranking\": [\"cand-2\", \"cand-1\"], \"rationale\": \"Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.\", \"selected_candidate_id\": \"cand-2\"}",
+    "rationale": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+    "expected_text": "eta tej se fia",
+    "source_reference": "data/eval_results/mipro_full_660/test_set_examples.json",
+    "taxonomy_focus": [
+      "copula"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "eta tej fia",
+        "human_label": {
+          "aggregate_score": 0.56,
+          "label": "major_error",
+          "notes": "Weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.45,
+            "grammar": 0.38,
+            "morphology": 0.34,
+            "fluency": 0.42
+          },
+          "error_tags": [
+            "copula",
+            "minor_error"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "eta tej se fia",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: includes the required copula for a predicate adjective/noun, while preserving the source meaning. It beats cand-1 because weak candidate: missing copula between subject and predicate, causing major loss of source meaning or grammar.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "copula"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      }
+    ]
+  },
+  {
+    "example_id": "pair-0215",
+    "dspy_inputs": [
+      "source_text",
+      "candidate_payload_json"
+    ],
+    "direction": "en_to_mir",
+    "source_text": "he or she came",
+    "candidate_payload_json": "[{\"candidate_id\": \"cand-1\", \"candidate_text\": \"it upa\"}, {\"candidate_id\": \"cand-2\", \"candidate_text\": \"it upya\"}]",
+    "judge_json": "{\"candidate_scores\": {\"cand-1\": 0.99, \"cand-2\": 0.88}, \"confidence\": 0.99, \"ranking\": [\"cand-1\", \"cand-2\"], \"rationale\": \"Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-2 because acceptable candidate: adds unsupported token(s): upya, but core source meaning remains recoverable.\", \"selected_candidate_id\": \"cand-1\"}",
+    "rationale": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-2 because acceptable candidate: adds unsupported token(s): upya, but core source meaning remains recoverable.",
+    "expected_text": "it upa",
+    "source_reference": "data/eval_results/mipro_full_660/test_set_examples.json",
+    "taxonomy_focus": [
+      "pronouns"
+    ],
+    "candidate_labels": [
+      {
+        "candidate_id": "cand-1",
+        "candidate_text": "it upa",
+        "human_label": {
+          "aggregate_score": 0.99,
+          "label": "exact_match",
+          "notes": "Strong candidate: preserves the source meaning with grammatical Mirad word order and no added or missing content. It beats cand-2 because acceptable candidate: adds unsupported token(s): upya, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.98,
+            "grammar": 0.96,
+            "morphology": 0.96,
+            "fluency": 0.95
+          },
+          "error_tags": [
+            "pronouns"
+          ],
+          "rank": 1,
+          "is_correct": true
+        }
+      },
+      {
+        "candidate_id": "cand-2",
+        "candidate_text": "it upya",
+        "human_label": {
+          "aggregate_score": 0.88,
+          "label": "likely_valid_alternative",
+          "notes": "Acceptable candidate: adds unsupported token(s): upya, but core source meaning remains recoverable.",
+          "criteria_scores": {
+            "semantic_fidelity": 0.9,
+            "grammar": 0.86,
+            "morphology": 0.84,
+            "fluency": 0.86
+          },
+          "error_tags": [
+            "pronouns"
+          ],
+          "rank": 2,
+          "is_correct": false
+        }
+      }
+    ]
+  }
+]
