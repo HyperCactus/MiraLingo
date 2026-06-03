@@ -103,93 +103,90 @@ _patch_dspy_dump_state_compat()
 
 
 def _patch_mipro_distributions_bug(optimizer: MIPROv2) -> None:
-    """Fix DSPy MIPROv2 distributions bug when auto=None + num_instruction_candidates > 1.
+    """Patch DSPy+Optuna mismatch in MIPROv2 trial creation.
 
-    Bug: _optimize_prompt_parameters builds a distributions dict with only
-    predictor_0 keys but the suggest loop populates params for ALL predictors.
-    When create_trial() is called with params containing keys absent from
-    distributions, optuna raises:
-        ValueError: Inconsistent parameters ... and distributions ...
-
-    Fix: patch optuna.trial.create_trial to auto-extend the distributions dict
-    before the FrozenTrial constructor sees it.
+    DSPy may generate params for predictors 0..N while distributions only include
+    predictor_0 keys. Optuna then raises ValueError for inconsistent params vs
+    distributions. We patch create_trial during optimize() and auto-extend missing
+    distributions using a compatible reference distribution.
     """
     import functools
     import optuna
-    import optuna.trial
 
     orig_method = optimizer._optimize_prompt_parameters
 
+    def _clone_distribution(ref_dist):
+        if isinstance(ref_dist, optuna.distributions.CategoricalDistribution):
+            return optuna.distributions.CategoricalDistribution(choices=ref_dist.choices)
+        # Handle numeric distributions (Int/Float) that expose low/high.
+        if hasattr(ref_dist, "low") and hasattr(ref_dist, "high"):
+            kwargs = {"low": ref_dist.low, "high": ref_dist.high}
+            if hasattr(ref_dist, "step"):
+                kwargs["step"] = ref_dist.step
+            if hasattr(ref_dist, "log"):
+                kwargs["log"] = ref_dist.log
+            return type(ref_dist)(**kwargs)
+        # Fallback (should rarely be needed).
+        return ref_dist
+
     @functools.wraps(orig_method)
     def _wrapped(self, *args, **kwargs):
-        return _run_with_patched_distributions(orig_method, self, args, kwargs)
-
-    def _run_with_patched_distributions(method, optimizer_self, method_args, method_kwargs):
-        # ── persistent per-call patch on optuna.trial.create_trial ───────────
         frozen_mod = sys.modules["optuna.trial._frozen"]
         trial_mod = sys.modules["optuna.trial"]
-        saved = frozen_mod.create_trial
+        saved_frozen = frozen_mod.create_trial
+        saved_trial = trial_mod.create_trial
 
         def _patched_create_trial(*, params=None, distributions=None, **kw):
             if params and distributions is not None:
-                missing = set(params) - set(distributions)
-                if missing:
+                missing = sorted(set(params) - set(distributions))
+                if missing and distributions:
                     ref_key = next(
-                        k for k in sorted(distributions)
-                        if "instruction" in k or "demos" in k
+                        (k for k in sorted(distributions) if "instruction" in k or "demos" in k),
+                        next(iter(distributions)),
                     )
                     ref_dist = distributions[ref_key]
-                    # Handle CategoricalDistribution (choices) and numeric
-                    # distributions (low/high) for the auto-generated entries.
-                    if isinstance(ref_dist, optuna.distributions.CategoricalDistribution):
-                        new_dist = optuna.distributions.CategoricalDistribution(
-                            choices=ref_dist.choices,
-                        )
-                    else:
-                        new_dist = type(ref_dist)(ref_dist.low, ref_dist.high)
-                    for key in sorted(missing):
-                        distributions[key] = new_dist
-            return saved(params=params, distributions=distributions, **kw)
+                    for key in missing:
+                        distributions[key] = _clone_distribution(ref_dist)
+            return saved_frozen(params=params, distributions=distributions, **kw)
 
-        setattr(frozen_mod, "create_trial", _patched_create_trial)
-        setattr(trial_mod, "create_trial", _patched_create_trial)
-
-        # Extend instruction_candidates dict and demo_candidates list so the
-        # objective function's suggest-loop can access predictors 0, 1, 2 … without
-        # KeyError / IndexError.
-        # instruction_candidates: dict[int, list[str]] — predictor index → instruction list
-        # demo_candidates:       list | None            — per-predictor demo list
-        # These are positional args [1] and [2] of _optimize_prompt_parameters.
-        MIN_PREDS = 3  # default num_instruction_candidates in DSPy MIPRO
-
-        # Locate the args (self=arg[0], program=arg[1], instruction_candidates=arg[2],
-        # demo_candidates=arg[3], ...)
-        args_list = list(method_args)
-        if len(args_list) > 2:  # instruction_candidates is the 3rd positional arg (0-indexed=2)
-            ic = args_list[2]
-            if isinstance(ic, dict):
-                # Ensure every predictor (0..MIN_PREDS-1) has ≥1 instruction candidate.
-                # Predictor 0 may have several; predictors 1+ often have only 1 (the
-                # signature default). Duplicate the first available instruction.
-                for i in range(MIN_PREDS):
-                    if i not in ic:
-                        ic[i] = [ic[0][0]] if (ic and ic.get(0)) else [""]
-                    while len(ic[i]) < MIN_PREDS:
+        # Also pad proposer candidate containers so objective indexing doesn't fail.
+        args_list = list(args)
+        min_preds = 3
+        if len(args_list) > 1:
+            ic = args_list[1]
+            if isinstance(ic, dict) and ic:
+                seed = ic.get(0, [""])
+                seed_val = seed[0] if seed else ""
+                for i in range(min_preds):
+                    if i not in ic or not ic[i]:
+                        ic[i] = [seed_val]
+                    while len(ic[i]) < min_preds:
                         ic[i].append(ic[i][0])
-                args_list[2] = ic
-            elif isinstance(ic, list):
-                while len(ic) < MIN_PREDS:
-                    ic.append(ic[-1] if ic else "")
-                args_list[2] = ic
+                args_list[1] = ic
 
-        if len(args_list) > 3:  # demo_candidates is the 4th positional arg (index=3)
-            dc = args_list[3]
-            if isinstance(dc, list):
-                while len(dc) < MIN_PREDS:
+        if len(args_list) > 2:
+            dc = args_list[2]
+            if isinstance(dc, list) and dc:
+                while len(dc) < min_preds:
                     dc.append(dc[-1] if dc else [])
-                args_list[3] = dc
+                args_list[2] = dc
+            elif isinstance(dc, dict) and dc:
+                # DSPy may pass demo_candidates as {predictor_idx: list_of_demo_sets}
+                seed_list = dc.get(0, [])
+                for i in range(min_preds):
+                    if i not in dc:
+                        dc[i] = seed_list
+                args_list[2] = dc
 
-            return method(optimizer_self, *args_list, **method_kwargs)
+        try:
+            setattr(frozen_mod, "create_trial", _patched_create_trial)
+            setattr(trial_mod, "create_trial", _patched_create_trial)
+            return orig_method(*args_list, **kwargs)
+        finally:
+            setattr(frozen_mod, "create_trial", saved_frozen)
+            setattr(trial_mod, "create_trial", saved_trial)
+
+    optimizer._optimize_prompt_parameters = _wrapped.__get__(optimizer, type(optimizer))
 
 
 _patch_dspy_dump_state_compat()
@@ -258,6 +255,7 @@ def load_eval_pairs(
 # ────────────────────────────────────────────────────────────────────────────
 
 # ── Constants ────────────────────────────────────────────────────────────────
+DEFAULT_TRAIN_PATH = PROJECT_ROOT / "data" / "eval" / "train.json"
 DEFAULT_VAL_PATH = PROJECT_ROOT / "data" / "eval" / "val.json"
 OUT_DIR_BASE = PROJECT_ROOT / "data" / "eval_results"
 DEFAULT_TEMPERATURES = [0.1, 0.4, 0.8]
@@ -461,22 +459,32 @@ def main():
     parser.add_argument(
         "--trainset-size",
         type=int,
-        default=50,
-        help="Number of trainset examples for MIPROv2 (default: 50). "
-             "Larger = better optimization, higher cost.",
+        default=None,
+        help="Number of trainset examples (default: all from --train-path).",
+    )
+    parser.add_argument(
+        "--train-path",
+        type=str,
+        default=None,
+        help="Path to training set JSON (default: data/eval/train.json).",
+    )
+    parser.add_argument(
+        "--val-path",
+        type=str,
+        default=None,
+        help="Path to val set JSON (default: data/eval/val.json).",
     )
     parser.add_argument(
         "--valset-size",
         type=int,
         default=20,
-        help="Number of valset examples for Bayesian scoring (default: 20). "
-             "MIPROv2 uses this for trial evaluation.",
+        help="Number of valset examples for Bayesian scoring (default: 20).",
     )
     parser.add_argument(
         "--num-candidates",
         type=int,
-        default=3,
-        help="Number of translation candidates (default: 3)",
+        default=2,
+        help="Number of translation candidates (default: 2)",
     )
     parser.add_argument(
         "--temperatures",
@@ -493,6 +501,12 @@ def main():
         help="Number of context passages for retrieval (default: 3)",
     )
     parser.add_argument(
+        "--top-k-per-word",
+        type=int,
+        default=2,
+        help="Semantic lexicon neighbors per word (default: 2; 0 disables semantic expansion)",
+    )
+    parser.add_argument(
         "--minibatch-size",
         type=int,
         default=35,
@@ -501,14 +515,14 @@ def main():
     parser.add_argument(
         "--max-bootstrapped-demos",
         type=int,
-        default=4,
-        help="Max bootstrapped demos per predictor (default: 4)",
+        default=16,
+        help="Max bootstrapped demos per predictor (default: 16)",
     )
     parser.add_argument(
         "--max-labeled-demos",
         type=int,
-        default=4,
-        help="Max labeled demos per predictor (default: 4)",
+        default=0,
+        help="Max labeled demos per predictor (default: 0)",
     )
     parser.add_argument(
         "--seed",
@@ -556,23 +570,28 @@ def main():
     print("[COST] Usage tracking enabled (DeepSeek V4 Flash pricing)")
 
     # ── Load dataset ───────────────────────────────────────────────────────
-    print(f"\n[DATA] Loading val.json (max {args.trainset_size + args.valset_size} examples)...")
-    all_examples = load_eval_pairs(
-        DEFAULT_VAL_PATH,
+    train_path = Path(args.train_path) if args.train_path else DEFAULT_TRAIN_PATH
+    val_path = Path(args.val_path) if args.val_path else DEFAULT_VAL_PATH
+
+    print(f"\n[DATA] Loading trainset from {train_path}...")
+    train_examples = load_eval_pairs(
+        train_path,
         min_english_words=0,
-        max_samples=args.trainset_size + args.valset_size,
+        max_samples=args.trainset_size,
         seed=args.seed,
     )
-    print(f"[DATA] Loaded {len(all_examples)} examples from val.json")
+    n_train = len(train_examples)
+    print(f"[DATA] Loaded {n_train} train examples")
 
-    # Shuffle and split
-    import random
-    random.seed(args.seed)
-    shuffled = list(all_examples)
-    random.shuffle(shuffled)
-    trainset = shuffled[: args.trainset_size]
-    valset = shuffled[args.trainset_size: args.trainset_size + args.valset_size]
-    print(f"[DATA] Trainset: {len(trainset)} | Valset: {len(valset)}")
+    print(f"[DATA] Loading valset from {val_path}...")
+    val_examples = load_eval_pairs(
+        val_path,
+        min_english_words=0,
+        max_samples=args.valset_size,
+        seed=args.seed,
+    )
+    n_val = len(val_examples)
+    print(f"[DATA] Loaded {n_val} val examples")
 
     # Convert to dspy.Example with mirad_text label
     def to_example(pair: dict) -> dspy.Example:
@@ -581,8 +600,9 @@ def main():
             mirad_text=pair["mirad_text"],
         ).with_inputs("english_text")
 
-    trainset_dspy = [to_example(p) for p in trainset]
-    valset_dspy = [to_example(p) for p in valset]
+    trainset_dspy = [to_example(p) for p in train_examples]
+    valset_dspy = [to_example(p) for p in val_examples]
+    print(f"[DATA] Trainset: {n_train} | Valset: {n_val}")
 
     # ── Build student program ─────────────────────────────────────────────
     # MultiCandidateTranslator has english_text → mirad_text signature,
@@ -592,6 +612,7 @@ def main():
         num_candidates=args.num_candidates,
         temperatures=args.temperatures,
         num_context_passages=args.num_context_passages,
+        top_k_per_word=args.top_k_per_word,
         use_compiled=False,
     )
     print(f"[BUILD] MultiCandidateTranslator: {args.num_candidates} candidates @ {args.temperatures}")
@@ -609,7 +630,7 @@ def main():
         seed=args.seed,
         max_bootstrapped_demos=args.max_bootstrapped_demos,
         max_labeled_demos=args.max_labeled_demos,
-        num_threads=8,
+        num_threads=24,
         verbose=True,
         track_stats=True,
     )
@@ -628,11 +649,11 @@ def main():
     print("\n[COMPILE] Starting MIPROv2 optimization...")
     compile_start = time.time()
 
-    effective_minibatch_size = min(args.minibatch_size, len(valset_dspy))
+    effective_minibatch_size = min(args.minibatch_size, n_train)
     if effective_minibatch_size != args.minibatch_size:
         print(
             f"[MIPRO] Adjusting minibatch_size {args.minibatch_size} -> {effective_minibatch_size} "
-            f"to fit valset size {len(valset_dspy)}"
+            f"to fit trainset size {n_train}"
         )
 
     compiled = optimizer.compile(
@@ -642,7 +663,7 @@ def main():
         num_trials=args.num_trials,
         minibatch=True,
         minibatch_size=effective_minibatch_size,
-        minibatch_full_eval_steps=3,
+        minibatch_full_eval_steps=8,
         requires_permission_to_run=False,
     )
 
@@ -707,7 +728,7 @@ def main():
         gepa_log_dir=gepa_log_dir,
     ), eval_results if eval_results else [])
     _write_timing_estimate(out_dir, vars(args), compile_elapsed, eval_elapsed,
-                            len(trainset), len(valset))
+                            n_train, n_val)
 
     print(f"\n[SAVE] All artifacts → {out_dir}")
     print(f"[DONE]")
@@ -843,13 +864,13 @@ def _build_summary(config: dict, metrics: dict, timing: dict, tracker, out_dir: 
             "num_trials": config.get("num_trials"),
             "actual_trials": actual_trials,
             "trainset_size": config.get("trainset_size", 50),
-            "valset_size": config.get("valset_size", 20),
+            "valset_size": config.get("valset_size", 100),
             "minibatch_size": config.get("minibatch_size", 35),
-            "num_candidates": config.get("num_candidates", 3),
+            "num_candidates": config.get("num_candidates", 2),
             "temperatures": config.get("temperatures", [0.1, 0.4, 0.8]),
             "num_context_passages": config.get("num_context_passages", 3),
-            "max_bootstrapped_demos": config.get("max_bootstrapped_demos", 4),
-            "max_labeled_demos": config.get("max_labeled_demos", 4),
+            "max_bootstrapped_demos": config.get("max_bootstrapped_demos", 16),
+            "max_labeled_demos": config.get("max_labeled_demos", 0),
             "seed": config.get("seed", 42),
             "log_dir": gepa_log_dir,
         },

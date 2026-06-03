@@ -162,38 +162,14 @@ class CandidateSetVerifierSignature(dspy.Signature):
     2. morphology / tense / negation correctness
     3. grammar / style
 
-    Hard-fail cases for English→Mirad:
-    - semantic_mismatch: meaning differs materially from source
-    - missing_negation or wrong_negation
-    - wrong_tense_or_aspect
-    - wrong_conjunction_particle (for example but -> oy, not ay)
-    - dropped_clause_or_argument
-    - missing_required_copula_or_article when source clearly requires it
-    - invented_or_unrelated_wording
-
-    Output STRICT JSON only with this schema:
-    {
-      "winner_id": "cand-2",
-      "ranking": ["cand-2", "cand-1", "cand-3"],
-      "winner_explanation": "short sentence",
-      "candidates": [
-        {
-          "candidate_id": "cand-1",
-          "semantic_fidelity": 0.0,
-          "morphology_tense_negation": 0.0,
-          "grammar_style": 0.0,
-          "hard_failures": ["wrong_negation"],
-          "soft_errors": ["awkward_style"],
-          "justification": "short sentence"
-        }
-      ]
-    }
-
-    Scores must be between 0 and 1. Empty arrays allowed. No markdown fences.
+    Hard-fail cases for English→Mirad: semantic_mismatch, missing_negation,
+    wrong_negation, wrong_tense_or_aspect, wrong_conjunction_particle,
+    dropped_clause_or_argument, missing_required_copula_or_article,
+    invented_or_unrelated_wording.
     """
-    original_english = dspy.InputField(desc="Original English source text")
-    candidate_payload_json = dspy.InputField(desc="JSON array of candidate_id + candidate_mirad text")
-    verifier_json = dspy.OutputField(desc="Strict JSON object matching schema")
+    original_english: str = dspy.InputField(desc="Original English source text")
+    candidate_payload_json: str = dspy.InputField(desc="JSON array of candidate_id + candidate_mirad text")
+    verifier_json: str = dspy.OutputField(desc="JSON object with winner_id, ranking, winner_explanation, and per-candidate scores/failures")
 
 
 class MiradToEnglishCandidateSetVerifierSignature(dspy.Signature):
@@ -206,21 +182,13 @@ class MiradToEnglishCandidateSetVerifierSignature(dspy.Signature):
     2. morphology / tense / negation correctness
     3. grammar / style
 
-    Hard-fail cases for Mirad→English:
-    - semantic_mismatch
-    - missing_negation or wrong_negation
-    - wrong_tense_or_aspect
-    - dropped_clause_or_argument
-    - subject_object_swap
-    - hallucinated_information
-    - direction_leakage (Mirad patterns leaking into English)
-
-    Output STRICT JSON only with same schema as English→Mirad variant, but
-    candidate text is English and fail cases come from Mirad→English list.
+    Hard-fail cases for Mirad→English: semantic_mismatch, missing_negation,
+    wrong_negation, wrong_tense_or_aspect, dropped_clause_or_argument,
+    subject_object_swap, hallucinated_information, direction_leakage.
     """
-    original_mirad = dspy.InputField(desc="Original Mirad source text")
-    candidate_payload_json = dspy.InputField(desc="JSON array of candidate_id + candidate_english text")
-    verifier_json = dspy.OutputField(desc="Strict JSON object matching schema")
+    original_mirad: str = dspy.InputField(desc="Original Mirad source text")
+    candidate_payload_json: str = dspy.InputField(desc="JSON array of candidate_id + candidate_english text")
+    verifier_json: str = dspy.OutputField(desc="JSON object with winner_id, ranking, winner_explanation, and per-candidate scores/failures")
 
 
 class CandidateSetVerifier(dspy.Module):

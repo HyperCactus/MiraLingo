@@ -304,24 +304,17 @@ class DefaultJudgeRunnerAdapter:
         from mirad_translator.evaluate import _make_deepinfra_lm
 
         class Signature(dspy.Signature):
-            """Choose the best translation candidate and calibrate confidence.
+            """Choose the best translation candidate and calibrate confidence."""
 
-            Return JSON-compatible fields: selected_candidate_id, confidence
-            (0..1), rationale, criteria_scores, rejected_candidates.
-            Use semantic_fidelity, grammar, and fluency for en_to_mir; use
-            semantic_fidelity, grammar, and literalness for mir_to_en.
-            """
-
-            example_id = dspy.InputField(desc="Evaluation example id")
-            direction = dspy.InputField(desc="Translation direction")
-            source_text = dspy.InputField(desc="Original source text")
-            expected_text = dspy.InputField(desc="Reference translation")
-            candidates_json = dspy.InputField(desc="JSON array of candidate rows")
-            selected_candidate_id = dspy.OutputField(desc="Winning candidate id")
-            confidence = dspy.OutputField(desc="Float from 0 to 1")
-            rationale = dspy.OutputField(desc="Short reason for the selection")
-            criteria_scores = dspy.OutputField(desc="JSON object of criteria scores")
-            rejected_candidates = dspy.OutputField(desc="JSON array of rejected candidate ids with reasons")
+            example_id: str = dspy.InputField(desc="Evaluation example id")
+            direction: str = dspy.InputField(desc="Translation direction")
+            source_text: str = dspy.InputField(desc="Original source text")
+            candidates_json: str = dspy.InputField(desc="JSON array of candidate rows")
+            selected_candidate_id: str = dspy.OutputField(desc="Winning candidate id")
+            confidence: float = dspy.OutputField(desc="Float from 0 to 1")
+            rationale: str = dspy.OutputField(desc="Short reason for the selection")
+            criteria_scores: str = dspy.OutputField(desc="JSON object of criteria scores")
+            rejected_candidates: str = dspy.OutputField(desc="JSON array of rejected candidate ids with reasons")
 
         self._signature = Signature
         lm = _make_deepinfra_lm(model=model)
@@ -333,7 +326,6 @@ class DefaultJudgeRunnerAdapter:
             example_id=_coerce_string(example.get("id")),
             direction=_coerce_string(example.get("direction")),
             source_text=_coerce_string(example.get("source_text")),
-            expected_text=_coerce_string(example.get("expected_text")),
             candidates_json=json.dumps(candidates, ensure_ascii=False),
         )
         raw_criteria = _maybe_parse_jsonish(getattr(prediction, "criteria_scores", {}))

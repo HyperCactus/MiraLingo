@@ -162,6 +162,7 @@ def normalized_match_metric(example: dspy.Example, prediction: dspy.Prediction, 
     """
     def strip_punct(s: str) -> str:
         # Remove all punctuation except Mirad-specific chars (hyphens in compounds)
+        s = _normalize(str(s))
         s = re.sub(r'[.,!?;:()"\'\[\]{}]', "", s)
         return re.sub(r"\s+", " ", s).strip().lower()
 
@@ -195,6 +196,7 @@ def mirad_to_english_normalized_match_metric(example: dspy.Example, prediction: 
     for programs that set both fields).
     """
     def strip_punct(s: str) -> str:
+        s = _normalize(str(s))
         s = re.sub(r'[.,!?;:()"\'\-]', "", s)
         return re.sub(r"\s+", " ", s).strip().lower()
 
@@ -244,10 +246,10 @@ class RoundTripSemanticRetentionSignature(dspy.Signature):
     changes, negation changes, deictic changes, missing arguments, and added facts.
     Return a numeric score from 0.0 to 1.0 where 1.0 means full semantic retention.
     """
-    original_english = dspy.InputField(desc="Original English source sentence/text")
-    roundtrip_english = dspy.InputField(desc="English produced after English→Mirad→English round trip")
-    retention_score = dspy.OutputField(desc="Float from 0.0 to 1.0 for meaning retention")
-    rationale = dspy.OutputField(desc="Brief explanation of meaning changes or preservation")
+    original_english: str = dspy.InputField(desc="Original English source sentence/text")
+    roundtrip_english: str = dspy.InputField(desc="English produced after English→Mirad→English round trip")
+    retention_score: float = dspy.OutputField(desc="Meaning retention score from 0.0 to 1.0")
+    rationale: str = dspy.OutputField(desc="Brief explanation of meaning changes or preservation")
 
 
 class RoundTripSemanticRetentionMetric(dspy.Module):

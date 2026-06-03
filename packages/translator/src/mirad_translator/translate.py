@@ -1,5 +1,5 @@
 import dspy
-from typing import Optional
+from typing import Literal, Optional
 from pathlib import Path
 
 # Key Mirad grammar rules — used to populate EnglishToMiradSignature.__doc__
@@ -227,11 +227,11 @@ class TranslationAnalysisSignature(dspy.Signature):
     such as verb tense, progressive aspect, possession, comparison, pronouns,
     word order, negation, questions, clauses, prepositions, and noun phrases.
     """
-    source_text = dspy.InputField(desc="Text to translate")
-    direction = dspy.InputField(desc="Translation direction: en_to_mir or mir_to_en")
-    normalized_structure = dspy.OutputField(desc="Normalized structural analysis of the input sentence(s)")
-    grammar_search_terms = dspy.OutputField(desc="Comma-separated grammar concepts/rules to retrieve")
-    vocabulary_search_terms = dspy.OutputField(desc="Comma-separated words/phrases to look up in the lexicon")
+    source_text: str = dspy.InputField(desc="Text to translate")
+    direction: Literal["en_to_mir", "mir_to_en"] = dspy.InputField(desc="Translation direction")
+    normalized_structure: str = dspy.OutputField(desc="Normalized structural analysis of the input sentence(s)")
+    grammar_search_terms: str = dspy.OutputField(desc="Comma-separated grammar concepts/rules to retrieve")
+    vocabulary_search_terms: str = dspy.OutputField(desc="Comma-separated words/phrases to look up in the lexicon")
 
 
 class EnglishToMiradSignature(dspy.Signature):
@@ -248,17 +248,13 @@ class EnglishToMiradSignature(dspy.Signature):
     Use the provided structured grammar rules and vocabulary context to
     inform grammar, word order, and idiom choices. Grammar rules are retrieved
     by semantic similarity over rule retrieval_tags and include rule IDs.
-
-    OUTPUT THE MIRAD TRANSLATION, then a second line exactly like:
-    USED_RULE_IDS: id.one, id.two
-    If no retrieved rules were used, write USED_RULE_IDS: none.
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
-    english_text = dspy.InputField(desc="English text to translate")
-    normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
-    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
-    mirad_text = dspy.OutputField(desc="Translated text in Mirad")
-    used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
+    english_text: str = dspy.InputField(desc="English text to translate")
+    normalized_structure: str = dspy.InputField(desc="Pre-translation structural analysis")
+    word_equivalents: str = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs found in the lexicon, one per line")
+    context_passages: str = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
+    mirad_text: str = dspy.OutputField(desc="Translated text in Mirad")
+    used_rule_ids: str = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used; use 'none' if no retrieved rules were used")
 
 
 class CritiqueSignature(dspy.Signature):
@@ -287,12 +283,12 @@ class CritiqueSignature(dspy.Signature):
     found, set pass=False and provide specific, actionable feedback describing
     exactly what is wrong and how to fix it.
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
-    english_text = dspy.InputField(desc="Original English text")
-    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
-    context_passages = dspy.InputField(desc="Structured grammar-rule passages")
-    candidate_translation = dspy.InputField(desc="The candidate Mirad translation to review")
-    pass_ = dspy.OutputField(desc="True if the translation is correct, False if there are issues")
-    feedback = dspy.OutputField(desc="If pass_ is False, describe the specific errors and how to fix them")
+    english_text: str = dspy.InputField(desc="Original English text")
+    word_equivalents: str = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
+    context_passages: str = dspy.InputField(desc="Structured grammar-rule passages")
+    candidate_translation: str = dspy.InputField(desc="The candidate Mirad translation to review")
+    pass_: bool = dspy.OutputField(desc="True if the translation is correct, False if there are issues")
+    feedback: str = dspy.OutputField(desc="If pass_ is False, describe the specific errors and how to fix them")
 
 
 class FixTranslationSignature(dspy.Signature):
@@ -306,14 +302,14 @@ class FixTranslationSignature(dspy.Signature):
     {grammar_rules}
 
     Use the provided word equivalents and context passages. Address every point
-    in the feedback. OUTPUT ONLY THE CORRECTED MIRAD TRANSLATION. No commentary.
+    in the feedback.
     """.format(grammar_rules=_MIRAD_GRAMMAR_RULES)
-    english_text = dspy.InputField(desc="English text to translate")
-    word_equivalents = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
-    context_passages = dspy.InputField(desc="Structured grammar-rule passages")
-    previous_attempt = dspy.InputField(desc="The previous Mirad translation that had issues")
-    feedback = dspy.InputField(desc="Specific feedback on what was wrong and how to fix it")
-    mirad_text = dspy.OutputField(desc="Corrected Mirad translation")
+    english_text: str = dspy.InputField(desc="English text to translate")
+    word_equivalents: str = dspy.InputField(desc="Dictionary lookups: English→Mirad word pairs")
+    context_passages: str = dspy.InputField(desc="Structured grammar-rule passages")
+    previous_attempt: str = dspy.InputField(desc="The previous Mirad translation that had issues")
+    feedback: str = dspy.InputField(desc="Specific feedback on what was wrong and how to fix it")
+    mirad_text: str = dspy.OutputField(desc="Corrected Mirad translation")
 
 
 class FollowUpQuerySignature(dspy.Signature):
@@ -330,10 +326,10 @@ class FollowUpQuerySignature(dspy.Signature):
     If the initial context already covers all grammar patterns and vocabulary
     needed, output an empty string to signal that no further retrieval is needed.
     """
-    english_text = dspy.InputField(desc="English text to translate")
-    initial_context = dspy.InputField(desc="Context passages already retrieved")
-    word_equivalents = dspy.InputField(desc="Dictionary lookups already found")
-    follow_up_query = dspy.OutputField(desc="A focused follow-up query for grammar/vocabulary not yet covered, or empty string if no more retrieval is needed")
+    english_text: str = dspy.InputField(desc="English text to translate")
+    initial_context: str = dspy.InputField(desc="Context passages already retrieved")
+    word_equivalents: str = dspy.InputField(desc="Dictionary lookups already found")
+    follow_up_query: str = dspy.OutputField(desc="A focused follow-up query for grammar/vocabulary not yet covered, or empty string if no more retrieval is needed")
 
 
 # =====================================================================
@@ -389,17 +385,13 @@ class MiradToEnglishSignature(dspy.Signature):
     possible. Use the provided structured grammar rules and vocabulary context to
     inform grammar, word order, and translation choices. Grammar rules are retrieved
     by semantic similarity over rule retrieval_tags and include rule IDs.
-
-    OUTPUT THE ENGLISH TRANSLATION, then a second line exactly like:
-    USED_RULE_IDS: id.one, id.two
-    If no retrieved rules were used, write USED_RULE_IDS: none.
     """.format(grammar_rules=_MIRAD_TO_ENGLISH_RULES)
-    mirad_text = dspy.InputField(desc="Mirad text to translate")
-    normalized_structure = dspy.InputField(desc="Pre-translation structural analysis")
-    word_equivalents = dspy.InputField(desc="Dictionary lookups: Mirad→English word pairs found in the lexicon, one per line")
-    context_passages = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
-    english_text = dspy.OutputField(desc="Translated text in English")
-    used_rule_ids = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used")
+    mirad_text: str = dspy.InputField(desc="Mirad text to translate")
+    normalized_structure: str = dspy.InputField(desc="Pre-translation structural analysis")
+    word_equivalents: str = dspy.InputField(desc="Dictionary lookups: Mirad→English word pairs found in the lexicon, one per line")
+    context_passages: str = dspy.InputField(desc="Retrieved structured grammar rules relevant to the translation")
+    english_text: str = dspy.OutputField(desc="Translated text in English")
+    used_rule_ids: str = dspy.OutputField(desc="Comma-separated IDs of retrieved grammar rules used; use 'none' if no retrieved rules were used")
 
 
 class StructuredRetrievalMixin:

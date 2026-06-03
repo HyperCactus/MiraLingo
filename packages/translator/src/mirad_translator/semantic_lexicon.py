@@ -263,14 +263,23 @@ def semantic_lookup_mirad(
     if include_exact:
         exact_en_str = ", ".join(exact_ens)
         hits.insert(0, {
-            "mirad": exact_en_str,
+            "mirad": exact_mirad,
             "english": exact_en_str,
             "distance": 0.0,
             "cosine_similarity": 1.0,
             "is_exact": True,
         })
 
-    return hits[:top_k]
+    deduped_hits = []
+    seen_pairs = set()
+    for hit in hits:
+        key = (hit["mirad"].lower(), hit["english"].lower())
+        if key in seen_pairs:
+            continue
+        seen_pairs.add(key)
+        deduped_hits.append(hit)
+
+    return deduped_hits[:top_k]
 
 
 def semantic_lookup_multi(
