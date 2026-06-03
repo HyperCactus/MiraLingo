@@ -68,7 +68,7 @@ def _find_nuclei(word: str) -> list[tuple[int, int]]:
             continue
         # 3-char circum-glided vowel: yay, way, etc.
         if i + 3 <= len(word) and word[i : i + 3] in _C3:
-            nuclei.append((i, i + 3)); i += 3
+            nuclei.append((i, i + 3)); i += 3; continue
         # 2-char complex vowel: ay, ya, aw, wa, etc.
         elif i + 2 <= len(word) and word[i : i + 2] in _C2:
             # If the second character itself starts a valid 2-char or 3-char nucleus

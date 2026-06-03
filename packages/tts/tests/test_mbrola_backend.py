@@ -179,9 +179,13 @@ class TestWordToMbrola:
     def test_empty_word(self):
         assert word_to_mbrola("") == ""
 
-    def test_word_to_mbrola_phones_returns_list(self):
-        phones = word_to_mbrola_phones("ha")
-        assert phones == ["h", "a"]
+    def test_triple_vowel_word_with_complex_then_simple_nucleus(self):
+        result = word_to_mbrola("twiyubien")
+        phones = result.split()
+        assert phones[:4] == ["t", "w", "i:", "j"]
+        assert "u:" in phones
+        assert "b" in phones
+        assert phones[-2:] == ["e:", "n"]
 
 
 class TestTextToMbrolaPhones:
