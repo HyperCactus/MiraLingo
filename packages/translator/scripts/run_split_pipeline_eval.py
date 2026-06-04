@@ -36,6 +36,7 @@ def main() -> None:
     parser.add_argument('--max-examples', type=int, default=20)
     parser.add_argument('--candidate-count', type=int, default=3)
     parser.add_argument('--temperatures', type=float, nargs='+', default=[0.1, 0.4, 0.8])
+    parser.add_argument('--num-threads', type=int, default=24)
     parser.add_argument('--out-dir', type=Path, default=None)
     args = parser.parse_args()
 
@@ -51,23 +52,50 @@ def main() -> None:
     judge = dspy.load(str(args.judge_program), allow_pickle=True)
     evalset = load_generator_pairs(args.test, max_samples=args.max_examples, seed=42)
 
+    class SplitPipeline(dspy.Module):
+        def __init__(self, generator: dspy.Module, judge: dspy.Module, temperatures: list[float], candidate_count: int):
+            super().__init__()
+            self.generator = generator
+            self.judge = judge
+            self.temperatures = list(temperatures)
+            self.candidate_count = candidate_count
+
+        def forward(self, *, english_text: str) -> dspy.Prediction:
+            candidates = generate_candidates_with_module(
+                self.generator,
+                english_text,
+                self.temperatures,
+                self.candidate_count,
+            )
+            judged = pick_best_with_judge(self.judge, english_text, '', candidates)
+            best = judged['best_candidate']
+            return dspy.Prediction(
+                mirad_text=best['candidate_text'],
+                judge=judged['judge'],
+                candidates=judged['ranked_candidates'],
+            )
+
+    evaluator = dspy.Evaluate(
+        devset=evalset,
+        metric=normalized_match_metric,
+        num_threads=args.num_threads,
+        display_progress=True,
+    )
     t0 = time.time()
+    evaluation = evaluator(SplitPipeline(generator, judge, args.temperatures, args.candidate_count))
+    elapsed = time.time() - t0
+
     results = []
-    for ex in evalset:
-        candidates = generate_candidates_with_module(generator, ex.english_text, args.temperatures, args.candidate_count)
-        judged = pick_best_with_judge(judge, ex.english_text, ex.mirad_text, candidates)
-        best = judged['best_candidate']
-        pred = dspy.Prediction(mirad_text=best['candidate_text'])
+    for ex, pred, _score in evaluation.results:
         results.append({
             'english_text': ex.english_text,
             'gold_mirad': ex.mirad_text,
-            'pred_mirad': best['candidate_text'],
+            'pred_mirad': getattr(pred, 'mirad_text', ''),
             'normalized_match': normalized_match_metric(ex, pred),
             'exact_match': exact_match_metric(ex, pred),
-            'judge': judged['judge'],
-            'candidates': judged['ranked_candidates'],
+            'judge': getattr(pred, 'judge', {}),
+            'candidates': getattr(pred, 'candidates', []),
         })
-    elapsed = time.time() - t0
 
     nm = sum(r['normalized_match'] for r in results) / max(1, len(results))
     em = sum(r['exact_match'] for r in results) / max(1, len(results))
@@ -81,6 +109,7 @@ def main() -> None:
         'wall_time_s': round(elapsed, 2),
         'candidate_count': args.candidate_count,
         'temperatures': args.temperatures,
+        'num_threads': args.num_threads,
     }
     (out_dir / 'run_summary.json').write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding='utf-8')
     (out_dir / 'examples.json').write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding='utf-8')

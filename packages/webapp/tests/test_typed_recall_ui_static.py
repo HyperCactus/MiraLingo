@@ -54,6 +54,16 @@ def test_typed_recall_has_explicit_reveal_and_answer_status() -> None:
     assert "FeedbackPanel" in source
 
 
+def test_typed_recall_surfaces_practice_achievements_from_answer_payload() -> None:
+    source = _source()
+
+    assert "payload?.achievements" in source
+    assert "activeAchievement = achievement" in source
+    assert "Achievement unlocked" in source
+    assert 'data-testid="achievement-toast"' in source
+    assert "/assets/sound_effects/atchevement.wav" in source
+
+
 def test_typed_recall_refreshes_next_card_without_progress_panel_or_old_function_names() -> None:
     source = _source()
 

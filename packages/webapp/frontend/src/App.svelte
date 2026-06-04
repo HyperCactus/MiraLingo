@@ -61,6 +61,7 @@
   let answerErr = $state("");
   let answerSubmitting = $state(false);
   let answerResult = $state(null);
+  let activeAchievement = $state(null);
   let miradAudioUnlocked = $state(false);
   let activeCardId = $state(null);
 
@@ -132,6 +133,7 @@
     typedAnswer = "";
     answerErr = "";
     answerResult = null;
+    activeAchievement = null;
     miradAudioUnlocked = false;
   };
 
@@ -397,6 +399,26 @@
     }
   }
 
+  async function playAchievementSound() {
+    if ($soundEffectsMode === "off") return;
+    try {
+      const effect = new Audio("/assets/sound_effects/atchevement.wav");
+      effect.volume = 1.0;
+      await effect.play();
+    } catch (_) {
+      // Non-blocking celebration only.
+    }
+  }
+
+  function firstAchievement(payload) {
+    const achievements = Array.isArray(payload?.achievements) ? payload.achievements : [];
+    return achievements[0] ?? null;
+  }
+
+  function dismissAchievement() {
+    activeAchievement = null;
+  }
+
   function scheduleDashboardRefresh(delay = 400) {
     if (dashboardRefreshTimer) clearTimeout(dashboardRefreshTimer);
     dashboardRefreshTimer = setTimeout(() => {
@@ -417,6 +439,11 @@
         return;
       }
       answerResult = payload;
+      const achievement = firstAchievement(payload);
+      if (achievement) {
+        activeAchievement = achievement;
+        void playAchievementSound();
+      }
       miradAudioUnlocked = true;
       scheduleDashboardRefresh();
       if (options.playSfx !== false) {
@@ -726,6 +753,19 @@
         on:audio={playCardAudio}
         on:lookup={handleLookup}
       />
+      {#if activeAchievement}
+        <div class="fixed inset-x-4 bottom-6 z-50 mx-auto max-w-md rounded-[2rem] border border-amber-200 bg-white/95 p-5 text-left shadow-2xl shadow-amber-500/20 backdrop-blur dark:border-amber-500/40 dark:bg-slate-950/95" role="status" aria-live="polite" data-testid="achievement-toast">
+          <div class="flex items-start gap-4">
+            <div class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-100 text-2xl dark:bg-amber-400/20" aria-hidden="true">🏆</div>
+            <div class="min-w-0 flex-1 space-y-1">
+              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-300">Achievement unlocked</p>
+              <h2 class="text-lg font-bold text-slate-950 dark:text-slate-50">{activeAchievement.title ?? "Achievement unlocked!"}</h2>
+              <p class="whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">{activeAchievement.message ?? "Keep up the good work!"}</p>
+            </div>
+            <button class="rounded-full px-3 py-1 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white" type="button" aria-label="Dismiss achievement" onclick={dismissAchievement}>×</button>
+          </div>
+        </div>
+      {/if}
     {/if}
   </StudyShell>
 {:else if $authState === "authenticated" && $currentSection === "dashboard"}
@@ -780,7 +820,7 @@
           <fieldset class="space-y-3">
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Theme</legend>
             <div class="inline-flex rounded-2xl border border-violet-100 bg-slate-50 p-1 dark:border-violet-900/60 dark:bg-slate-900/70">
-              {#each [{ v: "system", l: "System" }, { v: "light", l: "Light" }, { v: "dark", l: "Dark" }] as option}
+              {#each [{ v: "system", l: "System" }, { v: "light", l: "Light" }, { v: "dark", l: "Dark" }] as option (option.v)}
                 {@const isSelected = $theme === option.v}
                 <label class="flex flex-1 cursor-pointer justify-center">
                   <input class="sr-only" type="radio" value={option.v} bind:group={$theme} onchange={() => saveSettings()} />
@@ -820,7 +860,7 @@
           <fieldset class="space-y-3">
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Sound effects</legend>
             <div class="flex w-full rounded-2xl border border-violet-100 bg-slate-50 p-1 dark:border-violet-900/60 dark:bg-slate-900/70">
-              {#each [{ v: "all", l: "All" }, { v: "on_answer", l: "On Answer" }, { v: "off", l: "Off" }] as option}
+              {#each [{ v: "all", l: "All" }, { v: "on_answer", l: "On Answer" }, { v: "off", l: "Off" }] as option (option.v)}
                 {@const isSelected = $soundEffectsMode === option.v}
                 <label class="flex flex-1 cursor-pointer justify-center">
                   <input class="sr-only" type="radio" value={option.v} bind:group={$soundEffectsMode} onchange={() => saveSettings()} />
