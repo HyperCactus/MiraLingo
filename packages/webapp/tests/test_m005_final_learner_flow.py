@@ -221,7 +221,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert mixed_payload["phase"] == "practice_queue"
     assert mixed_payload["mode"] == "mixed"
     assert mixed_payload["mode_detail"] == "default_mixed"
-    assert mixed_payload["repeat_gap"] == 10
+    assert mixed_payload["repeat_gap"] == 3
     assert mixed_payload["repeat_gap_satisfied"] is False
     assert mixed_payload["limit"] == 4
     assert mixed_payload["card_count"] == 4

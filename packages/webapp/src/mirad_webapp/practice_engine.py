@@ -6,17 +6,30 @@ import random
 import re
 from collections import defaultdict
 from datetime import datetime, timezone
+from statistics import median
 from typing import Any
+
+try:
+    import wordfreq
+except ImportError:  # pragma: no cover - exercised only in minimal local environments
+    wordfreq = None
 
 MAX_EVENTS = 200
 STALE_AFTER_SECONDS = 14 * 24 * 60 * 60
 _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
 _REINFORCE_MIN_ATTEMPTS = 3
-_REPEAT_GAP = 10
+_REPEAT_GAP = 3
+_MIXED_ACTIVE_DECK_SIZE = 5
+_BUILD_VOCABULARY_ACTIVE_DECK_SIZE = 7
+_MIXED_ACTIVE_RATIO = 0.70
+_BUILD_VOCABULARY_ACTIVE_RATIO = 0.80
+_NEW_CARD_RELATED_BONUS = 0.35
+_MASTERED_MIN_WEIGHT = 0.05
 _DIRECTION_EXPOSURE_BALANCE_WEIGHT = 0.35
 _DIRECTION_EXPOSURE_BALANCE_CAP = 4.0
 _ID_RE = re.compile(r"[^a-z0-9]+")
+_WORD_RE = re.compile(r"[A-Za-z']+")
 
 MIXED_MODE = "mixed"
 REVISION_MODE = "revision"
@@ -102,10 +115,19 @@ def build_practice_queue(
         ranked.append((_rank(reason, base_stats.get(card["id"], _empty_stats()), current, adaptive_state), index, queue_item, card))
 
     ordered = _interleave_same_priority_cards(ranked, rng)
-    filtered, mode_detail = _filter_queue_for_mode(ordered, normalized_mode, base_cards_with_history)
-    diversified = _diversify_mixed_queue(filtered, normalized_mode)
+    filtered, mode_detail = _build_policy_queue(
+        ordered=ordered,
+        mode=normalized_mode,
+        base_cards=base_cards,
+        base_cards_with_history=base_cards_with_history,
+        stats=stats,
+        base_stats=base_stats,
+        now=current,
+        limit=max(0, int(limit)),
+        rng=rng,
+    )
     spaced, repeat_gap_satisfied = _apply_repeat_gap(
-        diversified,
+        filtered,
         repeat_gap=_REPEAT_GAP,
         adaptive_state=adaptive_state,
     )
@@ -480,6 +502,255 @@ def _choose_direction_for_base_card(
         if threshold <= cursor:
             return item
     return directional_items[0]
+
+
+def _build_policy_queue(
+    *,
+    ordered: list[dict[str, Any]],
+    mode: str,
+    base_cards: list[dict[str, str]],
+    base_cards_with_history: set[str],
+    stats: dict[str, dict[str, Any]],
+    base_stats: dict[str, dict[str, Any]],
+    now: datetime,
+    limit: int,
+    rng: random.Random,
+) -> tuple[list[dict[str, Any]], str]:
+    if limit <= 0 or not ordered:
+        return [], "empty_pool"
+
+    by_base = {item["base_card_id"]: item for item in ordered}
+    card_by_base = {card["id"]: card for card in base_cards}
+    mastered = [item for item in ordered if _is_mastered_item(item)]
+
+    if mode == REVISION_MODE:
+        return _weighted_sequence(
+            mastered,
+            limit=limit,
+            weight_fn=lambda item: _mastered_card_weight(item, base_stats),
+            repeat_gap=_REPEAT_GAP,
+            rng=rng,
+        ), "seen_only"
+
+    words_only = mode == BUILD_VOCABULARY_MODE
+    active_deck_size = _BUILD_VOCABULARY_ACTIVE_DECK_SIZE if words_only else _MIXED_ACTIVE_DECK_SIZE
+    active_ratio = _BUILD_VOCABULARY_ACTIVE_RATIO if words_only else _MIXED_ACTIVE_RATIO
+
+    if words_only:
+        ordered = [item for item in ordered if item["type"] == "word"]
+        mastered = [item for item in mastered if item["type"] == "word"]
+        by_base = {item["base_card_id"]: item for item in ordered}
+
+    active_seen = [
+        item for item in ordered
+        if item["base_card_id"] in base_cards_with_history and not _is_mastered_item(item)
+    ]
+    active_seen.sort(key=lambda item: _last_seen_sort_key(item, base_stats))
+    active_deck = active_seen[:active_deck_size]
+
+    active_ids = {item["base_card_id"] for item in active_deck}
+    related_bases = active_ids | {item["base_card_id"] for item in mastered}
+    unseen = [
+        item for item in ordered
+        if item["base_card_id"] not in base_cards_with_history
+        and item["base_card_id"] not in active_ids
+        and item["scheduler_reason"] in {"new_item", "new_item_gated_by_weak_recent_performance"}
+    ]
+    while len(active_deck) < active_deck_size and unseen:
+        pool = unseen
+        if not words_only:
+            preferred_type = "phrase" if rng.random() < 0.5 else "word"
+            preferred_pool = [item for item in unseen if item["type"] == preferred_type]
+            if preferred_pool:
+                pool = preferred_pool
+        chosen = _weighted_choice(
+            pool,
+            lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases),
+            rng,
+        )
+        active_deck.append({**chosen, "scheduler_reason": "new_item"})
+        active_ids.add(chosen["base_card_id"])
+        unseen = [item for item in unseen if item["base_card_id"] != chosen["base_card_id"]]
+
+    active_deck = [item for item in active_deck if item["base_card_id"] in by_base]
+    if not active_deck and not mastered:
+        return [], "empty_pool"
+
+    active_slots = int(round(limit * active_ratio))
+    active_slots = min(limit, max(0, active_slots))
+    revision_slots = limit - active_slots
+
+    if not mastered:
+        active_slots = limit
+        revision_slots = 0
+    if not active_deck:
+        active_slots = 0
+        revision_slots = limit
+
+    active_sequence = _weighted_sequence(
+        active_deck,
+        limit=active_slots,
+        weight_fn=lambda item: _active_card_weight(item, base_stats, now),
+        repeat_gap=_REPEAT_GAP,
+        rng=rng,
+    )
+    mastered_sequence = _weighted_sequence(
+        mastered,
+        limit=revision_slots,
+        weight_fn=lambda item: _mastered_card_weight(item, base_stats),
+        repeat_gap=_REPEAT_GAP,
+        rng=rng,
+    )
+
+    scheduled = _interleave_policy_groups(
+        active_sequence,
+        mastered_sequence,
+        active_ratio=active_ratio,
+        repeat_gap=_REPEAT_GAP,
+    )
+    detail = "new_words_only" if mode == BUILD_VOCABULARY_MODE else "default_mixed"
+    return scheduled[:limit], detail
+
+
+def _is_mastered_item(item: dict[str, Any]) -> bool:
+    return item.get("scheduler_reason") in {"mastered_recent", "stale_mastered_review"}
+
+
+def _active_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, Any]], now: datetime) -> float:
+    stat = base_stats.get(item["base_card_id"], _empty_stats())
+    seen_at = _parse_datetime(stat.get("last_seen_at")) if stat.get("last_seen_at") else None
+    age_seconds = max(0, int((now - seen_at).total_seconds())) if seen_at else STALE_AFTER_SECONDS
+    recency_weight = 1.0 + min(10.0, age_seconds / 3600.0)
+    weakness_weight = 1.0
+    if item.get("scheduler_reason") == "weak_recent_performance":
+        weakness_weight += 10.0
+    attempts = int(stat.get("attempts") or 0)
+    if attempts:
+        weakness_weight += max(0.0, 1.0 - (float(stat.get("correct") or 0) / attempts))
+    return recency_weight * weakness_weight
+
+
+def _mastered_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, Any]]) -> float:
+    stat = base_stats.get(item["base_card_id"], _empty_stats())
+    attempts = int(stat.get("attempts") or 0)
+    if attempts <= 0:
+        return 1.0
+    accuracy = float(stat.get("correct") or 0) / attempts
+    return _MASTERED_MIN_WEIGHT + max(0.0, 1.0 - accuracy)
+
+
+def _new_card_weight(item: dict[str, Any], card: dict[str, str], related_bases: set[str]) -> float:
+    frequency_score = _normalized_english_frequency(card.get("english") or item.get("english_text") or "")
+    related_bonus = _NEW_CARD_RELATED_BONUS * _related_card_count(card, related_bases)
+    return max(0.01, frequency_score + related_bonus)
+
+
+def _normalized_english_frequency(text: str) -> float:
+    words = _WORD_RE.findall(str(text).casefold())
+    if not words:
+        return 0.01
+    if wordfreq is None:
+        return 0.5
+    scores = [max(0.0, min(1.0, wordfreq.zipf_frequency(word, "en") / 7.0)) for word in words]
+    return float(median(scores))
+
+
+def _related_card_count(card: dict[str, str], related_bases: set[str]) -> int:
+    if not related_bases:
+        return 0
+    card_id = str(card.get("id") or "")
+    if card_id in related_bases:
+        return 1
+    tokens = set(_WORD_RE.findall(str(card.get("english") or "").casefold())) | set(_WORD_RE.findall(str(card.get("mirad") or "").casefold()))
+    if not tokens:
+        return 0
+    count = 0
+    for related in related_bases:
+        related_tokens = set(_WORD_RE.findall(str(related).casefold()))
+        if tokens & related_tokens:
+            count += 1
+    return count
+
+
+def _last_seen_sort_key(item: dict[str, Any], base_stats: dict[str, dict[str, Any]]) -> tuple[int, str]:
+    stat = base_stats.get(item["base_card_id"], _empty_stats())
+    seen_at = _parse_datetime(stat.get("last_seen_at")) if stat.get("last_seen_at") else None
+    timestamp = int(seen_at.timestamp()) if seen_at else 0
+    return (timestamp, item["base_card_id"])
+
+
+def _weighted_sequence(
+    items: list[dict[str, Any]],
+    *,
+    limit: int,
+    weight_fn: Any,
+    repeat_gap: int,
+    rng: random.Random,
+) -> list[dict[str, Any]]:
+    if limit <= 0 or not items:
+        return []
+    sequence: list[dict[str, Any]] = []
+    recent: list[str] = []
+    for index in range(limit):
+        allowed = [item for item in items if item["base_card_id"] not in set(recent[-repeat_gap:])]
+        candidates = allowed or items
+        if index < len(items):
+            chosen = max(candidates, key=weight_fn)
+        else:
+            chosen = _weighted_choice(candidates, weight_fn, rng)
+        sequence.append(chosen)
+        recent.append(chosen["base_card_id"])
+    return sequence
+
+
+def _weighted_choice(items: list[dict[str, Any]], weight_fn: Any, rng: random.Random) -> dict[str, Any]:
+    weighted = [(max(0.01, float(weight_fn(item))), item) for item in items]
+    total = sum(weight for weight, _ in weighted)
+    threshold = rng.random() * total
+    cursor = 0.0
+    for weight, item in weighted:
+        cursor += weight
+        if threshold <= cursor:
+            return item
+    return items[-1]
+
+
+def _interleave_policy_groups(
+    active: list[dict[str, Any]],
+    mastered: list[dict[str, Any]],
+    *,
+    active_ratio: float,
+    repeat_gap: int,
+) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    active_index = 0
+    mastered_index = 0
+    total = len(active) + len(mastered)
+    for position in range(total):
+        desired_active = int(round((position + 1) * active_ratio))
+        active_so_far = sum(1 for item in result if not _is_mastered_item(item))
+        prefer_active = active_index < len(active) and active_so_far < desired_active
+        pools = ["active", "mastered"] if prefer_active else ["mastered", "active"]
+        chosen_group = None
+        for group in pools:
+            candidate = active[active_index] if group == "active" and active_index < len(active) else mastered[mastered_index] if group == "mastered" and mastered_index < len(mastered) else None
+            if candidate is None:
+                continue
+            if candidate["base_card_id"] not in {item["base_card_id"] for item in result[-repeat_gap:]}:
+                chosen_group = group
+                break
+        if chosen_group is None:
+            chosen_group = "active" if prefer_active and active_index < len(active) else "mastered" if mastered_index < len(mastered) else "active"
+        if chosen_group == "active" and active_index < len(active):
+            result.append(active[active_index])
+            active_index += 1
+        elif mastered_index < len(mastered):
+            result.append(mastered[mastered_index])
+            mastered_index += 1
+        elif active_index < len(active):
+            result.append(active[active_index])
+            active_index += 1
+    return result
 
 
 def _normalize_queue_mode(mode: Any) -> str | None:

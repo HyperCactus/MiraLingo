@@ -160,5 +160,5 @@ def test_practice_queue_api_returns_weighted_policy_diagnostics_with_compatible_
         "repeat_gap_relaxed",
         "fallback_reasons",
     }
-    assert diagnostics["lifecycle_counts"]["revision"] >= 1
+    assert diagnostics["lifecycle_counts"]["active"] >= 1
     assert isinstance(diagnostics["exposure_by_item"], dict)

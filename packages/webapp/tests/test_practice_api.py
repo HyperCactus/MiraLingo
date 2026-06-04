@@ -87,7 +87,7 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
     assert payload["phase"] == "practice_queue"
     assert payload["mode"] == "mixed"
     assert payload["mode_detail"] == "default_mixed"
-    assert payload["repeat_gap"] == 10
+    assert payload["repeat_gap"] == 3
     assert payload["repeat_gap_satisfied"] is False
     assert payload["card_count"] == 4
     assert payload["base_card_count"] == 4
@@ -144,9 +144,9 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
     assert payload["mode"] == "revision"
     assert payload["mode_detail"] == "seen_only"
     assert payload["event_count"] == 15
-    assert [card["base_card_id"] for card in payload["cards"]] == ["word:the"]
-    assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"stale_mastered_review", "mastered_recent", "weak_recent_performance"})
-    assert payload["repeat_gap"] == 10
+    assert {card["base_card_id"] for card in payload["cards"]} == {"word:the"}
+    assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"stale_mastered_review", "mastered_recent"})
+    assert payload["repeat_gap"] == 3
     assert payload["repeat_gap_satisfied"] is False
 
 
@@ -166,12 +166,12 @@ def test_practice_queue_build_vocabulary_mode_returns_only_new_word_base_cards(m
     assert payload["mode"] == "build_vocabulary"
     assert payload["mode_detail"] == "new_words_only"
     assert payload["event_count"] == 1
-    assert {card["base_card_id"] for card in payload["cards"]} == {"word:be"}
-    assert len(payload["cards"]) == 1
+    assert {card["base_card_id"] for card in payload["cards"]} == {"word:be", "word:the"}
+    assert len(payload["cards"]) == 10
     assert all(card["type"] == "word" for card in payload["cards"])
-    assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
+    assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"new_item", "weak_recent_performance", "new_item_gated_by_weak_recent_performance"})
     assert all(card["intro_mode"] is True for card in payload["cards"])
-    assert payload["repeat_gap"] == 10
+    assert payload["repeat_gap"] == 3
     assert payload["repeat_gap_satisfied"] is False
 
     second_response = client.get("/practice/queue?mode=build_vocabulary&limit=10")
