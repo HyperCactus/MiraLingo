@@ -1,0 +1,208 @@
+{
+  "pairs": [
+    {
+      "english": "hello",
+      "mirad": "hay"
+    },
+    {
+      "english": "yes",
+      "mirad": "va"
+    },
+    {
+      "english": "no",
+      "mirad": "vo"
+    },
+    {
+      "english": "maybe",
+      "mirad": "ve"
+    },
+    {
+      "english": "I",
+      "mirad": "at"
+    },
+    {
+      "english": "you",
+      "mirad": "et"
+    },
+    {
+      "english": "am,is,are",
+      "mirad": "se"
+    },
+    {
+      "english": "good",
+      "mirad": "fia"
+    },
+    {
+      "english": "happy",
+      "mirad": "iva"
+    },
+    {
+      "english": "I am good",
+      "mirad": "at se fia"
+    },
+    {
+      "english": "I am happy",
+      "mirad": "at se iva"
+    },
+    {
+      "english": "my",
+      "mirad": "ata"
+    },
+    {
+      "english": "your",
+      "mirad": "eta"
+    },
+    {
+      "english": "name",
+      "mirad": "dyun"
+    },
+    {
+      "english": "my name",
+      "mirad": "ata dyun"
+    },
+    {
+      "english": "your name",
+      "mirad": "eta dyun"
+    },
+    {
+      "english": "my name is ...",
+      "mirad": "ata dyun se ..."
+    },
+    {
+      "english": "what is your name?",
+      "mirad": "duhos se eta dyun?"
+    },
+    {
+      "english": "how?",
+      "mirad": "duhoyen"
+    },
+    {
+      "english": "how are you?",
+      "mirad": "duhoyen et se?"
+    },
+    {
+      "english": "not",
+      "mirad": "voy"
+    },
+    {
+      "english": "I am not happy",
+      "mirad": "at voy se iva"
+    },
+    {
+      "english": "thank you",
+      "mirad": "at fiaxe et"
+    },
+    {
+      "english": "goodbye",
+      "mirad": "hoydo"
+    },
+    {
+      "english": "know",
+      "mirad": "ter"
+    },
+    {
+      "english": "I know",
+      "mirad": "at te"
+    },
+    {
+      "english": "I don't know",
+      "mirad": "at voy te"
+    },
+    {
+      "english": "what?",
+      "mirad": "duhos"
+    },
+    {
+      "english": "who?",
+      "mirad": "duhot"
+    },
+    {
+      "english": "where?",
+      "mirad": "duhom"
+    },
+    {
+      "english": "when?",
+      "mirad": "duhoj"
+    },
+    {
+      "english": "man",
+      "mirad": "tobut"
+    },
+    {
+      "english": "woman",
+      "mirad": "toyb"
+    },
+    {
+      "english": "friend",
+      "mirad": "ifut"
+    },
+    {
+      "english": "beautiful",
+      "mirad": "via"
+    },
+    {
+      "english": "you are beautiful",
+      "mirad": "et se via"
+    },
+    {
+      "english": "you are a beautiful woman",
+      "mirad": "et se via toyb"
+    },
+    {
+      "english": "go",
+      "mirad": "per"
+    },
+    {
+      "english": "come",
+      "mirad": "uper"
+    },
+    {
+      "english": "I will go",
+      "mirad": "at po"
+    },
+    {
+      "english": "come!",
+      "mirad": "upu!"
+    },
+    {
+      "english": "want",
+      "mirad": "fer"
+    },
+    {
+      "english": "I want",
+      "mirad": "at fe"
+    },
+    {
+      "english": "food",
+      "mirad": "tel"
+    },
+    {
+      "english": "water",
+      "mirad": "mil"
+    },
+    {
+      "english": "I want food",
+      "mirad": "at fe tel"
+    },
+    {
+      "english": "I want water",
+      "mirad": "at fe mil"
+    },
+    {
+      "english": "speak",
+      "mirad": "daler"
+    },
+    {
+      "english": "Mirad",
+      "mirad": "Mirad"
+    },
+    {
+      "english": "I speak Mirad",
+      "mirad": "at dale Mirad"
+    },
+    {
+      "english": "do you speak Mirad?",
+      "mirad": "duven et dale Mirad?"
+    }
+  ]
+}

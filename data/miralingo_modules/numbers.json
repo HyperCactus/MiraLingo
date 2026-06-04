@@ -1,0 +1,380 @@
+{
+    "pairs": [
+        {
+            "english": "zero",
+            "mirad": "o"
+        },
+        {
+            "english": "one",
+            "mirad": "a"
+        },
+        {
+            "english": "two",
+            "mirad": "e"
+        },
+        {
+            "english": "three",
+            "mirad": "i"
+        },
+        {
+            "english": "four",
+            "mirad": "u"
+        },
+        {
+            "english": "five",
+            "mirad": "yo"
+        },
+        {
+            "english": "six",
+            "mirad": "ya"
+        },
+        {
+            "english": "seven",
+            "mirad": "ye"
+        },
+        {
+            "english": "eight",
+            "mirad": "yi"
+        },
+        {
+            "english": "nine",
+            "mirad": "yu"
+        },
+        {
+            "english": "ten",
+            "mirad": "alo"
+        },
+        {
+            "english": "0 houses",
+            "mirad": "owa tam"
+        },
+        {
+            "english": "1 house",
+            "mirad": "awa tam"
+        },
+        {
+            "english": "2 houses",
+            "mirad": "ewa tami"
+        },
+        {
+            "english": "3 houses",
+            "mirad": "iwa tami"
+        },
+        {
+            "english": "4 houses",
+            "mirad": "uwa tami"
+        },
+        {
+            "english": "5 houses",
+            "mirad": "yowa tami"
+        },
+        {
+            "english": "6 houses",
+            "mirad": "yawa tami"
+        },
+        {
+            "english": "7 houses",
+            "mirad": "yewa tami"
+        },
+        {
+            "english": "8 houses",
+            "mirad": "yiwa tami"
+        },
+        {
+            "english": "9 houses",
+            "mirad": "yuwa tami"
+        },
+        {
+            "english": "twenty",
+            "mirad": "elo"
+        },
+        {
+            "english": "thirty",
+            "mirad": "ilo"
+        },
+        {
+            "english": "forty",
+            "mirad": "ulo"
+        },
+        {
+            "english": "fifty",
+            "mirad": "yolo"
+        },
+        {
+            "english": "sixty",
+            "mirad": "yalo"
+        },
+        {
+            "english": "seventy",
+            "mirad": "yelo"
+        },
+        {
+            "english": "eighty",
+            "mirad": "yilo"
+        },
+        {
+            "english": "ninety",
+            "mirad": "yulo"
+        },
+        {
+            "english": "eleven",
+            "mirad": "ala"
+        },
+        {
+            "english": "twelve",
+            "mirad": "ale"
+        },
+        {
+            "english": "thirteen",
+            "mirad": "ali"
+        },
+        {
+            "english": "fourteen",
+            "mirad": "alu"
+        },
+        {
+            "english": "fifteen",
+            "mirad": "alyo"
+        },
+        {
+            "english": "sixteen",
+            "mirad": "alya"
+        },
+        {
+            "english": "seventeen",
+            "mirad": "alye"
+        },
+        {
+            "english": "eighteen",
+            "mirad": "alyi"
+        },
+        {
+            "english": "nineteen",
+            "mirad": "alyu"
+        },
+        {
+            "english": "twenty-one",
+            "mirad": "ela"
+        },
+        {
+            "english": "twenty-two",
+            "mirad": "ele"
+        },
+        {
+            "english": "thirty-three",
+            "mirad": "ili"
+        },
+        {
+            "english": "forty-four",
+            "mirad": "ulu"
+        },
+        {
+            "english": "fifty-five",
+            "mirad": "yolyo"
+        },
+        {
+            "english": "sixty-six",
+            "mirad": "yalya"
+        },
+        {
+            "english": "seventy-seven",
+            "mirad": "yelye"
+        },
+        {
+            "english": "eighty-eight",
+            "mirad": "yilyi"
+        },
+        {
+            "english": "ninety-nine",
+            "mirad": "yulyu"
+        },
+        {
+            "english": "one hundred",
+            "mirad": "aso"
+        },
+        {
+            "english": "two hundred",
+            "mirad": "eso"
+        },
+        {
+            "english": "three hundred",
+            "mirad": "iso"
+        },
+        {
+            "english": "four hundred",
+            "mirad": "uso"
+        },
+        {
+            "english": "five hundred",
+            "mirad": "yoso"
+        },
+        {
+            "english": "six hundred",
+            "mirad": "yaso"
+        },
+        {
+            "english": "seven hundred",
+            "mirad": "yeso"
+        },
+        {
+            "english": "eight hundred",
+            "mirad": "yiso"
+        },
+        {
+            "english": "nine hundred",
+            "mirad": "yuso"
+        },
+        {
+            "english": "one hundred one",
+            "mirad": "asa"
+        },
+        {
+            "english": "one hundred twelve",
+            "mirad": "asale"
+        },
+        {
+            "english": "two hundred four",
+            "mirad": "esu"
+        },
+        {
+            "english": "five hundred ninety-nine",
+            "mirad": "yosyulyu"
+        },
+        {
+            "english": "one thousand",
+            "mirad": "aro"
+        },
+        {
+            "english": "two thousand",
+            "mirad": "ero"
+        },
+        {
+            "english": "three thousand",
+            "mirad": "iro"
+        },
+        {
+            "english": "four thousand",
+            "mirad": "uro"
+        },
+        {
+            "english": "five thousand",
+            "mirad": "yoro"
+        },
+        {
+            "english": "six thousand",
+            "mirad": "yaro"
+        },
+        {
+            "english": "seven thousand",
+            "mirad": "yero"
+        },
+        {
+            "english": "eight thousand",
+            "mirad": "yiro"
+        },
+        {
+            "english": "nine thousand",
+            "mirad": "yuro"
+        },
+        {
+            "english": "one thousand one",
+            "mirad": "aro a"
+        },
+        {
+            "english": "two thousand three hundred",
+            "mirad": "ero isi"
+        },
+        {
+            "english": "five thousand six hundred forty-one",
+            "mirad": "yoro yasula"
+        },
+        {
+            "english": "three thousand one hundred ninety-five",
+            "mirad": "iro asyulyo"
+        },
+        {
+            "english": "one million",
+            "mirad": "amlo"
+        },
+        {
+            "english": "two million",
+            "mirad": "emlo"
+        },
+        {
+            "english": "one billion",
+            "mirad": "amro"
+        },
+        {
+            "english": "two billion",
+            "mirad": "emro"
+        },
+        {
+            "english": "two plus two equals four",
+            "mirad": "e gab e gese u"
+        },
+        {
+            "english": "three minus one equals two",
+            "mirad": "i gob a gese e"
+        },
+        {
+            "english": "two times three equals six",
+            "mirad": "e gal i gese ya"
+        },
+        {
+            "english": "nine divided by three equals three",
+            "mirad": "yu gol i gese i"
+        },
+        {
+            "english": "14",
+            "mirad": "alu"
+        },
+        {
+            "english": "27",
+            "mirad": "elye"
+        },
+        {
+            "english": "38",
+            "mirad": "ilyi"
+        },
+        {
+            "english": "49",
+            "mirad": "ulyu"
+        },
+        {
+            "english": "56",
+            "mirad": "yolya"
+        },
+        {
+            "english": "64",
+            "mirad": "yalu"
+        },
+        {
+            "english": "73",
+            "mirad": "yeli"
+        },
+        {
+            "english": "82",
+            "mirad": "yile"
+        },
+        {
+            "english": "91",
+            "mirad": "yula"
+        },
+        {
+            "english": "112",
+            "mirad": "asale"
+        },
+        {
+            "english": "204",
+            "mirad": "esu"
+        },
+        {
+            "english": "641",
+            "mirad": "yasula"
+        },
+        {
+            "english": "1001",
+            "mirad": "aro a"
+        }
+    ]
+}
