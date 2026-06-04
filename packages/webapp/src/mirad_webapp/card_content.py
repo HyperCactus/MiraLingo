@@ -392,7 +392,10 @@ def _add_card(
         return False
     state.seen_pairs.add(key)
     card = {"type": card_type, "english": english, "mirad": mirad}
-    if card_type == "word" and follow_up_mirad and follow_up_mirad != mirad:
+    if card_type == "word" and (
+        (follow_up_mirad and follow_up_mirad != mirad)
+        or (follow_up_english and follow_up_english != english)
+    ):
         card["id"] = f"word:{_id_slug(english)}-{_id_slug(mirad)}"
     if follow_up_english and follow_up_english != english:
         card["follow_up_english"] = follow_up_english

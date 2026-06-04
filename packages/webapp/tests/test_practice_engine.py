@@ -210,6 +210,48 @@ def test_mirad_to_english_word_accepts_same_row_follow_up_english_alternatives()
         assert result[-1]["correct"] is True
 
 
+def test_imported_module_reverse_card_accepts_all_follow_up_english_without_hijacking_general_am() -> None:
+    cards = [
+        {
+            "id": "word:am-se",
+            "type": "word",
+            "english": "am",
+            "mirad": "se",
+            "follow_up_english": "am, is, are",
+            "beginner_order": "6",
+        },
+        {"id": "word:is", "type": "word", "english": "is", "mirad": "se", "beginner_order": "6", "english_to_mirad_only": True},
+        {"id": "word:are", "type": "word", "english": "are", "mirad": "se", "beginner_order": "6", "english_to_mirad_only": True},
+        {"id": "word:am", "type": "word", "english": "am", "mirad": "amilk"},
+    ]
+
+    reverse = record_practice_answer(
+        cards=cards,
+        events=[],
+        card_id="word:am-se#mirad-to-english",
+        submitted_answer="is",
+        now=NOW,
+    )
+    forward = record_practice_answer(
+        cards=cards,
+        events=[],
+        card_id="word:am#english-to-mirad",
+        submitted_answer="amilk",
+        now=NOW,
+    )
+    progress = build_practice_progress(cards=cards, events=[], now=NOW)
+    by_id = {item["id"]: item for item in progress["per_card"]}
+
+    assert isinstance(reverse, list)
+    assert reverse[-1]["expected_answer"] == "am, is, are"
+    assert reverse[-1]["correct"] is True
+    assert isinstance(forward, list)
+    assert forward[-1]["expected_answer"] == "amilk"
+    assert forward[-1]["correct"] is True
+    assert by_id["word:am#english-to-mirad"]["answer"] == "amilk"
+    assert by_id["word:am-se#english-to-mirad"]["answer"] == "se"
+
+
 def test_module_expanded_comma_english_cards_have_three_forward_prompts_and_one_reverse_prompt() -> None:
     cards = [
         {

@@ -92,6 +92,7 @@ def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_an
             "type": "word",
             "english": "am",
             "mirad": "se",
+            "id": "word:am-se",
             "follow_up_english": "am, is, are",
             "beginner_order": "0",
         },
@@ -111,6 +112,27 @@ def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_an
         },
     ]
     assert result.counts["beginner"]["imported"] == 3
+
+
+def test_module_card_id_does_not_collide_with_general_word_card(tmp_path: Path) -> None:
+    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
+    beginner_json = tmp_path / "beginner.json"
+    beginner_json.write_text('{"pairs":[{"english":"am,is,are","mirad":"se"}]}', encoding="utf-8")
+
+    result = import_card_content(
+        phrase_csv_path=phrase_csv,
+        beginner_json_path=beginner_json,
+        numbers_json_path=None,
+        word_candidates=["am"],
+        lexicon_lookup={"am": "amilk"}.get,
+    )
+
+    module_am = next(card for card in result.cards if card.get("id") == "word:am-se")
+    general_am = next(card for card in result.cards if card.get("english") == "am" and card.get("mirad") == "amilk")
+
+    assert module_am["follow_up_english"] == "am, is, are"
+    assert general_am.get("id") is None
+    assert {card.get("id") or f"word:{card['english']}" for card in result.cards if card["english"] == "am"} == {"word:am-se", "word:am"}
 
 
 def test_beginner_and_numbers_modules_import_with_independent_order_metadata(tmp_path: Path) -> None:
