@@ -43,7 +43,7 @@ def _login(client: TestClient) -> None:
 
 
 def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: str, submitted_answer: str, expected_answer: str, start: datetime) -> None:
-    for index in range(5):
+    for index in range(3):
         app.state.storage.append_answer_event(
             username="admin",
             card_id=card_id,
@@ -143,7 +143,7 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
     payload = response.json()
     assert payload["mode"] == "revision"
     assert payload["mode_detail"] == "seen_only"
-    assert payload["event_count"] == 15
+    assert payload["event_count"] == 9
     assert {card["base_card_id"] for card in payload["cards"]} == {"word:the"}
     assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"stale_mastered_review", "mastered_recent"})
     assert payload["repeat_gap"] == 3
@@ -202,7 +202,7 @@ def test_practice_answer_persists_event_in_signed_session_and_prioritizes_weak_c
     assert submit_payload["correct"] is False
     assert submit_payload["event_count"] == 1
     assert submit_payload["scheduler_reason"] == "weak_recent_performance"
-    assert submit_payload["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0, "consecutive_correct": 0, "streak_required": 5, "mastered": False}
+    assert submit_payload["mastery"] == {"attempts": 1, "correct": 0, "incorrect": 1, "accuracy": 0.0, "consecutive_correct": 0, "streak_required": 3, "mastered": False}
     assert submit_payload["latest_event"]["card_id"] == "word:the#english-to-mirad"
     assert submit_payload["latest_event"]["direction"] == "english_to_mirad"
     assert submit_payload["latest_event"]["correct"] is False
@@ -322,7 +322,7 @@ def test_practice_answer_unlocks_achievement_when_first_direction_card_is_master
     _login(client)
 
     first = None
-    for _ in range(5):
+    for _ in range(3):
         first = client.post("/practice/answers", json={"card_id": "word:the#english-to-mirad", "answer": "te"})
         assert first.status_code == 200
     assert first is not None
@@ -342,7 +342,7 @@ def test_practice_answer_unlocks_achievement_when_first_direction_card_is_master
     ]
 
     second = None
-    for _ in range(5):
+    for _ in range(3):
         second = client.post("/practice/answers", json={"card_id": "word:the#mirad-to-english", "answer": "the"})
         assert second.status_code == 200
     assert second is not None

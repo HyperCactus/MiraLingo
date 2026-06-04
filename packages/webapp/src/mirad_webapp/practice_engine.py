@@ -17,8 +17,8 @@ _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
 _REINFORCE_MIN_ATTEMPTS = 3
 _REPEAT_GAP = 3
-_MIXED_ACTIVE_DECK_SIZE = 5
-_BUILD_VOCABULARY_ACTIVE_DECK_SIZE = 7
+_MIXED_ACTIVE_DECK_SIZE = 8
+_BUILD_VOCABULARY_ACTIVE_DECK_SIZE = 12
 _MIXED_ACTIVE_RATIO = 0.70
 _BUILD_VOCABULARY_ACTIVE_RATIO = 0.80
 _NEW_CARD_RELATED_BONUS = 0.35
@@ -1363,14 +1363,16 @@ def _empty_stats() -> dict[str, Any]:
 def _mastery_payload(stat: dict[str, Any]) -> dict[str, Any]:
     attempts = stat["attempts"]
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
+    accuracy = None if attempts == 0 else stat["correct"] / attempts
+    mastered = consecutive_correct >= 3 and (accuracy is not None and accuracy > 0.80)
     return {
         "attempts": attempts,
         "correct": stat["correct"],
         "incorrect": stat["incorrect"],
-        "accuracy": None if attempts == 0 else stat["correct"] / attempts,
+        "accuracy": accuracy,
         "consecutive_correct": consecutive_correct,
-        "streak_required": 5,
-        "mastered": consecutive_correct >= 5,
+        "streak_required": 3,
+        "mastered": mastered,
     }
 
 
@@ -1389,7 +1391,7 @@ def _scheduler_reason(stat: dict[str, Any], now: datetime, weak_recent: bool) ->
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
     if stat["incorrect"] > 0 or accuracy < _WEAK_ACCURACY_THRESHOLD:
         return "weak_recent_performance"
-    if consecutive_correct < 5:
+    if consecutive_correct < 3 or accuracy <= 0.80:
         return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     seen = _parse_datetime(stat["last_seen_at"])
     if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:

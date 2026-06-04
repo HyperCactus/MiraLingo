@@ -38,7 +38,7 @@ def test_build_practice_queue_selects_one_direction_per_base_pair() -> None:
     assert e2m_card["audio_card_id"] == e2m_card["base_card_id"]
     assert e2m_card["prompt_language"] == "english"
     assert e2m_card["answer_language"] == "mirad"
-    assert e2m_card["mastery"] == {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None, "consecutive_correct": 0, "streak_required": 5, "mastered": False}
+    assert e2m_card["mastery"] == {"attempts": 0, "correct": 0, "incorrect": 0, "accuracy": None, "consecutive_correct": 0, "streak_required": 3, "mastered": False}
     assert e2m_card["recency"] == {"last_seen_at": None, "age_seconds": None}
 
     m2e_card = next(card for card in queue["cards"] if card["direction"] == "mirad_to_english")
@@ -80,7 +80,7 @@ def test_incorrect_answer_records_direction_event_and_prioritizes_base_pair_with
         "incorrect": 0,
         "accuracy": None,
         "consecutive_correct": 0,
-        "streak_required": 5,
+        "streak_required": 3,
         "mastered": False,
     }
     assert all(card["scheduler_reason"] in {"new_item", "new_item_gated_by_weak_recent_performance"} for card in queue["cards"][1:])
@@ -612,9 +612,9 @@ def test_mixed_mode_caps_unmastered_active_rotation_without_backfilling_mastered
 
     queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=10, mode="mixed")
 
-    assert queue["limit"] == 5
-    assert len(queue["cards"]) == 5
-    assert len({card["id"] for card in queue["cards"]}) == 5
+    assert queue["limit"] == 8
+    assert len(queue["cards"]) == 8
+    assert len({card["id"] for card in queue["cards"]}) == 8
     assert {card["scheduler_reason"] for card in queue["cards"]} == {"new_item"}
 
 
