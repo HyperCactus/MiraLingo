@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, tick } from 'svelte';
+  import { createEventDispatcher, afterUpdate } from 'svelte';
   import AppButton from '../ui/AppButton.svelte';
   import AppCard from '../ui/AppCard.svelte';
   import type { PracticeCard, PracticeAnswerResponse } from '../../api/practice';
@@ -25,12 +25,15 @@
   export let audioMessage = '';
   export let audioEnabled = false;
 
-  let inputEl: HTMLInputElement | undefined = $state();
+  let answerInputRef: AnswerInput;
 
-  $effect(() => {
-    // Re-focus the answer input whenever a new card arrives
-    if (card?.id && !answerResult) {
-      tick().then(() => inputEl?.focus());
+  // Re-focus the answer input when a new card appears (no feedback panel visible)
+  let lastCardId: string | null | undefined;
+  afterUpdate(() => {
+    if (card?.id !== lastCardId && !answerResult) {
+      lastCardId = card?.id;
+      const input = answerInputRef?.getInput();
+      if (input) input.focus();
     }
   });
 
@@ -78,7 +81,7 @@
       <form class="space-y-4" on:submit|preventDefault={submit}>
         <AnswerInput
           bind:value={answer}
-          bind:inputEl
+          bind:this={answerInputRef}
           disabled={submitting}
           error={answerError || practiceError}
           label={inputLabel(card)}

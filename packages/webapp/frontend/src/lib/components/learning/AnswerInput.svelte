@@ -6,7 +6,11 @@
   export let value = '';
   export let disabled = false;
   export let error = '';
-  export let inputEl: HTMLInputElement | undefined = $bindable();
+
+  /** Expose the underlying <input> element so parents can call .focus() etc. */
+  export function getInput() { return appInputRef?.getInput(); }
+
+  let appInputRef: AppInput;
 </script>
 
 <AppInput
@@ -18,5 +22,5 @@
   {label}
   {placeholder}
   className="w-full"
-  bind:inputEl
+  bind:this={appInputRef}
 />
