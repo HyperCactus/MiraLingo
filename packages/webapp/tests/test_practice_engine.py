@@ -29,8 +29,8 @@ def test_build_practice_queue_selects_one_direction_per_base_pair() -> None:
     assert queue["card_count"] == 4
     assert queue["base_card_count"] == 4
     assert queue["event_count"] == 0
-    assert queue["limit"] == 5
-    assert len(queue["cards"]) == 5
+    assert queue["limit"] == 4
+    assert len(queue["cards"]) == 4
     assert len({card["base_card_id"] for card in queue["cards"][:4]}) == 4
     assert all(card["scheduler_reason"] == "new_item" for card in queue["cards"])
 
@@ -149,6 +149,43 @@ def test_mirad_to_english_word_accepts_same_row_follow_up_english_alternatives()
 
         assert isinstance(result, list)
         assert result[-1]["expected_answer"] == "am, are, is"
+        assert result[-1]["correct"] is True
+
+
+def test_module_expanded_comma_english_cards_have_three_forward_prompts_and_one_reverse_prompt() -> None:
+    cards = [
+        {
+            "id": "word:am-se",
+            "type": "word",
+            "english": "am",
+            "mirad": "se",
+            "follow_up_english": "am, is, are",
+            "beginner_order": "0",
+        },
+        {"id": "word:is-se", "type": "word", "english": "is", "mirad": "se", "beginner_order": "0", "english_to_mirad_only": True},
+        {"id": "word:are-se", "type": "word", "english": "are", "mirad": "se", "beginner_order": "0", "english_to_mirad_only": True},
+    ]
+
+    progress = build_practice_progress(cards=cards, events=[], now=NOW)
+    items = progress["per_card"]
+
+    english_to_mirad = [card for card in items if card["direction"] == "english_to_mirad"]
+    mirad_to_english = [card for card in items if card["direction"] == "mirad_to_english"]
+    assert {card["prompt"] for card in english_to_mirad} == {"am", "is", "are"}
+    assert {card["answer"] for card in english_to_mirad} == {"se"}
+    assert len(mirad_to_english) == 1
+    assert mirad_to_english[0]["prompt"] == "se"
+    assert mirad_to_english[0]["answer"] == "am, is, are"
+
+    for submitted in ["am", "is", "are"]:
+        result = record_practice_answer(
+            cards=cards,
+            events=[],
+            card_id="word:am-se#mirad-to-english",
+            submitted_answer=submitted,
+            now=NOW,
+        )
+        assert isinstance(result, list)
         assert result[-1]["correct"] is True
 
 
@@ -325,7 +362,7 @@ def test_cards_missing_english_or_mirad_do_not_create_unusable_direction_items()
     )
 
     assert queue["card_count"] == 1
-    assert len(queue["cards"]) == 10
+    assert len(queue["cards"]) == 1
     assert {card["base_card_id"] for card in queue["cards"]} == {"word:ok"}
 
 
@@ -551,6 +588,100 @@ def test_build_vocabulary_mode_returns_only_new_word_items_without_prior_events(
     assert all(card["base_card_id"] != "phrase:greeting" for card in queue["cards"])
 
 
+def test_mixed_mode_fills_active_deck_from_unseen_beginner_items_before_general_unseen_pool() -> None:
+    cards = [
+        {"id": "word:later-common", "type": "word", "english": "the", "mirad": "te"},
+        {"id": "word:beginner-first", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"id": "phrase:beginner-second", "type": "phrase", "english": "good morning", "mirad": "gud morgen", "beginner_order": "1"},
+        {"id": "word:beginner-third", "type": "word", "english": "yes", "mirad": "va", "beginner_order": "2"},
+    ]
+
+    queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=5, mode="mixed")
+
+    assert queue["cards"]
+    assert all(card.get("beginner_order") is not None for card in queue["cards"][:5])
+    assert all(card["base_card_id"] != "word:later-common" for card in queue["cards"][:5])
+    assert len({card["id"] for card in queue["cards"][:5]}) >= 3
+
+
+def test_mixed_mode_caps_unmastered_active_rotation_without_backfilling_mastered_slots() -> None:
+    cards = [
+        {"id": f"word:card-{index}", "type": "word", "english": f"word{index}", "mirad": f"mir{index}", "beginner_order": str(index)}
+        for index in range(10)
+    ]
+
+    queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=10, mode="mixed")
+
+    assert queue["limit"] == 5
+    assert len(queue["cards"]) == 5
+    assert len({card["id"] for card in queue["cards"]}) == 5
+    assert {card["scheduler_reason"] for card in queue["cards"]} == {"new_item"}
+
+
+    cards = [
+        {"id": "word:general", "type": "word", "english": "the", "mirad": "te"},
+        {"id": "word:beginner", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+    ]
+    events = [
+        _event("word:beginner#english-to-mirad", correct=True, answered_at=NOW - timedelta(minutes=1), expected_answer="hay", submitted_answer="hay"),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=2, mode="mixed")
+
+    assert any(card["id"] == "word:beginner#mirad-to-english" for card in queue["cards"])
+
+
+def test_mixed_mode_returns_to_existing_new_pool_after_all_beginner_direction_items_attempted() -> None:
+    cards = [
+        {"id": "word:general", "type": "word", "english": "the", "mirad": "te"},
+        {"id": "word:beginner-first", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"id": "word:beginner-second", "type": "word", "english": "yes", "mirad": "va", "beginner_order": "1"},
+    ]
+    events = [
+        _event("word:beginner-first#english-to-mirad", correct=True, answered_at=NOW - timedelta(minutes=4), expected_answer="hay", submitted_answer="hay"),
+        _event("word:beginner-first#mirad-to-english", correct=True, answered_at=NOW - timedelta(minutes=3), expected_answer="hello", submitted_answer="hello"),
+        _event("word:beginner-second#english-to-mirad", correct=True, answered_at=NOW - timedelta(minutes=2), expected_answer="va", submitted_answer="va"),
+        _event("word:beginner-second#mirad-to-english", correct=True, answered_at=NOW - timedelta(minutes=1), expected_answer="yes", submitted_answer="yes"),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=3, mode="mixed")
+
+    assert any(card["base_card_id"] == "word:general" for card in queue["cards"])
+
+
+def test_mixed_mode_keeps_numbers_out_until_beginner_cards_are_attempted(monkeypatch) -> None:
+    monkeypatch.setattr("mirad_webapp.practice_engine._NUMBERS_NEW_CARD_PROBABILITY", 1.0)
+    cards = [
+        {"id": "word:general", "type": "word", "english": "the", "mirad": "te"},
+        {"id": "word:beginner", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"id": "word:number-zero", "type": "word", "english": "zero", "mirad": "o", "numbers_order": "0"},
+    ]
+
+    queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=2, mode="mixed")
+
+    assert queue["cards"]
+    assert all(card.get("beginner_order") is not None for card in queue["cards"])
+    assert all(card.get("numbers_order") is None for card in queue["cards"])
+
+
+def test_mixed_mode_can_sample_numbers_after_beginner_cards_before_general_pool(monkeypatch) -> None:
+    monkeypatch.setattr("mirad_webapp.practice_engine._NUMBERS_NEW_CARD_PROBABILITY", 1.0)
+    cards = [
+        {"id": "word:general", "type": "word", "english": "the", "mirad": "te"},
+        {"id": "word:beginner", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"id": "word:number-zero", "type": "word", "english": "zero", "mirad": "o", "numbers_order": "0"},
+        {"id": "word:number-one", "type": "word", "english": "one", "mirad": "a", "numbers_order": "1"},
+    ]
+    events = [
+        _event("word:beginner#english-to-mirad", correct=True, answered_at=NOW - timedelta(minutes=2), expected_answer="hay", submitted_answer="hay"),
+        _event("word:beginner#mirad-to-english", correct=True, answered_at=NOW - timedelta(minutes=1), expected_answer="hello", submitted_answer="hello"),
+    ]
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=3, mode="mixed")
+
+    assert any(card.get("numbers_order") is not None for card in queue["cards"])
+
+
 def test_mixed_mode_avoids_repeating_base_card_before_ten_others_when_pool_allows() -> None:
     cards = _repeat_gap_cards(11)
 
@@ -598,7 +729,7 @@ def test_small_pool_reports_repeat_gap_unsatisfied_but_still_returns_queue() -> 
     assert queue["repeat_gap"] == 3
     assert queue["repeat_gap_satisfied"] is False
     assert queue["cards"]
-    assert len(queue["cards"]) == 6
+    assert len(queue["cards"]) == 3
     first_three_bases = {card["base_card_id"] for card in queue["cards"][:3]}
     assert first_three_bases == {"word:01", "word:02", "word:03"}
 
@@ -678,29 +809,21 @@ def test_adaptive_session_strong_biases_mastered_recent_toward_less_recent_cards
     assert {card["base_card_id"] for card in mastered} == {"word:recent", "word:old"}
 
 
-def test_build_practice_achievements_unlocks_first_mastered_pair() -> None:
-    before_events = _correct_streak(
+def test_build_practice_achievements_unlocks_first_mastered_direction_card() -> None:
+    before_events: list[dict[str, object]] = []
+    after_events = _correct_streak(
         "word:the#english-to-mirad",
-        start=NOW - timedelta(minutes=10),
+        start=NOW - timedelta(minutes=5),
         expected_answer="te",
         submitted_answer="te",
     )
-    after_events = [
-        *before_events,
-        *_correct_streak(
-            "word:the#mirad-to-english",
-            start=NOW - timedelta(minutes=5),
-            expected_answer="the",
-            submitted_answer="the",
-        ),
-    ]
 
     achievements = build_practice_achievements(
         cards=CARDS,
         before_events=before_events,
         after_events=after_events,
         username="mira",
-        latest_card_id="word:the#mirad-to-english",
+        latest_card_id="word:the#english-to-mirad",
         now=NOW,
     )
 

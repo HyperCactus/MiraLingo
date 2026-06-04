@@ -23,6 +23,7 @@ _MIXED_ACTIVE_RATIO = 0.70
 _BUILD_VOCABULARY_ACTIVE_RATIO = 0.80
 _NEW_CARD_RELATED_BONUS = 0.35
 _MASTERED_MIN_WEIGHT = 0.05
+_NUMBERS_NEW_CARD_PROBABILITY = 0.30
 _DIRECTION_EXPOSURE_BALANCE_WEIGHT = 0.35
 _DIRECTION_EXPOSURE_BALANCE_CAP = 4.0
 _ID_RE = re.compile(r"[^a-z0-9]+")
@@ -89,10 +90,7 @@ def build_practice_queue(
 
     ranked: list[tuple[int, int, dict[str, Any], dict[str, Any]]] = []
     for index, card in enumerate(base_cards):
-        directional_items = [
-            _practice_item(card, ENGLISH_TO_MIRAD, rng=rng),
-            _practice_item(card, MIRAD_TO_ENGLISH, rng=rng),
-        ]
+        directional_items = _practice_items_for_base_card(card, rng=rng)
         reason, chosen_item, chosen_stats = _queue_item_for_base_card(
             card=card,
             directional_items=directional_items,
@@ -311,16 +309,18 @@ def build_practice_achievements(
     """Return newly unlocked achievement payloads for practice mastery milestones."""
     before_progress = build_practice_progress(cards=cards, events=before_events or [], now=now)
     after_progress = build_practice_progress(cards=cards, events=after_events or [], now=now)
-    before_mastered = _mastered_base_card_ids(before_progress)
-    after_mastered = _mastered_base_card_ids(after_progress)
+    before_mastered = _mastered_item_ids(before_progress)
+    after_mastered = _mastered_item_ids(after_progress)
     if not after_mastered or len(after_mastered) <= len(before_mastered):
         return []
 
     latest_base_card_id = None
+    latest_item_id = None
     if latest_card_id:
         items_by_id, legacy_aliases = _practice_item_maps(cards)
         resolved_id = _resolve_practice_item_id(latest_card_id, items_by_id, legacy_aliases)
         if resolved_id and resolved_id in items_by_id:
+            latest_item_id = resolved_id
             latest_base_card_id = str(items_by_id[resolved_id]["base_card_id"])
         elif str(latest_card_id) in {str(card.get("id")) for card in _normalize_base_cards(cards)}:
             latest_base_card_id = str(latest_card_id)
@@ -328,7 +328,10 @@ def build_practice_achievements(
     unlocked: list[dict[str, Any]] = []
     for threshold in _achievement_milestones_up_to(len(after_mastered)):
         if len(before_mastered) < threshold <= len(after_mastered):
-            highlighted_base_card_id = latest_base_card_id if latest_base_card_id in after_mastered else next(iter(sorted(after_mastered)))
+            if latest_item_id in after_mastered and latest_base_card_id:
+                highlighted_base_card_id = latest_base_card_id
+            else:
+                highlighted_base_card_id = _base_card_id_from_event(next(iter(sorted(after_mastered))))
             unlocked.append(_achievement_payload(cards, username=username, threshold=threshold, highlighted_base_card_id=highlighted_base_card_id))
     return unlocked
 
@@ -336,8 +339,14 @@ def build_practice_achievements(
 def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for card in _normalize_base_cards(cards):
-        items.append(_practice_item(card, ENGLISH_TO_MIRAD))
-        items.append(_practice_item(card, MIRAD_TO_ENGLISH))
+        items.extend(_practice_items_for_base_card(card))
+    return items
+
+
+def _practice_items_for_base_card(card: dict[str, str], *, rng: random.Random | None = None) -> list[dict[str, str]]:
+    items = [_practice_item(card, ENGLISH_TO_MIRAD, rng=rng)]
+    if card.get("english_to_mirad_only") != "true":
+        items.append(_practice_item(card, MIRAD_TO_ENGLISH, rng=rng))
     return items
 
 
@@ -364,7 +373,7 @@ def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random |
         prompt = _choose_prompt_variant(card["mirad"], card_type=card["type"], rng=rng)
         answer = card.get("follow_up_english") or card["english"]
 
-    return {
+    item = {
         "id": direction_item_id(card["id"], direction),
         "base_card_id": card["id"],
         "audio_card_id": card["id"],
@@ -379,6 +388,11 @@ def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random |
         "follow_up_english": card.get("follow_up_english", ""),
         "follow_up_mirad": card.get("follow_up_mirad", ""),
     }
+    if card.get("beginner_order") is not None:
+        item["beginner_order"] = str(card.get("beginner_order") or "0")
+    if card.get("numbers_order") is not None:
+        item["numbers_order"] = str(card.get("numbers_order") or "0")
+    return item
 
 
 def _queue_item_for_base_card(
@@ -545,29 +559,60 @@ def _build_policy_queue(
     active_seen.sort(key=lambda item: _last_seen_sort_key(item, base_stats))
     active_deck = active_seen[:active_deck_size]
 
+    active_item_ids = {item["id"] for item in active_deck}
+    beginner_unseen = _unseen_beginner_items(
+        base_cards=base_cards,
+        stats=stats,
+        now=now,
+        words_only=words_only,
+        active_item_ids=active_item_ids,
+    )
+    beginner_gate_active = bool(beginner_unseen)
+    while len(active_deck) < active_deck_size and beginner_unseen:
+        chosen = _weighted_choice(beginner_unseen, _beginner_card_weight, rng)
+        active_deck.append({**chosen, "scheduler_reason": "new_item"})
+        active_item_ids.add(chosen["id"])
+        beginner_unseen = [item for item in beginner_unseen if item["id"] != chosen["id"] and item["base_card_id"] != chosen["base_card_id"]]
+
     active_ids = {item["base_card_id"] for item in active_deck}
     related_bases = active_ids | {item["base_card_id"] for item in mastered}
     unseen = [
         item for item in ordered
-        if item["base_card_id"] not in base_cards_with_history
+        if not beginner_gate_active
+        and item["base_card_id"] not in base_cards_with_history
         and item["base_card_id"] not in active_ids
+        and item.get("numbers_order") is None
         and item["scheduler_reason"] in {"new_item", "new_item_gated_by_weak_recent_performance"}
     ]
-    while len(active_deck) < active_deck_size and unseen:
+    numbers_unseen = [] if beginner_gate_active else _unseen_number_items(
+        base_cards=base_cards,
+        stats=stats,
+        now=now,
+        words_only=words_only,
+        active_item_ids=active_item_ids,
+    )
+    while len(active_deck) < active_deck_size and (unseen or numbers_unseen):
         pool = unseen
-        if not words_only:
+        weight_fn = lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases)
+        using_numbers_pool = False
+        if numbers_unseen and (not unseen or rng.random() < _NUMBERS_NEW_CARD_PROBABILITY):
+            pool = numbers_unseen
+            weight_fn = _module_order_weight
+            using_numbers_pool = True
+        elif not words_only:
             preferred_type = "phrase" if rng.random() < 0.5 else "word"
             preferred_pool = [item for item in unseen if item["type"] == preferred_type]
             if preferred_pool:
                 pool = preferred_pool
-        chosen = _weighted_choice(
-            pool,
-            lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases),
-            rng,
-        )
+        chosen = _weighted_choice(pool, weight_fn, rng)
         active_deck.append({**chosen, "scheduler_reason": "new_item"})
         active_ids.add(chosen["base_card_id"])
-        unseen = [item for item in unseen if item["base_card_id"] != chosen["base_card_id"]]
+        active_item_ids.add(chosen["id"])
+        if using_numbers_pool:
+            numbers_unseen = [item for item in numbers_unseen if item["id"] != chosen["id"] and item["base_card_id"] != chosen["base_card_id"] and item["id"] not in active_item_ids]
+        else:
+            unseen = [item for item in unseen if item["base_card_id"] != chosen["base_card_id"]]
+            numbers_unseen = [item for item in numbers_unseen if item["id"] not in active_item_ids]
 
     active_deck = [item for item in active_deck if item["base_card_id"] in by_base]
     if not active_deck and not mastered:
@@ -578,7 +623,7 @@ def _build_policy_queue(
     revision_slots = limit - active_slots
 
     if not mastered:
-        active_slots = limit
+        active_slots = min(limit, len(active_deck))
         revision_slots = 0
     if not active_deck:
         active_slots = 0
@@ -611,6 +656,98 @@ def _build_policy_queue(
 
 def _is_mastered_item(item: dict[str, Any]) -> bool:
     return item.get("scheduler_reason") in {"mastered_recent", "stale_mastered_review"}
+
+
+def _unseen_beginner_items(
+    *,
+    base_cards: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    now: datetime,
+    words_only: bool,
+    active_item_ids: set[str],
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for card in base_cards:
+        if card.get("beginner_order") is None:
+            continue
+        if words_only and card.get("type") != "word":
+            continue
+        for direction in (ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH):
+            item = _practice_item(card, direction)
+            if item["id"] in active_item_ids:
+                continue
+            if int(stats.get(item["id"], _empty_stats()).get("attempts") or 0) > 0:
+                continue
+            item_stats = stats.get(item["id"], _empty_stats())
+            items.append({
+                **item,
+                "scheduler_reason": "new_item",
+                "mastery": _mastery_payload(item_stats),
+                "recency": _recency_payload(item_stats, now),
+            })
+    return items
+
+
+def _unseen_number_items(
+    *,
+    base_cards: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    now: datetime,
+    words_only: bool,
+    active_item_ids: set[str],
+) -> list[dict[str, Any]]:
+    return _unseen_ordered_module_items(
+        base_cards=base_cards,
+        stats=stats,
+        now=now,
+        words_only=words_only,
+        active_item_ids=active_item_ids,
+        order_field="numbers_order",
+    )
+
+
+def _unseen_ordered_module_items(
+    *,
+    base_cards: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    now: datetime,
+    words_only: bool,
+    active_item_ids: set[str],
+    order_field: str,
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = []
+    for card in base_cards:
+        if card.get(order_field) is None:
+            continue
+        if words_only and card.get("type") != "word":
+            continue
+        for direction in (ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH):
+            item = _practice_item(card, direction)
+            if item["id"] in active_item_ids:
+                continue
+            if int(stats.get(item["id"], _empty_stats()).get("attempts") or 0) > 0:
+                continue
+            item_stats = stats.get(item["id"], _empty_stats())
+            items.append({
+                **item,
+                "scheduler_reason": "new_item",
+                "mastery": _mastery_payload(item_stats),
+                "recency": _recency_payload(item_stats, now),
+            })
+    return items
+
+
+def _module_order_weight(item: dict[str, Any]) -> float:
+    order_value = item.get("beginner_order") if item.get("beginner_order") is not None else item.get("numbers_order")
+    try:
+        order = max(0, int(str(order_value or "0")))
+    except ValueError:
+        order = 0
+    return 1.0 / float(order + 1)
+
+
+def _beginner_card_weight(item: dict[str, Any]) -> float:
+    return _module_order_weight(item)
 
 
 def _active_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, Any]], now: datetime) -> float:
@@ -701,14 +838,19 @@ def _weighted_sequence(
         return []
     sequence: list[dict[str, Any]] = []
     recent: list[str] = []
+    used_item_ids: set[str] = set()
     for index in range(limit):
         allowed = [item for item in items if item["base_card_id"] not in set(recent[-repeat_gap:])]
         candidates = allowed or items
         if index < len(items):
+            unused_candidates = [item for item in candidates if item["id"] not in used_item_ids]
+            if unused_candidates:
+                candidates = unused_candidates
             chosen = max(candidates, key=weight_fn)
         else:
             chosen = _weighted_choice(candidates, weight_fn, rng)
         sequence.append(chosen)
+        used_item_ids.add(chosen["id"])
         recent.append(chosen["base_card_id"])
     return sequence
 
@@ -1051,6 +1193,14 @@ def _progress_state(reason: str) -> str:
     return "new"
 
 
+def _mastered_item_ids(progress_payload: dict[str, Any]) -> set[str]:
+    return {
+        str(card_id)
+        for card_id in (progress_payload.get("mastered_cards") or [])
+        if isinstance(card_id, str) and card_id
+    }
+
+
 def _mastered_base_card_ids(progress_payload: dict[str, Any]) -> set[str]:
     mastered_items = {
         str(card_id)
@@ -1132,6 +1282,12 @@ def _normalize_card(card: dict[str, Any]) -> dict[str, str]:
         typed["follow_up_english"] = str(card.get("follow_up_english") or "").strip()
     if card.get("follow_up_mirad"):
         typed["follow_up_mirad"] = str(card.get("follow_up_mirad") or "").strip()
+    if card.get("beginner_order") is not None:
+        typed["beginner_order"] = str(card.get("beginner_order") or "0").strip()
+    if card.get("numbers_order") is not None:
+        typed["numbers_order"] = str(card.get("numbers_order") or "0").strip()
+    if card.get("english_to_mirad_only"):
+        typed["english_to_mirad_only"] = "true"
     return typed
 
 
