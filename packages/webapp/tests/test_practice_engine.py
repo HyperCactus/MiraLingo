@@ -267,6 +267,101 @@ def test_english_to_mirad_word_answers_require_exact_card_translation_not_lexico
     assert result[-1]["correct"] is False
 
 
+def test_scheduler_marks_card_mastered_after_three_streak_and_accuracy_above_threshold_despite_past_miss() -> None:
+    events = [
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "wrong",
+            "expected_answer": "te",
+            "correct": False,
+            "answered_at": (NOW + timedelta(minutes=0)).isoformat(),
+        },
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW + timedelta(minutes=1)).isoformat(),
+        },
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW + timedelta(minutes=2)).isoformat(),
+        },
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW + timedelta(minutes=3)).isoformat(),
+        },
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW + timedelta(minutes=4)).isoformat(),
+        },
+    ]
+
+    progress = build_practice_progress(cards=CARDS, events=events, now=NOW + timedelta(minutes=5))
+    card = next(item for item in progress["per_card"] if item["id"] == "word:the#english-to-mirad")
+
+    assert card["mastery"] == {
+        "attempts": 5,
+        "correct": 4,
+        "incorrect": 1,
+        "accuracy": 0.8,
+        "consecutive_correct": 4,
+        "streak_required": 3,
+        "mastered": False,
+    }
+    assert card["scheduler_reason"] == "new_item"
+
+    mastered_events = events + [
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW + timedelta(minutes=5)).isoformat(),
+        }
+    ]
+    mastered_progress = build_practice_progress(cards=CARDS, events=mastered_events, now=NOW + timedelta(minutes=6))
+    mastered_card = next(item for item in mastered_progress["per_card"] if item["id"] == "word:the#english-to-mirad")
+
+    assert mastered_card["mastery"] == {
+        "attempts": 6,
+        "correct": 5,
+        "incorrect": 1,
+        "accuracy": 5 / 6,
+        "consecutive_correct": 5,
+        "streak_required": 3,
+        "mastered": True,
+    }
+    assert mastered_card["scheduler_reason"] == "mastered_recent"
+
+
 def test_mirad_to_english_exact_answer_comparison_uses_english_expected_answer() -> None:
     correct = record_practice_answer(
         cards=CARDS,

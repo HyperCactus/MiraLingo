@@ -368,6 +368,8 @@
   }
 
   async function advancePracticeCard() {
+    resetAnswer();
+    resetAudio();
     if (practiceQueueIndex + 1 < practiceQueueCards.length) {
       practiceQueueIndex += 1;
       currentCard = practiceQueueCards[practiceQueueIndex] ?? null;

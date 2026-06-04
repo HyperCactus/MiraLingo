@@ -1451,14 +1451,14 @@ def _scheduler_reason(stat: dict[str, Any], now: datetime, weak_recent: bool) ->
         return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     accuracy = stat["correct"] / attempts
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
-    if stat["incorrect"] > 0 or accuracy < _WEAK_ACCURACY_THRESHOLD:
+    if consecutive_correct >= 3 and accuracy > 0.80:
+        seen = _parse_datetime(stat["last_seen_at"])
+        if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:
+            return "stale_mastered_review"
+        return "mastered_recent"
+    if accuracy < _WEAK_ACCURACY_THRESHOLD:
         return "weak_recent_performance"
-    if consecutive_correct < 3 or accuracy <= 0.80:
-        return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
-    seen = _parse_datetime(stat["last_seen_at"])
-    if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:
-        return "stale_mastered_review"
-    return "mastered_recent"
+    return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
 
 
 def _rank(reason: str, stat: dict[str, Any], now: datetime, adaptive_state: str = "neutral") -> int:
