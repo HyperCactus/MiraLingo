@@ -22,6 +22,7 @@ _BUILD_VOCABULARY_ACTIVE_DECK_SIZE = 12
 _MIXED_ACTIVE_RATIO = 0.70
 _BUILD_VOCABULARY_ACTIVE_RATIO = 0.80
 _NEW_CARD_RELATED_BONUS = 0.35
+_NEW_CARD_INVERSE_WEIGHT_MULTIPLIER = 3.0
 _MASTERED_MIN_WEIGHT = 0.05
 _NUMBERS_NEW_CARD_PROBABILITY = 0.30
 _DIRECTION_EXPOSURE_BALANCE_WEIGHT = 0.35
@@ -360,7 +361,34 @@ def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for card in _normalize_base_cards(cards):
         items.extend(_practice_items_for_base_card(card, synonyms=synonyms))
-    return items
+    return _attach_inverse_item_ids(items)
+
+
+def _attach_inverse_item_ids(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Attach explicit inverse practice-item ids for same-Mirad opposite directions.
+
+    General word cards are direction-specific practice items.  A card's inverse is
+    any opposite-direction item with the same Mirad text, not only the same base
+    card, because Mirad↔English can be one-to-many.  For example, both
+    ``is → se`` and ``are → se`` are inverses of Mirad prompts for ``se``.
+    """
+    by_mirad: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(lambda: {ENGLISH_TO_MIRAD: [], MIRAD_TO_ENGLISH: []})
+    for item in items:
+        mirad = _normalize_text(item.get("mirad_text") or "")
+        direction = str(item.get("direction") or "")
+        if mirad and direction in by_mirad[mirad]:
+            by_mirad[mirad][direction].append(item)
+
+    enriched: list[dict[str, Any]] = []
+    for item in items:
+        mirad = _normalize_text(item.get("mirad_text") or "")
+        direction = str(item.get("direction") or "")
+        opposite = MIRAD_TO_ENGLISH if direction == ENGLISH_TO_MIRAD else ENGLISH_TO_MIRAD
+        inverses = by_mirad.get(mirad, {}).get(opposite, [])
+        inverse_ids = sorted({str(inverse["id"]) for inverse in inverses if inverse.get("id") != item.get("id")})
+        inverse_base_ids = sorted({str(inverse["base_card_id"]) for inverse in inverses if inverse.get("base_card_id")})
+        enriched.append({**item, "inverse_item_ids": inverse_ids, "inverse_base_card_ids": inverse_base_ids})
+    return enriched
 
 
 def _practice_items_for_base_card(card: dict[str, str], *, rng: random.Random | None = None, synonyms: dict[str, list[str]] | None = None) -> list[dict[str, str]]:
@@ -605,6 +633,7 @@ def _build_policy_queue(
 
     active_ids = {item["base_card_id"] for item in active_deck}
     related_bases = active_ids | {item["base_card_id"] for item in mastered}
+    related_item_ids = {item["id"] for item in active_deck} | {item["id"] for item in mastered}
     unseen = [
         item for item in ordered
         if not beginner_gate_active
@@ -622,7 +651,7 @@ def _build_policy_queue(
     )
     while len(active_deck) < active_deck_size and (unseen or numbers_unseen):
         pool = unseen
-        weight_fn = lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases)
+        weight_fn = lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases, related_item_ids)
         using_numbers_pool = False
         if numbers_unseen and (not unseen or rng.random() < _NUMBERS_NEW_CARD_PROBABILITY):
             pool = numbers_unseen
@@ -802,10 +831,14 @@ def _mastered_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, 
     return _MASTERED_MIN_WEIGHT + max(0.0, 1.0 - accuracy)
 
 
-def _new_card_weight(item: dict[str, Any], card: dict[str, str], related_bases: set[str]) -> float:
+def _new_card_weight(item: dict[str, Any], card: dict[str, str], related_bases: set[str], related_item_ids: set[str] | None = None) -> float:
     frequency_score = _normalized_english_frequency(card.get("english") or item.get("english_text") or "")
     related_bonus = _NEW_CARD_RELATED_BONUS * _related_card_count(card, related_bases)
-    return max(0.01, frequency_score + related_bonus)
+    weight = max(0.01, frequency_score + related_bonus)
+    inverse_ids = {str(item_id) for item_id in item.get("inverse_item_ids", [])}
+    if related_item_ids and inverse_ids & related_item_ids:
+        weight *= _NEW_CARD_INVERSE_WEIGHT_MULTIPLIER
+    return weight
 
 
 def _normalized_english_frequency(text: str) -> float:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from mirad_webapp.practice import MAX_EVENTS
-from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
+from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, _new_card_weight, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
 
 
 NOW = datetime(2026, 5, 23, 12, 0, tzinfo=timezone.utc)
@@ -119,6 +119,64 @@ def test_mirad_to_english_word_answers_require_exact_card_translation_not_lexico
     assert isinstance(result, list)
     assert result[-1]["expected_answer"] == "are"
     assert result[-1]["correct"] is False
+
+
+def test_mirad_to_english_word_accepts_peer_cards_with_same_mirad_as_alternatives() -> None:
+    cards = [
+        {"id": "word:is", "type": "word", "english": "is", "mirad": "se"},
+        {"id": "word:are", "type": "word", "english": "are", "mirad": "se"},
+    ]
+
+    progress = build_practice_progress(cards=cards, events=[], now=NOW)
+    mirad_to_english = [card for card in progress["per_card"] if card["direction"] == "mirad_to_english"]
+    assert {card["answer"] for card in mirad_to_english} == {"is, are"}
+
+    for card_id in ["word:is#mirad-to-english", "word:are#mirad-to-english"]:
+        for submitted in ["is", "are"]:
+            result = record_practice_answer(
+                cards=cards,
+                events=[],
+                card_id=card_id,
+                submitted_answer=submitted,
+                now=NOW,
+            )
+
+            assert isinstance(result, list)
+            assert result[-1]["expected_answer"] == "is, are"
+            assert result[-1]["correct"] is True
+
+
+def test_word_practice_items_expose_multiple_inverse_ids_for_same_mirad() -> None:
+    cards = [
+        {"id": "word:is", "type": "word", "english": "is", "mirad": "se"},
+        {"id": "word:are", "type": "word", "english": "are", "mirad": "se"},
+    ]
+
+    progress = build_practice_progress(cards=cards, events=[], now=NOW)
+    by_id = {card["id"]: card for card in progress["per_card"]}
+
+    assert by_id["word:is#mirad-to-english"]["inverse_item_ids"] == [
+        "word:are#english-to-mirad",
+        "word:is#english-to-mirad",
+    ]
+    assert by_id["word:are#english-to-mirad"]["inverse_item_ids"] == [
+        "word:are#mirad-to-english",
+        "word:is#mirad-to-english",
+    ]
+
+
+def test_new_card_weight_triples_when_inverse_is_active_or_mastered() -> None:
+    item = {
+        "id": "word:are#english-to-mirad",
+        "english_text": "are",
+        "inverse_item_ids": ["word:are#mirad-to-english", "word:is#mirad-to-english"],
+    }
+    card = {"id": "word:are", "english": "are", "mirad": "se"}
+
+    base_weight = _new_card_weight(item, card, related_bases=set(), related_item_ids=set())
+    inverse_weight = _new_card_weight(item, card, related_bases=set(), related_item_ids={"word:is#mirad-to-english"})
+
+    assert inverse_weight == base_weight * 3
 
 
 def test_mirad_to_english_word_accepts_same_row_follow_up_english_alternatives() -> None:

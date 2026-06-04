@@ -108,7 +108,7 @@ def test_s03_frontend_source_contains_current_practice_fetch_and_submit_affordan
     frontend_source = FRONTEND_APP.read_text(encoding="utf-8")
 
     assert 'import { getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";' in frontend_source
-    assert 'await getPracticeQueue(mode, 50);' in frontend_source
+    assert 'await getPracticeQueue(mode, mode === "revision" ? 30 : mode === "build_vocabulary" ? 12 : 8);' in frontend_source
     assert 'await submitPracticeAnswer(body);' in frontend_source
     assert 'ExerciseCard' in frontend_source
     assert 'on:submit={submitAnswer}' in frontend_source
