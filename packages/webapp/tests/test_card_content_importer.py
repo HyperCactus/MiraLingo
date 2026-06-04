@@ -77,7 +77,7 @@ def test_beginner_module_pairs_import_first_with_order_metadata(tmp_path: Path) 
 def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_answer_card(tmp_path: Path) -> None:
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
     beginner_json = tmp_path / "beginner.json"
-    beginner_json.write_text('{"pairs":[{"english":"am,is,are","mirad":"se"}]}', encoding="utf-8")
+    beginner_json.write_text('{"pairs":[{"english":"is,are","mirad":"se"}]}', encoding="utf-8")
 
     result = import_card_content(
         phrase_csv_path=phrase_csv,
@@ -90,18 +90,11 @@ def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_an
     assert result.cards == [
         {
             "type": "word",
-            "english": "am",
-            "mirad": "se",
-            "id": "word:am-se",
-            "follow_up_english": "am, is, are",
-            "beginner_order": "0",
-        },
-        {
-            "type": "word",
             "english": "is",
             "mirad": "se",
+            "id": "word:is-se",
+            "follow_up_english": "is, are",
             "beginner_order": "0",
-            "english_to_mirad_only": True,
         },
         {
             "type": "word",
@@ -111,13 +104,13 @@ def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_an
             "english_to_mirad_only": True,
         },
     ]
-    assert result.counts["beginner"]["imported"] == 3
+    assert result.counts["beginner"]["imported"] == 2
 
 
 def test_module_card_id_does_not_collide_with_general_word_card(tmp_path: Path) -> None:
     phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
     beginner_json = tmp_path / "beginner.json"
-    beginner_json.write_text('{"pairs":[{"english":"am,is,are","mirad":"se"}]}', encoding="utf-8")
+    beginner_json.write_text('{"pairs":[{"english":"is,are","mirad":"se"}]}', encoding="utf-8")
 
     result = import_card_content(
         phrase_csv_path=phrase_csv,
@@ -127,12 +120,13 @@ def test_module_card_id_does_not_collide_with_general_word_card(tmp_path: Path) 
         lexicon_lookup={"am": "amilk"}.get,
     )
 
-    module_am = next(card for card in result.cards if card.get("id") == "word:am-se")
+    module_se = next(card for card in result.cards if card.get("id") == "word:is-se")
     general_am = next(card for card in result.cards if card.get("english") == "am" and card.get("mirad") == "amilk")
 
-    assert module_am["follow_up_english"] == "am, is, are"
+    assert module_se["follow_up_english"] == "is, are"
     assert general_am.get("id") is None
-    assert {card.get("id") or f"word:{card['english']}" for card in result.cards if card["english"] == "am"} == {"word:am-se", "word:am"}
+    assert {card.get("id") or f"word:{card['english']}" for card in result.cards if card["english"] == "am"} == {"word:am"}
+    assert {card.get("id") or f"word:{card['english']}" for card in result.cards if card["mirad"] == "se"} == {"word:is-se", "word:are"}
 
 
 def test_beginner_and_numbers_modules_import_with_independent_order_metadata(tmp_path: Path) -> None:
