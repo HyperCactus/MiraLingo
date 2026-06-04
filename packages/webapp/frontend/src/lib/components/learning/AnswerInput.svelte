@@ -6,6 +6,7 @@
   export let value = '';
   export let disabled = false;
   export let error = '';
+  export let inputEl: HTMLInputElement | undefined = $bindable();
 </script>
 
 <AppInput
@@ -17,4 +18,5 @@
   {label}
   {placeholder}
   className="w-full"
+  bind:inputEl
 />

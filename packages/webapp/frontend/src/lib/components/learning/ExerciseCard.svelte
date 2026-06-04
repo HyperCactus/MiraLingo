@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
   import AppButton from '../ui/AppButton.svelte';
   import AppCard from '../ui/AppCard.svelte';
   import type { PracticeCard, PracticeAnswerResponse } from '../../api/practice';
@@ -25,6 +25,15 @@
   export let audioMessage = '';
   export let audioEnabled = false;
 
+  let inputEl: HTMLInputElement | undefined = $state();
+
+  $effect(() => {
+    // Re-focus the answer input whenever a new card arrives
+    if (card?.id && !answerResult) {
+      tick().then(() => inputEl?.focus());
+    }
+  });
+
   const showPromptAudio = (currentCard: PracticeCard | null, enabled: boolean) => Boolean(
     currentCard && currentCard.prompt_language === 'mirad' && !answerResult && enabled
   );
@@ -41,7 +50,16 @@
   function submit() {
     dispatch('submit', { answer: answer.trim() });
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && answerResult) {
+      event.preventDefault();
+      dispatch('continue');
+    }
+  }
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <AppCard className="mx-auto w-full max-w-sm space-y-5 rounded-[2rem] p-5 shadow-lg sm:max-w-md sm:p-6">
   {#if card}
@@ -60,6 +78,7 @@
       <form class="space-y-4" on:submit|preventDefault={submit}>
         <AnswerInput
           bind:value={answer}
+          bind:inputEl
           disabled={submitting}
           error={answerError || practiceError}
           label={inputLabel(card)}
