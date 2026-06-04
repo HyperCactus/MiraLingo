@@ -336,17 +336,37 @@ def build_practice_achievements(
     return unlocked
 
 
+def _mirad_english_synonyms(cards: list[dict[str, Any]]) -> dict[str, list[str]]:
+    """Build a mapping from each Mirad word to all English translations sharing it.
+
+    For example, if "se" maps to both "is" and "are", the entry for "se"
+    will be ["is", "are"].  Words with a single English translation
+    (the common case) are still included as single-element lists.
+    """
+    base_cards = _normalize_base_cards(cards)
+    synonyms: dict[str, list[str]] = {}
+    for card in base_cards:
+        mirad = card.get("mirad", "")
+        english = card.get("english", "")
+        if mirad and english:
+            synonyms.setdefault(mirad, [])
+            if english not in synonyms[mirad]:
+                synonyms[mirad].append(english)
+    return synonyms
+
+
 def _expand_practice_items(cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    synonyms = _mirad_english_synonyms(cards)
     items: list[dict[str, Any]] = []
     for card in _normalize_base_cards(cards):
-        items.extend(_practice_items_for_base_card(card))
+        items.extend(_practice_items_for_base_card(card, synonyms=synonyms))
     return items
 
 
-def _practice_items_for_base_card(card: dict[str, str], *, rng: random.Random | None = None) -> list[dict[str, str]]:
-    items = [_practice_item(card, ENGLISH_TO_MIRAD, rng=rng)]
+def _practice_items_for_base_card(card: dict[str, str], *, rng: random.Random | None = None, synonyms: dict[str, list[str]] | None = None) -> list[dict[str, str]]:
+    items = [_practice_item(card, ENGLISH_TO_MIRAD, rng=rng, synonyms=synonyms)]
     if card.get("english_to_mirad_only") != "true":
-        items.append(_practice_item(card, MIRAD_TO_ENGLISH, rng=rng))
+        items.append(_practice_item(card, MIRAD_TO_ENGLISH, rng=rng, synonyms=synonyms))
     return items
 
 
@@ -361,7 +381,7 @@ def _choose_prompt_variant(value: str, *, card_type: str, rng: random.Random | N
     return options[rng.randrange(len(options))]
 
 
-def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random | None = None) -> dict[str, str]:
+def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random | None = None, synonyms: dict[str, list[str]] | None = None) -> dict[str, str]:
     if direction == ENGLISH_TO_MIRAD:
         prompt_language = "english"
         answer_language = "mirad"
@@ -371,7 +391,16 @@ def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random |
         prompt_language = "mirad"
         answer_language = "english"
         prompt = _choose_prompt_variant(card["mirad"], card_type=card["type"], rng=rng)
-        answer = card.get("follow_up_english") or card["english"]
+        primary_answer = card.get("follow_up_english") or card["english"]
+        if synonyms:
+            mirad = card.get("mirad", "")
+            english_synonyms = synonyms.get(mirad, [])
+            if len(english_synonyms) > 1:
+                answer = ", ".join(english_synonyms)
+            else:
+                answer = primary_answer
+        else:
+            answer = primary_answer
 
     item = {
         "id": direction_item_id(card["id"], direction),
