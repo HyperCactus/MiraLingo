@@ -223,7 +223,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert mixed_payload["mode_detail"] == "default_mixed"
     assert mixed_payload["repeat_gap"] == 3
     assert mixed_payload["repeat_gap_satisfied"] is True
-    assert mixed_payload["limit"] == 6
+    assert mixed_payload["limit"] == 4
     assert mixed_payload["card_count"] == 4
     assert mixed_payload["base_card_count"] == 4
     assert mixed_payload["event_count"] == 0
@@ -332,7 +332,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     assert build_vocab_after_payload["event_count"] == 2
     assert {card["base_card_id"] for card in build_vocab_after_payload["cards"]} == {"word:the", "word:be"}
     assert {card["type"] for card in build_vocab_after_payload["cards"]} == {"word"}
-    assert len(build_vocab_after_payload["cards"]) == 10
+    assert len(build_vocab_after_payload["cards"]) == 2
 
     revision_after_answers = recreated.get("/practice/queue?mode=revision&limit=10")
     assert revision_after_answers.status_code == 200
@@ -346,7 +346,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     settings_rows_before_delete = _rows_for_user(settings.database_path, "user_settings", username=LEARNER_USERNAME)
     user_rows_before_delete = _rows_for_user(settings.database_path, "users", username=LEARNER_USERNAME)
 
-    assert len(shown_rows_before_delete) == 26
+    assert len(shown_rows_before_delete) == 8
     assert len(answer_rows_before_delete) == 2
     assert len(settings_rows_before_delete) == 1
     assert len(user_rows_before_delete) == 1

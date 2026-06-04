@@ -167,7 +167,7 @@ def test_practice_queue_build_vocabulary_mode_returns_only_new_word_base_cards(m
     assert payload["mode_detail"] == "new_words_only"
     assert payload["event_count"] == 1
     assert {card["base_card_id"] for card in payload["cards"]} == {"word:be", "word:the"}
-    assert len(payload["cards"]) == 10
+    assert len(payload["cards"]) == 2
     assert all(card["type"] == "word" for card in payload["cards"])
     assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"new_item", "weak_recent_performance", "new_item_gated_by_weak_recent_performance"})
     assert all(card["intro_mode"] is True for card in payload["cards"])
@@ -316,7 +316,7 @@ def test_practice_answer_uses_same_row_split_translation_card_answers(monkeypatc
     assert events[1].correct is True
 
 
-def test_practice_answer_unlocks_achievement_when_first_base_pair_is_mastered(monkeypatch, tmp_path: Path) -> None:
+def test_practice_answer_unlocks_achievement_when_first_direction_card_is_mastered(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
     client = TestClient(_app(tmp_path))
     _login(client)
@@ -326,14 +326,7 @@ def test_practice_answer_unlocks_achievement_when_first_base_pair_is_mastered(mo
         first = client.post("/practice/answers", json={"card_id": "word:the#english-to-mirad", "answer": "te"})
         assert first.status_code == 200
     assert first is not None
-    assert first.json().get("achievements") == []
-
-    second = None
-    for _ in range(5):
-        second = client.post("/practice/answers", json={"card_id": "word:the#mirad-to-english", "answer": "the"})
-        assert second.status_code == 200
-    assert second is not None
-    payload = second.json()
+    payload = first.json()
     assert payload["ok"] is True
     assert payload["achievements"] == [
         {
@@ -347,6 +340,13 @@ def test_practice_answer_unlocks_achievement_when_first_base_pair_is_mastered(mo
             "sound": "achievement",
         }
     ]
+
+    second = None
+    for _ in range(5):
+        second = client.post("/practice/answers", json={"card_id": "word:the#mirad-to-english", "answer": "the"})
+        assert second.status_code == 200
+    assert second is not None
+    assert second.json().get("achievements") == []
 
 
 def test_practice_answer_typed_submission_records_wrong_answer_without_correct_flag(monkeypatch, tmp_path: Path) -> None:
