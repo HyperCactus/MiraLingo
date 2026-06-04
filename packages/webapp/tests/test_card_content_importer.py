@@ -44,9 +44,101 @@ def _import(
 
     return import_card_content(
         phrase_csv_path=phrase_csv,
+        beginner_json_path=None,
+        numbers_json_path=None,
         word_candidates=word_candidates,
         lexicon_lookup=lookup,
     )
+
+
+def test_beginner_module_pairs_import_first_with_order_metadata(tmp_path: Path) -> None:
+    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", ["hello world,ha world"])
+    beginner_json = tmp_path / "beginner.json"
+    beginner_json.write_text(
+        '{"pairs":[{"english":"hello","mirad":"hay"},{"english":"good morning","mirad":"gud morgen"}]}',
+        encoding="utf-8",
+    )
+
+    result = import_card_content(
+        phrase_csv_path=phrase_csv,
+        beginner_json_path=beginner_json,
+        word_candidates=[],
+        lexicon_lookup={}.get,
+    )
+
+    assert result.cards[:2] == [
+        {"type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"type": "phrase", "english": "good morning", "mirad": "gud morgen", "beginner_order": "1"},
+    ]
+    assert result.counts["beginner"]["imported"] == 2
+    assert result.sources["beginner_json"] == str(beginner_json)
+
+
+def test_module_comma_separated_english_expands_prompts_but_keeps_one_reverse_answer_card(tmp_path: Path) -> None:
+    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
+    beginner_json = tmp_path / "beginner.json"
+    beginner_json.write_text('{"pairs":[{"english":"am,is,are","mirad":"se"}]}', encoding="utf-8")
+
+    result = import_card_content(
+        phrase_csv_path=phrase_csv,
+        beginner_json_path=beginner_json,
+        numbers_json_path=None,
+        word_candidates=[],
+        lexicon_lookup={}.get,
+    )
+
+    assert result.cards == [
+        {
+            "type": "word",
+            "english": "am",
+            "mirad": "se",
+            "follow_up_english": "am, is, are",
+            "beginner_order": "0",
+        },
+        {
+            "type": "word",
+            "english": "is",
+            "mirad": "se",
+            "beginner_order": "0",
+            "english_to_mirad_only": True,
+        },
+        {
+            "type": "word",
+            "english": "are",
+            "mirad": "se",
+            "beginner_order": "0",
+            "english_to_mirad_only": True,
+        },
+    ]
+    assert result.counts["beginner"]["imported"] == 3
+
+
+def test_beginner_and_numbers_modules_import_with_independent_order_metadata(tmp_path: Path) -> None:
+    phrase_csv = _write_phrase_csv(tmp_path / "phrases.csv", [])
+    beginner_json = tmp_path / "beginner.json"
+    beginner_json.write_text('{"pairs":[{"english":"hello","mirad":"hay"}]}', encoding="utf-8")
+    numbers_json = tmp_path / "numbers.json"
+    numbers_json.write_text(
+        '{"pairs":[{"english":"zero","mirad":"o"},{"english":"one","mirad":"a"}]}',
+        encoding="utf-8",
+    )
+
+    result = import_card_content(
+        phrase_csv_path=phrase_csv,
+        beginner_json_path=beginner_json,
+        numbers_json_path=numbers_json,
+        word_candidates=[],
+        lexicon_lookup={}.get,
+    )
+
+    assert result.cards == [
+        {"type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},
+        {"type": "word", "english": "zero", "mirad": "o", "numbers_order": "0"},
+        {"type": "word", "english": "one", "mirad": "a", "numbers_order": "1"},
+    ]
+    assert result.counts["beginner"]["imported"] == 1
+    assert result.counts["numbers"]["imported"] == 2
+    assert result.sources["numbers_json"] == str(numbers_json)
 
 
 def test_multi_word_english_rows_become_phrase_cards(tmp_path: Path) -> None:
@@ -207,26 +299,44 @@ def test_result_exposes_imported_skipped_missed_and_source_error_counts_by_card_
     result = _import(phrase_csv, word_candidates=["known", "missing"], lexicon={"known": "kon"})
 
     counts = result["counts"] if isinstance(result, dict) else result.counts
-    assert counts == {
-        "phrase": {
-            "imported": 1,
-            "skipped": {
-                "blank_english": 0,
-                "blank_mirad": 0,
-                "malformed_row": 0,
-                "one_word_english": 1,
-            },
-            "missed": {},
-            "duplicate": 0,
-            "source_error": 0,
+    assert counts["beginner"] == {
+        "imported": 0,
+        "skipped": {
+            "blank_english": 0,
+            "blank_mirad": 0,
+            "malformed_item": 0,
         },
-        "word": {
-            "imported": 1,
-            "skipped": {},
-            "missed": {"lexicon_miss": 1},
-            "duplicate": 0,
-            "source_error": 0,
+        "duplicate": 0,
+        "source_error": 0,
+    }
+    assert counts["numbers"] == {
+        "imported": 0,
+        "skipped": {
+            "blank_english": 0,
+            "blank_mirad": 0,
+            "malformed_item": 0,
         },
+        "duplicate": 0,
+        "source_error": 0,
+    }
+    assert counts["phrase"] == {
+        "imported": 1,
+        "skipped": {
+            "blank_english": 0,
+            "blank_mirad": 0,
+            "malformed_row": 0,
+            "one_word_english": 1,
+        },
+        "missed": {},
+        "duplicate": 0,
+        "source_error": 0,
+    }
+    assert counts["word"] == {
+        "imported": 1,
+        "skipped": {},
+        "missed": {"lexicon_miss": 1},
+        "duplicate": 0,
+        "source_error": 0,
     }
 
 

@@ -155,19 +155,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def imported_card_content(*, word_limit: int = 500, force_refresh: bool = False):
         phrase_path = Path(runtime_settings.phrase_csv_path)
+        beginner_path = Path(runtime_settings.beginner_json_path) if runtime_settings.beginner_json_path is not None else None
+        numbers_path = Path(runtime_settings.numbers_json_path) if runtime_settings.numbers_json_path is not None else None
         cache = app.state.card_content_cache
         phrase_mtime_ns = phrase_path.stat().st_mtime_ns if phrase_path.exists() else None
+        beginner_mtime_ns = beginner_path.stat().st_mtime_ns if beginner_path is not None and beginner_path.exists() else None
+        numbers_mtime_ns = numbers_path.stat().st_mtime_ns if numbers_path is not None and numbers_path.exists() else None
         cached_result = cache.get("result")
 
-        if not force_refresh and cached_result is not None and cache.get("phrase_mtime_ns") == phrase_mtime_ns:
+        if (
+            not force_refresh
+            and cached_result is not None
+            and cache.get("phrase_mtime_ns") == phrase_mtime_ns
+            and cache.get("beginner_mtime_ns") == beginner_mtime_ns
+            and cache.get("numbers_mtime_ns") == numbers_mtime_ns
+        ):
             return cached_result
 
         result = import_card_content(
             phrase_csv_path=runtime_settings.phrase_csv_path,
+            beginner_json_path=runtime_settings.beginner_json_path,
+            numbers_json_path=runtime_settings.numbers_json_path,
             word_limit=word_limit,
         )
         cache["result"] = result
         cache["phrase_mtime_ns"] = phrase_mtime_ns
+        cache["beginner_mtime_ns"] = beginner_mtime_ns
+        cache["numbers_mtime_ns"] = numbers_mtime_ns
         return result
 
     @app.get("/content/import/preview", tags=["content"])

@@ -18,6 +18,8 @@ class Settings:
     enable_local_admin: bool = True
     session_secret: str = "miralingo-dev-session-secret"
     phrase_csv_path: Path = Path("data/phrases/english-mirad-sentence-pairs.csv")
+    beginner_json_path: Path | None = None
+    numbers_json_path: Path | None = None
     database_path: Path = Path(".miralingo/miralingo.sqlite3")
 
     @property
@@ -40,11 +42,17 @@ def load_settings() -> Settings:
     phrase_csv_path = Path(
         os.getenv("MIRALINGO_PHRASE_CSV_PATH", "data/phrases/english-mirad-sentence-pairs.csv")
     )
+    beginner_json_raw = os.getenv("MIRALINGO_BEGINNER_JSON_PATH", "data/miralingo_modules/beginner.json").strip()
+    beginner_json_path = Path(beginner_json_raw) if beginner_json_raw else None
+    numbers_json_raw = os.getenv("MIRALINGO_NUMBERS_JSON_PATH", "data/miralingo_modules/numbers.json").strip()
+    numbers_json_path = Path(numbers_json_raw) if numbers_json_raw else None
     database_path = Path(os.getenv("MIRALINGO_DATABASE_PATH", ".miralingo/miralingo.sqlite3"))
     return Settings(
         environment=environment,
         enable_local_admin=enable_local_admin,
         session_secret=session_secret,
         phrase_csv_path=phrase_csv_path,
+        beginner_json_path=beginner_json_path,
+        numbers_json_path=numbers_json_path,
         database_path=database_path,
     )
