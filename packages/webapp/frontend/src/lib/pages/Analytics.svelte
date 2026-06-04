@@ -107,6 +107,7 @@
         direction: String(r.direction ?? progressRow.direction ?? ''),
         type: r.type ?? r.card_type ?? progressRow.type ?? '',
         state: r.state ?? r.lifecycle ?? progressRow.state ?? 'new',
+        mastery: r.mastery ?? progressRow.mastery,
         consecutive_correct: r.consecutive_correct ?? progressRow.mastery?.consecutive_correct ?? 0,
       };
       const existing = seen.get(key);
@@ -153,6 +154,11 @@
   $: progressPerCard = rows(progressPayload?.per_card);
   const isRowMastered = (row: unknown) => {
     const r = obj(row);
+    const mastery = obj(r.mastery);
+    if (typeof mastery.mastered === 'boolean') return Boolean(mastery.mastered);
+    const state = String(r.state ?? r.lifecycle ?? '').toLowerCase();
+    if (state === 'mastered' || state === 'revision') return true;
+
     const dir = String(r.direction ?? '').toLowerCase();
     const base = String(r.base_card_id ?? '');
     const recent = obj(masteredRecentRaw?.[base]);
@@ -164,11 +170,9 @@
       const m2e = obj(recent.mirad_to_english ?? recent['mirad-to-english']);
       return Boolean(m2e.all_correct);
     }
-    // Fallback: check the combined mastered flag
+    // Fallback: check the combined mastered flag from legacy analytics.
     if (typeof recent.mastered === 'boolean') return Boolean(recent.mastered);
-    // Last resort: check if mastered state from progress
-    const state = String(r.state ?? r.lifecycle ?? '');
-    return state === 'mastered' || state === 'revision';
+    return false;
   };
 
   $: perDirectionRows = buildPerDirectionRows(analyticsPerCard, progressPerCard);

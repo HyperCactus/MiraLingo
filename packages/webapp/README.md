@@ -13,7 +13,7 @@ MiraLingo uses a **direction-aware adaptive scheduler** that treats each vocabul
 
 The scheduler ranks all cards by learning state (new → weak → stale review → mastered review) and interleaves cards to avoid seeing the same word in both directions back-to-back. Cards you struggle with appear more frequently; cards you've mastered appear less often.
 
-**Mastery criteria:** A card is marked *mastered* when you answer it correctly 3 times in a row **and** maintain an accuracy above 80%. Mastered cards still appear for periodic review if they go stale (unused for 14 days).
+**Mastery criteria:** A card is marked *mastered* when you answer it correctly 3 times in a row **and** maintain an accuracy of at least 80%. Mastered cards still appear for periodic review if they go stale (unused for 14 days).
 
 ### Practice Modes
 
@@ -154,7 +154,7 @@ The scheduler in `practice_engine.py` handles:
 
 - **Direction-balancing**: Each base word generates two direction-cards (En→Mir and Mir→En). The scheduler avoids showing both directions of the same word consecutively.
 - **Adaptive ranking**: Cards are ranked by learning state — new items, weak items (accuracy below 80%), stale mastered reviews, and recent mastered cards — with session-struggling detection that biases toward review over new material.
-- **Mastery promotion**: A card is promoted to "mastered" when it has ≥3 consecutive correct answers and overall accuracy above 80%. Mastered cards still appear for stale review after 14 days of inactivity.
+- **Mastery promotion**: A card is promoted to "mastered" when it has ≥3 consecutive correct answers and overall accuracy of at least 80%. Mastered cards still appear for stale review after 14 days of inactivity.
 - **Achievement milestones**: The first time one or more direction-cards are mastered, an achievement payload is returned with the answer response. Thresholds are at 1, 10, 20, 50, 80, and 100 mastered cards.
 
 ---

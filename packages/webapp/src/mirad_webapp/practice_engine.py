@@ -1426,7 +1426,7 @@ def _mastery_payload(stat: dict[str, Any]) -> dict[str, Any]:
     attempts = stat["attempts"]
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
     accuracy = None if attempts == 0 else stat["correct"] / attempts
-    mastered = consecutive_correct >= 3 and (accuracy is not None and accuracy > 0.80)
+    mastered = consecutive_correct >= 3 and (accuracy is not None and accuracy >= 0.80)
     return {
         "attempts": attempts,
         "correct": stat["correct"],
@@ -1451,7 +1451,7 @@ def _scheduler_reason(stat: dict[str, Any], now: datetime, weak_recent: bool) ->
         return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     accuracy = stat["correct"] / attempts
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
-    if consecutive_correct >= 3 and accuracy > 0.80:
+    if consecutive_correct >= 3 and accuracy >= 0.80:
         seen = _parse_datetime(stat["last_seen_at"])
         if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:
             return "stale_mastered_review"

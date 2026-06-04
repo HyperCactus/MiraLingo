@@ -66,5 +66,13 @@ def test_practice_answer_and_queue_blocks_do_not_fetch_detailed_analytics() -> N
     assert "/practice/analytics" not in advance_block
 
 
+def test_analytics_mastery_uses_progress_mastery_flag_before_legacy_recent_flags() -> None:
+    source = _analytics_source()
+
+    assert "mastery: r.mastery ?? progressRow.mastery" in source
+    assert "if (typeof mastery.mastered === 'boolean') return Boolean(mastery.mastered);" in source
+    assert source.index("if (typeof mastery.mastered === 'boolean') return Boolean(mastery.mastered);") < source.index("const recent = obj(masteredRecentRaw?.[base]);")
+
+
 def _analytics_source() -> str:
     return ANALYTICS_PAGE.read_text(encoding="utf-8")
