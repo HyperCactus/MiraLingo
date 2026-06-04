@@ -7,6 +7,18 @@ from mirad_webapp.config import Settings
 
 
 FRONTEND_APP = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
+FRONTEND_SRC = FRONTEND_APP.parent
+
+
+def _frontend_source() -> str:
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (
+            FRONTEND_APP,
+            FRONTEND_SRC / "lib" / "pages" / "Welcome.svelte",
+            FRONTEND_SRC / "lib" / "pages" / "Dashboard.svelte",
+        )
+    )
 
 
 def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> None:
@@ -14,7 +26,7 @@ def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> No
 
     health = client.get("/health")
     current_user = client.get("/auth/current-user")
-    frontend_source = FRONTEND_APP.read_text(encoding="utf-8")
+    frontend_source = _frontend_source()
 
     assert health.status_code == 200
     assert health.json() == {"status": "ok", "service": "mirad-webapp"}
@@ -26,7 +38,7 @@ def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> No
     }
     assert "MiraLingo" in frontend_source
     assert "Practice Mirad pronunciation and translation." in frontend_source
-    assert 'authState="anonymous"' in frontend_source
+    assert "authState={$authState}" in frontend_source
 
 
 def test_s01_local_admin_login_reaches_app_home_and_logout_returns_to_logged_out_state() -> None:
@@ -36,7 +48,7 @@ def test_s01_local_admin_login_reaches_app_home_and_logout_returns_to_logged_out
     current_user = client.get("/auth/current-user")
     logout = client.post("/auth/logout")
     logged_out_again = client.get("/auth/current-user")
-    frontend_source = FRONTEND_APP.read_text(encoding="utf-8")
+    frontend_source = _frontend_source()
 
     assert login.status_code == 200
     assert login.json() == {

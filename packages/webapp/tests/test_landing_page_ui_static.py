@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-FRONTEND_APP = Path(__file__).parents[1] / "frontend" / "src" / "App.svelte"
+WELCOME = Path(__file__).parents[1] / "frontend" / "src" / "lib" / "pages" / "Welcome.svelte"
 
 
 WIKIBOOKS_GRAMMAR_URL = "https://en.wikibooks.org/wiki/Mirad_Grammar"
@@ -15,18 +15,17 @@ FORBIDDEN_REPO_RELATIVE_LINKS = (
 
 
 def _source() -> str:
-    return FRONTEND_APP.read_text(encoding="utf-8")
+    return WELCOME.read_text(encoding="utf-8")
 
 
 def test_logged_out_landing_copy_mentions_mirad_and_miralingo_practice() -> None:
     source = _source()
-    anonymous_chunk = source.split('{:else}', maxsplit=1)[1]
 
-    assert "MiraLingo" in anonymous_chunk
-    assert "Practice Mirad pronunciation and translation." in anonymous_chunk
-    assert "Create account" in anonymous_chunk
-    assert "Log in" in anonymous_chunk
-    assert "Welcome to MiraLingo" not in anonymous_chunk
+    assert "MiraLingo" in source
+    assert "Practice Mirad pronunciation and translation." in source
+    assert "Create Account" in source
+    assert "Log In" in source
+    assert "Welcome to MiraLingo" not in source
 
 
 def test_logged_out_landing_includes_external_mirad_links() -> None:

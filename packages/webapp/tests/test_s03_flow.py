@@ -113,7 +113,6 @@ def test_s03_frontend_source_contains_current_practice_fetch_and_submit_affordan
     assert 'ExerciseCard' in frontend_source
     assert 'on:submit={submitAnswer}' in frontend_source
     assert 'on:reveal={submitGiveUp}' in frontend_source
-    assert '/assets/sound_effects/atchevement.wav' in frontend_source
-    assert '<AppModal open={Boolean(activeAchievement)}' in frontend_source
-    assert 'achievementMessageLines(activeAchievement)' in frontend_source
-    assert 'dismissAchievement' in frontend_source
+    assert 'playFeedbackSound' in frontend_source
+    assert '/assets/sound_effects/correct_answer.wav' in frontend_source
+    assert '/assets/sound_effects/incorrect_answer.wav' in frontend_source

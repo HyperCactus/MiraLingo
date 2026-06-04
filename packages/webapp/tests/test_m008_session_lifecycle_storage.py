@@ -39,7 +39,7 @@ def test_lifecycle_contract_across_sessions_promotes_only_after_multi_session_st
     assert state_after_one["session_streak"] == 1
 
     session_two = storage.start_practice_session(username="mira")
-    for _ in range(2):
+    for _ in range(3):
         storage.record_practice_lifecycle_answer(
             username="mira",
             session_id=session_two["session_id"],
@@ -54,7 +54,7 @@ def test_lifecycle_contract_across_sessions_promotes_only_after_multi_session_st
         direction="english_to_mirad",
     )
     assert promoted["lifecycle"] == "revision"
-    assert promoted["correct_streak"] == 4
+    assert promoted["correct_streak"] == 5
     assert promoted["session_streak"] == 2
 
 
@@ -86,9 +86,10 @@ def test_wrong_answer_after_revision_demotes_and_resets_streaks(tmp_path: Path) 
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
-    for _ in range(2):
+    for session_index in range(2):
         session = storage.start_practice_session(username="mira")
-        for _ in range(2):
+        attempts = 2 if session_index == 0 else 3
+        for _ in range(attempts):
             storage.record_practice_lifecycle_answer(
                 username="mira",
                 session_id=session["session_id"],
@@ -127,9 +128,10 @@ def test_lifecycle_is_independent_by_direction(tmp_path: Path) -> None:
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
-    for _ in range(2):
+    for session_index in range(2):
         session = storage.start_practice_session(username="mira")
-        for _ in range(2):
+        attempts = 2 if session_index == 0 else 3
+        for _ in range(attempts):
             storage.record_practice_lifecycle_answer(
                 username="mira",
                 session_id=session["session_id"],

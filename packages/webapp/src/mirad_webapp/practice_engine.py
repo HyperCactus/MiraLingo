@@ -9,10 +9,7 @@ from datetime import datetime, timezone
 from statistics import median
 from typing import Any
 
-try:
-    import wordfreq
-except ImportError:  # pragma: no cover - exercised only in minimal local environments
-    wordfreq = None
+_wordfreq_module: Any | None = None
 
 MAX_EVENTS = 200
 STALE_AFTER_SECONDS = 14 * 24 * 60 * 60
@@ -649,10 +646,23 @@ def _normalized_english_frequency(text: str) -> float:
     words = _WORD_RE.findall(str(text).casefold())
     if not words:
         return 0.01
-    if wordfreq is None:
+    wordfreq_module = _wordfreq()
+    if wordfreq_module is None:
         return 0.5
-    scores = [max(0.0, min(1.0, wordfreq.zipf_frequency(word, "en") / 7.0)) for word in words]
+    scores = [max(0.0, min(1.0, wordfreq_module.zipf_frequency(word, "en") / 7.0)) for word in words]
     return float(median(scores))
+
+
+def _wordfreq() -> Any | None:
+    global _wordfreq_module
+    if _wordfreq_module is not None:
+        return _wordfreq_module
+    try:
+        import wordfreq as imported_wordfreq
+    except ImportError:  # pragma: no cover - exercised only in minimal local environments
+        return None
+    _wordfreq_module = imported_wordfreq
+    return _wordfreq_module
 
 
 def _related_card_count(card: dict[str, str], related_bases: set[str]) -> int:

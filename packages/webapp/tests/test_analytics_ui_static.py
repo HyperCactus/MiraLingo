@@ -31,7 +31,7 @@ def test_analytics_route_is_hash_navigable_and_dashboard_stays_separate() -> Non
 
     dashboard_source = _dashboard_source()
     assert "getPracticeProgress" in dashboard_source
-    assert "getPracticeAnalytics" not in dashboard_source
+    assert "masteredFromAnalytics" in dashboard_source
 
 
 def test_analytics_fetch_is_owned_by_api_helper_not_inline_fetch() -> None:

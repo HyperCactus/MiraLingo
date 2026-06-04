@@ -34,7 +34,7 @@ def test_practice_sessions_requires_authentication(tmp_path: Path) -> None:
     assert response.json()["phase"] == "practice_session"
 
 
-def test_answers_promote_only_after_two_sessions(tmp_path: Path, monkeypatch) -> None:
+def test_answers_promote_after_five_correct_across_sessions(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: None)
     app = _app(tmp_path)
     client = TestClient(app)
@@ -49,7 +49,7 @@ def test_answers_promote_only_after_two_sessions(tmp_path: Path, monkeypatch) ->
     assert state["correct_streak"] == 2
 
     app.state.storage.start_practice_session(username="admin")
-    for _ in range(2):
+    for _ in range(3):
         second = client.post("/practice/answers", json={"card_id": "phrase:hello-world#english-to-mirad", "answer": "ha world"})
         assert second.status_code == 200
 

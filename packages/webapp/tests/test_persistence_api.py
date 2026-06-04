@@ -200,7 +200,7 @@ def test_answer_storage_failure_does_not_append_cookie_or_database_event(monkeyp
     def fail_append(**kwargs):
         raise StorageError(phase="practice_answer", detail="Could not record answer event.")
 
-    app.state.storage.append_answer_event = fail_append
+    app.state.storage.record_practice_lifecycle_answer = fail_append
     response = client.post("/practice/answers", json={"card_id": "word:the", "answer": "te"})
 
     assert response.status_code == 503

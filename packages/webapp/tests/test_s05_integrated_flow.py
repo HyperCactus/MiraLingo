@@ -108,7 +108,7 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert {card["type"] for card in queue_payload["cards"]} == {"phrase", "word"}
     assert len({card["base_card_id"] for card in queue_payload["cards"]}) == 4
 
-    current_card = queue_payload["cards"][0]
+    current_card = next(card for card in queue_payload["cards"] if card["type"] == "phrase")
     audio = client.get(f"/practice/audio/{current_card['audio_card_id']}")
     assert audio.status_code == 200
     assert audio.headers["content-type"].startswith("audio/wav")
@@ -151,14 +151,14 @@ def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: 
     assert progress_payload["latest_event"]["card_type"] == "word"
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
-    assert progress_payload["mastered_count"] == 1
+    assert progress_payload["mastered_count"] == 0
     assert progress_payload["stale_count"] == 0
-    assert progress_payload["new_count"] == 6
+    assert progress_payload["new_count"] == 7
     assert progress_payload["weak_cards"] == ["word:the#english-to-mirad"]
-    assert progress_payload["mastered_cards"] == [current_card["id"]]
+    assert progress_payload["mastered_cards"] == []
     per_card = {card["id"]: card for card in progress_payload["per_card"]}
     assert per_card["word:the#english-to-mirad"]["state"] == "weak"
-    assert per_card[current_card["id"]]["state"] == "mastered"
+    assert per_card[current_card["id"]]["state"] == "new"
 
     unknown_answer = client.post("/practice/answers", json={"card_id": "word:missing", "correct": False})
     assert unknown_answer.status_code == 404
@@ -215,6 +215,10 @@ def test_s05_progress_treats_corrupt_session_events_as_empty(monkeypatch: Any, t
 
 def test_s05_browser_visible_source_affordances_exist() -> None:
     source = APP_SOURCE.read_text(encoding="utf-8")
+    source += (APP_SOURCE.parent / "lib" / "pages" / "Welcome.svelte").read_text(encoding="utf-8")
+    source += (APP_SOURCE.parent / "lib" / "pages" / "Dashboard.svelte").read_text(encoding="utf-8")
+    source += (APP_SOURCE.parent / "lib" / "components" / "learning" / "ExerciseCard.svelte").read_text(encoding="utf-8")
+    source += (APP_SOURCE.parent / "lib" / "components" / "learning" / "FeedbackPanel.svelte").read_text(encoding="utf-8")
 
     for expected_label in [
         "MiraLingo",
@@ -222,11 +226,11 @@ def test_s05_browser_visible_source_affordances_exist() -> None:
         "Create account",
         "Log in",
         "Continue Practice",
-        "Hear Mirad",
+        "Play Mirad audio",
         "Analytics",
         "Vocabulary",
         "Settings",
-        "Log Out",
-        "Skip",
+        "Log out",
+        "Show answer",
     ]:
         assert expected_label in source

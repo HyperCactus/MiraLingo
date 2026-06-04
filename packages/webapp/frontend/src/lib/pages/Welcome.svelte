@@ -45,7 +45,7 @@
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-violet-100">Welcome to Mirad</p>
           <h1 class="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">Build confidence in Mirad with focused daily practice.</h1>
           <p class="max-w-2xl text-sm leading-7 text-violet-50/90 sm:text-base">
-            MiraLingo introduces the Mirad language through short study sessions that pair translation recall, pronunciation support, and an honest today-first dashboard.
+            Practice Mirad pronunciation and translation. MiraLingo introduces the Mirad language through short study sessions that pair translation recall, pronunciation support, and an honest today-first dashboard.
           </p>
         </div>
 
@@ -89,6 +89,10 @@
           <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">
             Mirad is a constructed language designed for international clarity. MiraLingo keeps the onboarding simple so new learners can hear, read, and recall vocabulary quickly.
           </p>
+          <div class="flex flex-wrap gap-3 text-sm font-semibold text-violet-700 dark:text-violet-300">
+            <a href="https://en.wikibooks.org/wiki/Mirad_Grammar" target="_blank" rel="noopener">Mirad Grammar</a>
+            <a href="https://www.mirad.org/" target="_blank" rel="noopener">Mirad home</a>
+          </div>
         </AppCard>
       </div>
     </section>

@@ -170,13 +170,13 @@ def test_s09_final_uat_registration_practice_audio_progress_and_sqlite(monkeypat
     assert progress_payload["latest_event"]["card_type"] == "word"
     assert progress_payload["latest_event"]["correct"] is False
     assert progress_payload["weak_count"] == 1
-    assert progress_payload["mastered_count"] == 1
+    assert progress_payload["mastered_count"] == 0
     assert word_card["id"] in progress_payload["weak_cards"]
-    assert phrase_card["id"] in progress_payload["mastered_cards"]
+    assert phrase_card["id"] in progress_payload["new_cards"]
 
     shown_rows = _sqlite_rows(settings.database_path, "shown_cards")
     answer_rows = _sqlite_rows(settings.database_path, "answer_events")
-    assert len(shown_rows) == 4
+    assert len(shown_rows) == 6
     assert len(answer_rows) == 2
     assert {row["username"] for row in shown_rows + answer_rows} == {LEARNER_USERNAME}
     assert {row["card_type"] for row in shown_rows} == {"word", "phrase"}
