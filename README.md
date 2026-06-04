@@ -1,10 +1,10 @@
 # Mirad Language Engine
 
-An open-source **Mirad language learning** platform — early development.
+An open-source **Mirad language learning** platform — actively developed.
 
-This project builds tools for the [Mirad](https://en.wikibooks.org/wiki/Mirad_Grammar/print_version) constructed language: a phoneme-based text-to-speech system, a bidirectional English↔Mirad translator, and (eventually) an interactive web app for learning.
+This project builds tools for the [Mirad](https://en.wikibooks.org/wiki/Mirad_Grammar/print_version) constructed language: a phoneme-based text-to-speech system, a bidirectional English↔Mirad translator, and **MiraLingo** — an interactive web app for learning Mirad vocabulary through adaptive spaced repetition.
 
-> **Status:** Early development. TTS is functional, translator produces results but needs improvement, web app not yet started.
+> **Status:** TTS and translator are functional. The MiraLingo web app has a working practice loop with adaptive scheduling, typed-answer recall, achievement milestones, and Mirad audio playback.
 
 ---
 
@@ -25,8 +25,8 @@ Mirad (formerly Unilingua) is an artificial constructed language designed by Nou
 | Package | Description | Status |
 |---------|-------------|--------|
 | [**packages/tts**](packages/tts/) | Phoneme-based TTS engine — tokenization, syllabification, stress, IPA, audio synthesis via eSpeak NG / Piper / MBROLA | Functional |
-| [**packages/translator**](packages/translator/) | Bidirectional English↔Mirad translation using DeepInfra DeepSeek-V4-Flash, DSPy, semantic lexicon lookup, structured grammar-rule retrieval, and deterministic post-processing | Active baseline: sentence-only eval, En→Mir ~20% true-valid, Mir→En ~80–90% true-valid |
-| [**packages/webapp**](packages/webapp/) | Interactive language-learning web application | Not yet started |
+| [**packages/translator**](packages/translator/) | Bidirectional English↔Mirad translation using DeepInfra DeepSeek-V4-Flash, DSPy, semantic lexicon lookup, structured grammar-rule retrieval, and deterministic post-processing | Active baseline: sentence-level eval improving toward 90% |
+| [**packages/webapp**](packages/webapp/) | **MiraLingo** — interactive Mirad language-learning web app with adaptive spaced repetition, typed-answer practice, achievement milestones, and Mirad audio | Working beta |
 
 Shared reference data (lexicon, grammar documents, evaluation results) lives in [`data/`](data/).
 
@@ -59,6 +59,16 @@ print(result.mirad_text)
 "
 ```
 
+### MiraLingo Web App
+
+Launch the full stack (backend + frontend) in one command:
+
+```bash
+./scripts/start_miralingo.sh
+```
+
+Open http://127.0.0.1:5173 and log in with `admin` / `admin` (development only). See the [webapp README](packages/webapp/README.md) for details.
+
 ### Docker
 
 ```bash
@@ -79,7 +89,8 @@ See individual package READMEs for full usage, API details, and configuration.
 
 1. ✅ Mirad phoneme-based TTS engine
 2. 🔧 Bidirectional English↔Mirad translator (improving accuracy toward 90%)
-3. ⬜ Mirad language learning web application
+3. ✅ MiraLingo adaptive practice web app
+4. 🔧 Translator accuracy and web app polish
 
 ---
 
@@ -89,6 +100,7 @@ See individual package READMEs for full usage, API details, and configuration.
 - [Piper Integration](docs/PIPER_INTEGRATION.md) — Piper TTS backend details
 - [TTS README](docs/README_PIPER.md) — Piper-specific notes
 - [Data Overview](data/README.md) — reference data and evaluation results
+- [Webapp README](packages/webapp/README.md) — MiraLingo full documentation
 
 ## License
 
