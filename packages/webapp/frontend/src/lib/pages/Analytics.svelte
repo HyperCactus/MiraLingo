@@ -312,7 +312,7 @@
                 <div class="mt-2 h-1.5 w-full rounded-full bg-slate-200/80 dark:bg-slate-800/80"><div class={`h-1.5 rounded-full ${heat.bar}`} style={`width: ${Math.round(score * 100)}%`}></div></div>
                 <dl class="mt-2 grid grid-cols-3 gap-2 text-[11px]">
                   <div class="rounded-md bg-white/70 px-2 py-1 dark:bg-slate-900/60"><dt class="text-slate-500 dark:text-slate-400">Correct</dt><dd class="font-semibold text-slate-900 dark:text-slate-100">{n(r.correct)}/{n(r.attempts)}</dd></div>
-                  <div class="rounded-md bg-white/70 px-2 py-1 dark:bg-slate-900/60"><dt class="text-slate-500 dark:text-slate-400">Streak</dt><dd class="font-semibold text-slate-900 dark:text-slate-100">{n(r.consecutive_correct ?? r.mastery?.consecutive_correct ?? 0)}/5</dd></div>
+                  <div class="rounded-md bg-white/70 px-2 py-1 dark:bg-slate-900/60"><dt class="text-slate-500 dark:text-slate-400">Streak</dt><dd class="font-semibold text-slate-900 dark:text-slate-100">{n(r.consecutive_correct ?? r.mastery?.consecutive_correct ?? 0)}/{n(r.mastery?.streak_required ?? 3)}</dd></div>
                   <div class="rounded-md bg-white/70 px-2 py-1 dark:bg-slate-900/60"><dt class="text-slate-500 dark:text-slate-400">State</dt><dd class="font-semibold text-amber-700 dark:text-amber-300">{accuracyValue(row) >= 0.9 ? 'strong' : accuracyValue(row) >= 0.7 ? 'improving' : 'weak'}</dd></div>
                 </dl>
               </article>

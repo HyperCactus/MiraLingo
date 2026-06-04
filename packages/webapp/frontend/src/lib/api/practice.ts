@@ -84,7 +84,7 @@ export type PracticeAnalyticsResponse = {
   [key: string]: unknown;
 };
 
-export async function getPracticeQueue(mode: PracticeMode, limit = 50) {
+export async function getPracticeQueue(mode: PracticeMode, limit = 8) {
   const query = new URLSearchParams({ mode, limit: String(limit) });
   const response = await fetch(`/practice/queue?${query.toString()}`, {
     headers: { Accept: 'application/json' },

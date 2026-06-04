@@ -327,7 +327,7 @@
     }
 
     try {
-      const { response, payload } = await getPracticeQueue(mode, 50);
+      const { response, payload } = await getPracticeQueue(mode, mode === "revision" ? 30 : mode === "build_vocabulary" ? 12 : 8);
       if (!response.ok || payload.ok === false) {
         practiceState = "error";
         practiceErr = payload?.detail ?? "Could not load practice cards.";
