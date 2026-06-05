@@ -32,6 +32,18 @@ from .storage import MiraLingoStorage, StorageError
 APP_NAME = "MiraLingo"
 
 
+def _achievement_display_name(user: Any) -> str:
+    name = str(getattr(user, "name", "") or "").strip()
+    if name:
+        return name
+    email = str(getattr(user, "email", "") or "").strip()
+    if "@" in email:
+        local_part = email.split("@", 1)[0].strip()
+        if local_part:
+            return local_part
+    return str(getattr(user, "username", "") or getattr(user, "id", "") or "Learner").strip() or "Learner"
+
+
 class PracticeAnswerRequest(BaseModel):
     """Practice answer submission request body."""
 
@@ -506,7 +518,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return storage_failure_response(exc)
         if token and runtime_settings.environment == "development" and runtime_settings.enable_dev_password_reset_logging:
             dev_reset_url = f"{runtime_settings.frontend_base_url}/?reset_token={token}"
-            print(f"MiraLingo development password reset link generated for requested email: {dev_reset_url}")
         content: dict[str, Any] = {"ok": True, "phase": "password_forgot", "detail": "If an account exists, reset instructions have been sent."}
         if dev_reset_url:
             content["dev_reset_url"] = dev_reset_url
@@ -937,11 +948,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except StorageError as exc:
             return storage_failure_response(exc)
         payload = answer_summary(result.cards, durable_events, submission.card_id)
+        display_name = _achievement_display_name(user)
         payload["achievements"] = build_practice_achievements(
             cards=result.cards,
             before_events=prior_events,
             after_events=durable_events,
-            username=user.username,
+            username=display_name,
             latest_card_id=submission.card_id,
         )
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)

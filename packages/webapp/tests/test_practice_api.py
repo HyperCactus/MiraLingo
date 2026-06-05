@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from mirad_webapp.api import create_app
+from mirad_webapp.api import _achievement_display_name, create_app
 from mirad_webapp.config import Settings
 from mirad_webapp.storage import StorageError
 
@@ -55,6 +55,19 @@ def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: s
             correct=True,
             answered_at=start + timedelta(minutes=index),
         )
+
+
+def test_achievement_display_name_prefers_name_then_email_then_username() -> None:
+    class User:
+        def __init__(self, *, name: str | None = None, email: str = "", username: str = "") -> None:
+            self.name = name
+            self.email = email
+            self.username = username
+
+    assert _achievement_display_name(User(name="Ada Lovelace", email="ada@example.com", username="usr_123")) == "Ada Lovelace"
+    assert _achievement_display_name(User(name="", email="ada@example.com", username="usr_123")) == "ada"
+    assert _achievement_display_name(User(name=None, email="", username="usr_123")) == "usr_123"
+
 
 
 def test_practice_queue_requires_authenticated_session(tmp_path: Path) -> None:
@@ -334,7 +347,7 @@ def test_practice_answer_unlocks_achievement_when_first_direction_card_is_master
             "kind": "mastered_cards",
             "threshold": 1,
             "title": "🏆 First card mastered!",
-            "message": "Congratulations admin! 🎉\nYou have mastered your first card: the ↔ te\nKeep up the good work! 🚀",
+            "message": "Congratulations Local Admin! 🎉\nYou have mastered your first card: the ↔ te\nKeep up the good work! 🚀",
             "highlighted_base_card_id": "word:the",
             "highlighted_pair": {"english": "the", "mirad": "te"},
             "sound": "achievement",

@@ -33,7 +33,6 @@
   <div
     class="fixed z-50 rounded-lg border border-violet-200 bg-white px-3 py-2 shadow-lg dark:border-violet-800 dark:bg-slate-900"
     style="top: {position.top}px; left: {position.left}px; transform: translateY(-100%);"
-    on:click|stopPropagation
   >
     {#if loading}
       <div class="flex items-center gap-2 text-xs text-slate-400">

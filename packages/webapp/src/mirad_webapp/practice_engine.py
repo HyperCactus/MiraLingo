@@ -92,16 +92,21 @@ def build_practice_queue(
     ranked: list[tuple[int, int, dict[str, Any], dict[str, Any]]] = []
     for index, card in enumerate(base_cards):
         directional_items = _practice_items_for_base_card(card, rng=rng)
-        reason, chosen_item, chosen_stats = _queue_item_for_base_card(
-            card=card,
-            directional_items=directional_items,
-            stats=stats,
-            base_stats=base_stats,
-            now=current,
-            weak_recent=weak_recent,
-            adaptive_state=adaptive_state,
-            rng=rng,
-        )
+        if _base_card_has_no_answer_history(card, directional_items, stats, base_stats):
+            chosen_item = directional_items[index % len(directional_items)]
+            chosen_stats = stats.get(chosen_item["id"], _empty_stats())
+            reason = "new_item"
+        else:
+            reason, chosen_item, chosen_stats = _queue_item_for_base_card(
+                card=card,
+                directional_items=directional_items,
+                stats=stats,
+                base_stats=base_stats,
+                now=current,
+                weak_recent=weak_recent,
+                adaptive_state=adaptive_state,
+                rng=rng,
+            )
         queue_item = {
             **chosen_item,
             "scheduler_reason": reason,
@@ -450,6 +455,18 @@ def _practice_item(card: dict[str, str], direction: str, *, rng: random.Random |
     if card.get("numbers_order") is not None:
         item["numbers_order"] = str(card.get("numbers_order") or "0")
     return item
+
+
+def _base_card_has_no_answer_history(
+    card: dict[str, str],
+    directional_items: list[dict[str, str]],
+    stats: dict[str, dict[str, Any]],
+    base_stats: dict[str, dict[str, Any]],
+) -> bool:
+    base_stat = base_stats.get(card["id"], _empty_stats())
+    if int(base_stat.get("attempts") or 0) > 0:
+        return False
+    return all(int(stats.get(item["id"], _empty_stats()).get("attempts") or 0) == 0 for item in directional_items)
 
 
 def _queue_item_for_base_card(

@@ -8,6 +8,12 @@
   export let userName = 'Learner';
   export let activeSection = 'analytics';
   export let navItems: { id: string; label: string; href: string; active?: boolean }[] = [];
+  $: effectiveNavItems = navItems.length > 0 ? navItems : [
+    { id: 'dashboard', label: 'Today', href: '#dashboard', active: activeSection === 'dashboard' },
+    { id: 'practice', label: 'Practice', href: '#practice', active: activeSection === 'practice' },
+    { id: 'lexicon', label: 'Lexicon', href: '#lexicon', active: activeSection === 'lexicon' },
+    { id: 'settings', label: 'Settings', href: '#settings', active: activeSection === 'settings' },
+  ];
   export let onBack: () => void = () => {};
   export let onSettings: () => void = () => {};
   export let onLogout: () => void = () => {};
@@ -227,7 +233,7 @@
   backLabel="Back to today"
   userLabel="Progress"
   avatarLabel={userName}
-  {navItems}
+  navItems={effectiveNavItems}
   on:click={onBack}
   on:settings={onSettings}
   on:logout={onLogout}
