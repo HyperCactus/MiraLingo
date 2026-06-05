@@ -135,6 +135,20 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     ]
 
 
+def test_settings_update_persists_button_only_sound_mode(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
+    _register(client)
+
+    update = client.put(
+        "/settings",
+        json={"theme": "system", "tts_speed": 0.8, "tts_autoplay": True, "sfx_enabled": False, "sfx_mode": "ui_only"},
+    )
+
+    assert update.status_code == 200
+    assert update.json()["settings"]["sfx_enabled"] is False
+    assert update.json()["settings"]["sfx_mode"] == "ui_only"
+
+
 def test_settings_update_rejects_invalid_theme_and_speed_without_mutating_storage(tmp_path: Path) -> None:
     database_path = tmp_path / "miralingo.sqlite3"
     client = TestClient(create_app(_settings(tmp_path, database_path)))

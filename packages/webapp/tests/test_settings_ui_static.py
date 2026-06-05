@@ -38,7 +38,9 @@ def test_settings_section_contains_user_facing_controls_and_labels() -> None:
 
     assert "Theme" in source
     assert "TTS speed" in source
-    assert "Sound effects" in source
+    assert "Button Sounds" in source
+    assert "Practice Effects" in source
+    assert "Sound effects information" in source
     assert "Delete account" in source
     assert "Admin account cannot be deleted." in source
     assert "Save settings" not in source

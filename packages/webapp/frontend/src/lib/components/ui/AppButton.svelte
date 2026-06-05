@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { get } from 'svelte/store';
-  import { soundEffectsEnabled, soundEffectsMode } from '../../stores/settings';
+  import { soundEffectsMode } from '../../stores/settings';
 
   export let variant: 'primary' | 'secondary' | 'ghost' = 'primary';
   export let type: 'button' | 'submit' | 'reset' = 'button';
@@ -21,7 +21,8 @@
 
   async function handleClick(event: MouseEvent) {
     dispatch('click', event);
-    if (!playClickSound || disabled || !get(soundEffectsEnabled) || get(soundEffectsMode) !== 'all' || !soundEffectSrc) return;
+    const mode = get(soundEffectsMode);
+    if (!playClickSound || disabled || (mode !== 'all' && mode !== 'ui_only') || !soundEffectSrc) return;
     try {
       const audio = new Audio(soundEffectSrc);
       audio.volume = Math.max(0, Math.min(1, Number(soundEffectVolume) || 0));

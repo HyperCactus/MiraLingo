@@ -58,6 +58,7 @@ def test_typed_recall_surfaces_practice_achievements_from_answer_payload() -> No
     source = _source()
 
     assert "payload?.achievements" in source
+    assert "latestAchievement(payload)" in source
     assert "activeAchievement = achievement" in source
     assert "Achievement unlocked" in source
     assert 'data-testid="achievement-toast"' in source

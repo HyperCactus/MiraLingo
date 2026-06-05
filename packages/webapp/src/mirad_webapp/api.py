@@ -69,7 +69,7 @@ class UserSettingsUpdateRequest(BaseModel):
     tts_speed: float = Field(gt=0, le=2.0)
     tts_autoplay: bool = True
     sfx_enabled: bool = True
-    sfx_mode: Literal["all", "on_answer", "off"] = "on_answer"
+    sfx_mode: Literal["all", "on_answer", "ui_only", "off"] = "on_answer"
 
 
 class DeleteAccountRequest(BaseModel):

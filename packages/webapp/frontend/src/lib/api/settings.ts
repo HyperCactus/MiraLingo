@@ -5,7 +5,7 @@ export type UserSettings = {
   tts_speed: number;
   tts_autoplay: boolean;
   sfx_enabled: boolean;
-  sfx_mode?: 'all' | 'on_answer' | 'off';
+  sfx_mode?: 'all' | 'on_answer' | 'ui_only' | 'off';
   voice?: {
     id: string;
     label: string;

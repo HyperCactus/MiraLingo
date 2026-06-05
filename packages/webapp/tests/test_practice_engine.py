@@ -1009,6 +1009,45 @@ def test_build_practice_achievements_unlocks_first_mastered_direction_card() -> 
     ]
 
 
+def test_build_practice_achievements_unlocks_ten_mastered_direction_cards() -> None:
+    cards = [
+        {"id": f"word:w{i}", "type": "word", "english": f"w{i}", "mirad": f"m{i}"}
+        for i in range(10)
+    ]
+    before_events: list[dict[str, object]] = []
+    for i in range(9):
+        before_events.extend(
+            _correct_streak(
+                f"word:w{i}#english-to-mirad",
+                start=NOW + timedelta(minutes=i * 10),
+                expected_answer=f"m{i}",
+                submitted_answer=f"m{i}",
+            )
+        )
+    after_events = [
+        *before_events,
+        *_correct_streak(
+            "word:w9#english-to-mirad",
+            start=NOW + timedelta(minutes=100),
+            expected_answer="m9",
+            submitted_answer="m9",
+        ),
+    ]
+
+    achievements = build_practice_achievements(
+        cards=cards,
+        before_events=before_events,
+        after_events=after_events,
+        username="mira",
+        latest_card_id="word:w9#english-to-mirad",
+        now=NOW,
+    )
+
+    assert [achievement["threshold"] for achievement in achievements] == [10]
+    assert achievements[0]["id"] == "mastered-cards-10"
+    assert achievements[0]["highlighted_base_card_id"] == "word:w9"
+
+
 def test_build_practice_achievements_unlocks_repeating_milestones_after_100() -> None:
     assert _achievement_milestones_up_to(149) == [1, 10, 20, 50, 80, 100]
     assert _achievement_milestones_up_to(150) == [1, 10, 20, 50, 80, 100, 150]

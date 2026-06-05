@@ -7,7 +7,7 @@ export type AppVoice = {
   mutable: boolean;
 };
 
-export type SoundEffectsMode = 'all' | 'on_answer' | 'off';
+export type SoundEffectsMode = 'all' | 'on_answer' | 'ui_only' | 'off';
 
 export type AppSettings = {
   theme: 'light' | 'dark' | 'system';
@@ -49,12 +49,12 @@ export function applySettingsPayload(payload?: Partial<{ theme: unknown; tts_spe
   ttsAutoplay.set(Boolean(payload?.tts_autoplay ?? defaultSettings.ttsAutoplay));
 
   const modeRaw = payload?.sfx_mode;
-  const hasValidMode = modeRaw === 'all' || modeRaw === 'on_answer' || modeRaw === 'off';
+  const hasValidMode = modeRaw === 'all' || modeRaw === 'on_answer' || modeRaw === 'ui_only' || modeRaw === 'off';
   const enabledFallback = Boolean(payload?.sfx_enabled ?? defaultSettings.soundEffectsEnabled);
   const mode: SoundEffectsMode = hasValidMode ? (modeRaw as SoundEffectsMode) : (enabledFallback ? 'on_answer' : 'off');
 
   soundEffectsMode.set(mode);
-  soundEffectsEnabled.set(mode !== 'off');
+  soundEffectsEnabled.set(mode === 'all' || mode === 'on_answer');
 
   voice.set({
     id: String(payload?.voice?.id ?? defaultVoice.id),

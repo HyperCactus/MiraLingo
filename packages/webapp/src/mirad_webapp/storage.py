@@ -794,7 +794,7 @@ class MiraLingoStorage:
         normalized_tts_autoplay = bool(tts_autoplay)
         normalized_sfx_enabled = bool(sfx_enabled)
         normalized_sfx_mode = _require_sfx_mode(sfx_mode if sfx_mode is not None else ("on_answer" if normalized_sfx_enabled else "off"), phase="settings_update")
-        if not normalized_sfx_enabled and normalized_sfx_mode != "off":
+        if not normalized_sfx_enabled and normalized_sfx_mode in {"all", "on_answer"}:
             normalized_sfx_mode = "off"
         try:
             with self._connect("settings_update") as connection:
@@ -938,8 +938,9 @@ class MiraLingoStorage:
                 _ensure_column(connection, "shown_cards", "answer_language", "TEXT NOT NULL DEFAULT ''")
                 _ensure_column(connection, "user_settings", "tts_autoplay", "INTEGER NOT NULL DEFAULT 1 CHECK(tts_autoplay IN (0, 1))")
                 _ensure_column(connection, "user_settings", "sfx_enabled", "INTEGER NOT NULL DEFAULT 1 CHECK(sfx_enabled IN (0, 1))")
-                _ensure_column(connection, "user_settings", "sfx_mode", "TEXT NOT NULL DEFAULT 'on_answer' CHECK(sfx_mode IN ('all', 'on_answer', 'off'))")
+                _ensure_column(connection, "user_settings", "sfx_mode", "TEXT NOT NULL DEFAULT 'on_answer' CHECK(sfx_mode IN ('all', 'on_answer', 'ui_only', 'off'))")
                 _ensure_column(connection, "user_settings", "voice_id", "TEXT NOT NULL DEFAULT 'de6'")
+                _ensure_user_settings_sfx_mode_accepts_ui_only(connection)
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc
         except OSError as exc:
@@ -959,6 +960,33 @@ def _ensure_column(connection: sqlite3.Connection, table: str, column: str, defi
     existing = {str(row[1]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
     if column not in existing:
         connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
+def _ensure_user_settings_sfx_mode_accepts_ui_only(connection: sqlite3.Connection) -> None:
+    row = connection.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'user_settings'").fetchone()
+    table_sql = str(row[0] if row else "")
+    if "ui_only" in table_sql:
+        return
+
+    connection.executescript(
+        """
+        ALTER TABLE user_settings RENAME TO user_settings_old;
+        CREATE TABLE user_settings (
+            username TEXT PRIMARY KEY,
+            theme TEXT NOT NULL DEFAULT 'system' CHECK(theme IN ('light', 'dark', 'system')),
+            tts_speed REAL NOT NULL DEFAULT 0.8 CHECK(tts_speed > 0 AND tts_speed <= 2.0),
+            voice_id TEXT NOT NULL DEFAULT 'de6',
+            tts_autoplay INTEGER NOT NULL DEFAULT 1 CHECK(tts_autoplay IN (0, 1)),
+            sfx_enabled INTEGER NOT NULL DEFAULT 1 CHECK(sfx_enabled IN (0, 1)),
+            sfx_mode TEXT NOT NULL DEFAULT 'on_answer' CHECK(sfx_mode IN ('all', 'on_answer', 'ui_only', 'off')),
+            FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+        );
+        INSERT INTO user_settings (username, theme, tts_speed, voice_id, tts_autoplay, sfx_enabled, sfx_mode)
+        SELECT username, theme, tts_speed, voice_id, tts_autoplay, sfx_enabled, sfx_mode
+        FROM user_settings_old;
+        DROP TABLE user_settings_old;
+        """
+    )
 
 
 def _username_unavailable_payload() -> dict[str, Any]:
@@ -1011,8 +1039,8 @@ def _require_tts_speed(tts_speed: float, *, phase: str) -> float:
 
 def _require_sfx_mode(sfx_mode: str, *, phase: str) -> str:
     normalized = str(sfx_mode or "").strip().lower()
-    if normalized not in {"all", "on_answer", "off"}:
-        raise StorageError(phase=phase, detail="SFX mode must be one of: all, on_answer, off.", error="invalid_sfx_mode")
+    if normalized not in {"all", "on_answer", "ui_only", "off"}:
+        raise StorageError(phase=phase, detail="SFX mode must be one of: all, on_answer, ui_only, off.", error="invalid_sfx_mode")
     return normalized
 
 

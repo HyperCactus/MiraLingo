@@ -15,7 +15,7 @@
   import AppInput from "./lib/components/ui/AppInput.svelte";
   import { authError, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
-  import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, soundEffectsEnabled, soundEffectsMode, theme, ttsSpeed } from "./lib/stores/settings";
+  import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, soundEffectsMode, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
   import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
@@ -44,6 +44,14 @@
     { id: "lexicon", label: "Lexicon", href: "#lexicon", active: section === "lexicon" },
     { id: "settings", label: "Settings", href: "#settings", active: section === "settings" },
   ];
+  const soundEffectsEnabledFromMode = (mode) => mode === "all" || mode === "on_answer";
+  const uiButtonSoundsEnabledFromMode = (mode) => mode === "all" || mode === "ui_only";
+  const sfxModeFromToggles = (uiButtonsEnabled, effectsEnabled) => {
+    if (uiButtonsEnabled && effectsEnabled) return "all";
+    if (uiButtonsEnabled) return "ui_only";
+    if (effectsEnabled) return "on_answer";
+    return "off";
+  };
 
   let username = $state("admin");
   let password = $state("");
@@ -81,7 +89,7 @@
   let dashboardRefreshSignal = $state(0);
   let dashboardRefreshTimer = null;
 
-  let soundEffectsModeLocal = $soundEffectsMode;
+  let soundEffectsInfoOpen = $state(false);
   let deleteAccountState = $state("idle");
   let deleteAccountErr = $state("");
   let deleteAccountStatus = $state("");
@@ -310,6 +318,7 @@
         theme: coerceTheme($theme),
         tts_speed: coerceSpeed($ttsSpeed),
         tts_autoplay: Boolean(ttsAutoplayEnabled),
+        sfx_enabled: soundEffectsEnabledFromMode($soundEffectsMode),
         sfx_mode: $soundEffectsMode,
       };
       await updateSettings(body);
@@ -317,6 +326,16 @@
     } catch (_) {
       settingsState = "ready";
     }
+  }
+
+  function setUiButtonSounds(enabled) {
+    soundEffectsMode.set(sfxModeFromToggles(Boolean(enabled), soundEffectsEnabledFromMode($soundEffectsMode)));
+    void saveSettings();
+  }
+
+  function setPracticeSoundEffects(enabled) {
+    soundEffectsMode.set(sfxModeFromToggles(uiButtonSoundsEnabledFromMode($soundEffectsMode), Boolean(enabled)));
+    void saveSettings();
   }
 
   async function loadPracticeQueue(mode = "mixed", options = {}) {
@@ -379,7 +398,7 @@
   }
 
   function playShowAnswerSound() {
-    if ($soundEffectsMode === "off") return;
+    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
     try {
       const effect = new Audio("/assets/sound_effects/show_answer.wav");
       effect.volume = 0.7;
@@ -390,7 +409,7 @@
   }
 
   async function playFeedbackSound(correct) {
-    if ($soundEffectsMode === "off") return;
+    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
     const src = correct ? "/assets/sound_effects/correct_answer.wav" : "/assets/sound_effects/incorrect_answer.wav";
     try {
       const effect = new Audio(src);
@@ -402,7 +421,7 @@
   }
 
   async function playAchievementSound() {
-    if ($soundEffectsMode === "off") return;
+    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
     try {
       const effect = new Audio("/assets/sound_effects/atchevement.wav");
       effect.volume = 1.0;
@@ -412,9 +431,9 @@
     }
   }
 
-  function firstAchievement(payload) {
+  function latestAchievement(payload) {
     const achievements = Array.isArray(payload?.achievements) ? payload.achievements : [];
-    return achievements[0] ?? null;
+    return [...achievements].sort((a, b) => Number(b?.threshold ?? 0) - Number(a?.threshold ?? 0))[0] ?? null;
   }
 
   function dismissAchievement() {
@@ -441,7 +460,7 @@
         return;
       }
       answerResult = payload;
-      const achievement = firstAchievement(payload);
+      const achievement = latestAchievement(payload);
       if (achievement) {
         activeAchievement = achievement;
         void playAchievementSound();
@@ -851,26 +870,57 @@
             <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Autoplay Mirad audio</legend>
             <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
               <span>Play Mirad TTS automatically after revealing the answer</span>
-              <label class="relative inline-flex h-6 w-11 items-center cursor-pointer">
-                <input type="checkbox" class="peer sr-only" bind:checked={ttsAutoplayEnabled} onchange={() => saveSettings()} />
-                <span class="peer h-6 w-11 rounded-full bg-slate-300 transition-colors duration-200 hover:bg-slate-400 dark:bg-slate-700 dark:peer-checked:bg-violet-600 dark:hover:bg-slate-600"></span>
-                <span class="absolute left-0.5 top-0.5 inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-all duration-200 dark:bg-slate-950 peer-checked:translate-x-5"></span>
-              </label>
+              <span class="relative inline-flex h-7 w-14 items-center rounded-full bg-slate-300 p-1 shadow-inner transition-colors duration-200 dark:bg-slate-700 {ttsAutoplayEnabled ? 'bg-violet-600 dark:bg-violet-500' : 'bg-slate-300 dark:bg-slate-700'}" aria-hidden="true">
+                <span class="absolute left-2 text-[10px] font-bold uppercase text-white/90 opacity-0 transition-opacity {ttsAutoplayEnabled ? 'opacity-100' : ''}">On</span>
+                <span class="absolute right-1.5 text-[10px] font-bold uppercase text-slate-600 transition-opacity dark:text-slate-200 {ttsAutoplayEnabled ? 'opacity-0' : 'opacity-100'}">Off</span>
+                <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 dark:bg-slate-950 {ttsAutoplayEnabled ? 'translate-x-7' : 'translate-x-0'}"></span>
+              </span>
+              <input type="checkbox" class="sr-only" bind:checked={ttsAutoplayEnabled} onchange={() => saveSettings()} />
             </label>
           </fieldset>
 
           <fieldset class="space-y-3">
-            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Sound effects</legend>
-            <div class="flex w-full rounded-2xl border border-violet-100 bg-slate-50 p-1 dark:border-violet-900/60 dark:bg-slate-900/70">
-              {#each [{ v: "all", l: "All" }, { v: "on_answer", l: "On Answer" }, { v: "off", l: "Off" }] as option (option.v)}
-                {@const isSelected = $soundEffectsMode === option.v}
-                <label class="flex flex-1 cursor-pointer justify-center">
-                  <input class="sr-only" type="radio" value={option.v} bind:group={$soundEffectsMode} onchange={() => saveSettings()} />
-                  <span class="pointer-events-none flex flex-col rounded-xl px-6 py-3 text-left text-sm transition-all duration-200 {isSelected ? 'bg-violet-600 text-white shadow-sm dark:bg-violet-400 dark:text-slate-950' : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200'}">
-                    <span class="font-semibold">{option.l}</span>
+            <legend class="text-sm font-semibold text-slate-900 dark:text-slate-100">Sound settings</legend>
+            <div class="space-y-3">
+              <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
+                <span>Button Sounds</span>
+                <span class="relative inline-flex h-7 w-14 items-center rounded-full bg-slate-300 p-1 shadow-inner transition-colors duration-200 dark:bg-slate-700 {uiButtonSoundsEnabledFromMode($soundEffectsMode) ? 'bg-violet-600 dark:bg-violet-500' : 'bg-slate-300 dark:bg-slate-700'}" aria-hidden="true">
+                  <span class="absolute left-2 text-[10px] font-bold uppercase text-white/90 opacity-0 transition-opacity {uiButtonSoundsEnabledFromMode($soundEffectsMode) ? 'opacity-100' : ''}">On</span>
+                  <span class="absolute right-1.5 text-[10px] font-bold uppercase text-slate-600 transition-opacity dark:text-slate-200 {uiButtonSoundsEnabledFromMode($soundEffectsMode) ? 'opacity-0' : 'opacity-100'}">Off</span>
+                  <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 dark:bg-slate-950 {uiButtonSoundsEnabledFromMode($soundEffectsMode) ? 'translate-x-7' : 'translate-x-0'}"></span>
+                </span>
+                <input type="checkbox" class="sr-only" checked={uiButtonSoundsEnabledFromMode($soundEffectsMode)} onchange={(event) => setUiButtonSounds(event.currentTarget.checked)} />
+              </label>
+
+              <div class="flex items-center justify-between gap-3 rounded-2xl border border-violet-100 px-4 py-3 text-sm font-medium dark:border-violet-900/60">
+                <span class="flex items-center gap-2">
+                  <span>Practice Effects</span>
+                  <button
+                    type="button"
+                    class="relative inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-500 transition hover:bg-violet-50 hover:text-violet-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-violet-200"
+                    aria-label="Sound effects information"
+                    aria-expanded={soundEffectsInfoOpen}
+                    onmouseenter={() => (soundEffectsInfoOpen = true)}
+                    onmouseleave={() => (soundEffectsInfoOpen = false)}
+                    onclick={(event) => { event.preventDefault(); soundEffectsInfoOpen = !soundEffectsInfoOpen; }}
+                  >
+                    <span aria-hidden="true">👁</span>
+                    {#if soundEffectsInfoOpen}
+                      <span class="absolute left-1/2 top-8 z-20 w-64 -translate-x-1/2 rounded-2xl border border-violet-100 bg-white p-3 text-left text-xs font-normal leading-5 text-slate-600 shadow-xl shadow-slate-950/10 dark:border-violet-900/60 dark:bg-slate-950 dark:text-slate-300">
+                        Practice Effects play for correct answers, incorrect answers, reveal answer, and achievement celebrations.
+                      </span>
+                    {/if}
+                  </button>
+                </span>
+                <label class="relative inline-flex cursor-pointer items-center">
+                  <span class="relative inline-flex h-7 w-14 items-center rounded-full bg-slate-300 p-1 shadow-inner transition-colors duration-200 dark:bg-slate-700 {soundEffectsEnabledFromMode($soundEffectsMode) ? 'bg-violet-600 dark:bg-violet-500' : 'bg-slate-300 dark:bg-slate-700'}" aria-hidden="true">
+                    <span class="absolute left-2 text-[10px] font-bold uppercase text-white/90 opacity-0 transition-opacity {soundEffectsEnabledFromMode($soundEffectsMode) ? 'opacity-100' : ''}">On</span>
+                    <span class="absolute right-1.5 text-[10px] font-bold uppercase text-slate-600 transition-opacity dark:text-slate-200 {soundEffectsEnabledFromMode($soundEffectsMode) ? 'opacity-0' : 'opacity-100'}">Off</span>
+                    <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 dark:bg-slate-950 {soundEffectsEnabledFromMode($soundEffectsMode) ? 'translate-x-7' : 'translate-x-0'}"></span>
                   </span>
+                  <input type="checkbox" class="sr-only" checked={soundEffectsEnabledFromMode($soundEffectsMode)} onchange={(event) => setPracticeSoundEffects(event.currentTarget.checked)} />
                 </label>
-              {/each}
+              </div>
             </div>
           </fieldset>
         </div>
