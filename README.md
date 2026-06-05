@@ -69,16 +69,50 @@ Launch the full stack (backend + frontend) in one command:
 
 Open http://127.0.0.1:5173 and log in with `admin` / `admin` (development only). See the [webapp README](packages/webapp/README.md) for details.
 
-### Docker
+### Docker deployment
+
+Clone, build, and run MiraLingo with Docker Compose:
+
+```bash
+git clone https://github.com/HyperCactus/MiraLingo.git
+cd MiraLingo
+cp .env.example .env
+# Optional for local-only test deploys: keep defaults and use admin/admin.
+docker compose up --build -d
+```
+
+Open http://localhost:8080. The default Compose deployment stores SQLite data in the named `miralingo_db` volume and serves the Svelte frontend through Nginx, with API requests proxied to the FastAPI backend.
+
+For a live site, edit `.env` before first deploy:
+
+```bash
+MIRALINGO_ENV=production
+MIRALINGO_ENABLE_LOCAL_ADMIN=false
+MIRALINGO_SESSION_SECRET=<long random secret>
+MIRALINGO_FRONTEND_BASE_URL=https://your-domain.example
+MIRALINGO_HTTP_PORT=8080
+```
+
+Put HTTPS in front with your host reverse proxy (Caddy, Traefik, Nginx, or cloud load balancer). To ship future fixes/features on the live site:
+
+```bash
+git pull --ff-only
+docker compose build --pull
+docker compose up -d --remove-orphans
+```
+
+See the [webapp README](packages/webapp/README.md#docker-deployment) for health checks, rollback notes, and optional Google OAuth settings.
+
+### Experimental Docker services
 
 ```bash
 # TTS via Docker
-docker compose build tts
-docker compose run --rm tts mirad-tts "Be yuboj" --ipa
+docker compose --profile experiments build tts
+docker compose --profile experiments run --rm tts mirad-tts "Be yuboj" --ipa
 
-# Optional local model services for experiments only
+# Optional local model services for experiments only.
 # Default translator runtime uses DeepInfra, not Ollama.
-docker compose up -d ollama
+docker compose --profile experiments up -d ollama
 ```
 
 See individual package READMEs for full usage, API details, and configuration.

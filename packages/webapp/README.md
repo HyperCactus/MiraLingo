@@ -79,6 +79,89 @@ SQLite stores user accounts, practice events (answer history), card lifecycle st
 
 This starts both backend (port 8000) and frontend (port 5173) with correct `PYTHONPATH`, installs frontend deps if needed, and prints URLs. Press `Ctrl+C` to stop both.
 
+### Docker deployment
+
+For a clone-and-run deployment from the repository root:
+
+```bash
+cp .env.example .env
+docker compose up --build -d
+```
+
+Open http://localhost:8080. The Compose stack contains:
+
+| Service | Role | Notes |
+|---|---|---|
+| `miralingo-frontend` | Nginx + built Svelte app | Publishes `${MIRALINGO_HTTP_PORT:-8080}` and proxies API paths to backend. |
+| `miralingo-backend` | FastAPI app | Runs Uvicorn on the internal Docker network. |
+| `miralingo_db` | Named Docker volume | Persists `.miralingo/miralingo.sqlite3` across image rebuilds. |
+
+Useful commands:
+
+```bash
+# Build without starting
+docker compose build miralingo-backend miralingo-frontend
+
+# Start or restart in background
+docker compose up -d
+
+# Follow logs
+docker compose logs -f miralingo-backend miralingo-frontend
+
+# Check health through frontend proxy
+curl -fsS http://localhost:8080/health
+
+# Stop without deleting database volume
+docker compose down
+
+# Stop and delete the SQLite volume too — destructive
+docker compose down -v
+```
+
+Local/default Compose settings keep `MIRALINGO_ENV=development` and `MIRALINGO_ENABLE_LOCAL_ADMIN=true`, so `admin` / `admin` works for smoke tests. For any public live site, create `.env` before first deploy and override at least:
+
+```bash
+MIRALINGO_ENV=production
+MIRALINGO_ENABLE_LOCAL_ADMIN=false
+MIRALINGO_SESSION_SECRET=<long random secret, e.g. openssl rand -hex 32>
+MIRALINGO_FRONTEND_BASE_URL=https://your-domain.example
+MIRALINGO_HTTP_PORT=8080
+```
+
+Put HTTPS in front of the frontend container with Caddy, Traefik, Nginx, or a cloud load balancer. In production mode, session cookies are marked `Secure`, so browser login requires HTTPS.
+
+For Google OAuth on a live site, also set:
+
+```bash
+MIRALINGO_GOOGLE_REDIRECT_URI=https://your-domain.example/auth/google/callback
+MIRALINGO_GOOGLE_CLIENT_ID=<google client id>
+MIRALINGO_GOOGLE_CLIENT_SECRET=<google client secret>
+```
+
+The Google Cloud Console redirect URI must exactly match `MIRALINGO_GOOGLE_REDIRECT_URI`.
+
+### Updating a live Docker deployment
+
+Recommended update flow:
+
+```bash
+git pull --ff-only
+docker compose build --pull miralingo-backend miralingo-frontend
+docker compose up -d --remove-orphans
+curl -fsS http://localhost:8080/health
+```
+
+The SQLite database remains in the `miralingo_db` volume during rebuilds and restarts. If a release fails after deploy, inspect logs and roll back to a previous commit:
+
+```bash
+docker compose logs --tail=200 miralingo-backend miralingo-frontend
+git checkout <previous-good-commit>
+docker compose build miralingo-backend miralingo-frontend
+docker compose up -d --remove-orphans
+```
+
+Do not run `docker compose down -v` on the live host unless you intend to delete learner data.
+
 ### Manual startup
 
 Backend:

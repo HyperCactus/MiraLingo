@@ -1,0 +1,48 @@
+# Git/runtime
+.git
+.gsd
+.gsd-id
+.mcp.json
+.bg-shell
+.agents
+
+# Python caches and local envs
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage*
+htmlcov
+.venv
+venv
+env
+*.egg-info
+build
+dist
+
+# Node caches/build outputs
+node_modules
+packages/webapp/frontend/node_modules
+packages/webapp/frontend/dist
+.vite
+
+# Local runtime/secrets
+.env
+.env.*
+!.env.example
+.miralingo
+packages/webapp/.miralingo
+*.sqlite
+*.sqlite3
+*.log
+
+# Heavy/generated data not needed by webapp images
+data/chroma_db
+data/eval
+data/eval_results
+data/pdfs
+samples
+vendor
+.cache
+tmp

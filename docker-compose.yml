@@ -1,5 +1,55 @@
 services:
+  miralingo-backend:
+    build:
+      context: .
+      dockerfile: packages/webapp/Dockerfile
+    image: miralingo-backend:local
+    restart: unless-stopped
+    environment:
+      MIRALINGO_ENV: ${MIRALINGO_ENV:-development}
+      MIRALINGO_ENABLE_LOCAL_ADMIN: ${MIRALINGO_ENABLE_LOCAL_ADMIN:-true}
+      MIRALINGO_SESSION_SECRET: ${MIRALINGO_SESSION_SECRET:-change-me-for-production}
+      MIRALINGO_SESSION_COOKIE_NAME: ${MIRALINGO_SESSION_COOKIE_NAME:-miralingo_session}
+      MIRALINGO_SESSION_TTL_SECONDS: ${MIRALINGO_SESSION_TTL_SECONDS:-1209600}
+      MIRALINGO_PASSWORD_RESET_TTL_SECONDS: ${MIRALINGO_PASSWORD_RESET_TTL_SECONDS:-3600}
+      MIRALINGO_FRONTEND_BASE_URL: ${MIRALINGO_FRONTEND_BASE_URL:-http://localhost:8080}
+      MIRALINGO_DATABASE_PATH: /app/.miralingo/miralingo.sqlite3
+      MIRALINGO_PHRASE_CSV_PATH: /app/data/phrases/english-mirad-sentence-pairs.csv
+      MIRALINGO_BEGINNER_JSON_PATH: /app/data/miralingo_modules/beginner.json
+      MIRALINGO_NUMBERS_JSON_PATH: /app/data/miralingo_modules/numbers.json
+      MIRALINGO_ENABLE_DEV_RESET_LOGGING: ${MIRALINGO_ENABLE_DEV_RESET_LOGGING:-false}
+      MIRALINGO_GOOGLE_REDIRECT_URI: ${MIRALINGO_GOOGLE_REDIRECT_URI:-}
+      MIRALINGO_GOOGLE_CLIENT_ID: ${MIRALINGO_GOOGLE_CLIENT_ID:-}
+      MIRALINGO_GOOGLE_CLIENT_SECRET: ${MIRALINGO_GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      - miralingo_db:/app/.miralingo
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  miralingo-frontend:
+    build:
+      context: .
+      dockerfile: packages/webapp/frontend/Dockerfile
+    image: miralingo-frontend:local
+    restart: unless-stopped
+    depends_on:
+      miralingo-backend:
+        condition: service_healthy
+    ports:
+      - "${MIRALINGO_HTTP_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   tts:
+    profiles: ["experiments"]
     build:
       context: .
       dockerfile: packages/tts/Dockerfile
@@ -7,6 +57,7 @@ services:
     command: ["mirad-tts", "--help"]
 
   ollama:
+    profiles: ["experiments"]
     image: ollama/ollama:latest
     network_mode: host
     healthcheck:
@@ -17,6 +68,7 @@ services:
       start_period: 30s
 
   translator:
+    profiles: ["experiments"]
     build:
       context: .
       dockerfile: packages/translator/Dockerfile
@@ -33,3 +85,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+volumes:
+  miralingo_db:

@@ -1,0 +1,998 @@
+english,mirad
+a house,tam
+houses,tami
+the house,ha tam
+the houses,ha tami
+a beautiful city,via dom
+beautiful cities,via domi
+the beautiful city,ha via dom
+the beautiful cities,ha via domi
+a big house,aga tam
+big houses,aga tami
+the big house,ha aga tam
+the big houses,ha aga tami
+a small house,oga tam
+small houses,oga tami
+the small house,ha oga tam
+the small houses,ha oga tami
+a car,pur
+cars,puri
+the car,ha pur
+the cars,ha puri
+a bird,pat
+birds,pati
+the bird,ha pat
+the birds,ha pati
+a book,dyes
+books,dyesi
+the book,ha dyes
+the books,ha dyesi
+this book,hia dyes
+these books,hia dyesi
+my book,ata dyes
+my books,ata dyesi
+your book,eta dyes
+your books,eta dyesi
+his or her book,ita dyes
+his or her books,ita dyesi
+our book,yata dyes
+our books,yata dyesi
+your book,yeta dyes
+your books,yeta dyesi
+their book,yita dyes
+their books,yita dyesi
+a person,tob
+people,tobi
+the person,ha tob
+the people,ha tobi
+a man,twob
+men,twobi
+the man,ha twob
+the men,ha twobi
+a woman,toyb
+women,toybi
+the woman,ha toyb
+the women,ha toybi
+a child,tobet
+children,tobeti
+a boy,twobet
+boys,twobeti
+a girl,toybet
+girls,toybeti
+a parent,ted
+parents,tedi
+a father,twed
+fathers,twedi
+a mother,teyd
+mothers,teydi
+a student,tixut
+students,tixuti
+the student,ha tixut
+the students,ha tixuti
+a teacher,tuxut
+teachers,tuxuti
+the teacher,ha tuxut
+the teachers,ha tuxuti
+a name,dyun
+names,dyuni
+the name,ha dyun
+the names,ha dyuni
+a desk,dresem
+desks,dresemi
+the desk,ha dresem
+the desks,ha dresemi
+this person,hit
+these persons,hiti
+that person,hut
+those persons,huti
+this person is beautiful,hit se via
+that person is ugly,hut se vua
+this person is beautiful and that one is ugly,hit se via ay hut se vua
+this desk is small but good,hia dresem se oga oy fia
+the desk is big,ha dresem se aga
+the desks are big,ha dresemi se aga
+the desk is small,ha dresem se oga
+the desks are small,ha dresemi se oga
+my teacher is good,ata tuxut se fia
+my teacher is bad,ata tuxut se fua
+your teacher is good,eta tuxut se fia
+your teacher is bad,eta tuxut se fua
+his or her teacher is good,ita tuxut se fia
+his or her teacher is bad,ita tuxut se fua
+our teacher is good,yata tuxut se fia
+our teacher is bad,yata tuxut se fua
+their teacher is good,yita tuxut se fia
+their teacher is bad,yita tuxut se fua
+this teacher is good,hia tuxut se fia
+this teacher is bad,hia tuxut se fua
+that teacher is good,hua tuxut se fia
+that teacher is bad,hua tuxut se fua
+this student is good,hia tixut se fia
+this student is bad,hia tixut se fua
+that student is good,hua tixut se fia
+that student is bad,hua tixut se fua
+this is a bad student,his se fua tixut
+this is a good student,his se fia tixut
+your name is ugly,eta dyun se vua
+your name is beautiful,eta dyun se via
+my name is bill,ata dyun se bill
+your name is john,eta dyun se john
+my life is good,ata tej se fia
+my life is bad,ata tej se fua
+your life is good,eta tej se fia
+your life is bad,eta tej se fua
+our life is good,yata tej se fia
+our life is bad,yata tej se fua
+yes,va
+maybe,ve
+no,vo
+hello,hay
+hey,hey
+goodbye,hoy
+yes goodbye,va hoy
+no my name is bill,vo ata dyun se bill
+maybe he or she is good and bad,ve it se fia ay fua
+good,fia
+bad,fua
+beautiful,via
+ugly,vua
+big,aga
+normal,ega
+small,oga
+fast,iga
+slow,uga
+hot,ama
+cold,oma
+happy,iva
+sad,uva
+true,vyaa
+false,vyoa
+clean,vyia
+dirty,vyua
+free,yiva
+captive,yuva
+innocent,yava
+fair,yeva
+guilty,yova
+useful,fyia
+harmful,fyua
+i am,at se
+you are,et se
+he or she is,it se
+we are,yat se
+you all are,yet se
+they are,yit se
+i was,at sa
+you were,et sa
+he or she was,it sa
+we were,yat sa
+you all were,yet sa
+they were,yit sa
+i will be,at so
+you will be,et so
+he or she will be,it so
+we will be,yat so
+you all will be,yet so
+they will be,yit so
+i would be,at su
+you would be,et su
+he or she would be,it su
+we would be,yat su
+you all would be,yet su
+they would be,yit su
+be,su
+i do,at xe
+you do,et xe
+he or she does,it xe
+we do,yat xe
+you all do,yet xe
+they do,yit xe
+i did,at xa
+you did,et xa
+he or she did,it xa
+we did,yat xa
+you all did,yet xa
+they did,yit xa
+i will do,at xo
+you will do,et xo
+he or she will do,it xo
+we will do,yat xo
+you all will do,yet xo
+they will do,yit xo
+i would do,at xu
+you would do,et xu
+he or she would do,it xu
+we would do,yat xu
+you all would do,yet xu
+they would do,yit xu
+do,xu
+i come,at upe
+you come,et upe
+he or she comes,it upe
+we come,yat upe
+you all come,yet upe
+they come,yit upe
+i came,at upa
+you came,et upa
+he or she came,it upa
+we came,yat upa
+you all came,yet upa
+they came,yit upa
+i will come,at upo
+you will come,et upo
+he or she will come,it upo
+we will come,yat upo
+you all will come,yet upo
+they will come,yit upo
+i would come,at upu
+you would come,et upu
+he or she would come,it upu
+we would come,yat upu
+you all would come,yet upu
+they would come,yit upu
+come,upu
+come here,upu him
+do not come,von upu
+i go,at pe
+you go,et pe
+he or she goes,it pe
+we go,yat pe
+you all go,yet pe
+they go,yit pe
+i went,at pa
+you went,et pa
+he or she went,it pa
+we went,yat pa
+you all went,yet pa
+they went,yit pa
+i will go,at po
+you will go,et po
+he or she will go,it po
+we will go,yat po
+you all will go,yet po
+they will go,yit po
+i would go,at pu
+you would go,et pu
+he or she would go,it pu
+we would go,yat pu
+you all would go,yet pu
+they would go,yit pu
+go home,pu tam
+let s go,van yat pu
+i work at home,at yexe be tam
+you work at home,et yexe be tam
+he or she works at home,it yexe be tam
+we work at home,yat yexe be tam
+you all work at home,yet yexe be tam
+they work at home,yit yexe be tam
+i worked at home,at yexa be tam
+you worked at home,et yexa be tam
+he or she worked at home,it yexa be tam
+we worked at home,yat yexa be tam
+you all worked at home,yet yexa be tam
+they worked at home,yit yexa be tam
+i will work at home,at yexo be tam
+you will work at home,et yexo be tam
+he or she will work at home,it yexo be tam
+we will work at home,yat yexo be tam
+you all will work at home,yet yexo be tam
+they will work at home,yit yexo be tam
+i live downtown now,at tambese zedom hij
+you live downtown now,et tambese zedom hij
+we live downtown now,yat tambese zedom hij
+they live downtown now,yit tambese zedom hij
+before this i lived in the suburbs,ja his at tambesa ha yuzdom
+before this you lived in the suburbs,ja his et tambesa ha yuzdom
+before this we lived in the suburbs,ja his yat tambesa ha yuzdom
+before this they lived in the suburbs,ja his yit tambesa ha yuzdom
+you were very far from here,et sa gla yib bi him
+we were very far from here,yat sa gla yib bi him
+they were very far from here,yit sa gla yib bi him
+you live very close by,et tambese gla yub
+we live very close by,yat tambese gla yub
+they live very close by,yit tambese gla yub
+what do you do for work now,duhos et xe av yex hij
+what do we do for work now,duhos yat xe av yex hij
+what do they do for work now,duhos yit xe av yex hij
+i work at a grocery store near here,at yexe be tolnam yub bi him
+you work at a grocery store near here,et yexe be tolnam yub bi him
+we work at a grocery store near here,yat yexe be tolnam yub bi him
+they work at a grocery store near here,yit yexe be tolnam yub bi him
+i will be there until the end of the season,at so hum ju ha uj bi ha jeb
+you will be there until the end of the season,et so hum ju ha uj bi ha jeb
+we will be there until the end of the season,yat so hum ju ha uj bi ha jeb
+they will be there until the end of the season,yit so hum ju ha uj bi ha jeb
+be well,su baka
+work hard,yexu jestay
+come to the grocery store sometime,upu ha tolnam hej
+where do you live,duhom et tambese
+where do we live,duhom yat tambese
+where do they live,duhom yit tambese
+i live there,at tambese hum
+you live there,et tambese hum
+we live there,yat tambese hum
+they live there,yit tambese hum
+you live where the road ends,et tambese hom ha mep uje
+we live where the road ends,yat tambese hom ha mep uje
+they live where the road ends,yit tambese hom ha mep uje
+where are you guys going,duhom weti peye
+where are you from,duhom et byise
+when were you born,duhoj et taja
+what is your name,duhos se eta dyun
+how are you,duhoyen et se
+how is everything,duhoyen se hyas
+everything is fine,hyas se fia
+this building is a store,hia tom se nam
+this building was a store,hia tom sa nam
+this building will be a store,hia tom so nam
+this building would be a store,hia tom su nam
+i am going home,at peye tam
+you are going home,et peye tam
+he or she is going home,it peye tam
+we are going home,yat peye tam
+you all are going home,yet peye tam
+they are going home,yit peye tam
+i was going home,at peya tam
+you were going home,et peya tam
+he or she was going home,it peya tam
+we were going home,yat peya tam
+you all were going home,yet peya tam
+they were going home,yit peya tam
+i will be going home,at peyo tam
+you will be going home,et peyo tam
+he or she will be going home,it peyo tam
+we will be going home,yat peyo tam
+you all will be going home,yet peyo tam
+they will be going home,yit peyo tam
+i would be going home,at peyu tam
+you would be going home,et peyu tam
+he or she would be going home,it peyu tam
+we would be going home,yat peyu tam
+you all would be going home,yet peyu tam
+they would be going home,yit peyu tam
+you are being bad,et seye fua
+we are being bad,yat seye fua
+they are being bad,yit seye fua
+the student walks to school every day,ha tixut tyoyape tistam hyajub
+the students walk to school every day,ha tixuti tyoyape tistam hyajub
+the student is walking to school today,ha tixut tyoyapeye tistam hijub
+the students are walking to school today,ha tixuti tyoyapeye tistam hijub
+do you walk to school,duven et tyoyape tistam
+do you all walk to school,duven yet tyoyape tistam
+do they walk to school,duven yit tyoyape tistam
+my house is bigger than yours,ata tam se ga aga vyel etas
+our house is bigger than yours,yata tam se ga aga vyel etas
+this house is bigger than yours,hia tam se ga aga vyel etas
+this house is not as big as mine,hia tam voy se ge aga vyel atas
+this teacher is possibly better than that teacher,hia tuxut se vey ga fia vyel hua tuxut
+this teacher is very good,hia tuxut se gla fia
+this teacher is rather good,hia tuxut se gle fia
+this teacher is not very good,hia tuxut se glo fia
+this teacher is too good,hia tuxut se gra fia
+this teacher is good enough,hia tuxut se gre fia
+this teacher is not good enough,hia tuxut se gro fia
+this teacher is the best,hia tuxut se ha gwa fia
+this teacher is the least good,hia tuxut se ha gwo fia
+he sings beautifully,it deuze vi
+she sings beautifully,iyt deuze vi
+they sing beautifully,yit deuze vi
+they did it well,yit xa has fi
+we did it well,yat xa has fi
+i did it well,at xa has fi
+i do not know,at voy te
+you do not know,et voy te
+he or she does not know,it voy te
+we do not know,yat voy te
+you all do not know,yet voy te
+they do not know,yit voy te
+i know,at te
+you know,et te
+he or she knows,it te
+we know,yat te
+you all know,yet te
+they know,yit te
+i knew that you would come,at ta van et upo
+i knew that he or she would come,at ta van it upo
+i knew that they would come,at ta van yit upo
+i did not know whether he or she would come,at voy ta ven it upo
+she said i do not want to go,iyt da at voy fe per
+he said i do not want to go,wit da at voy fe per
+you are married,et se tadxwa
+are you married,duven et se tadxwa
+the stars are bright,ha mari se manika
+are the stars bright,duven ha mari se manika
+that guy won,hut aka
+who won,duhot aka
+she won a lot,iyt aka glas
+how much did she win,duhoglas iyt aka
+he has gone,wit paye
+where has he gone,duhom wit paye
+she has gone,iyt paye
+where has she gone,duhom iyt paye
+you live in the neighborhood,et tambese ha yubem
+do you live in the neighborhood,duven et tambese ha yubem
+you live in the neighborhood right,et tambese ha yubem vao
+yes i indeed agree,va at vay yantexe
+maybe i may go,ve at vey po
+no i would not be happy,vo at voy su iva
+i am not your father,at voy se eta ted
+that one is not dead,hut se voy toja
+do not be late,von et jwosu
+do not laugh,von hihidu
+do not drink this,von tilu his
+may you live long,van et yagteju
+let us pray,van yat fyadilu
+it is hot here,se ama him
+it is not fair to prejudge someone,voy se yeva jayevder hes
+it may rain,vey mamilo
+it will rain,mamilo
+this is a good thing,his se fis
+this is very good,his se gla fia
+it is good to win,se fia aker
+it is sad that she left,se uva van iyt pia
+he looks like a good worker,wit tease fia yexut
+the dog bit me,ha yepet teupixa at
+forgive those who hurt you,yovobu hoti fyuxe et
+take this telegram,biu hia yibdren
+give me that box,buu at hua nyem
+tell him to be quiet,du it doler
+go to the store,pe ha nam
+i am going to the store,at peye ha nam
+you should tell her that,et yefu der iyt hus
+i come from france,at byise ferom
+buy me a book,nusbiu at dyes
+buy a book for me,nusbiu dyes av at
+she examined herself,iyt yubteaxa iut
+know yourself,tru eut
+we should get married,yat yeyfe tadser
+she may kill herself,iyt vey tojbo iut
+one must love oneself,ot yefe ifer out
+people often do not love themselves,yot glaxag voy ife yout
+you people hate yourselves,yet ufe yeut
+we hate you,yat ufe yet
+come play with us,upu eker bay yat
+i myself do not smoke,at aut voy movie
+yours are worth more than mine,etasi naze ga vyel atasi
+this wine has its own taste,hia vafil bayse iusa toleuz
+i did not see his or her book,at voy teata ita dyes
+i know his father,at tre wita twed
+we must protect our own things,yat yefe ovmasber yatasi
+this is yours,hias se etas
+that is mine,huas se atas
+those are yours,huasi se etasi
+those are mine,huasi se atasi
+is that house yours,duven hua tam se etas
+ours are bigger than yours,yatasi se ga aga vyel yetasi
+these people were better than those ones,hiati sa fia vyel huati
+whose book is this,duhota dyes se his
+whose are these books,duhotasi se hia dyesi
+everyone s drinks contain ice,hyata tili yebee yom
+no story is more important,hyoa din se ga tesika
+nothing bothers that gal,hyos oboxe huyt
+all roads lead to rome,hya mepi izpe roma
+all the roads are blocked,hya ha mepi se ebwa
+every man must do his part,hya tob yefe xer ita gon
+both cities have grown,hyaewa domi agsaye
+any color will be fine,hyea voz so fia
+any kind of drink is available,hyeyena til se aysyafwa
+anyone s guess is as good as mine,hyeta ved se ge ifa vyel atas
+whatever room you want you can have,hyea tim et fe et yafe ayser
+these women s names have not been made public,hiytia dyuni voy dodraye
+boys of this age will not be allowed here,hijaga tobweti voy afwo him
+why did she leave so early,duhosav iyt pia huugla jwa
+the man left for no reason,ha tob pia hyosav
+someone else s opinion is equally valid,hyuta texyen se ge fyia
+this book is my favorite,hia dyes se ata gafias
+these words are prohibited,hiia duni se yofwa
+this person s room will be blue,hita tim so yovoza
+that wall needs to be repainted,hua mas efwe egvozilbwer
+such stories scare children,huua dini yufxe toboti
+this guy s house is on fire,hwuta tam magseye
+he sings dances and plays an instrument,it deuze daze ay duzare
+play or get lost,eku ey pilu
+she played but lost,iyt eka oy oka
+the earth goes around the sun,ha meir yuzpe ha maar
+i looked up,at teaxa yab
+will you ever come back,duven et hyej upo zoy
+you will go far in life,et po yib be tej
+go left young man,pu zu jogat
+we were indeed there,yat vay sa hum
+he went outside,it pa oyeb
+she also sings,iyt gay deuze
+they work even nights,yit yexe gey be moji
+the baby is still sleeping,ha tobud gaj tujeye
+we must work together,yat yefe yexer yan
+this may come apart,his vey upo yon
+stay together guys,van yet besu yan
+speak softly,dalu yug
+you speak too fast,et dale gra ig
+he often wins,it glaxag ake
+often he wins,glaxag it ake
+he wins often,it ake glaxag
+do you know the answer,duven et te ha dud
+who stole my book,duhot kobia ata dyes
+before you leave say hi,du hay ja van et pio
+while i am here i will do some work for you,je van at so him at xo gle yex av et
+i will give it to you after you pay,at buo et has jo van et nuso
+we will not start until you get here,yat voy ijo ju van et puo him
+even if you disagree i will support you,gey ven et yontexe at bolo et
+we should act as if we saw nothing,yat yeyfe axler gel ven yat teata hyos
+if we want to get results we must work harder,ven yat fe iber ixuni yat yefe yexer ga jestay
+unless you say otherwise i will be silent,oven et do hyuyen at dolo
+when you arrived the fun began,hoj et pua ha if ija
+whenever you talk i laugh,hyej et dale at hihide
+i do not know where he went,at voy te hom it pa
+you can go wherever you would like,et yafe per hyem et fu
+everywhere i go you are there,hyam at pe et se hum
+do you know why he did it,duven et te hosav it xa his
+do as you would want others to act toward you,xu hoyen et fu van hyuti axlu ub et
+work as slowly as you need to,yexu hogla ugay et efe
+talk however much you need to,dalu hyegla et efo
+i will drink as much as i want,at telio hoglas at fe
+french,ferad
+france,feram
+i study french,at tixe ferad
+the united states,usom
+american,usoma
+an american,usomat
+americans,usomati
+germany,deum
+german,deuma
+a german person,deumat
+german people,deumati
+mirad,mirad
+i both read and write mirad,at hyaewa dyede ay dre mirad
+you can either stay or leave,et yafe hyeawa beser ey pier
+we neither smoke nor drink,yat hyoawa move oey tile
+i will compete and i will win,at oveko ay at ako
+be still or i will spank you,bosu ey at tuyapyexo et
+he tried but he lost,it yeka oy it oka
+i shall not drink nor shall i eat,at voy tilo oey at telo
+the sun has risen so you must get up out of bed,ha maar yapaye avhus et yefe sumpier
+thank you,hway
+you are welcome,hwey
+sorry,hwoy
+ok i am sorry,fi hwoy
+thanks you were very kind,hway et sa gla fitipa
+i would like to congratulate you,at fu hwaydwa et
+you need to apologize to me,et efe hwoyder at
+please come in,hwey yepu
+please,diwe
+here is my calling card,hiy ata dyundraf
+there is what i expected,huy hos at yaka
+good for you,hyay et
+bravo you deserve this,hyay et utnaze his
+what a beautiful morning,hyey via imaj
+i did not know you were coming,at ta voy van et upo
+woe is me,hyoy at
+pity better luck next time,hyoy ga fia fikyen jonay
+a good thing,fis
+good things,fisi
+a bad thing,fus
+bad things,fusi
+a good person,fiat
+good people,fiati
+a bad person,fuat
+bad people,fuati
+goodness,fian
+badness,fuan
+beauty,vian
+ugliness,vuan
+a beautiful thing,vias
+beautiful things,viasi
+an ugly thing,vuas
+ugly things,vuasi
+a beautiful person,viat
+beautiful people,viati
+an ugly person,vuat
+ugly people,vuati
+youth,jogan
+a youth,jogat
+youths,jogati
+something new,jogas
+new things,jogasi
+justice,yevan
+a fair person,yevat
+fair people,yevati
+a fair thing,yevas
+fair things,yevasi
+unknown,otwa
+unhappy,oiva
+unfriendly,odata
+unloved,oifwa
+unwanted,lofwa
+he walks fast,it tyoyape ig
+good well,fia fiay
+true truly,vyaa vyaay
+easy easily,gyua gyuay
+quick quickly,iga igay
+personal personally,auta autay
+english,mirad
+the house is big,ha tam se aga
+the house is small,ha tam se oga
+the house is beautiful,ha tam se via
+the house is ugly,ha tam se vua
+the houses are big,ha tami se aga
+the houses are small,ha tami se oga
+the houses are beautiful,ha tami se via
+the houses are ugly,ha tami se vua
+this house is big,hia tam se aga
+this house is small,hia tam se oga
+this house is beautiful,hia tam se via
+that house is big,hua tam se aga
+that house is small,hua tam se oga
+that house is beautiful,hua tam se via
+my house is big,ata tam se aga
+my house is small,ata tam se oga
+my house is beautiful,ata tam se via
+your house is big,eta tam se aga
+your house is small,eta tam se oga
+your house is beautiful,eta tam se via
+our house is big,yata tam se aga
+our house is small,yata tam se oga
+our house is beautiful,yata tam se via
+their house is big,yita tam se aga
+their house is small,yita tam se oga
+their house is beautiful,yita tam se via
+the desk is clean,ha dresem se vyia
+the desk is dirty,ha dresem se vyua
+this desk is clean,hia dresem se vyia
+this desk is dirty,hia dresem se vyua
+my desk is clean,ata dresem se vyia
+my desk is dirty,ata dresem se vyua
+your desk is clean,eta dresem se vyia
+your desk is dirty,eta dresem se vyua
+the teacher is good,ha tuxut se fia
+the teacher is bad,ha tuxut se fua
+the teachers are good,ha tuxuti se fia
+the teachers are bad,ha tuxuti se fua
+the student is good,ha tixut se fia
+the student is bad,ha tixut se fua
+the students are good,ha tixuti se fia
+the students are bad,ha tixuti se fua
+that is a good student,hus se fia tixut
+that is a bad student,hus se fua tixut
+my life is happy,ata tej se iva
+my life is sad,ata tej se uva
+your life is happy,eta tej se iva
+your life is sad,eta tej se uva
+our life is happy,yata tej se iva
+our life is sad,yata tej se uva
+my name is beautiful,ata dyun se via
+my name is ugly,ata dyun se vua
+his or her name is beautiful,ita dyun se via
+his or her name is ugly,ita dyun se vua
+our name is beautiful,yata dyun se via
+our name is ugly,yata dyun se vua
+their name is beautiful,yita dyun se via
+their name is ugly,yita dyun se vua
+i am good,at se fia
+you are good,et se fia
+he or she is good,it se fia
+we are good,yat se fia
+you all are good,yet se fia
+they are good,yit se fia
+i am bad,at se fua
+you are bad,et se fua
+he or she is bad,it se fua
+we are bad,yat se fua
+you all are bad,yet se fua
+they are bad,yit se fua
+i was happy,at sa iva
+you were happy,et sa iva
+he or she was happy,it sa iva
+we were happy,yat sa iva
+you all were happy,yet sa iva
+they were happy,yit sa iva
+i will be happy,at so iva
+you will be happy,et so iva
+he or she will be happy,it so iva
+we will be happy,yat so iva
+you all will be happy,yet so iva
+they will be happy,yit so iva
+i would be happy,at su iva
+you would be happy,et su iva
+he or she would be happy,it su iva
+we would be happy,yat su iva
+you all would be happy,yet su iva
+they would be happy,yit su iva
+i do it well,at xe has fi
+you do it well,et xe has fi
+he or she does it well,it xe has fi
+we do it well,yat xe has fi
+you all do it well,yet xe has fi
+they do it well,yit xe has fi
+you did it well,et xa has fi
+he or she did it well,it xa has fi
+you all did it well,yet xa has fi
+i will do it well,at xo has fi
+you will do it well,et xo has fi
+he or she will do it well,it xo has fi
+we will do it well,yat xo has fi
+you all will do it well,yet xo has fi
+they will do it well,yit xo has fi
+do you come,duven et upe
+do they come,duven yit upe
+did you come,duven et upa
+will you come,duven et upo
+do you go,duven et pe
+do they go,duven yit pe
+did you go,duven et pa
+will you go,duven et po
+do you work at home,duven et yexe be tam
+do they work at home,duven yit yexe be tam
+did you work at home,duven et yexa be tam
+will you work at home,duven et yexo be tam
+is the house big,duven ha tam se aga
+is the house small,duven ha tam se oga
+is this house beautiful,duven hia tam se via
+is that house ugly,duven hua tam se vua
+is the teacher good,duven ha tuxut se fia
+is the teacher bad,duven ha tuxut se fua
+is this student good,duven hia tixut se fia
+is that student bad,duven hua tixut se fua
+i do not come,at voy upe
+you do not come,et voy upe
+he or she does not come,it voy upe
+we do not come,yat voy upe
+you all do not come,yet voy upe
+they do not come,yit voy upe
+i do not go,at voy pe
+you do not go,et voy pe
+he or she does not go,it voy pe
+we do not go,yat voy pe
+you all do not go,yet voy pe
+they do not go,yit voy pe
+i do not work at home,at voy yexe be tam
+you do not work at home,et voy yexe be tam
+he or she does not work at home,it voy yexe be tam
+we do not work at home,yat voy yexe be tam
+you all do not work at home,yet voy yexe be tam
+they do not work at home,yit voy yexe be tam
+let us go,van yat pu
+be good,su fia
+before this you lived in the suburbs but now you live downtown,ja his et tambesa ha yuzdom oy et tambese zedom hij
+before this we lived in the suburbs but now we live downtown,ja his yat tambesa ha yuzdom oy yat tambese zedom hij
+before this they lived in the suburbs but now they live downtown,ja his yit tambesa ha yuzdom oy yit tambese zedom hij
+i live downtown now and i work at a grocery store near here,at tambese zedom hij ay at yexe be tolnam yub bi him
+you live downtown now and you work at a grocery store near here,et tambese zedom hij ay et yexe be tolnam yub bi him
+we live downtown now and we work at a grocery store near here,yat tambese zedom hij ay yat yexe be tolnam yub bi him
+they live downtown now and they work at a grocery store near here,yit tambese zedom hij ay yit yexe be tolnam yub bi him
+i work at a grocery store near here and i will be there until the end of the season,at yexe be tolnam yub bi him ay at so hum ju ha uj bi ha jeb
+you work at a grocery store near here and you will be there until the end of the season,et yexe be tolnam yub bi him ay et so hum ju ha uj bi ha jeb
+we work at a grocery store near here and we will be there until the end of the season,yat yexe be tolnam yub bi him ay yat so hum ju ha uj bi ha jeb
+i worked at home but now i work at a grocery store near here,at yexa be tam oy at yexe be tolnam yub bi him
+you worked at home but now you work at a grocery store near here,et yexa be tam oy et yexe be tolnam yub bi him
+we worked at home but now we work at a grocery store near here,yat yexa be tam oy yat yexe be tolnam yub bi him
+they worked at home but now they work at a grocery store near here,yit yexa be tam oy yit yexe be tolnam yub bi him
+i will work at home and i will be happy,at yexo be tam ay at so iva
+you will work at home and you will be happy,et yexo be tam ay et so iva
+he or she will work at home and he or she will be happy,it yexo be tam ay it so iva
+we will work at home and we will be happy,yat yexo be tam ay yat so iva
+you all will work at home and you all will be happy,yet yexo be tam ay yet so iva
+they will work at home and they will be happy,yit yexo be tam ay yit so iva
+i worked at home and i did it well,at yexa be tam ay at xa has fi
+you worked at home and you did it well,et yexa be tam ay et xa has fi
+he or she worked at home and he or she did it well,it yexa be tam ay it xa has fi
+we worked at home and we did it well,yat yexa be tam ay yat xa has fi
+you all worked at home and you all did it well,yet yexa be tam ay yet xa has fi
+they worked at home and they did it well,yit yexa be tam ay yit xa has fi
+i am going home but i will work at home,at peye tam oy at yexo be tam
+you are going home but you will work at home,et peye tam oy et yexo be tam
+he or she is going home but he or she will work at home,it peye tam oy it yexo be tam
+we are going home but we will work at home,yat peye tam oy yat yexo be tam
+you all are going home but you all will work at home,yet peye tam oy yet yexo be tam
+they are going home but they will work at home,yit peye tam oy yit yexo be tam
+i was going home but i came here,at peya tam oy at upa him
+you were going home but you came here,et peya tam oy et upa him
+he or she was going home but he or she came here,it peya tam oy it upa him
+we were going home but we came here,yat peya tam oy yat upa him
+you all were going home but you all came here,yet peya tam oy yet upa him
+they were going home but they came here,yit peya tam oy yit upa him
+i will be going home and you will be there,at peyo tam ay et so hum
+you will be going home and i will be there,et peyo tam ay at so hum
+we will be going home and they will be there,yat peyo tam ay yit so hum
+they will be going home and we will be there,yit peyo tam ay yat so hum
+i would be going home but i would be happy here,at peyu tam oy at su iva him
+you would be going home but you would be happy here,et peyu tam oy et su iva him
+we would be going home but we would be happy here,yat peyu tam oy yat su iva him
+they would be going home but they would be happy here,yit peyu tam oy yit su iva him
+i know that you will come and i will be happy,at te van et upo ay at so iva
+i know that he or she will come and i will be happy,at te van it upo ay at so iva
+i know that they will come and i will be happy,at te van yit upo ay at so iva
+we know that you will come and we will be happy,yat te van et upo ay yat so iva
+we know that he or she will come and we will be happy,yat te van it upo ay yat so iva
+we know that they will come and we will be happy,yat te van yit upo ay yat so iva
+they know that you will come and they will be happy,yit te van et upo ay yit so iva
+they know that we will come and they will be happy,yit te van yat upo ay yit so iva
+i knew that you would come but i did not know whether they would come,at ta van et upo oy at voy ta ven yit upo
+i knew that he or she would come but i did not know whether you would come,at ta van it upo oy at voy ta ven et upo
+i knew that they would come but i did not know whether he or she would come,at ta van yit upo oy at voy ta ven it upo
+we knew that you would come but we did not know whether they would come,yat ta van et upo oy yat voy ta ven yit upo
+we knew that they would come but we did not know whether you would come,yat ta van yit upo oy yat voy ta ven et upo
+they knew that you would come but they did not know whether we would come,yit ta van et upo oy yit voy ta ven yat upo
+i do not know where he or she went but i know where you live,at voy te hom it pa oy at te hom et tambese
+i do not know where they went but i know where you live,at voy te hom yit pa oy at te hom et tambese
+we do not know where he or she went but we know where you live,yat voy te hom it pa oy yat te hom et tambese
+we do not know where they went but we know where you live,yat voy te hom yit pa oy yat te hom et tambese
+they do not know where he or she went but they know where we live,yit voy te hom it pa oy yit te hom yat tambese
+they do not know where we went but they know where we live,yit voy te hom yat pa oy yit te hom yat tambese
+do you know where he or she went and where they live,duven et te hom it pa ay hom yit tambese
+do you know where they went and where we live,duven et te hom yit pa ay hom yat tambese
+do we know where you went and where they live,duven yat te hom et pa ay hom yit tambese
+do they know where we went and where you live,duven yit te hom yat pa ay hom et tambese
+do you live in the neighborhood and work near here,duven et tambese ha yubem ay yexe yub bi him
+do we live in the neighborhood and work near here,duven yat tambese ha yubem ay yexe yub bi him
+do they live in the neighborhood and work near here,duven yit tambese ha yubem ay yexe yub bi him
+do you work at a grocery store near here and live downtown now,duven et yexe be tolnam yub bi him ay tambese zedom hij
+do we work at a grocery store near here and live downtown now,duven yat yexe be tolnam yub bi him ay tambese zedom hij
+do they work at a grocery store near here and live downtown now,duven yit yexe be tolnam yub bi him ay tambese zedom hij
+while i am here i will do some work for you,je van at so him at xo gle yex av et
+while you are here you will do some work for me,je van et so him et xo gle yex av at
+while we are here we will do some work for you,je van yat so him yat xo gle yex av et
+while they are here they will do some work for us,je van yit so him yit xo gle yex av yat
+while i am here i will work at home,je van at so him at yexo be tam
+while you are here you will work at home,je van et so him et yexo be tam
+while we are here we will work at home,je van yat so him yat yexo be tam
+while they are here they will work at home,je van yit so him yit yexo be tam
+you will give it to me after i pay,et buo at has jo van at nuso
+we will give it to you after you pay,yat buo et has jo van et nuso
+they will give it to us after we pay,yit buo yat has jo van yat nuso
+i will give it to them after they pay,at buo yit has jo van yit nuso
+you will give it to them after they pay,et buo yit has jo van yit nuso
+we will not start until they get here,yat voy ijo ju van yit puo him
+they will not start until you get here,yit voy ijo ju van et puo him
+they will not start until we get here,yit voy ijo ju van yat puo him
+i will not start until you get here,at voy ijo ju van et puo him
+you will not start until i get here,et voy ijo ju van at puo him
+if i want to get results i must work harder,ven at fe iber ixuni at yefe yexer ga jestay
+if you want to get results you must work harder,ven et fe iber ixuni et yefe yexer ga jestay
+if we want to get results we must work harder,ven yat fe iber ixuni yat yefe yexer ga jestay
+if they want to get results they must work harder,ven yit fe iber ixuni yit yefe yexer ga jestay
+if i want to go home i must work harder,ven at fe per tam at yefe yexer ga jestay
+if you want to go home you must work harder,ven et fe per tam et yefe yexer ga jestay
+if we want to go home we must work harder,ven yat fe per tam yat yefe yexer ga jestay
+if they want to go home they must work harder,ven yit fe per tam yit yefe yexer ga jestay
+even if you disagree i will support you,gey ven et yontexe at bolo et
+even if i disagree you will support me,gey ven at yontexe et bolo at
+even if we disagree they will support us,gey ven yat yontexe yit bolo yat
+even if they disagree we will support them,gey ven yit yontexe yat bolo yit
+unless you say otherwise i will be silent,oven et do hyuyen at dolo
+unless i say otherwise you will be silent,oven at do hyuyen et dolo
+unless we say otherwise they will be silent,oven yat do hyuyen yit dolo
+unless they say otherwise we will be silent,oven yit do hyuyen yat dolo
+when you arrived the fun began,hoj et pua ha if ija
+when i arrived the fun began,hoj at pua ha if ija
+when we arrived the fun began,hoj yat pua ha if ija
+when they arrived the fun began,hoj yit pua ha if ija
+whenever you talk i laugh,hyej et dale at hihide
+whenever i talk you laugh,hyej at dale et hihide
+whenever we talk they laugh,hyej yat dale yit hihide
+whenever they talk we laugh,hyej yit dale yat hihide
+before you leave say hi,du hay ja van et pio
+before i leave say hi,du hay ja van at pio
+before we leave say hi,du hay ja van yat pio
+before they leave say hi,du hay ja van yit pio
+i am not your father but i know your father,at voy se eta twed oy at tre eta twed
+you are not my father but you know my father,et voy se ata twed oy et tre ata twed
+he is not your father but he knows your father,wit voy se eta twed oy wit tre eta twed
+she is not your mother but she knows your mother,iyt voy se eta teyd oy iyt tre eta teyd
+we are not your parents but we know your parents,yat voy se eta tedi oy yat tre eta tedi
+they are not our parents but they know our parents,yit voy se yata tedi oy yit tre yata tedi
+this teacher is very good but that teacher is not very good,hia tuxut se gla fia oy hua tuxut se glo fia
+this teacher is too good but that teacher is good enough,hia tuxut se gra fia oy hua tuxut se gre fia
+this teacher is good enough but that teacher is not good enough,hia tuxut se gre fia oy hua tuxut se gro fia
+this teacher is the best and that teacher is the least good,hia tuxut se ha gwa fia ay hua tuxut se ha gwo fia
+this teacher is possibly better than that teacher but that teacher is very good,hia tuxut se vey ga fia vyel hua tuxut oy hua tuxut se gla fia
+my house is bigger than yours but this house is not as big as mine,ata tam se ga aga vyel etas oy hia tam voy se ge aga vyel atas
+our house is bigger than yours but this house is not as big as ours,yata tam se ga aga vyel etas oy hia tam voy se ge aga vyel yatas
+this house is bigger than yours but that house is small,hia tam se ga aga vyel etas oy hua tam se oga
+this house is big and beautiful but that house is small and ugly,hia tam se aga ay via oy hua tam se oga ay vua
+this desk is small but good and that desk is big but bad,hia dresem se oga oy fia ay hua dresem se aga oy fua
+the desk is clean and small but the house is dirty and big,ha dresem se vyia ay oga oy ha tam se vyua ay aga
+the teacher is good and the student is bad,ha tuxut se fia ay ha tixut se fua
+the teacher is bad and the student is good,ha tuxut se fua ay ha tixut se fia
+my teacher is good but your teacher is bad,ata tuxut se fia oy eta tuxut se fua
+your teacher is good but my teacher is bad,eta tuxut se fia oy ata tuxut se fua
+our teacher is good but their teacher is bad,yata tuxut se fia oy yita tuxut se fua
+their teacher is good but our teacher is bad,yita tuxut se fia oy yata tuxut se fua
+this student is good and this teacher is good,hia tixut se fia ay hia tuxut se fia
+that student is bad and that teacher is bad,hua tixut se fua ay hua tuxut se fua
+this student is good but that student is bad,hia tixut se fia oy hua tixut se fua
+this teacher is good but that student is bad,hia tuxut se fia oy hua tixut se fua
+my name is bill and your name is john,ata dyun se bill ay eta dyun se john
+your name is john and my name is bill,eta dyun se john ay ata dyun se bill
+my name is bill but your name is john,ata dyun se bill oy eta dyun se john
+your name is beautiful but my name is ugly,eta dyun se via oy ata dyun se vua
+my life is good but your life is bad,ata tej se fia oy eta tej se fua
+your life is good but my life is bad,eta tej se fia oy ata tej se fua
+our life is good but their life is bad,yata tej se fia oy yita tej se fua
+their life is good but our life is bad,yita tej se fia oy yata tej se fua
+this building is a store but this building was a store before,hia tom se nam oy hia tom sa nam ja his
+this building was a store but this building will be a store,hia tom sa nam oy hia tom so nam
+this building will be a store and this building would be a store,hia tom so nam ay hia tom su nam
+the student walks to school every day but today the student is walking home,ha tixut tyoyape tistam hyajub oy hijub ha tixut tyoyapeye tam
+the students walk to school every day but today the students are walking home,ha tixuti tyoyape tistam hyajub oy hijub ha tixuti tyoyapeye tam
+the student is walking to school today and the teacher is going home,ha tixut tyoyapeye tistam hijub ay ha tuxut peye tam
+do you walk to school every day,duven et tyoyape tistam hyajub
+do you all walk to school every day,duven yet tyoyape tistam hyajub
+do they walk to school every day,duven yit tyoyape tistam hyajub
+do you walk to school today,duven et tyoyapeye tistam hijub
+do you all walk to school today,duven yet tyoyapeye tistam hijub
+do they walk to school today,duven yit tyoyapeye tistam hijub
+i did not see his book but i know his father,at voy teata wita dyes oy at tre wita twed
+i did not see her book but i know her father,at voy teata iyta dyes oy at tre iyta twed
+we did not see his or her book but we know his or her father,yat voy teata ita dyes oy yat tre ita twed
+they did not see our book but they know our father,yit voy teata yata dyes oy yit tre yata twed
+i myself do not smoke but people often smoke,at aut voy movie oy yot glaxag movie
+you yourself do not smoke but people often smoke,et eut voy movie oy yot glaxag movie
+we ourselves do not smoke but people often smoke,yat yaut voy movie oy yot glaxag movie
+they themselves do not smoke but people often smoke,yit yuit voy movie oy yot glaxag movie
+we must protect our own things and we must work together,yat yefe ovmasber yatasi ay yat yefe yexer yan
+you all must protect your own things and you all must work together,yet yefe ovmasber yetasi ay yet yefe yexer yan
+they must protect their own things and they must work together,yit yefe ovmasber yitasi ay yit yefe yexer yan
+every man must do his part and every person must love oneself,hya tob yefe xer ita gon ay ot yefe ifer out
+people often do not love themselves but one must love oneself,yot glaxag voy ife yout oy ot yefe ifer out
+you people hate yourselves but we do not hate you,yet ufe yeut oy yat voy ufe yet
+we hate you but you people do not hate yourselves,yat ufe yet oy yet voy ufe yeut
+she sings beautifully and she also dances,iyt deuze vi ay iyt gay daze
+he sings beautifully and he also plays an instrument,wit deuze vi ay wit gay duzare
+they sing beautifully and they also dance,yit deuze vi ay yit gay daze
+he sings dances and plays an instrument but she also sings,wit deuze daze ay duzare oy iyt gay deuze
+she played but lost and he tried but lost,iyt eka oy oka ay wit yeka oy oka
+he often wins but she won a lot,wit glaxag ake oy iyt aka glas
+often he wins but today she won a lot,glaxag wit ake oy hijub iyt aka glas
+do you know the answer and do you know why he did it,duven et te ha dud ay duven et te hosav wit xa his
+do you know why he did it and do you know where he went,duven et te hosav wit xa his ay duven et te hom wit pa
+do you know the answer but not know where he went,duven et te ha dud oy voy te hom wit pa
+who stole my book and who won,duhot kobia ata dyes ay duhot aka
+where has he gone and where has she gone,duhom wit paye ay duhom iyt paye
+how much did she win and who won,duhoglas iyt aka ay duhot aka
+are you married and are the stars bright,duven et se tadxwa ay duven ha mari se manika
+are you married but not happy,duven et se tadxwa oy voy se iva
+are the stars bright but the night cold,duven ha mari se manika oy ha moj se oma
+you live in the neighborhood right and you work near here,et tambese ha yubem vao ay et yexe yub bi him
+yes i indeed agree and maybe i may go,va at vay yantexe ay ve at vey po
+no i would not be happy but maybe i may go,vo at voy su iva oy ve at vey po
+maybe i may go but i do not know,ve at vey po oy at voy te
+no i do not know but i will ask,vo at voy te oy at doho
+go to the store and buy me a book,pe ha nam ay nusbiu at dyes
+go to the store and buy a book for me,pe ha nam ay nusbiu dyes av at
+come play with us and stay together,upu eker bay yat ay besu yan
+come in please and give me that box,hwey yepu ay buu at hua nyem
+take this telegram and give me that box,biu hia yibdren ay buu at hua nyem
+tell him to be quiet and tell her that,du it doler ay du iyt hus
+play or get lost but do not laugh,eku ey pilu oy von hihidu
+do not laugh and do not drink this,von hihidu ay von tilu his
+do not be late and do not laugh,von et jwosu ay von hihidu
+work hard and speak softly,yexu jestay ay dalu yug
+speak softly but do not speak too fast,dalu yug oy von dalu gra ig
+come to the grocery store sometime and work hard,upu ha tolnam hej ay yexu jestay
+may you live long and be well,van et yagteju ay su baka
+let us pray and let us go,van yat fyadilu ay van yat pu
+let us go home and work together,van yat pu tam ay van yat yexu yan
+this is a good thing and that is mine,his se fis ay huas se atas
+this is yours but that is mine,hias se etas oy huas se atas
+those are yours and these are mine,huasi se etasi ay hiasi se atasi
+is that house yours or is this house mine,duven hua tam se etas ey duven hia tam se atas
+whose book is this and whose are these books,duhota dyes se his ay duhotasi se hia dyesi
+this book is my favorite but that book is yours,hia dyes se ata gafias oy hua dyes se etas
+these words are prohibited but this book is my favorite,hiia duni se yofwa oy hia dyes se ata gafias
+all roads lead to rome but all the roads are blocked,hya mepi izpe roma oy hya ha mepi se ebwa
+both cities have grown and any color will be fine,hyaewa domi agsaye ay hyea voz so fia
+nothing bothers that gal but no story is more important,hyos oboxe huyt oy hyoa din se ga tesika
+whatever room you want you can have but this room will be blue,hyea tim et fe et yafe ayser oy hia tim so yovoza
+the man left for no reason but someone else won,ha tob pia hyosav oy hyut aka
+why did she leave so early and where has she gone,duhosav iyt pia huugla jwa ay duhom iyt paye
+the earth goes around the sun and the stars are bright,ha meir yuzpe ha maar ay ha mari se manika
+the sun has risen so you must get up out of bed,ha maar yapaye avhus et yefe sumpier
+it is hot here but it will rain,se ama him oy mamilo
+it may rain but everything is fine,vey mamilo oy hyas se fia
+it is sad that she left but it is good to win,se uva van iyt pia oy se fia aker
+hi my name is Sam I am from Australia i study Mirad everything is fine,hay ata dyun se Sam at byise Ausom at tixe Mirad hyas se fia
+hello I think that you are a beautiful woman,hay at texe van et se via toyb
+hello I think that you are a very beautiful woman,hay at texe van et se gla via toyb
+hello I think that you are a beautiful man,hay at texe van et se via tob
+hello I think that you are a very beautiful man,hay at texe van et se gla via tob
+you are an ugly woman,et se vua toyb
+you are an ugly man,et se vua tob

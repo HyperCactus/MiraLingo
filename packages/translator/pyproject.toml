@@ -30,14 +30,11 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
 
-[project.optional-dependencies.rag]
+[project.optional-dependencies]
 rag = [
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
-    "peft>=0.19.0",
 ]
-
-[project.optional-dependencies.eval]
 eval = [
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
@@ -45,8 +42,6 @@ eval = [
     "wordfreq>=2.10.0",
     "tiktoken>=0.5.0",
 ]
-
-[project.optional-dependencies.develop]
 develop = [
     "pytest",
     "pytest-cov",
