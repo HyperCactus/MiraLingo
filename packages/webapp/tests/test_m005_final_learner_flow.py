@@ -139,18 +139,17 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         json={"username": LEARNER_USERNAME, "password": LEARNER_PASSWORD},
     )
     assert registration.status_code == 201
-    assert registration.json() == {
-        "authenticated": True,
-        "user": {"username": LEARNER_USERNAME, "role": "learner"},
-    }
+    assert registration.json()["authenticated"] is True
+    assert registration.json()["user"]["id"] == LEARNER_USERNAME
+    assert registration.json()["user"]["email"] == f"{LEARNER_USERNAME}@legacy.local"
+    assert registration.json()["user"]["role"] == "user"
     _assert_no_secret_or_stacktrace(registration.json())
 
     current_user = client.get("/auth/current-user")
     assert current_user.status_code == 200
-    assert current_user.json() == {
-        "authenticated": True,
-        "user": {"username": LEARNER_USERNAME, "role": "learner"},
-    }
+    assert current_user.json()["authenticated"] is True
+    assert current_user.json()["user"]["email"] == f"{LEARNER_USERNAME}@legacy.local"
+    assert current_user.json()["user"]["role"] == "user"
 
     default_settings = client.get("/settings")
     assert default_settings.status_code == 200
@@ -368,7 +367,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         "ok": False,
         "error": "invalid_confirmation",
         "phase": "account_delete",
-        "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
+        "detail": "Account deletion requires the current email plus the exact confirmation phrase '<email> DELETE'.",
     }
     _assert_no_secret_or_stacktrace(bad_deletion.json())
     assert recreated.get("/auth/current-user").status_code == 200
@@ -395,13 +394,13 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
     deleted = recreated.request(
         "DELETE",
         "/auth/account",
-        json={"username": LEARNER_USERNAME, "confirmation": f"{LEARNER_USERNAME} DELETE"},
+        json={"email": f"{LEARNER_USERNAME}@legacy.local", "confirmation": f"{LEARNER_USERNAME}@legacy.local DELETE"},
     )
     assert deleted.status_code == 200
     assert deleted.json() == {
         "ok": True,
         "phase": "account_delete",
-        "deleted_username": LEARNER_USERNAME,
+        "deleted_email": f"{LEARNER_USERNAME}@legacy.local",
         "authenticated": False,
     }
 
@@ -422,7 +421,7 @@ def test_m005_final_learner_flow_covers_auth_settings_modes_answers_audio_progre
         "authenticated": False,
         "error": "invalid_credentials",
         "phase": "auth_login",
-        "detail": "Invalid username or password.",
+        "detail": "Invalid email or password.",
     }
     _assert_no_secret_or_stacktrace(relogin_after_delete.json())
 

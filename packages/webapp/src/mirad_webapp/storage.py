@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from secrets import compare_digest, token_bytes
+from secrets import token_bytes, token_urlsafe
 from typing import Any
 
-from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_USERNAME, _hash_password, normalize_username, validate_registration_inputs
+from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_USERNAME, hash_password, normalize_email, normalize_username, token_hash, validate_registration_inputs, verify_password
 from .practice import MAX_EVENTS
 from .practice_engine import ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH
 
@@ -187,90 +187,192 @@ class MiraLingoStorage:
         self._initialize_schema()
 
     def register_account(
-        self, *, username: str, password: str
+        self, *, email: str | None = None, password: str, name: str | None = None, username: str | None = None
     ) -> tuple[AuthUser | None, dict[str, Any] | None, int | None]:
-        """Register a learner account or return the existing public auth error shape."""
-        normalized_username, validation_error, validation_status = validate_registration_inputs(
+        """Register an email/password learner account."""
+        validated, validation_error, validation_status = validate_registration_inputs(
+            email=email,
             username=username,
             password=password,
+            name=name,
         )
-        if normalized_username is None:
+        if validated is None:
             return None, validation_error, validation_status
 
-        salt = token_bytes(16)
+        user_id = normalize_username(username) if username and not email and "@" not in username else _new_user_id()
+        if user_id is None:
+            user_id = _new_user_id()
+        now = _utcnow_iso()
         try:
             with self._connect("auth_register") as connection:
                 connection.execute(
                     """
-                    INSERT INTO users (username, role, salt, password_hash, created_at)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO users (username, id, email, name, role, salt, password_hash, email_verified, disabled, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)
                     """,
                     (
-                        normalized_username,
+                        user_id,
+                        user_id,
+                        validated["email"],
+                        validated["name"],
                         LEARNER_ROLE,
-                        salt,
-                        _hash_password(password=password, salt=salt),
-                        _utcnow_iso(),
+                        token_bytes(16),
+                        hash_password(password),
+                        now,
+                        now,
                     ),
                 )
         except sqlite3.IntegrityError:
-            return None, _username_unavailable_payload(), 409
+            return None, _email_unavailable_payload(), 409
         except sqlite3.Error as exc:
-            raise StorageError(
-                phase="auth_register",
-                detail="Could not register account in storage.",
-            ) from exc
+            raise StorageError(phase="auth_register", detail="Could not register account in storage.") from exc
 
-        return AuthUser(username=normalized_username, role=LEARNER_ROLE), None, None
+        return AuthUser(id=user_id, email=validated["email"], name=validated["name"], role=LEARNER_ROLE), None, None
 
-    def authenticate_account(self, *, username: str, password: str) -> AuthUser | None:
+    def authenticate_account(self, *, email: str | None = None, password: str, username: str | None = None) -> AuthUser | None:
         """Authenticate a durable learner account without exposing secret material."""
-        normalized_username = normalize_username(username)
-        if normalized_username is None:
+        raw_email = email or username or ""
+        if not email and username and "@" not in username:
+            raw_email = f"{str(username).strip().lower()}@legacy.local"
+        normalized_email = normalize_email(raw_email)
+        if normalized_email is None:
             return None
         try:
             with self._connect("auth_login") as connection:
                 row = connection.execute(
-                    "SELECT username, role, salt, password_hash FROM users WHERE username = ?",
-                    (normalized_username,),
+                    """
+                    SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled
+                    FROM users
+                    WHERE email = ?
+                    """,
+                    (normalized_email,),
                 ).fetchone()
         except sqlite3.Error as exc:
             raise StorageError(phase="auth_login", detail="Could not read account from storage.") from exc
 
-        if row is None:
+        if row is None or bool(row["disabled"]):
             return None
-        salt = _bytes_from_row(row["salt"])
-        password_hash = _bytes_from_row(row["password_hash"])
-        if salt is None or password_hash is None:
+        if not verify_password(password, row["password_hash"]):
             return None
-        candidate_hash = _hash_password(password=password, salt=salt)
-        if not compare_digest(candidate_hash, password_hash):
-            return None
-        return AuthUser(username=str(row["username"]), role=str(row["role"] or LEARNER_ROLE))
+        return _auth_user_from_row(row)
 
     def ensure_session_user(self, *, username: str, role: str, phase: str) -> AuthUser:
-        """Ensure a session-authenticated user exists for practice foreign keys.
-
-        Registered learners already have a users row. Local development admin
-        sessions are not registered through learner auth, so this method creates a
-        non-authenticating profile row only when needed for durable practice rows.
-        """
+        """Ensure a session-authenticated user exists for legacy practice foreign keys."""
         normalized_username = _require_username(username, phase=phase)
-        salt = token_bytes(16)
-        password_hash = token_bytes(32)
+        now = _utcnow_iso()
+        email = LOCAL_ADMIN_EMAIL if normalized_username in {"local-admin", LOCAL_ADMIN_USERNAME} else f"{normalized_username}@legacy.local"
+        name = "Local Admin" if normalized_username in {"local-admin", LOCAL_ADMIN_USERNAME} else None
+        normalized_role = str(role or LEARNER_ROLE)
+        if normalized_role == "local_admin":
+            normalized_role = "admin"
+        if normalized_role == "learner":
+            normalized_role = LEARNER_ROLE
+        try:
+            with self._connect(phase) as connection:
+                if normalized_username == LOCAL_ADMIN_USERNAME:
+                    connection.execute("DELETE FROM users WHERE email = ? AND username != ?", (LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_USERNAME))
+                connection.execute(
+                    """
+                    INSERT INTO users (username, id, email, name, role, salt, password_hash, email_verified, disabled, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)
+                    ON CONFLICT(username) DO NOTHING
+                    """,
+                    (normalized_username, normalized_username, email, name, normalized_role, token_bytes(16), token_urlsafe(24), now, now),
+                )
+                if normalized_username == LOCAL_ADMIN_USERNAME:
+                    connection.execute(
+                        "UPDATE users SET email = ?, name = ?, role = ?, email_verified = 1, disabled = 0, updated_at = ? WHERE username = ?",
+                        (LOCAL_ADMIN_EMAIL, "Local Admin", "admin", now, LOCAL_ADMIN_USERNAME),
+                    )
+                row = connection.execute(
+                    "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE username = ?",
+                    (normalized_username,),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not prepare user practice storage.") from exc
+        if row is None:
+            raise StorageError(phase=phase, detail="Could not read prepared user practice storage.")
+        return _auth_user_from_row(row)
+
+    def get_user_by_id(self, *, user_id: str, phase: str = "auth_session") -> AuthUser | None:
+        """Return a safe user object by immutable id."""
+        normalized_id = _require_username(user_id, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                row = connection.execute(
+                    "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE id = ? OR username = ?",
+                    (normalized_id, normalized_id),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not read user from storage.") from exc
+        if row is None or bool(row["disabled"]):
+            return None
+        return _auth_user_from_row(row)
+
+    def create_session(self, *, user_id: str, secret: str, ttl_seconds: int) -> tuple[str, str]:
+        """Create an opaque server-side session and return raw token plus expiry."""
+        raw_token = token_urlsafe(32)
+        session_id = token_urlsafe(24)
+        now = datetime.now(timezone.utc)
+        expires_at = (now + _seconds_delta(ttl_seconds)).isoformat()
+        try:
+            with self._connect("auth_session") as connection:
+                connection.execute(
+                    """
+                    INSERT INTO auth_sessions (id, token_hash, user_id, created_at, expires_at, revoked_at)
+                    VALUES (?, ?, ?, ?, ?, NULL)
+                    """,
+                    (session_id, token_hash(raw_token, secret=secret), user_id, now.isoformat(), expires_at),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_session", detail="Could not create session in storage.") from exc
+        return raw_token, expires_at
+
+    def user_from_session_token(self, *, raw_token: str | None, secret: str) -> AuthUser | None:
+        """Resolve a raw session cookie token to a safe user object."""
+        if not raw_token:
+            return None
+        now = _utcnow_iso()
+        try:
+            with self._connect("auth_session") as connection:
+                row = connection.execute(
+                    """
+                    SELECT u.id, u.username, u.email, u.name, u.role, u.password_hash, u.google_sub, u.email_verified, u.disabled
+                    FROM auth_sessions s
+                    JOIN users u ON u.id = s.user_id OR u.username = s.user_id
+                    WHERE s.token_hash = ? AND s.revoked_at IS NULL AND s.expires_at > ?
+                    """,
+                    (token_hash(raw_token, secret=secret), now),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_session", detail="Could not resolve session from storage.") from exc
+        if row is None or bool(row["disabled"]):
+            return None
+        return _auth_user_from_row(row)
+
+    def revoke_session(self, *, raw_token: str | None, secret: str) -> None:
+        """Revoke one current session token if present."""
+        if not raw_token:
+            return
+        try:
+            with self._connect("auth_logout") as connection:
+                connection.execute(
+                    "UPDATE auth_sessions SET revoked_at = ? WHERE token_hash = ? AND revoked_at IS NULL",
+                    (_utcnow_iso(), token_hash(raw_token, secret=secret)),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_logout", detail="Could not revoke session in storage.") from exc
+
+    def revoke_user_sessions(self, *, user_id: str, phase: str = "auth_session") -> None:
+        """Revoke all sessions for one user."""
         try:
             with self._connect(phase) as connection:
                 connection.execute(
-                    """
-                    INSERT INTO users (username, role, salt, password_hash, created_at)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON CONFLICT(username) DO NOTHING
-                    """,
-                    (normalized_username, str(role or LEARNER_ROLE), salt, password_hash, _utcnow_iso()),
+                    "UPDATE auth_sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
+                    (_utcnow_iso(), user_id),
                 )
         except sqlite3.Error as exc:
-            raise StorageError(phase=phase, detail="Could not prepare user practice storage.") from exc
-        return AuthUser(username=normalized_username, role=str(role or LEARNER_ROLE))
+            raise StorageError(phase=phase, detail="Could not revoke user sessions in storage.") from exc
 
     def record_cards_shown(self, *, username: str, cards: list[dict[str, Any]]) -> list[ShownCardRecord]:
         """Persist a queue response's shown cards in one short transaction."""
@@ -819,10 +921,131 @@ class MiraLingoStorage:
             voice_id=DEFAULT_VOICE_ID,
         )
 
-    def delete_user_account(self, *, username: str) -> bool:
+    def create_password_reset_token(self, *, email: str, secret: str, ttl_seconds: int) -> str | None:
+        """Create a short-lived reset token for an existing active local account."""
+        normalized_email = normalize_email(email)
+        if normalized_email is None:
+            return None
+        raw_token = token_urlsafe(32)
+        now = datetime.now(timezone.utc)
+        expires_at = (now + _seconds_delta(ttl_seconds)).isoformat()
+        try:
+            with self._connect("password_reset_request") as connection:
+                row = connection.execute("SELECT id, username, disabled FROM users WHERE email = ?", (normalized_email,)).fetchone()
+                if row is None or bool(row["disabled"]):
+                    return None
+                connection.execute(
+                    """
+                    INSERT INTO password_reset_tokens (id, token_hash, user_id, created_at, expires_at, used_at)
+                    VALUES (?, ?, ?, ?, ?, NULL)
+                    """,
+                    (token_urlsafe(18), token_hash(raw_token, secret=secret), str(row["id"] or row["username"]), now.isoformat(), expires_at),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="password_reset_request", detail="Could not create password reset token.") from exc
+        return raw_token
+
+    def reset_password_with_token(self, *, raw_token: str, new_password: str, secret: str) -> AuthUser | None:
+        """Consume one reset token and update the user's password hash."""
+        now = _utcnow_iso()
+        try:
+            with self._connect("password_reset_confirm") as connection:
+                row = connection.execute(
+                    """
+                    SELECT t.id AS token_id, t.user_id, u.id, u.username, u.email, u.name, u.role, u.password_hash, u.google_sub, u.email_verified, u.disabled
+                    FROM password_reset_tokens t
+                    JOIN users u ON u.id = t.user_id OR u.username = t.user_id
+                    WHERE t.token_hash = ? AND t.used_at IS NULL AND t.expires_at > ?
+                    """,
+                    (token_hash(raw_token, secret=secret), now),
+                ).fetchone()
+                if row is None or bool(row["disabled"]):
+                    return None
+                user_id = str(row["id"] or row["username"])
+                connection.execute("UPDATE password_reset_tokens SET used_at = ? WHERE id = ?", (now, row["token_id"]))
+                connection.execute("UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ? OR username = ?", (hash_password(new_password), now, user_id, user_id))
+                connection.execute("UPDATE auth_sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL", (now, user_id))
+        except sqlite3.Error as exc:
+            raise StorageError(phase="password_reset_confirm", detail="Could not reset password in storage.") from exc
+        return self.get_user_by_id(user_id=user_id, phase="password_reset_confirm")
+
+    def create_oauth_state(self, *, state: str, secret: str, ttl_seconds: int, next_path: str = "/") -> None:
+        """Persist a single-use OAuth state token hash."""
+        now = datetime.now(timezone.utc)
+        try:
+            with self._connect("auth_google_login") as connection:
+                connection.execute(
+                    "INSERT INTO oauth_states (state_hash, created_at, expires_at, used_at, next_path) VALUES (?, ?, ?, NULL, ?)",
+                    (token_hash(state, secret=secret), now.isoformat(), (now + _seconds_delta(ttl_seconds)).isoformat(), next_path or "/"),
+                )
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_google_login", detail="Could not create OAuth state.") from exc
+
+    def consume_oauth_state(self, *, state: str, secret: str) -> str | None:
+        """Consume a Google OAuth state token and return the intended next path."""
+        now = _utcnow_iso()
+        try:
+            with self._connect("auth_google_callback") as connection:
+                row = connection.execute(
+                    "SELECT state_hash, next_path FROM oauth_states WHERE state_hash = ? AND used_at IS NULL AND expires_at > ?",
+                    (token_hash(state, secret=secret), now),
+                ).fetchone()
+                if row is None:
+                    return None
+                connection.execute("UPDATE oauth_states SET used_at = ? WHERE state_hash = ?", (now, row["state_hash"]))
+                return str(row["next_path"] or "/")
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_google_callback", detail="Could not consume OAuth state.") from exc
+
+    def upsert_google_user(self, *, email: str, google_sub: str, name: str | None, email_verified: bool) -> AuthUser:
+        """Create or link a Google identity to a local user."""
+        normalized_email = normalize_email(email)
+        if normalized_email is None or not google_sub:
+            raise StorageError(phase="auth_google_callback", detail="Google account did not provide a usable email.", error="invalid_google_profile")
+        now = _utcnow_iso()
+        try:
+            with self._connect("auth_google_callback") as connection:
+                row = connection.execute(
+                    "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE google_sub = ?",
+                    (google_sub,),
+                ).fetchone()
+                if row is None:
+                    row = connection.execute(
+                        "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE email = ?",
+                        (normalized_email,),
+                    ).fetchone()
+                    if row is None:
+                        user_id = _new_user_id()
+                        connection.execute(
+                            """
+                            INSERT INTO users (username, id, email, name, role, password_hash, google_sub, email_verified, disabled, created_at, updated_at)
+                            VALUES (?, ?, ?, ?, ?, NULL, ?, ?, 0, ?, ?)
+                            """,
+                            (user_id, user_id, normalized_email, str(name or "").strip() or None, LEARNER_ROLE, google_sub, 1 if email_verified else 0, now, now),
+                        )
+                        row = connection.execute(
+                            "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE id = ?",
+                            (user_id,),
+                        ).fetchone()
+                    elif not row["google_sub"]:
+                        connection.execute(
+                            "UPDATE users SET google_sub = ?, email_verified = CASE WHEN ? THEN 1 ELSE email_verified END, updated_at = ? WHERE username = ?",
+                            (google_sub, 1 if email_verified else 0, now, row["username"]),
+                        )
+                        row = connection.execute(
+                            "SELECT id, username, email, name, role, password_hash, google_sub, email_verified, disabled FROM users WHERE username = ?",
+                            (row["username"],),
+                        ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="auth_google_callback", detail="Could not upsert Google account.") from exc
+        if row is None or bool(row["disabled"]):
+            raise StorageError(phase="auth_google_callback", detail="Google account is disabled.", error="disabled_user")
+        return _auth_user_from_row(row)
+
+    def delete_user_account(self, *, username: str | None = None, user_id: str | None = None) -> bool:
         """Delete a learner account and owned rows via foreign-key cascades."""
-        normalized_username = _require_username(username, phase="account_delete")
-        if normalized_username == LOCAL_ADMIN_USERNAME:
+        normalized_username = _require_username(user_id or username or "", phase="account_delete")
+        if normalized_username in {LOCAL_ADMIN_USERNAME, "local-admin"}:
             raise StorageError(
                 phase="account_delete",
                 detail="The local admin account cannot be deleted.",
@@ -830,9 +1053,13 @@ class MiraLingoStorage:
             )
         try:
             with self._connect("account_delete") as connection:
+                connection.execute(
+                    "UPDATE auth_sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
+                    (_utcnow_iso(), normalized_username),
+                )
                 deleted = connection.execute(
-                    "DELETE FROM users WHERE username = ?",
-                    (normalized_username,),
+                    "DELETE FROM users WHERE username = ? OR id = ?",
+                    (normalized_username, normalized_username),
                 ).rowcount
         except sqlite3.Error as exc:
             raise StorageError(phase="account_delete", detail="Could not delete account.") from exc
@@ -858,10 +1085,17 @@ class MiraLingoStorage:
 
                     CREATE TABLE IF NOT EXISTS users (
                         username TEXT PRIMARY KEY,
-                        role TEXT NOT NULL,
-                        salt BLOB NOT NULL,
-                        password_hash BLOB NOT NULL,
-                        created_at TEXT NOT NULL
+                        id TEXT UNIQUE,
+                        email TEXT UNIQUE,
+                        name TEXT,
+                        role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'test_user', 'user')),
+                        salt BLOB,
+                        password_hash TEXT,
+                        google_sub TEXT UNIQUE,
+                        email_verified INTEGER NOT NULL DEFAULT 0 CHECK(email_verified IN (0, 1)),
+                        disabled INTEGER NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1)),
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS shown_cards (
@@ -932,6 +1166,37 @@ class MiraLingoStorage:
 
                     CREATE INDEX IF NOT EXISTS idx_practice_sessions_user_started ON practice_sessions(username, started_at);
                     CREATE INDEX IF NOT EXISTS idx_practice_lifecycle_lookup ON practice_lifecycle(username, base_card_id, direction);
+
+                    CREATE TABLE IF NOT EXISTS auth_sessions (
+                        id TEXT PRIMARY KEY,
+                        token_hash TEXT NOT NULL UNIQUE,
+                        user_id TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        expires_at TEXT NOT NULL,
+                        revoked_at TEXT,
+                        FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
+                    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                        id TEXT PRIMARY KEY,
+                        token_hash TEXT NOT NULL UNIQUE,
+                        user_id TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        expires_at TEXT NOT NULL,
+                        used_at TEXT,
+                        FOREIGN KEY(user_id) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
+                    CREATE TABLE IF NOT EXISTS oauth_states (
+                        state_hash TEXT PRIMARY KEY,
+                        created_at TEXT NOT NULL,
+                        expires_at TEXT NOT NULL,
+                        used_at TEXT,
+                        next_path TEXT NOT NULL DEFAULT '/'
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_auth_sessions_hash ON auth_sessions(token_hash);
+                    CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions(user_id);
                     """
                 )
                 _ensure_column(connection, "shown_cards", "prompt_language", "TEXT NOT NULL DEFAULT ''")
@@ -940,6 +1205,15 @@ class MiraLingoStorage:
                 _ensure_column(connection, "user_settings", "sfx_enabled", "INTEGER NOT NULL DEFAULT 1 CHECK(sfx_enabled IN (0, 1))")
                 _ensure_column(connection, "user_settings", "sfx_mode", "TEXT NOT NULL DEFAULT 'on_answer' CHECK(sfx_mode IN ('all', 'on_answer', 'ui_only', 'off'))")
                 _ensure_column(connection, "user_settings", "voice_id", "TEXT NOT NULL DEFAULT 'de6'")
+                _ensure_column(connection, "users", "id", "TEXT")
+                _ensure_column(connection, "users", "email", "TEXT")
+                _ensure_column(connection, "users", "name", "TEXT")
+                _ensure_column(connection, "users", "google_sub", "TEXT")
+                _ensure_column(connection, "users", "email_verified", "INTEGER NOT NULL DEFAULT 0 CHECK(email_verified IN (0, 1))")
+                _ensure_column(connection, "users", "disabled", "INTEGER NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1))")
+                _ensure_column(connection, "users", "updated_at", "TEXT")
+                _ensure_users_password_columns_nullable(connection)
+                _ensure_users_auth_columns(connection)
                 _ensure_user_settings_sfx_mode_accepts_ui_only(connection)
         except sqlite3.Error as exc:
             raise StorageError(phase="storage_init", detail="Could not initialize SQLite storage.") from exc
@@ -954,6 +1228,88 @@ class MiraLingoStorage:
             return connection
         except sqlite3.Error as exc:
             raise StorageError(phase=phase, detail="Could not open SQLite storage.") from exc
+
+
+def _new_user_id() -> str:
+    return f"usr_{token_urlsafe(18)}"
+
+
+def _seconds_delta(seconds: int) -> timedelta:
+    return timedelta(seconds=max(1, int(seconds)))
+
+
+def _auth_user_from_row(row: sqlite3.Row) -> AuthUser:
+    user_id = str(row["id"] or row["username"])
+    email = str(row["email"] or f"{user_id}@legacy.local")
+    role = str(row["role"] or LEARNER_ROLE)
+    if role == "learner":
+        role = LEARNER_ROLE
+    return AuthUser(
+        id=user_id,
+        email=email,
+        name=str(row["name"]) if row["name"] is not None else None,
+        role=role,
+        email_verified=bool(row["email_verified"]),
+        disabled=bool(row["disabled"]),
+        google_sub=str(row["google_sub"]) if row["google_sub"] is not None else None,
+    )
+
+
+def _ensure_users_auth_columns(connection: sqlite3.Connection) -> None:
+    now = _utcnow_iso()
+    rows = connection.execute("SELECT username, id, email, role, updated_at FROM users").fetchall()
+    for row in rows:
+        username = str(row["username"])
+        user_id = str(row["id"] or username)
+        email = row["email"]
+        role = str(row["role"] or LEARNER_ROLE)
+        if role == "learner":
+            role = LEARNER_ROLE
+        if email is None:
+            email = username if normalize_email(username) else f"{username}@legacy.local"
+        connection.execute(
+            "UPDATE users SET id = ?, email = ?, role = ?, updated_at = COALESCE(updated_at, ?) WHERE username = ?",
+            (user_id, str(email).lower(), role, now, username),
+        )
+    connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_id ON users(id)")
+    connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+    connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub)")
+
+def _ensure_users_password_columns_nullable(connection: sqlite3.Connection) -> None:
+    """Relax legacy NOT NULL password columns so OAuth-only users can exist."""
+    columns = connection.execute("PRAGMA table_info(users)").fetchall()
+    not_null_by_name = {str(row[1]): bool(row[3]) for row in columns}
+    if not not_null_by_name.get("salt", False) and not not_null_by_name.get("password_hash", False):
+        return
+
+    connection.execute("PRAGMA foreign_keys = OFF")
+    try:
+        connection.executescript(
+            """
+            CREATE TABLE users_new (
+                username TEXT PRIMARY KEY,
+                id TEXT UNIQUE,
+                email TEXT UNIQUE,
+                name TEXT,
+                role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'test_user', 'user')),
+                salt BLOB,
+                password_hash TEXT,
+                google_sub TEXT UNIQUE,
+                email_verified INTEGER NOT NULL DEFAULT 0 CHECK(email_verified IN (0, 1)),
+                disabled INTEGER NOT NULL DEFAULT 0 CHECK(disabled IN (0, 1)),
+                created_at TEXT NOT NULL,
+                updated_at TEXT
+            );
+            INSERT INTO users_new (username, id, email, name, role, salt, password_hash, google_sub, email_verified, disabled, created_at, updated_at)
+            SELECT username, id, email, name, role, salt, password_hash, google_sub, email_verified, disabled, created_at, updated_at
+            FROM users;
+            DROP TABLE users;
+            ALTER TABLE users_new RENAME TO users;
+            CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+            """
+        )
+    finally:
+        connection.execute("PRAGMA foreign_keys = ON")
 
 
 def _ensure_column(connection: sqlite3.Connection, table: str, column: str, definition: str) -> None:
@@ -987,6 +1343,15 @@ def _ensure_user_settings_sfx_mode_accepts_ui_only(connection: sqlite3.Connectio
         DROP TABLE user_settings_old;
         """
     )
+
+
+def _email_unavailable_payload() -> dict[str, Any]:
+    return {
+        "authenticated": False,
+        "error": "email_unavailable",
+        "phase": "auth_register",
+        "detail": "Email is already registered.",
+    }
 
 
 def _username_unavailable_payload() -> dict[str, Any]:

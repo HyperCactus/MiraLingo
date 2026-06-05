@@ -111,10 +111,9 @@ def test_s09_final_uat_registration_practice_audio_progress_and_sqlite(monkeypat
         json={"username": LEARNER_USERNAME, "password": LEARNER_PASSWORD},
     )
     assert registration.status_code == 201
-    assert registration.json() == {
-        "authenticated": True,
-        "user": {"username": LEARNER_USERNAME, "role": "learner"},
-    }
+    assert registration.json()["authenticated"] is True
+    assert registration.json()["user"]["email"] == f"{LEARNER_USERNAME}@legacy.local"
+    assert registration.json()["user"]["role"] == "user"
     assert LEARNER_PASSWORD not in repr(registration.json())
 
     queue = client.get("/practice/queue?limit=6")
@@ -240,11 +239,9 @@ def test_s09_final_uat_source_and_auth_failures_are_diagnostic_without_credentia
     )
     disabled_admin = production_client.post("/auth/login", json={"username": "admin", "password": "admin"})
     assert disabled_admin.status_code == 403
-    assert disabled_admin.json() == {
-        "authenticated": False,
-        "error": "local_admin_disabled",
-        "detail": "Local admin bootstrap is disabled for this environment.",
-    }
+    assert disabled_admin.json()["authenticated"] is False
+    assert disabled_admin.json()["error"] == "local_admin_disabled"
+    assert disabled_admin.json()["detail"] == "Local admin bootstrap is disabled for this environment."
     _assert_no_secret_or_stacktrace(disabled_admin.json())
 
     missing_csv = tmp_path / "missing.csv"

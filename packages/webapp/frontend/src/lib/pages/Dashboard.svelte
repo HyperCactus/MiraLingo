@@ -52,6 +52,10 @@
         getPracticeProgress(),
         getPracticeAnalytics(),
       ]);
+      if (response.status === 401 || analyticsResponse.status === 401) {
+        dispatch('logout');
+        return;
+      }
       if (!response.ok || payload.ok === false) {
         state = 'error';
         error = payload.detail ?? 'Could not load today\'s progress.';

@@ -4,24 +4,24 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import urlencode
 from typing import Any, Literal
 
 from fastapi import FastAPI, Query, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.middleware.sessions import SessionMiddleware
 
 from .analytics import build_practice_analytics
 from .audio import AudioFailure, synthesize_card_audio, synthesize_text_audio
 from .auth import (
+    ADMIN_ROLE,
+    LOCAL_ADMIN_EMAIL,
     LOCAL_ADMIN_USERNAME,
-    SESSION_USER_KEY,
     authenticate_local_admin,
-    normalize_username,
+    new_public_token,
+    normalize_email,
     registered_login_error,
-    serialize_user,
-    user_from_session,
 )
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
@@ -46,7 +46,8 @@ class LoginRequest(BaseModel):
     Do not log or echo instances of this model because it contains credentials.
     """
 
-    username: str
+    email: str | None = None
+    username: str | None = None
     password: str
 
 
@@ -56,7 +57,23 @@ class RegisterRequest(BaseModel):
     Do not log or echo instances of this model because it contains credentials.
     """
 
-    username: str
+    email: str | None = None
+    username: str | None = None
+    name: str | None = None
+    nickname: str | None = None
+    password: str
+
+
+class PasswordForgotRequest(BaseModel):
+    """Forgot-password request body. Do not reveal account existence."""
+
+    email: str
+
+
+class PasswordResetRequest(BaseModel):
+    """Password reset confirmation body."""
+
+    token: str
     password: str
 
 
@@ -77,7 +94,8 @@ class DeleteAccountRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    username: str
+    email: str | None = None
+    username: str | None = None
     confirmation: str
 
 
@@ -116,7 +134,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
 
     app = FastAPI(title=f"{APP_NAME} API", lifespan=lifespan)
-    app.add_middleware(SessionMiddleware, secret_key=runtime_settings.session_secret)
     app.state.storage = MiraLingoStorage(runtime_settings.database_path)
     app.state.card_content_cache = {"result": None, "phrase_mtime_ns": None}
 
@@ -144,6 +161,49 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def storage_failure_response(exc: StorageError, status_code: int = status.HTTP_503_SERVICE_UNAVAILABLE) -> JSONResponse:
         """Return a stable storage diagnostic without secret-bearing request fields."""
         return JSONResponse(status_code=status_code, content=exc.public_payload())
+
+    def session_token_from_request(request: Request) -> str | None:
+        return request.cookies.get(runtime_settings.session_cookie_name)
+
+    def set_session_cookie(response: Response, token: str, expires_at: str) -> None:
+        response.set_cookie(
+            runtime_settings.session_cookie_name,
+            token,
+            httponly=True,
+            secure=runtime_settings.session_cookie_secure,
+            samesite="lax",
+            expires=expires_at,
+            path="/",
+        )
+
+    def clear_session_cookie(response: Response) -> None:
+        response.delete_cookie(
+            runtime_settings.session_cookie_name,
+            httponly=True,
+            secure=runtime_settings.session_cookie_secure,
+            samesite="lax",
+            path="/",
+        )
+
+    def authenticated_payload(user) -> dict[str, Any]:
+        return {"authenticated": True, "user": user.public_dict()}
+
+    def create_login_response(user, *, status_code: int = status.HTTP_200_OK) -> JSONResponse:
+        storage: MiraLingoStorage = app.state.storage
+        raw_token, expires_at = storage.create_session(user_id=user.id, secret=runtime_settings.session_secret, ttl_seconds=runtime_settings.session_ttl_seconds)
+        response = JSONResponse(status_code=status_code, content=authenticated_payload(user))
+        set_session_cookie(response, raw_token, expires_at)
+        return response
+
+    def resolve_current_user(request: Request, phase: str):
+        storage: MiraLingoStorage = app.state.storage
+        return storage.user_from_session_token(raw_token=session_token_from_request(request), secret=runtime_settings.session_secret)
+
+    def unauthenticated_response(phase: str, detail: str) -> JSONResponse:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"ok": False, "error": "unauthenticated", "phase": phase, "detail": detail})
+
+    def forbidden_response(phase: str, detail: str = "You do not have permission to perform this action.") -> JSONResponse:
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"ok": False, "error": "forbidden", "phase": phase, "detail": detail})
 
     def answer_events_for_user(username: str, phase: str) -> list[dict[str, Any]]:
         storage: MiraLingoStorage = app.state.storage
@@ -309,59 +369,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/auth/current-user", tags=["auth"])
     def current_user(request: Request) -> JSONResponse:
         """Return the current authenticated user or an explicit logged-out state."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        try:
+            user = resolve_current_user(request, "auth_current_user")
+        except StorageError as exc:
+            return storage_failure_response(exc)
         if user is None:
-            payload: dict[str, Any] = {
-                "authenticated": False,
-                "user": None,
-                "detail": "No active user session.",
-            }
-            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=payload)
-
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"authenticated": True, "user": user.public_dict()},
-        )
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"authenticated": False, "user": None, "detail": "No active user session."})
+        return JSONResponse(status_code=status.HTTP_200_OK, content=authenticated_payload(user))
 
     @app.get("/settings", tags=["settings"])
     def get_settings(request: Request) -> JSONResponse:
         """Return durable learner settings for the authenticated session."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "settings_get")
         if user is None:
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={
-                    "ok": False,
-                    "error": "unauthenticated",
-                    "phase": "settings_get",
-                    "detail": "Login is required to view settings.",
-                },
-            )
+            return unauthenticated_response("settings_get", "Login is required to view settings.")
         storage: MiraLingoStorage = request.app.state.storage
         try:
             storage.ensure_session_user(username=user.username, role=user.role, phase="settings_get")
             settings_record = storage.get_user_settings(username=user.username)
         except StorageError as exc:
             return storage_failure_response(exc)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"ok": True, "phase": "settings_get", "settings": settings_record.public_dict()},
-        )
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "settings_get", "settings": settings_record.public_dict()})
 
     @app.put("/settings", tags=["settings"])
     def update_settings(request: Request, payload: UserSettingsUpdateRequest) -> JSONResponse:
         """Persist durable learner settings for the authenticated session."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "settings_update")
         if user is None:
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={
-                    "ok": False,
-                    "error": "unauthenticated",
-                    "phase": "settings_update",
-                    "detail": "Login is required to update settings.",
-                },
-            )
+            return unauthenticated_response("settings_update", "Login is required to update settings.")
         storage: MiraLingoStorage = request.app.state.storage
         try:
             storage.ensure_session_user(username=user.username, role=user.role, phase="settings_update")
@@ -375,124 +410,199 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         except StorageError as exc:
             return storage_failure_response(exc)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"ok": True, "phase": "settings_update", "settings": settings_record.public_dict()},
-        )
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "settings_update", "settings": settings_record.public_dict()})
 
     @app.post("/auth/register", tags=["auth"])
     def register(request: Request, registration: RegisterRequest) -> JSONResponse:
-        """Register a learner account in durable SQLite storage and log it in."""
+        """Register an email account in durable SQLite storage and log it in."""
         storage: MiraLingoStorage = request.app.state.storage
         try:
-            user, error_payload, error_status = storage.register_account(
-                username=registration.username,
-                password=registration.password,
-            )
+            if registration.email:
+                user, error_payload, error_status = storage.register_account(
+                    email=registration.email,
+                    name=registration.name or registration.nickname,
+                    password=registration.password,
+                )
+            else:
+                user, error_payload, error_status = storage.register_account(
+                    username=registration.username,
+                    password=registration.password,
+                )
         except StorageError as exc:
             return storage_failure_response(exc)
         if user is None:
             return JSONResponse(status_code=error_status or 400, content=error_payload or {})
-
-        request.session[SESSION_USER_KEY] = serialize_user(user)
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content={"authenticated": True, "user": user.public_dict()},
-        )
+        return create_login_response(user, status_code=status.HTTP_201_CREATED)
 
     @app.post("/auth/login", tags=["auth"])
     def login(request: Request, credentials: LoginRequest) -> JSONResponse:
-        """Log in as either a registered learner or the guarded development local admin."""
+        """Log in as either a registered learner or guarded development local admin."""
         storage: MiraLingoStorage = request.app.state.storage
-        if credentials.username.strip().lower() != LOCAL_ADMIN_USERNAME:
+        candidate_email = credentials.email or credentials.username or ""
+        if candidate_email.strip().lower() in {LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_USERNAME}:
+            user, error_payload, error_status = authenticate_local_admin(email=credentials.email, username=credentials.username, password=credentials.password, settings=runtime_settings)
+            if user is None:
+                return JSONResponse(status_code=error_status or 401, content=error_payload or {})
             try:
-                registered_user = storage.authenticate_account(
-                    username=credentials.username,
-                    password=credentials.password,
-                )
+                storage.ensure_session_user(username=user.username, role=user.role, phase="auth_login")
             except StorageError as exc:
                 return storage_failure_response(exc)
-            if registered_user is None:
-                error_payload, error_status = registered_login_error()
-                return JSONResponse(status_code=error_status, content=error_payload)
+            return create_login_response(user)
 
-            request.session[SESSION_USER_KEY] = serialize_user(registered_user)
-            return JSONResponse(
-                status_code=status.HTTP_200_OK,
-                content={"authenticated": True, "user": registered_user.public_dict()},
-            )
-
-        user, error_payload, error_status = authenticate_local_admin(
-            username=credentials.username,
-            password=credentials.password,
-            settings=runtime_settings,
-        )
-        if user is None:
-            return JSONResponse(status_code=error_status or 401, content=error_payload or {})
-
-        request.session[SESSION_USER_KEY] = serialize_user(user)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"authenticated": True, "user": user.public_dict()},
-        )
+        try:
+            registered_user = storage.authenticate_account(email=credentials.email, username=credentials.username, password=credentials.password)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        if registered_user is None:
+            error_payload, error_status = registered_login_error()
+            return JSONResponse(status_code=error_status, content=error_payload)
+        return create_login_response(registered_user)
 
     @app.post("/auth/logout", tags=["auth"])
-    def logout(request: Request) -> dict[str, bool]:
-        """Clear the active session."""
-        request.session.pop(SESSION_USER_KEY, None)
-        return {"authenticated": False}
+    def logout(request: Request) -> JSONResponse:
+        """Revoke the current opaque server-side session."""
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            storage.revoke_session(raw_token=session_token_from_request(request), secret=runtime_settings.session_secret)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        response = JSONResponse(status_code=status.HTTP_200_OK, content={"authenticated": False})
+        clear_session_cookie(response)
+        return response
 
     @app.delete("/auth/account", tags=["auth"])
     def delete_account(request: Request, payload: DeleteAccountRequest) -> JSONResponse:
         """Delete the current learner account after explicit confirmation."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "account_delete")
         if user is None:
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={
-                    "ok": False,
-                    "error": "unauthenticated",
-                    "phase": "account_delete",
-                    "detail": "Login is required to delete the current account.",
-                },
-            )
-        if user.username == LOCAL_ADMIN_USERNAME:
-            return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                content={
-                    "ok": False,
-                    "error": "protected_account",
-                    "phase": "account_delete",
-                    "detail": "The local admin account cannot be deleted.",
-                },
-            )
-        expected_confirmation = f"{user.username} DELETE"
-        if payload.confirmation.strip() != expected_confirmation or normalize_username(payload.username) != user.username:
+            return unauthenticated_response("account_delete", "Login is required to delete the current account.")
+        if user.role == ADMIN_ROLE or user.id in {"local-admin", LOCAL_ADMIN_USERNAME}:
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"ok": False, "error": "protected_account", "phase": "account_delete", "detail": "The local admin account cannot be deleted."})
+        expected_confirmation = f"{user.email} DELETE"
+        payload_email = normalize_email(payload.email or payload.username or "")
+        if payload.confirmation.strip() != expected_confirmation or payload_email != user.email:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "ok": False,
-                    "error": "invalid_confirmation",
-                    "phase": "account_delete",
-                    "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
-                },
+                content={"ok": False, "error": "invalid_confirmation", "phase": "account_delete", "detail": "Account deletion requires the current email plus the exact confirmation phrase '<email> DELETE'."},
             )
         storage: MiraLingoStorage = request.app.state.storage
         try:
-            storage.delete_user_account(username=user.username)
+            storage.delete_user_account(user_id=user.id)
         except StorageError as exc:
             status_code = status.HTTP_403_FORBIDDEN if exc.error == "protected_account" else status.HTTP_503_SERVICE_UNAVAILABLE
             return storage_failure_response(exc, status_code=status_code)
-        request.session.pop(SESSION_USER_KEY, None)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "ok": True,
-                "phase": "account_delete",
-                "deleted_username": user.username,
-                "authenticated": False,
-            },
+        response = JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "account_delete", "deleted_email": user.email, "authenticated": False})
+        clear_session_cookie(response)
+        return response
+
+    @app.post("/auth/password/forgot", tags=["auth"])
+    def password_forgot(request: Request, payload: PasswordForgotRequest) -> JSONResponse:
+        """Create a password reset token without revealing whether the email exists."""
+        storage: MiraLingoStorage = request.app.state.storage
+        dev_reset_url = None
+        try:
+            token = storage.create_password_reset_token(email=payload.email, secret=runtime_settings.session_secret, ttl_seconds=runtime_settings.password_reset_ttl_seconds)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        if token and runtime_settings.environment == "development" and runtime_settings.enable_dev_password_reset_logging:
+            dev_reset_url = f"{runtime_settings.frontend_base_url}/?reset_token={token}"
+            print(f"MiraLingo development password reset link generated for requested email: {dev_reset_url}")
+        content: dict[str, Any] = {"ok": True, "phase": "password_forgot", "detail": "If an account exists, reset instructions have been sent."}
+        if dev_reset_url:
+            content["dev_reset_url"] = dev_reset_url
+        return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content=content)
+
+    @app.post("/auth/password/reset", tags=["auth"])
+    def password_reset(request: Request, payload: PasswordResetRequest) -> JSONResponse:
+        """Consume a single-use password reset token."""
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            user, error_payload, error_status = storage.register_account(email="reset-probe@example.invalid", password=payload.password)
+            if user is not None:
+                storage.delete_user_account(user_id=user.id)
+        except StorageError:
+            error_payload, error_status = None, None
+        if error_payload and error_payload.get("error") == "invalid_password":
+            return JSONResponse(status_code=error_status or 400, content={**error_payload, "phase": "password_reset"})
+        try:
+            reset_user = storage.reset_password_with_token(raw_token=payload.token, new_password=payload.password, secret=runtime_settings.session_secret)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        if reset_user is None:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_reset_token", "phase": "password_reset", "detail": "Password reset token is invalid, expired, or already used."})
+        response = JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "password_reset", "authenticated": False})
+        clear_session_cookie(response)
+        return response
+
+    @app.get("/auth/google/login", tags=["auth"])
+    def google_login(request: Request, next: str = Query(default="/")) -> Response:
+        """Start Google OAuth/OIDC sign-in."""
+        if not runtime_settings.google_oauth_configured:
+            return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={"ok": False, "error": "google_oauth_unconfigured", "phase": "auth_google_login", "detail": "Google sign-in is not configured."})
+        state_token = new_public_token()
+        try:
+            request.app.state.storage.create_oauth_state(state=state_token, secret=runtime_settings.session_secret, ttl_seconds=600, next_path=next)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        params = urlencode(
+            {
+                "client_id": runtime_settings.google_client_id,
+                "redirect_uri": runtime_settings.google_redirect_uri,
+                "response_type": "code",
+                "scope": "openid email profile",
+                "state": state_token,
+                "access_type": "offline",
+                "prompt": "select_account",
+            }
         )
+        return RedirectResponse(f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+
+    @app.get("/auth/google/callback", tags=["auth"])
+    async def google_callback(request: Request, code: str = Query(default=""), state: str = Query(default="")) -> Response:
+        """Finish Google OAuth/OIDC sign-in and create the normal opaque session."""
+        if not runtime_settings.google_oauth_configured:
+            return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={"ok": False, "error": "google_oauth_unconfigured", "phase": "auth_google_callback", "detail": "Google sign-in is not configured."})
+        if not code or not state:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_google_callback", "phase": "auth_google_callback", "detail": "Google callback is missing code or state."})
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            next_path = storage.consume_oauth_state(state=state, secret=runtime_settings.session_secret)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        if next_path is None:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_oauth_state", "phase": "auth_google_callback", "detail": "OAuth state is invalid, expired, or already used."})
+        try:
+            from authlib.integrations.httpx_client import AsyncOAuth2Client
+        except ImportError:
+            return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={"ok": False, "error": "authlib_missing", "phase": "auth_google_callback", "detail": "Google sign-in requires the authlib package."})
+        try:
+            oauth_client = AsyncOAuth2Client(
+                client_id=runtime_settings.google_client_id,
+                client_secret=runtime_settings.google_client_secret,
+                redirect_uri=runtime_settings.google_redirect_uri,
+                scope="openid email profile",
+            )
+            await oauth_client.fetch_token(
+                "https://oauth2.googleapis.com/token",
+                code=code,
+                grant_type="authorization_code",
+            )
+            profile_response = await oauth_client.get("https://openidconnect.googleapis.com/v1/userinfo")
+            if profile_response.status_code != status.HTTP_200_OK:
+                return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_google_profile", "phase": "auth_google_callback", "detail": "Google sign-in did not return a usable user profile."})
+            profile = profile_response.json()
+        except Exception:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_google_token", "phase": "auth_google_callback", "detail": "Google sign-in failed token exchange."})
+        if not profile.get("email_verified"):
+            return forbidden_response("auth_google_callback", "Google email must be verified.")
+        try:
+            user = storage.upsert_google_user(email=str(profile.get("email") or ""), google_sub=str(profile.get("sub") or ""), name=profile.get("name"), email_verified=True)
+        except StorageError as exc:
+            return storage_failure_response(exc, status_code=status.HTTP_400_BAD_REQUEST)
+        response = RedirectResponse(f"{runtime_settings.frontend_base_url}{next_path}")
+        raw_token, expires_at = storage.create_session(user_id=user.id, secret=runtime_settings.session_secret, ttl_seconds=runtime_settings.session_ttl_seconds)
+        set_session_cookie(response, raw_token, expires_at)
+        return response
 
     @app.get("/practice/queue", tags=["practice"])
     def practice_queue(
@@ -501,7 +611,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         mode: Literal["mixed", "revision", "build_vocabulary"] = Query(default="mixed"),
     ) -> JSONResponse:
         """Return an adaptive practice queue for the authenticated session."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -554,7 +664,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         include_cards: bool = Query(default=False),
     ) -> JSONResponse:
         """Return compact+drilldown analytics for authenticated learner history."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -598,7 +708,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/practice/progress", tags=["practice"])
     def practice_progress(request: Request) -> JSONResponse:
         """Return progress diagnostics for the authenticated session's bounded practice history."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -632,7 +742,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     def _require_practice_session_user(request: Request) -> tuple[Any, JSONResponse | None]:
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return None, JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -690,7 +800,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/practice/audio/{card_id:path}", tags=["practice"])
     def practice_audio(request: Request, card_id: str):
         """Return MBROLA WAV audio for one authenticated configured practice card."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -739,7 +849,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/tts/mbrola", tags=["practice"])
     def mbrola_text_audio(request: Request, payload: TextToSpeechRequest):
         """Return MBROLA WAV audio for authenticated arbitrary Mirad text previews."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -774,7 +884,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/practice/answer", tags=["practice"], include_in_schema=False)
     def practice_answer(request: Request, submission: PracticeAnswerRequest) -> JSONResponse:
         """Record one practice answer in durable SQLite storage."""
-        user = user_from_session(request.session.get(SESSION_USER_KEY))
+        user = resolve_current_user(request, "auth_session")
         if user is None:
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,

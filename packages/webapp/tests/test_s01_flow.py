@@ -51,15 +51,13 @@ def test_s01_local_admin_login_reaches_app_home_and_logout_returns_to_logged_out
     frontend_source = _frontend_source()
 
     assert login.status_code == 200
-    assert login.json() == {
-        "authenticated": True,
-        "user": {"username": "admin", "role": "admin"},
-    }
+    assert login.json()["authenticated"] is True
+    assert login.json()["user"]["email"] == "admin@local.miralingo"
+    assert login.json()["user"]["role"] == "admin"
     assert current_user.status_code == 200
-    assert current_user.json() == {
-        "authenticated": True,
-        "user": {"username": "admin", "role": "admin"},
-    }
+    assert current_user.json()["authenticated"] is True
+    assert current_user.json()["user"]["email"] == "admin@local.miralingo"
+    assert current_user.json()["user"]["role"] == "admin"
     assert logout.status_code == 200
     assert logout.json() == {"authenticated": False}
     assert logged_out_again.status_code == 401
@@ -73,11 +71,9 @@ def test_s01_admin_bootstrap_is_refused_outside_development_without_password_ech
     response = client.post("/auth/login", json={"username": "admin", "password": "admin"})
 
     assert response.status_code == 403
-    assert response.json() == {
-        "authenticated": False,
-        "error": "local_admin_disabled",
-        "detail": "Local admin bootstrap is disabled for this environment.",
-    }
+    assert response.json()["authenticated"] is False
+    assert response.json()["error"] == "local_admin_disabled"
+    assert response.json()["detail"] == "Local admin bootstrap is disabled for this environment."
     assert "password" not in response.text
     assert "admin/admin" not in response.text
 

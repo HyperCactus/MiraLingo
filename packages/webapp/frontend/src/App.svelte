@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import "./app.css";
   import { getPracticeAudioUrl } from "./lib/api/audio";
-  import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register } from "./lib/api/auth";
+  import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register, requestPasswordReset } from "./lib/api/auth";
   import { getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
   import { getSettings, updateSettings } from "./lib/api/settings";
   import AppShell from "./lib/components/layout/AppShell.svelte";
@@ -53,9 +53,12 @@
     return "off";
   };
 
-  let username = $state("admin");
+  const displayName = (user) => user?.name || user?.email || "Learner";
+
+  let loginEmail = $state("");
   let password = $state("");
-  let regU = $state("");
+  let registrationEmail = $state("");
+  let registrationName = $state("");
   let regP = $state("");
   let submitting = $state(false);
 
@@ -94,7 +97,7 @@
   let deleteAccountErr = $state("");
   let deleteAccountStatus = $state("");
   let deleteAccountConfirm = $state("");
-  let deleteAccountUsername = $state("");
+  let deleteAccountEmail = $state("");
 
   // Lexicon bubble state
   let bubbleResults = $state([]);
@@ -169,7 +172,7 @@
     deleteAccountState = "idle";
     deleteAccountErr = "";
     deleteAccountStatus = "";
-    deleteAccountUsername = "";
+    deleteAccountEmail = "";
     deleteAccountConfirm = "";
   };
 
@@ -193,8 +196,8 @@
       if (response.ok && payload.authenticated && payload.user) {
         setAuthenticated(payload.user);
         resetPracticeSurface();
-          resetSettingsSurface();
-        deleteAccountUsername = payload.user.username ?? "";
+        resetSettingsSurface();
+        deleteAccountEmail = payload.user.email ?? "";
         await loadSettings({ force: true });
         await preloadPracticeQueue("mixed");
         syncRouteFromHash("dashboard");
@@ -216,7 +219,7 @@
     submitting = true;
     authError.set("");
     try {
-      const { response, payload } = await login(username, password);
+      const { response, payload } = await login(loginEmail, password);
       if (!response.ok || !payload.authenticated || !payload.user) {
         setAuthFailure("login-failed", payload?.detail ?? "Login failed.");
         return;
@@ -225,7 +228,7 @@
       password = "";
       resetPracticeSurface();
       resetSettingsSurface();
-      deleteAccountUsername = payload.user.username ?? "";
+      deleteAccountEmail = payload.user.email ?? "";
       await loadSettings({ force: true });
       await preloadPracticeQueue("mixed");
       navigateToSection("dashboard");
@@ -236,11 +239,29 @@
     }
   }
 
+  async function submitPasswordResetRequest() {
+    const email = loginEmail || registrationEmail;
+    if (!email) {
+      authError.set("Enter your email first, then request a password reset.");
+      return;
+    }
+    submitting = true;
+    authError.set("");
+    try {
+      const { payload } = await requestPasswordReset(email);
+      authError.set(payload?.dev_reset_url ? `Development reset link: ${payload.dev_reset_url}` : (payload?.detail ?? "If an account exists, reset instructions have been sent."));
+    } catch (_) {
+      authError.set("Could not request password reset.");
+    } finally {
+      submitting = false;
+    }
+  }
+
   async function submitRegistration() {
     submitting = true;
     authError.set("");
     try {
-      const { response, payload } = await register(regU, regP);
+      const { response, payload } = await register(registrationEmail, regP, registrationName);
       if (!response.ok || !payload.authenticated || !payload.user) {
         setAuthFailure("registration-failed", payload?.detail ?? "Registration failed.");
         return;
@@ -249,7 +270,7 @@
       regP = "";
       resetPracticeSurface();
       resetSettingsSurface();
-      deleteAccountUsername = payload.user.username ?? "";
+      deleteAccountEmail = payload.user.email ?? "";
       await loadSettings({ force: true });
       await preloadPracticeQueue("mixed");
       navigateToSection("dashboard");
@@ -262,11 +283,10 @@
 
   function clearAuthAppState(message = "") {
     resetPracticeSurface();
-    resetAnalyticsSurface();
     resetSettingsSurface();
-    username = "admin";
+    loginEmail = "";
     password = "";
-    regU = "";
+    registrationEmail = "";
     regP = "";
     resetPracticeNavigation();
     resetAuthStore(message);
@@ -274,16 +294,17 @@
   }
 
   async function logout() {
+    clearAuthAppState();
     try {
       await logoutRequest();
-    } finally {
-      clearAuthAppState();
+    } catch (_) {
+      // UI is already logged out; a failed revoke request should not strand the user on an authenticated page.
     }
   }
 
   async function loadSettings({ force = false } = {}) {
     if (settingsState === "loading" || settingsState === "saving") return;
-    if (!force && $settingsLoadedForUser === $currentUser?.username && settingsState !== "idle") return;
+    if (!force && $settingsLoadedForUser === $currentUser?.id && settingsState !== "idle") return;
 
     settingsState = "loading";
     settingsErr = "";
@@ -298,9 +319,9 @@
         return;
       }
       syncSettings(payload.settings, { state: "ready", phase: payload.phase ?? "settings_get" });
-      settingsLoadedForUser.set($currentUser?.username ?? null);
+      settingsLoadedForUser.set($currentUser?.id ?? null);
     } catch (_) {
-      settingsLoadedForUser.set($currentUser?.username ?? null);
+      settingsLoadedForUser.set($currentUser?.id ?? null);
       applySettingsPayload({});
       settingsState = "error";
       settingsPhase = "settings_get";
@@ -311,7 +332,7 @@
   let settingsSaveEnabled = $state(false);
 
   async function saveSettings() {
-    if (!settingsSaveEnabled || !$currentUser?.username || settingsState === "saving") return;
+    if (!settingsSaveEnabled || !$currentUser?.id || settingsState === "saving") return;
     settingsState = "saving";
     try {
       const body = {
@@ -565,13 +586,13 @@
     deleteAccountStatus = "";
 
     try {
-      const { response, payload } = await deleteAccount(deleteAccountUsername, deleteAccountConfirm);
+      const { response, payload } = await deleteAccount(deleteAccountEmail, deleteAccountConfirm);
       if (!response.ok || payload.ok === false) {
         deleteAccountState = "error";
         deleteAccountErr = payload?.detail ?? "Could not delete account.";
         return;
       }
-      deleteAccountStatus = `Deleted ${payload?.deleted_username ?? deleteAccountUsername}.`;
+      deleteAccountStatus = `Deleted ${payload?.deleted_email ?? deleteAccountEmail}.`;
       clearAuthAppState("Account deleted.");
     } catch (_) {
       deleteAccountState = "error";
@@ -579,10 +600,10 @@
     }
   }
 
-  const canDeleteAccount = () => ($currentUser?.username ?? "") !== "admin";
-  const deleteConfirmPhrase = () => `${$currentUser?.username ?? ""} DELETE`.trim();
+  const canDeleteAccount = () => ($currentUser?.role ?? "") !== "admin";
+  const deleteConfirmPhrase = () => `${$currentUser?.email ?? ""} DELETE`.trim();
   const canSubmitDelete = () => (
-    deleteAccountUsername.trim() === ($currentUser?.username ?? "") && deleteAccountConfirm.trim() === deleteConfirmPhrase()
+    deleteAccountEmail.trim() === ($currentUser?.email ?? "") && deleteAccountConfirm.trim() === deleteConfirmPhrase()
   );
 
   async function navigateToSection(section) {
@@ -617,7 +638,7 @@
     replaceHash(section);
 
     if (section === "settings") {
-      deleteAccountUsername = $currentUser?.username ?? deleteAccountUsername;
+      deleteAccountEmail = $currentUser?.email ?? deleteAccountEmail;
       await loadSettings();
     }
   }
@@ -725,7 +746,7 @@
     title={practiceTitle($currentSection)}
     subtitle=""
     userLabel=""
-    avatarLabel={$currentUser?.username ?? "Learner"}
+    avatarLabel={displayName($currentUser)}
     backLabel="Back to today"
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
@@ -791,7 +812,7 @@
   </StudyShell>
 {:else if $authState === "authenticated" && $currentSection === "dashboard"}
   <Dashboard
-    userName={$currentUser?.username ?? "Learner"}
+    userName={displayName($currentUser)}
     activeSection={$currentSection}
     refreshSignal={dashboardRefreshSignal}
     on:continuePractice={() => navigateToSection("practice")}
@@ -804,7 +825,7 @@
   />
 {:else if $authState === "authenticated" && $currentSection === "analytics"}
   <Analytics
-    userName={$currentUser?.username ?? "Learner"}
+    userName={displayName($currentUser)}
     activeSection={$currentSection}
     navItems={navItemsFor($currentSection)}
     onBack={goToMenu}
@@ -818,7 +839,7 @@
     showBackButton={true}
     backLabel="Back to today"
     userLabel={settingsPhase || "Settings"}
-    avatarLabel={$currentUser?.username ?? "Learner"}
+    avatarLabel={displayName($currentUser)}
     navItems={navItemsFor($currentSection)}
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
@@ -936,7 +957,7 @@
 
         {#if canDeleteAccount()}
           <form class="space-y-3" onsubmit={(event) => { event.preventDefault(); submitDeleteAccount(); }}>
-            <AppInput id="del-username" label="Username" bind:value={deleteAccountUsername} autocomplete="username" />
+            <AppInput id="del-email" label="Email" bind:value={deleteAccountEmail} autocomplete="email" />
             <AppInput id="del-confirm" label={`Type ${deleteConfirmPhrase()} to confirm`} bind:value={deleteAccountConfirm} placeholder={deleteConfirmPhrase()} />
             <AppButton type="submit" className="min-h-12 w-full justify-center bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 disabled:bg-red-300" disabled={!canSubmitDelete() || deleteAccountState === "submitting"}>
               {deleteAccountState === "submitting" ? "Deleting…" : "Delete account"}
@@ -950,7 +971,7 @@
   </AppShell>
 {:else if $authState === "authenticated" && $currentSection === "lexicon"}
   <Lexicon
-    userName={$currentUser?.username ?? "Learner"}
+    userName={displayName($currentUser)}
     navItems={navItemsFor($currentSection)}
     on:back={goToMenu}
     on:settings={() => navigateToSection("settings")}
@@ -959,15 +980,18 @@
   />
 {:else}
   <Welcome
-    bind:loginUsername={username}
+    bind:loginEmail={loginEmail}
     bind:loginPassword={password}
-    bind:registrationUsername={regU}
+    bind:registrationEmail={registrationEmail}
+    bind:registrationName={registrationName}
     bind:registrationPassword={regP}
     {submitting}
     authState={$authState}
     authError={$authError}
     on:createAccount={submitRegistration}
     on:logIn={submitLogin}
+    on:googleLogin={() => { window.location.href = '/auth/google/login'; }}
+    on:forgotPassword={submitPasswordResetRequest}
     on:jumpCreateAccount={() => scrollWelcomeTarget("create-account-card")}
     on:jumpLogin={() => scrollWelcomeTarget("login-card")}
   />

@@ -77,12 +77,13 @@ def test_frontend_registration_source_affordance_is_wired() -> None:
     assert "async function submitRegistration()" in app
     assert "fetch('/auth/register'" in auth_api
     assert "'Content-Type': 'application/json'" in auth_api
-    assert "register(regU, regP)" in app
+    assert "register(registrationEmail, regP, registrationName)" in app
     registration_body = app.split("async function submitRegistration()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
     assert 'syncRouteFromHash("dashboard")' in app or 'replaceHash("dashboard")' in registration_body
     assert "await loadSettings({ force: true });" in registration_body
     logout_body = app.split("async function logout()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
     assert "clearAuthAppState()" in logout_body
+    assert "resetAnalyticsSurface" not in logout_body
     assert "resetPracticeSurface();" in app
     assert "resetSettingsSurface();" in app
 

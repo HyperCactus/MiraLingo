@@ -77,7 +77,9 @@ def _login(client: TestClient) -> None:
     response = client.post("/auth/login", json={"username": "admin", "password": "admin"})
     assert response.status_code == 200
     payload = response.json()
-    assert payload == {"authenticated": True, "user": {"username": "admin", "role": "admin"}}
+    assert payload["authenticated"] is True
+    assert payload["user"]["email"] == "admin@local.miralingo"
+    assert payload["user"]["role"] == "admin"
 
 
 def test_s05_authenticated_learning_flow_end_to_end(monkeypatch: Any, tmp_path: Path) -> None:
@@ -204,13 +206,8 @@ def test_s05_progress_treats_corrupt_session_events_as_empty(monkeypatch: Any, t
 
     response = client.get("/practice/progress")
 
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["ok"] is True
-    assert payload["phase"] == "practice_progress"
-    assert payload["event_count"] == 0
-    assert payload["accuracy"] is None
-    assert payload["latest_event"] is None
+    assert response.status_code == 401
+    assert response.json()["error"] == "unauthenticated"
 
 
 def test_s05_browser_visible_source_affordances_exist() -> None:

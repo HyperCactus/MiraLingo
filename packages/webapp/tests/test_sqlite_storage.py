@@ -43,16 +43,18 @@ def test_registration_duplicate_rejection_and_authentication_are_file_backed(tmp
     )
 
     assert user is not None
-    assert user.public_dict() == {"username": "mira", "role": "learner"}
+    assert user.public_dict()["id"] == "mira"
+    assert user.public_dict()["email"] == "mira@legacy.local"
+    assert user.public_dict()["role"] == "user"
     assert error_payload is None
     assert error_status is None
     assert duplicate_user is None
     assert duplicate_status == 409
     assert duplicate_error == {
         "authenticated": False,
-        "error": "username_unavailable",
+        "error": "email_unavailable",
         "phase": "auth_register",
-        "detail": "Username is already registered.",
+        "detail": "Email is already registered.",
     }
     assert_no_secret_material(user.public_dict(), password)
     assert_no_secret_material(duplicate_error, "replacement-password")
@@ -61,21 +63,21 @@ def test_registration_duplicate_rejection_and_authentication_are_file_backed(tmp
     authenticated = second.authenticate_account(username="MIRA", password=password)
 
     assert authenticated is not None
-    assert authenticated.public_dict() == {"username": "mira", "role": "learner"}
+    assert authenticated.public_dict()["email"] == "mira@legacy.local"
+    assert authenticated.public_dict()["role"] == "user"
     assert second.authenticate_account(username="mira", password="wrong-password") is None
     assert second.authenticate_account(username="   ", password=password) is None
 
     with sqlite3.connect(database_path) as connection:
-        rows = connection.execute("SELECT username, role, salt, password_hash FROM users").fetchall()
+        rows = connection.execute("SELECT username, role, password_hash FROM users").fetchall()
 
     assert len(rows) == 1
-    stored_username, stored_role, stored_salt, stored_hash = rows[0]
+    stored_username, stored_role, stored_hash = rows[0]
     assert stored_username == "mira"
-    assert stored_role == "learner"
-    assert isinstance(stored_salt, bytes)
-    assert isinstance(stored_hash, bytes)
-    assert password.encode("utf-8") not in stored_hash
-    assert password.encode("utf-8") not in stored_salt
+    assert stored_role == "user"
+    assert isinstance(stored_hash, str)
+    assert stored_hash.startswith("$2")
+    assert password not in stored_hash
 
 
 def test_registration_validation_keeps_existing_public_auth_shapes(tmp_path: Path) -> None:
@@ -95,9 +97,9 @@ def test_registration_validation_keeps_existing_public_auth_shapes(tmp_path: Pat
     assert blank_status == 400
     assert blank_error == {
         "authenticated": False,
-        "error": "invalid_username",
+        "error": "invalid_email",
         "phase": "auth_register",
-        "detail": "Username must be at least 3 characters.",
+        "detail": "A valid email address is required.",
     }
     assert short_password_user is None
     assert short_password_status == 400
@@ -111,9 +113,9 @@ def test_registration_validation_keeps_existing_public_auth_shapes(tmp_path: Pat
     assert admin_status == 400
     assert admin_error == {
         "authenticated": False,
-        "error": "reserved_username",
+        "error": "reserved_email",
         "phase": "auth_register",
-        "detail": "The admin username is reserved.",
+        "detail": "The local admin email is reserved.",
     }
 
 

@@ -6,6 +6,11 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 _TRUE_VALUES = {"1", "true", "yes", "on"}
 
@@ -17,6 +22,14 @@ class Settings:
     environment: str = "development"
     enable_local_admin: bool = True
     session_secret: str = "miralingo-dev-session-secret"
+    session_cookie_name: str = "miralingo_session"
+    session_ttl_seconds: int = 60 * 60 * 24 * 14
+    password_reset_ttl_seconds: int = 60 * 60
+    frontend_base_url: str = "http://localhost:5173"
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    google_redirect_uri: str | None = None
+    enable_dev_password_reset_logging: bool = True
     phrase_csv_path: Path = Path("data/phrases/english-mirad-sentence-pairs.csv")
     beginner_json_path: Path | None = None
     numbers_json_path: Path | None = None
@@ -27,6 +40,34 @@ class Settings:
         """Return whether the development admin/admin bootstrap may be used."""
         return self.environment == "development" and self.enable_local_admin
 
+    @property
+    def session_cookie_secure(self) -> bool:
+        """Only allow non-secure cookies for explicit local development."""
+        return self.environment not in {"development", "local", "test"}
+
+    @property
+    def google_oauth_configured(self) -> bool:
+        """Return whether Google OAuth has enough config to start a flow."""
+        return bool(self.google_client_id and self.google_client_secret and self.google_redirect_uri)
+
+
+def _int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+def _optional_env(name: str) -> str | None:
+    value = os.getenv(name)
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
 
 def load_settings() -> Settings:
     """Load settings from environment variables.
@@ -35,13 +76,9 @@ def load_settings() -> Settings:
     environment is development and MIRALINGO_ENABLE_LOCAL_ADMIN is truthy.
     """
     environment = os.getenv("MIRALINGO_ENV", "development").strip().lower()
-    enable_local_admin = (
-        os.getenv("MIRALINGO_ENABLE_LOCAL_ADMIN", "true").strip().lower() in _TRUE_VALUES
-    )
+    enable_local_admin = os.getenv("MIRALINGO_ENABLE_LOCAL_ADMIN", "true").strip().lower() in _TRUE_VALUES
     session_secret = os.getenv("MIRALINGO_SESSION_SECRET", "miralingo-dev-session-secret")
-    phrase_csv_path = Path(
-        os.getenv("MIRALINGO_PHRASE_CSV_PATH", "data/phrases/english-mirad-sentence-pairs.csv")
-    )
+    phrase_csv_path = Path(os.getenv("MIRALINGO_PHRASE_CSV_PATH", "data/phrases/english-mirad-sentence-pairs.csv"))
     beginner_json_raw = os.getenv("MIRALINGO_BEGINNER_JSON_PATH", "data/miralingo_modules/beginner.json").strip()
     beginner_json_path = Path(beginner_json_raw) if beginner_json_raw else None
     numbers_json_raw = os.getenv("MIRALINGO_NUMBERS_JSON_PATH", "data/miralingo_modules/numbers.json").strip()
@@ -51,6 +88,14 @@ def load_settings() -> Settings:
         environment=environment,
         enable_local_admin=enable_local_admin,
         session_secret=session_secret,
+        session_cookie_name=os.getenv("MIRALINGO_SESSION_COOKIE_NAME", "miralingo_session"),
+        session_ttl_seconds=_int_env("MIRALINGO_SESSION_TTL_SECONDS", 60 * 60 * 24 * 14),
+        password_reset_ttl_seconds=_int_env("MIRALINGO_PASSWORD_RESET_TTL_SECONDS", 60 * 60),
+        frontend_base_url=os.getenv("MIRALINGO_FRONTEND_BASE_URL", "http://localhost:5173").rstrip("/"),
+        google_client_id=_optional_env("MIRALINGO_GOOGLE_CLIENT_ID"),
+        google_client_secret=_optional_env("MIRALINGO_GOOGLE_CLIENT_SECRET"),
+        google_redirect_uri=_optional_env("MIRALINGO_GOOGLE_REDIRECT_URI"),
+        enable_dev_password_reset_logging=os.getenv("MIRALINGO_ENABLE_DEV_RESET_LOGGING", "true").strip().lower() in _TRUE_VALUES,
         phrase_csv_path=phrase_csv_path,
         beginner_json_path=beginner_json_path,
         numbers_json_path=numbers_json_path,

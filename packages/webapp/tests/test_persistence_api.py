@@ -46,7 +46,9 @@ def test_registered_learner_login_survives_app_recreation(tmp_path: Path) -> Non
     login = recreated.post("/auth/login", json={"username": "MIRA", "password": "learner-password-1"})
 
     assert login.status_code == 200
-    assert login.json() == {"authenticated": True, "user": {"username": "mira", "role": "learner"}}
+    assert login.json()["authenticated"] is True
+    assert login.json()["user"]["email"] == "mira@legacy.local"
+    assert login.json()["user"]["role"] == "user"
     assert "learner-password-1" not in login.text
 
 

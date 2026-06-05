@@ -2,131 +2,110 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
+import hmac
+import re
 from dataclasses import dataclass
-from secrets import compare_digest, token_bytes
+from secrets import compare_digest, token_bytes, token_urlsafe
 from typing import Any
+
+import bcrypt
 
 from .config import Settings
 
+LOCAL_ADMIN_EMAIL = "admin@local.miralingo"
 LOCAL_ADMIN_USERNAME = "admin"
 LOCAL_ADMIN_PASSWORD = "admin"
-SESSION_USER_KEY = "user"
-LEARNER_ROLE = "learner"
-_MIN_USERNAME_LENGTH = 3
+ADMIN_ROLE = "admin"
+TEST_USER_ROLE = "test_user"
+USER_ROLE = "user"
+LEARNER_ROLE = USER_ROLE
+SUPPORTED_ROLES = {ADMIN_ROLE, TEST_USER_ROLE, USER_ROLE}
 _MIN_PASSWORD_LENGTH = 8
-_PBKDF2_ITERATIONS = 200_000
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 @dataclass(frozen=True)
 class AuthUser:
-    """Authenticated user state stored in the signed session cookie."""
+    """Authenticated user state resolved server-side from an opaque session."""
 
-    username: str
-    role: str = "admin"
+    id: str
+    email: str
+    role: str = USER_ROLE
+    name: str | None = None
+    email_verified: bool = False
+    disabled: bool = False
+    google_sub: str | None = None
 
-    def public_dict(self) -> dict[str, str]:
+    @property
+    def username(self) -> str:
+        """Compatibility key for legacy practice/storage tables."""
+        return self.id
+
+    def public_dict(self) -> dict[str, Any]:
         """Return a password-free user representation for JSON responses."""
-        return {"username": self.username, "role": self.role}
+        return {
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "role": self.role,
+            "email_verified": self.email_verified,
+        }
 
 
-@dataclass(frozen=True)
-class StoredAccount:
-    """Password-hash-only account record held in the process-local store."""
-
-    username: str
-    role: str
-    salt: bytes
-    password_hash: bytes
-
-
-class AccountStore:
-    """Small process-local learner account store for S07 tests and dev sessions.
-
-    The store is intentionally non-durable and O(1) by normalized username. S08
-    is responsible for replacing it with SQLite persistence.
-    """
-
-    def __init__(self) -> None:
-        self._accounts: dict[str, StoredAccount] = {}
-
-    def register(
-        self, *, username: str, password: str
-    ) -> tuple[AuthUser | None, dict[str, Any] | None, int | None]:
-        """Register a learner account or return a structured auth error."""
-        normalized_username, validation_error, validation_status = validate_registration_inputs(
-            username=username,
-            password=password,
-        )
-        if normalized_username is None:
-            return None, validation_error, validation_status
-
-        if normalized_username in self._accounts:
-            return (
-                None,
-                {
-                    "authenticated": False,
-                    "error": "username_unavailable",
-                    "phase": "auth_register",
-                    "detail": "Username is already registered.",
-                },
-                409,
-            )
-
-        salt = token_bytes(16)
-        account = StoredAccount(
-            username=normalized_username,
-            role=LEARNER_ROLE,
-            salt=salt,
-            password_hash=_hash_password(password=password, salt=salt),
-        )
-        self._accounts[normalized_username] = account
-        return AuthUser(username=account.username, role=account.role), None, None
-
-    def authenticate(self, *, username: str, password: str) -> AuthUser | None:
-        """Authenticate a registered learner without exposing secret material."""
-        normalized_username = normalize_username(username)
-        if normalized_username is None:
-            return None
-        account = self._accounts.get(normalized_username)
-        if account is None:
-            return None
-        candidate_hash = _hash_password(password=password, salt=account.salt)
-        if not compare_digest(candidate_hash, account.password_hash):
-            return None
-        return AuthUser(username=account.username, role=account.role)
+def normalize_email(email: str) -> str | None:
+    """Normalize an email address for case-insensitive account lookup."""
+    normalized = str(email or "").strip().lower()
+    if not normalized or not _EMAIL_RE.match(normalized):
+        return None
+    return normalized
 
 
 def normalize_username(username: str) -> str | None:
-    """Normalize a username for case-insensitive lookup, rejecting blank values."""
-    normalized = username.strip().lower()
+    """Legacy compatibility: normalize historical username input."""
+    normalized = str(username or "").strip().lower()
     return normalized or None
 
 
 def validate_registration_inputs(
-    *, username: str, password: str
-) -> tuple[str | None, dict[str, Any] | None, int | None]:
-    """Validate the S07 username/password policy for self-service registration."""
-    normalized_username = normalize_username(username)
-    if normalized_username is None or len(normalized_username) < _MIN_USERNAME_LENGTH:
+    *, email: str | None = None, password: str, name: str | None = None, username: str | None = None
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, int | None]:
+    """Validate self-service email/password registration."""
+    raw_email = email or username or ""
+    if not email and username and "@" not in username:
+        raw_email = f"{str(username).strip().lower()}@legacy.local"
+    normalized_email = normalize_email(raw_email)
+    if normalized_email is None:
         return (
             None,
             {
                 "authenticated": False,
-                "error": "invalid_username",
+                "error": "invalid_email",
                 "phase": "auth_register",
-                "detail": f"Username must be at least {_MIN_USERNAME_LENGTH} characters.",
+                "detail": "A valid email address is required.",
             },
             400,
         )
-    if normalized_username == LOCAL_ADMIN_USERNAME:
+    if not email and username and str(username).strip().lower() == LOCAL_ADMIN_USERNAME:
         return (
             None,
             {
                 "authenticated": False,
-                "error": "reserved_username",
+                "error": "reserved_email",
                 "phase": "auth_register",
-                "detail": "The admin username is reserved.",
+                "detail": "The local admin email is reserved.",
+            },
+            400,
+        )
+    if normalized_email == LOCAL_ADMIN_EMAIL:
+        return (
+            None,
+            {
+                "authenticated": False,
+                "error": "reserved_email",
+                "phase": "auth_register",
+                "detail": "The local admin email is reserved.",
             },
             400,
         )
@@ -141,7 +120,8 @@ def validate_registration_inputs(
             },
             400,
         )
-    return normalized_username, None, None
+    display_name = str(name or "").strip() or None
+    return {"email": normalized_email, "name": display_name}, None, None
 
 
 def registered_login_error() -> tuple[dict[str, Any], int]:
@@ -151,70 +131,88 @@ def registered_login_error() -> tuple[dict[str, Any], int]:
             "authenticated": False,
             "error": "invalid_credentials",
             "phase": "auth_login",
-            "detail": "Invalid username or password.",
+            "detail": "Invalid email or password.",
         },
         401,
     )
 
 
+def hash_password(password: str) -> str:
+    """Hash one password with bcrypt. The encoded hash includes salt and cost."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str | bytes | None) -> bool:
+    """Verify a password against a bcrypt hash without exposing secret material."""
+    if not password_hash:
+        return False
+    encoded_hash = password_hash if isinstance(password_hash, bytes) else str(password_hash).encode("utf-8")
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), encoded_hash)
+    except ValueError:
+        return False
+
+
 def _hash_password(*, password: str, salt: bytes) -> bytes:
-    """Hash one password with a per-account salt using stdlib PBKDF2-HMAC."""
-    return hashlib.pbkdf2_hmac(
-        "sha256",
-        password.encode("utf-8"),
-        salt,
-        _PBKDF2_ITERATIONS,
-    )
+    """Legacy PBKDF2 helper retained so old imports/tests do not break."""
+    return hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 200_000)
+
+
+def new_public_token() -> str:
+    """Return a URL-safe raw token for sessions or password reset links."""
+    return token_urlsafe(32)
+
+
+def token_hash(token: str, *, secret: str) -> str:
+    """Hash a raw bearer token before storing it server-side."""
+    digest = hmac.new(secret.encode("utf-8"), token.encode("utf-8"), hashlib.sha256).digest()
+    return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
 
 
 def authenticate_local_admin(
-    *, username: str, password: str, settings: Settings
+    *, email: str | None = None, username: str | None = None, password: str, settings: Settings
 ) -> tuple[AuthUser | None, dict[str, Any] | None, int | None]:
-    """Authenticate the development-only local admin.
-
-    Returns (user, error_payload, status_code). Error payloads are structured
-    and intentionally avoid echoing credentials.
-    """
+    """Authenticate the explicitly development-only local admin."""
     if not settings.local_admin_bootstrap_enabled:
         return (
             None,
             {
                 "authenticated": False,
                 "error": "local_admin_disabled",
+                "phase": "auth_login",
                 "detail": "Local admin bootstrap is disabled for this environment.",
             },
             403,
         )
 
-    valid_username = compare_digest(username, LOCAL_ADMIN_USERNAME)
+    candidate = (email or username or "").strip().lower()
+    valid_identity = compare_digest(candidate, LOCAL_ADMIN_EMAIL) or compare_digest(candidate, LOCAL_ADMIN_USERNAME)
     valid_password = compare_digest(password, LOCAL_ADMIN_PASSWORD)
-    if not (valid_username and valid_password):
+    if not (valid_identity and valid_password):
         return (
             None,
             {
                 "authenticated": False,
                 "error": "invalid_credentials",
-                "detail": "Invalid username or password.",
+                "phase": "auth_login",
+                "detail": "Invalid email or password.",
             },
             401,
         )
 
-    return AuthUser(username=LOCAL_ADMIN_USERNAME), None, None
+    return AuthUser(id=LOCAL_ADMIN_USERNAME, email=LOCAL_ADMIN_EMAIL, name="Local Admin", role=ADMIN_ROLE, email_verified=True), None, None
 
 
-def serialize_user(user: AuthUser) -> dict[str, str]:
-    """Serialize user state for storage in the signed session."""
+def has_any_role(user: AuthUser, roles: set[str] | tuple[str, ...] | list[str]) -> bool:
+    """Return whether a resolved user has one of the allowed roles."""
+    return user.role in set(roles)
+
+
+def serialize_user(user: AuthUser) -> dict[str, Any]:
+    """Return safe user fields. Not used for session storage."""
     return user.public_dict()
 
 
 def user_from_session(value: Any) -> AuthUser | None:
-    """Parse password-free user state from a session value."""
-    if not isinstance(value, dict):
-        return None
-    username = value.get("username")
-    role = value.get("role", "admin")
-    if not isinstance(username, str) or not username:
-        return None
-    if not isinstance(role, str) or not role:
-        return None
-    return AuthUser(username=username, role=role)
+    """No-op legacy parser; sessions are now opaque and server-side."""
+    return None

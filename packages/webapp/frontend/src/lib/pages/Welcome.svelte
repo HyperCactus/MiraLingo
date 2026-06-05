@@ -8,15 +8,20 @@
     logIn: void;
     jumpCreateAccount: void;
     jumpLogin: void;
+    googleLogin: void;
+    forgotPassword: void;
   }>();
 
-  export let loginUsername = 'admin';
-  export let loginPassword = '';
-  export let registrationUsername = '';
-  export let registrationPassword = '';
-  export let submitting = false;
-  export let authState = 'anonymous';
-  export let authError = '';
+  let {
+    loginEmail = $bindable(''),
+    loginPassword = $bindable(''),
+    registrationEmail = $bindable(''),
+    registrationName = $bindable(''),
+    registrationPassword = $bindable(''),
+    submitting = false,
+    authState = 'anonymous',
+    authError = '',
+  } = $props();
 
   const previewCards = [
     {
@@ -59,7 +64,7 @@
         </div>
 
         <div class="grid gap-3 sm:grid-cols-3">
-          {#each previewCards as card}
+          {#each previewCards as card (card.title)}
             <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
               <p class="text-xs font-semibold uppercase tracking-[0.22em] text-violet-100">{card.eyebrow}</p>
               <p class="mt-3 text-lg font-semibold text-white">{card.title}</p>
@@ -107,16 +112,21 @@
           {#if authError && authState === 'registration-failed'}
             <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
           {/if}
-          <form class="space-y-4" on:submit|preventDefault={() => dispatch('createAccount')}>
+          <form class="space-y-4" onsubmit={(event) => { event.preventDefault(); dispatch('createAccount'); }}>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-              <span>Username</span>
-              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={registrationUsername} required />
+              <span>Email</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="email" bind:value={registrationEmail} required type="email" />
+            </label>
+            <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <span>Name or nickname <span class="font-normal text-slate-400">optional</span></span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="name" bind:value={registrationName} />
             </label>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
               <span>Password</span>
               <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} required type="password" />
             </label>
             <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Creating…' : 'Create Account'}</AppButton>
+            <AppButton type="button" variant="secondary" className="min-h-12 w-full justify-center" on:click={() => dispatch('googleLogin')}>Sign in with Google</AppButton>
           </form>
         </AppCard>
       </div>
@@ -130,16 +140,18 @@
           {#if authError && authState !== 'registration-failed'}
             <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
           {/if}
-          <form class="space-y-4" on:submit|preventDefault={() => dispatch('logIn')}>
+          <form class="space-y-4" onsubmit={(event) => { event.preventDefault(); dispatch('logIn'); }}>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-              <span>Username</span>
-              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="username" bind:value={loginUsername} required />
+              <span>Email</span>
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="email" bind:value={loginEmail} required type="email" />
             </label>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
               <span>Password</span>
               <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="current-password" bind:value={loginPassword} required type="password" />
             </label>
             <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Signing in…' : 'Log In'}</AppButton>
+            <AppButton type="button" variant="secondary" className="min-h-12 w-full justify-center" on:click={() => dispatch('googleLogin')}>Sign in with Google</AppButton>
+            <button type="button" class="w-full text-sm font-semibold text-violet-700 hover:text-violet-900 dark:text-violet-300 dark:hover:text-violet-100" onclick={() => dispatch('forgotPassword')}>Forgot password?</button>
           </form>
         </AppCard>
       </div>

@@ -44,7 +44,7 @@ def _seed_practice_rows(client: TestClient) -> None:
 def test_account_delete_requires_authenticated_session(tmp_path: Path) -> None:
     client = TestClient(create_app(_settings(tmp_path)))
 
-    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "mira DELETE"})
+    response = client.request("DELETE", "/auth/account", json={"email": "mira@legacy.local", "confirmation": "mira@legacy.local DELETE"})
 
     assert response.status_code == 401
     assert response.json() == {
@@ -61,7 +61,7 @@ def test_account_delete_rejects_wrong_confirmation_and_preserves_session(tmp_pat
     _register(client, "mira")
 
     wrong_phrase = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "KEEP"})
-    wrong_username = client.request("DELETE", "/auth/account", json={"username": "sara", "confirmation": "mira DELETE"})
+    wrong_username = client.request("DELETE", "/auth/account", json={"email": "sara@legacy.local", "confirmation": "mira@legacy.local DELETE"})
     current_user = client.get("/auth/current-user")
 
     assert wrong_phrase.status_code == 400
@@ -69,14 +69,14 @@ def test_account_delete_rejects_wrong_confirmation_and_preserves_session(tmp_pat
         "ok": False,
         "error": "invalid_confirmation",
         "phase": "account_delete",
-        "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
+        "detail": "Account deletion requires the current email plus the exact confirmation phrase '<email> DELETE'.",
     }
     assert wrong_username.status_code == 400
     assert wrong_username.json() == {
         "ok": False,
         "error": "invalid_confirmation",
         "phase": "account_delete",
-        "detail": "Account deletion requires the current username plus the exact confirmation phrase '<username> DELETE'.",
+        "detail": "Account deletion requires the current email plus the exact confirmation phrase '<email> DELETE'.",
     }
     assert current_user.status_code == 200
     with sqlite3.connect(database_path) as connection:
@@ -126,14 +126,14 @@ def test_account_delete_cascades_owned_rows_clears_session_and_keeps_other_learn
     response = deleting_client.request(
         "DELETE",
         "/auth/account",
-        json={"username": "mira", "confirmation": "mira DELETE"},
+        json={"email": "mira@legacy.local", "confirmation": "mira@legacy.local DELETE"},
     )
 
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
         "phase": "account_delete",
-        "deleted_username": "mira",
+        "deleted_email": "mira@legacy.local",
         "authenticated": False,
     }
     current_user = deleting_client.get("/auth/current-user")
@@ -159,11 +159,11 @@ def test_account_delete_storage_failure_returns_phase_specific_json(tmp_path: Pa
     client = TestClient(app)
     _register(client, "mira")
 
-    def fail_delete(*, username: str):
+    def fail_delete(*, user_id: str = None, username: str = None):
         raise StorageError(phase="account_delete", detail="Could not delete account.")
 
     app.state.storage.delete_user_account = fail_delete
-    response = client.request("DELETE", "/auth/account", json={"username": "mira", "confirmation": "mira DELETE"})
+    response = client.request("DELETE", "/auth/account", json={"email": "mira@legacy.local", "confirmation": "mira@legacy.local DELETE"})
 
     assert response.status_code == 503
     assert response.json() == {

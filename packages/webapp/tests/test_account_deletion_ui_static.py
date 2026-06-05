@@ -19,7 +19,7 @@ def _css() -> str:
 def test_delete_account_form_requires_current_confirmation_phrase_before_enable() -> None:
     source = _source()
 
-    assert 'const deleteConfirmPhrase = () => `${$currentUser?.username ?? ""} DELETE`.trim();' in source
+    assert 'const deleteConfirmPhrase = () => `${$currentUser?.email ?? ""} DELETE`.trim();' in source
     assert "deleteAccountConfirm.trim() === deleteConfirmPhrase()" in source
     assert "placeholder={deleteConfirmPhrase()}" in source
     assert 'disabled={!canSubmitDelete() || deleteAccountState === "submitting"}' in source
@@ -32,7 +32,7 @@ def test_delete_account_uses_confirmed_delete_endpoint_and_clears_authenticated_
     assert "export async function deleteAccount" in source
     assert "fetch('/auth/account'" in source
     assert "method: 'DELETE'" in source
-    assert "body: JSON.stringify({ username, confirmation })" in source
+    assert "body: JSON.stringify({ email, confirmation })" in source
     assert 'clearAuthAppState("Account deleted.");' in source
     assert "resetPracticeSurface();" in source
     assert "resetSettingsSurface();" in source

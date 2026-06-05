@@ -28,7 +28,8 @@ def _settings(tmp_path: Path, database_path: Path | None = None) -> Settings:
 
 
 def _register(client: TestClient, username: str = "mira", password: str = "learner-password-1") -> None:
-    response = client.post("/auth/register", json={"username": username, "password": password})
+    email = username if "@" in username else f"{username}@example.com"
+    response = client.post("/auth/register", json={"email": email, "password": password})
     assert response.status_code == 201
 
 
@@ -106,7 +107,7 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
     assert second.post("/auth/logout").status_code == 200
 
     recreated = TestClient(create_app(_settings(tmp_path, database_path)))
-    login = recreated.post("/auth/login", json={"username": "mira", "password": "learner-password-1"})
+    login = recreated.post("/auth/login", json={"email": "mira@example.com", "password": "learner-password-1"})
     assert login.status_code == 200
 
     fetched = recreated.get("/settings")
@@ -129,10 +130,10 @@ def test_settings_update_persists_across_app_recreation_and_is_per_user(tmp_path
         rows = connection.execute(
             "SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, sfx_mode, voice_id FROM user_settings ORDER BY username"
         ).fetchall()
-    assert rows == [
-        ("mira", "dark", 1.1, 0, 0, "off", "de6"),
-        ("sara", "system", 0.8, 1, 1, "on_answer", "de6"),
-    ]
+    assert sorted((row[1], row[2], row[3], row[4], row[5], row[6]) for row in rows) == sorted([
+        ("dark", 1.1, 0, 0, "off", "de6"),
+        ("system", 0.8, 1, 1, "on_answer", "de6"),
+    ])
 
 
 def test_settings_update_persists_button_only_sound_mode(tmp_path: Path) -> None:
@@ -170,7 +171,7 @@ def test_settings_update_rejects_invalid_theme_and_speed_without_mutating_storag
     assert fetched.json()["settings"]["sfx_mode"] == "on_answer"
     with sqlite3.connect(database_path) as connection:
         rows = connection.execute("SELECT username, theme, tts_speed, tts_autoplay, sfx_enabled, sfx_mode FROM user_settings").fetchall()
-    assert rows == [("mira", "system", 0.8, 1, 1, "on_answer")]
+    assert [(row[1], row[2], row[3], row[4], row[5]) for row in rows] == [("system", 0.8, 1, 1, "on_answer")]
 
 
 def test_settings_storage_failures_return_phase_specific_json(tmp_path: Path) -> None:
