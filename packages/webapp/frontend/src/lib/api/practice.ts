@@ -72,6 +72,7 @@ export type PracticeAnalyticsResponse = {
   phase?: string;
   event_count?: number;
   accuracy?: number;
+  mastered_count?: number;
   session_count?: number;
   lifecycle_count?: number;
   sparse_history?: boolean;

@@ -33,16 +33,9 @@
   ];
 
   const safeCount = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
-  const masteredFromAnalytics = (value: unknown): number | null => {
-    if (value == null) return null;
-    if (typeof value !== 'object') return null;
-    return Object.values(value as Record<string, unknown>).filter((entry) => {
-      if (!entry || typeof entry !== 'object') return false;
-      return Boolean((entry as Record<string, unknown>).mastered);
-    }).length;
-  };
+  const hasFiniteCount = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 
-  $: masteredCountUnified = masteredFromAnalytics(analytics?.mastered_recent) ?? safeCount(progress?.mastered_count);
+  $: masteredCountUnified = hasFiniteCount(progress?.mastered_count) ? progress.mastered_count : safeCount(analytics?.mastered_count);
   $: progressAccuracy = typeof analytics?.accuracy === 'number' && Number.isFinite(analytics.accuracy)
     ? Math.round(analytics.accuracy * 100)
     : typeof progress?.accuracy === 'number' && Number.isFinite(progress.accuracy)
