@@ -23,6 +23,7 @@ services:
       MIRALINGO_GOOGLE_CLIENT_SECRET: ${MIRALINGO_GOOGLE_CLIENT_SECRET:-}
     volumes:
       - miralingo_db:/app/.miralingo
+      - miralingo_chroma:/app/data/chroma_db
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
       interval: 10s
@@ -88,3 +89,4 @@ services:
 
 volumes:
   miralingo_db:
+  miralingo_chroma:

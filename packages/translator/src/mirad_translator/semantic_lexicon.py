@@ -22,7 +22,7 @@ from typing import Any, Optional
 
 import dspy
 
-from mirad_translator.lexicon_db import lookup_word, lookup_word_candidates, lookup_mirad_word_candidates
+from mirad_translator.lexicon_db import DB_PATH, build_lexicon_db, lookup_word, lookup_word_candidates, lookup_mirad_word_candidates
 from mirad_translator.retrieval import _get_embedder, _CHROMA_AVAILABLE
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -64,6 +64,7 @@ def _index_lexicon(collection):
     import chromadb
 
     db_path = DB_PATH
+    build_lexicon_db(db_path=db_path)
     conn = sqlite3.connect(db_path)
     rows = conn.execute("SELECT english, mirad FROM lexicon").fetchall()
     conn.close()
