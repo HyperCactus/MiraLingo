@@ -88,11 +88,11 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Open http://localhost:8080. The Compose stack contains:
+Open http://localhost:5173. The Compose stack contains:
 
 | Service | Role | Notes |
 |---|---|---|
-| `miralingo-frontend` | Nginx + built Svelte app | Publishes `${MIRALINGO_HTTP_PORT:-8080}` and proxies API paths to backend. |
+| `miralingo-frontend` | Nginx + built Svelte app | Publishes `${MIRALINGO_HTTP_PORT:-5173}` and proxies API paths to backend. |
 | `miralingo-backend` | FastAPI app | Runs Uvicorn on the internal Docker network. |
 | `miralingo_db` | Named Docker volume | Persists `.miralingo/miralingo.sqlite3` across image rebuilds. |
 
@@ -109,7 +109,7 @@ docker compose up -d
 docker compose logs -f miralingo-backend miralingo-frontend
 
 # Check health through frontend proxy
-curl -fsS http://localhost:8080/health
+curl -fsS http://localhost:5173/health
 
 # Stop without deleting database volume
 docker compose down
@@ -125,7 +125,7 @@ MIRALINGO_ENV=production
 MIRALINGO_ENABLE_LOCAL_ADMIN=false
 MIRALINGO_SESSION_SECRET=<long random secret, e.g. openssl rand -hex 32>
 MIRALINGO_FRONTEND_BASE_URL=https://your-domain.example
-MIRALINGO_HTTP_PORT=8080
+MIRALINGO_HTTP_PORT=5173
 ```
 
 Put HTTPS in front of the frontend container with Caddy, Traefik, Nginx, or a cloud load balancer. In production mode, session cookies are marked `Secure`, so browser login requires HTTPS.
@@ -148,7 +148,7 @@ Recommended update flow:
 git pull --ff-only
 docker compose build --pull miralingo-backend miralingo-frontend
 docker compose up -d --remove-orphans
-curl -fsS http://localhost:8080/health
+curl -fsS http://localhost:5173/health
 ```
 
 The SQLite database remains in the `miralingo_db` volume during rebuilds and restarts. If a release fails after deploy, inspect logs and roll back to a previous commit:

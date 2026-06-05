@@ -81,7 +81,7 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Open http://localhost:8080. The default Compose deployment stores SQLite data in the named `miralingo_db` volume and serves the Svelte frontend through Nginx, with API requests proxied to the FastAPI backend.
+Open http://localhost:5173. The default Compose deployment stores SQLite data in the named `miralingo_db` volume and serves the Svelte frontend through Nginx, with API requests proxied to the FastAPI backend.
 
 For a live site, edit `.env` before first deploy:
 
@@ -90,7 +90,7 @@ MIRALINGO_ENV=production
 MIRALINGO_ENABLE_LOCAL_ADMIN=false
 MIRALINGO_SESSION_SECRET=<long random secret>
 MIRALINGO_FRONTEND_BASE_URL=https://your-domain.example
-MIRALINGO_HTTP_PORT=8080
+MIRALINGO_HTTP_PORT=5173
 ```
 
 Put HTTPS in front with your host reverse proxy (Caddy, Traefik, Nginx, or cloud load balancer). To ship future fixes/features on the live site:
