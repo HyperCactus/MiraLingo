@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1
 FROM python:3.10-slim
 
-# Install espeak-ng for TTS synthesis
-RUN apt-get update \
- && apt-get install -y --no-install-recommends espeak-ng \
+# Install speech synthesis runtimes.
+RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends espeak-ng mbrola mbrola-de6 \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

@@ -9,8 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     MIRALINGO_BEGINNER_JSON_PATH=/app/data/miralingo_modules/beginner.json \
     MIRALINGO_NUMBERS_JSON_PATH=/app/data/miralingo_modules/numbers.json
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends curl build-essential espeak-ng \
+RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl build-essential espeak-ng mbrola mbrola-de6 \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

@@ -183,6 +183,8 @@ npm run dev -- --host 127.0.0.1
 
 ### Audio setup (optional, for Mirad pronunciation)
 
+Docker images install MBROLA and the `de6` voice automatically. For manual/non-Docker backend runs, install them on the host:
+
 ```bash
 sudo apt install mbrola mbrola-de6
 ```
@@ -265,8 +267,8 @@ npm --prefix packages/webapp/frontend run build
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Audio returns `audio_backend_unavailable` | TTS package not on PYTHONPATH | Add `packages/tts/src` to `PYTHONPATH` or `pip install -e packages/tts/` |
-| Audio returns `mbrola_unavailable` | `mbrola` binary not on PATH | `sudo apt install mbrola` |
-| Audio returns `mbrola_voice_unavailable` | `de6` voice missing | `sudo apt install mbrola-de6` |
+| Audio returns `mbrola_unavailable` | `mbrola` binary not on PATH | Rebuild Docker backend image, or for manual/non-Docker runs: `sudo apt install mbrola` |
+| Audio returns `mbrola_voice_unavailable` | `de6` voice missing | Rebuild Docker backend image, or for manual/non-Docker runs: `sudo apt install mbrola-de6` |
 | Audio returns `unknown_card` | Card ID not in practice content | Refresh the queue and verify content import |
 | Practice panel shows "Could not reach MiraLingo auth" | Backend not running | Start with `./scripts/start_miralingo.sh` |
 | Login fails with `local_admin_disabled` | Not in development mode | Set `MIRALINGO_ENV=development` |
