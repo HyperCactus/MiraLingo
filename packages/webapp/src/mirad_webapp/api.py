@@ -291,6 +291,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def fallback_lexicon_search(q: str, direction: str, top_k: int) -> list[dict[str, Any]]:
         """Return fast SQLite FTS/prefix matches when semantic embeddings are unavailable or warming."""
+        import re
         import sqlite3
         from difflib import SequenceMatcher
 
@@ -299,6 +300,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         normalized = " ".join(str(q or "").strip().lower().split())
         if not normalized:
             return []
+        fts_terms = re.findall(r"[A-Za-z0-9]+", normalized)
+        fts_match = " ".join(f"{term}*" for term in fts_terms) if fts_terms else ""
 
         build_lexicon_db(db_path=DB_PATH)
         conn = sqlite3.connect(DB_PATH)
@@ -314,11 +317,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     """,
                     (f"%{normalized}%", f"{normalized[: max(1, min(5, len(normalized)))]}%", normalized, f"{normalized}%", max(top_k * 4, 12)),
                 ).fetchall()
-                if not rows:
-                    rows = conn.execute(
-                        "SELECT english, mirad FROM lexicon_fts JOIN lexicon ON lexicon_fts.rowid = lexicon.id WHERE lexicon_fts MATCH ? LIMIT ?",
-                        (f"{normalized}*", max(top_k * 4, 12)),
-                    ).fetchall()
+                if not rows and fts_match:
+                    try:
+                        rows = conn.execute(
+                            "SELECT lexicon.english, lexicon.mirad FROM lexicon_fts JOIN lexicon ON lexicon_fts.rowid = lexicon.id WHERE lexicon_fts MATCH ? LIMIT ?",
+                            (fts_match, max(top_k * 4, 12)),
+                        ).fetchall()
+                    except sqlite3.OperationalError:
+                        rows = []
                 candidates = [(normalized, ", ".join(exact), True)] if exact else []
                 candidates.extend((english, mirad, english == normalized) for english, mirad in rows)
                 seen = set()
@@ -344,11 +350,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 """,
                 (f"%{normalized}%", f"{normalized[: max(1, min(5, len(normalized)))]}%", normalized, f"{normalized}%", max(top_k * 4, 12)),
             ).fetchall()
-            if not rows:
-                rows = conn.execute(
-                    "SELECT mirad, english FROM reverse_lexicon_fts JOIN reverse_lexicon ON reverse_lexicon_fts.rowid = reverse_lexicon.id WHERE reverse_lexicon_fts MATCH ? LIMIT ?",
-                    (f"{normalized}*", max(top_k * 4, 12)),
-                ).fetchall()
+            if not rows and fts_match:
+                try:
+                    rows = conn.execute(
+                        "SELECT reverse_lexicon.mirad, reverse_lexicon.english FROM reverse_lexicon_fts JOIN reverse_lexicon ON reverse_lexicon_fts.rowid = reverse_lexicon.id WHERE reverse_lexicon_fts MATCH ? LIMIT ?",
+                        (fts_match, max(top_k * 4, 12)),
+                    ).fetchall()
+                except sqlite3.OperationalError:
+                    rows = []
             candidates = [(normalized, ", ".join(exact), True)] if exact else []
             candidates.extend((mirad, english, mirad == normalized) for mirad, english in rows)
             seen = set()

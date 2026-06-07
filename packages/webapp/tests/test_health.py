@@ -1,4 +1,5 @@
 from pathlib import Path
+import warnings
 
 from fastapi.testclient import TestClient
 
@@ -21,6 +22,20 @@ def test_health_reports_ok() -> None:
     assert payload["status"] == "ok"
     assert payload["service"] == "mirad-webapp"
     assert "semantic_warmup" in payload
+
+
+def test_lookup_fallback_handles_punctuation_without_500() -> None:
+    app = create_app()
+    app.state.semantic_warmup = {"status": "running"}
+    client = TestClient(app)
+
+    for query, direction in (("can't", "mir_to_en"), ("x:y", "en_to_mir"), ("100", "en_to_mir")):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            response = client.get("/lookup", params={"q": query, "direction": direction, "top_k": 3})
+
+        assert response.status_code == 200
+        assert isinstance(response.json(), list)
 
 
 def test_current_user_reports_logged_out_without_session() -> None:
