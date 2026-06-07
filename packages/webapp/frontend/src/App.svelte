@@ -491,38 +491,51 @@
     await loadPracticeQueue(mode);
   }
 
+  const soundEffectCache = new Map();
+
+  function prepareSoundEffect(src, volume = 1.0) {
+    if (!src || typeof Audio === "undefined") return null;
+    let cached = soundEffectCache.get(src);
+    if (!cached) {
+      cached = new Audio(src);
+      cached.preload = "auto";
+      cached.load();
+      soundEffectCache.set(src, cached);
+    }
+    const effect = cached.cloneNode(true);
+    effect.volume = Math.max(0, Math.min(1, Number(volume) || 0));
+    return effect;
+  }
+
+  function playSoundEffect(src, volume = 1.0) {
+    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
+    try {
+      const effect = prepareSoundEffect(src, volume);
+      void effect?.play();
+    } catch (_) {
+      // Non-blocking UX hint only.
+    }
+  }
+
+  function preloadPracticeSoundEffects() {
+    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
+    prepareSoundEffect("/assets/sound_effects/correct_answer.wav", 1.0);
+    prepareSoundEffect("/assets/sound_effects/incorrect_answer.wav", 0.6);
+    prepareSoundEffect("/assets/sound_effects/show_answer.wav", 0.7);
+    prepareSoundEffect("/assets/sound_effects/atchevement.wav", 1.0);
+  }
+
   function playShowAnswerSound() {
-    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
-    try {
-      const effect = new Audio("/assets/sound_effects/show_answer.wav");
-      effect.volume = 0.7;
-      void effect.play();
-    } catch (_) {
-      // Non-blocking UX hint only.
-    }
+    playSoundEffect("/assets/sound_effects/show_answer.wav", 0.7);
   }
 
-  async function playFeedbackSound(correct) {
-    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
+  function playFeedbackSound(correct) {
     const src = correct ? "/assets/sound_effects/correct_answer.wav" : "/assets/sound_effects/incorrect_answer.wav";
-    try {
-      const effect = new Audio(src);
-      effect.volume = correct ? 1.0 : 0.6;
-      await effect.play();
-    } catch (_) {
-      // Non-blocking UX hint only.
-    }
+    playSoundEffect(src, correct ? 1.0 : 0.6);
   }
 
-  async function playAchievementSound() {
-    if (!soundEffectsEnabledFromMode($soundEffectsMode)) return;
-    try {
-      const effect = new Audio("/assets/sound_effects/atchevement.wav");
-      effect.volume = 1.0;
-      await effect.play();
-    } catch (_) {
-      // Non-blocking celebration only.
-    }
+  function playAchievementSound() {
+    playSoundEffect("/assets/sound_effects/atchevement.wav", 1.0);
   }
 
   function latestAchievement(payload) {
@@ -581,9 +594,11 @@
       answerErr = "Enter an answer before submitting.";
       return;
     }
-    answerResult = optimisticAnswerResult(currentCard, answer);
+    const optimisticResult = optimisticAnswerResult(currentCard, answer);
+    answerResult = optimisticResult;
     miradAudioUnlocked = true;
-    void recordAnswer({ card_id: currentCard.id, answer }, { optimistic: true });
+    playFeedbackSound(Boolean(optimisticResult.correct));
+    void recordAnswer({ card_id: currentCard.id, answer }, { optimistic: true, playSfx: false });
   }
 
   async function submitGiveUp() {
@@ -795,6 +810,10 @@
 
   $effect(() => {
     applyTheme($theme);
+  });
+
+  $effect(() => {
+    if (soundEffectsEnabledFromMode($soundEffectsMode)) preloadPracticeSoundEffects();
   });
 
   onMount(() => {
