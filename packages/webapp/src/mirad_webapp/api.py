@@ -810,6 +810,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
+    @app.get("/practice/summary", tags=["practice"])
+    def practice_summary(request: Request) -> JSONResponse:
+        """Return fast dashboard practice metrics without full card expansion."""
+        user = resolve_current_user(request, "auth_session")
+        if user is None:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "ok": False,
+                    "error": "unauthenticated",
+                    "phase": "practice_summary",
+                    "detail": "Login is required to request practice summary.",
+                },
+            )
+        try:
+            ensure_practice_storage_user("practice_summary", user.username, user.role)
+            payload = request.app.state.storage.practice_summary(username=user.username)
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+
     @app.get("/practice/progress", tags=["practice"])
     def practice_progress(request: Request) -> JSONResponse:
         """Return progress diagnostics for the authenticated session's bounded practice history."""

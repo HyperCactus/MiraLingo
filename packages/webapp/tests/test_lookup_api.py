@@ -202,7 +202,7 @@ def test_lookup_mir_to_en_returns_semantic_hits(monkeypatch) -> None:
     ]
 
 
-def test_lookup_returns_service_unavailable_when_semantic_search_fails(monkeypatch) -> None:
+def test_lookup_falls_back_when_semantic_search_fails(monkeypatch) -> None:
     def failing_lookup(*, english_word: str, top_k: int, min_similarity: float, include_exact: bool):
         raise RuntimeError("chromadb not installed")
 
@@ -219,7 +219,6 @@ def test_lookup_returns_service_unavailable_when_semantic_search_fails(monkeypat
 
     response = client.get("/lookup", params={"q": "run", "direction": "en_to_mir"})
 
-    assert response.status_code == 503
+    assert response.status_code == 200
     payload = response.json()
-    assert payload["error"] == "semantic search unavailable"
-    assert payload["detail"] == "chromadb not installed"
+    assert isinstance(payload, list)

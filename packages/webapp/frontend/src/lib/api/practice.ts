@@ -65,6 +65,23 @@ export type PracticeProgressResponse = {
   [key: string]: unknown;
 };
 
+export type PracticeSummaryResponse = {
+  ok?: boolean;
+  detail?: string;
+  error?: string;
+  phase?: string;
+  accuracy?: number | null;
+  event_count?: number;
+  total?: number;
+  correct?: number;
+  incorrect?: number;
+  mastered_count?: number;
+  active_count?: number;
+  lifecycle_count?: number;
+  streak?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 export type PracticeAnalyticsResponse = {
   ok?: boolean;
   detail?: string;
@@ -101,6 +118,14 @@ export async function submitPracticeAnswer(body: PracticeAnswerRequest) {
     body: JSON.stringify(body),
   });
   const payload = await readJson<PracticeAnswerResponse>(response);
+  return { response, payload };
+}
+
+export async function getPracticeSummary() {
+  const response = await fetch('/practice/summary', {
+    headers: { Accept: 'application/json' },
+  });
+  const payload = await readJson<PracticeSummaryResponse>(response);
   return { response, payload };
 }
 

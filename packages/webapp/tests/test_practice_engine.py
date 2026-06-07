@@ -977,6 +977,46 @@ def test_adaptive_session_strong_biases_mastered_recent_toward_less_recent_cards
     assert {card["base_card_id"] for card in mastered} == {"word:recent", "word:old"}
 
 
+def test_build_practice_achievements_unlocks_five_day_streak() -> None:
+    before_events = [
+        {
+            "card_id": "word:the#english-to-mirad",
+            "base_card_id": "word:the",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "te",
+            "expected_answer": "te",
+            "correct": True,
+            "answered_at": (NOW - timedelta(days=offset)).isoformat(),
+        }
+        for offset in range(1, 5)
+    ]
+    after_events = [
+        *before_events,
+        {
+            "card_id": "word:be#english-to-mirad",
+            "base_card_id": "word:be",
+            "direction": "english_to_mirad",
+            "card_type": "word",
+            "submitted_answer": "bi",
+            "expected_answer": "bi",
+            "correct": True,
+            "answered_at": NOW.isoformat(),
+        },
+    ]
+
+    achievements = build_practice_achievements(
+        cards=CARDS,
+        before_events=before_events,
+        after_events=after_events,
+        username="mira",
+        latest_card_id="word:be#english-to-mirad",
+        now=NOW,
+    )
+
+    assert any(achievement["id"] == "practice-streak-5" for achievement in achievements)
+
+
 def test_build_practice_achievements_unlocks_first_mastered_direction_card() -> None:
     before_events: list[dict[str, object]] = []
     after_events = _correct_streak(

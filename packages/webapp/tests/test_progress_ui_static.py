@@ -34,14 +34,14 @@ def test_progress_api_is_not_fetched_from_primary_practice_loop() -> None:
     assert all('/practice/analytics' not in block for block in practice_blocks)
 
 
-def test_dashboard_owns_progress_helper_call() -> None:
+def test_dashboard_owns_summary_helper_call() -> None:
     app_source = _app_source()
     dashboard_source = _dashboard_source()
 
     assert "<Dashboard" in app_source
-    assert "getPracticeProgress" in dashboard_source
-    assert "fetch('/practice/progress'" not in app_source
-    assert "fetch(\"/practice/progress\"" not in app_source
+    assert "getPracticeSummary" in dashboard_source
+    assert "fetch('/practice/summary'" not in app_source
+    assert "fetch(\"/practice/summary\"" not in app_source
 
 
 def test_answer_result_feedback_remains_without_progress_or_analytics_fetches() -> None:

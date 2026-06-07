@@ -185,6 +185,48 @@ def test_practice_progress_compact_contract_remains_compatible(monkeypatch, tmp_
     assert "latest_event" in payload
 
 
+def test_practice_summary_is_fast_compact_and_reports_streak(monkeypatch, tmp_path: Path) -> None:
+    app = _app_with_cards(monkeypatch, tmp_path)
+    client = TestClient(app)
+    _login(client)
+
+    storage = app.state.storage
+    storage.ensure_session_user(username="admin", role="local_admin", phase="practice_summary")
+    session = storage.start_practice_session(username="admin", started_at=NOW - timedelta(days=1))
+    _seed_answer(
+        app,
+        username="admin",
+        session_id=session["session_id"],
+        base_card_id="phrase:hello-world",
+        direction="english_to_mirad",
+        card_type="phrase",
+        correct=True,
+        answered_at=NOW - timedelta(days=1),
+    )
+    _seed_answer(
+        app,
+        username="admin",
+        session_id=session["session_id"],
+        base_card_id="phrase:good-morning",
+        direction="mirad_to_english",
+        card_type="phrase",
+        correct=False,
+        answered_at=NOW,
+    )
+
+    response = client.get("/practice/summary")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["ok"] is True
+    assert payload["phase"] == "practice_summary"
+    assert payload["event_count"] == 2
+    assert payload["correct"] == 1
+    assert payload["accuracy"] == 0.5
+    assert payload["streak"]["best_days"] >= 2
+    assert "per_card" not in payload
+
+
 def test_practice_analytics_missing_content_source_returns_structured_payload(tmp_path: Path) -> None:
     missing_csv = tmp_path / "missing.csv"
     app = create_app(Settings(session_secret="test-secret", database_path=tmp_path / "miralingo.sqlite3", phrase_csv_path=missing_csv))

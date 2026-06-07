@@ -204,8 +204,12 @@
     state = payload ? 'ready' : 'loading';
     error = '';
     try {
-      const { response, payload: next } = await getPracticeAnalytics();
-      const { response: progressResponse, payload: nextProgress } = await getPracticeProgress();
+      const [analyticsResult, progressResult] = await Promise.all([
+        getPracticeAnalytics(),
+        getPracticeProgress(),
+      ]);
+      const { response, payload: next } = analyticsResult;
+      const { response: progressResponse, payload: nextProgress } = progressResult;
       payload = next;
       progressPayload = progressResponse.ok && nextProgress.ok !== false ? nextProgress : null;
       page = 1;
@@ -251,7 +255,7 @@
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Answered</p><p class="mt-3 text-3xl font-semibold">{n(payload?.event_count)}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Accuracy</p><p class="mt-3 text-3xl font-semibold">{pct(payload?.accuracy)}</p></AppCard>
-    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Sessions</p><p class="mt-3 text-3xl font-semibold">{n(payload?.session_count)}</p></AppCard>
+    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Streak</p><p class="mt-3 text-3xl font-semibold">{n(streak.current_days)}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Lifecycles</p><p class="mt-3 text-3xl font-semibold">{n(payload?.lifecycle_count)}</p></AppCard>
   </div>
 

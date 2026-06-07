@@ -817,6 +817,61 @@ class MiraLingoStorage:
             raise StorageError(phase=phase, detail="Could not list answer events.") from exc
         return list(reversed([record for row in rows if (record := _answer_event_from_row(row)) is not None]))
 
+    def practice_summary(self, *, username: str, phase: str = "practice_summary") -> dict[str, Any]:
+        """Return fast dashboard metrics without expanding all practice cards."""
+        normalized_username = _require_username(username, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                totals = connection.execute(
+                    """
+                    SELECT COUNT(*) AS event_count,
+                           COALESCE(SUM(CASE WHEN correct THEN 1 ELSE 0 END), 0) AS correct_count,
+                           MAX(answered_at) AS latest_answered_at
+                    FROM answer_events
+                    WHERE username = ?
+                    """,
+                    (normalized_username,),
+                ).fetchone()
+                lifecycle = connection.execute(
+                    """
+                    SELECT lifecycle, COUNT(*) AS count
+                    FROM practice_lifecycle
+                    WHERE username = ?
+                    GROUP BY lifecycle
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+                day_rows = connection.execute(
+                    """
+                    SELECT DISTINCT substr(answered_at, 1, 10) AS practiced_day
+                    FROM answer_events
+                    WHERE username = ? AND answered_at IS NOT NULL
+                    ORDER BY practiced_day DESC
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not build practice summary.") from exc
+
+        event_count = int(totals["event_count"] or 0) if totals else 0
+        correct_count = int(totals["correct_count"] or 0) if totals else 0
+        lifecycle_counts = {str(row["lifecycle"] or "unknown"): int(row["count"] or 0) for row in lifecycle}
+        streak = _practice_day_streak([str(row["practiced_day"] or "") for row in day_rows])
+        return {
+            "ok": True,
+            "phase": "practice_summary",
+            "event_count": event_count,
+            "total": event_count,
+            "correct": correct_count,
+            "incorrect": max(0, event_count - correct_count),
+            "accuracy": None if event_count == 0 else round(correct_count / event_count, 4),
+            "latest_event_at": str(totals["latest_answered_at"] or "") if totals else "",
+            "streak": streak,
+            "mastered_count": int(lifecycle_counts.get("revision", 0)),
+            "active_count": int(lifecycle_counts.get("active", 0)),
+            "lifecycle_count": sum(lifecycle_counts.values()),
+        }
+
     def list_shown_cards(self, *, username: str, limit: int = MAX_EVENTS) -> list[ShownCardRecord]:
         """Return newest bounded shown-card rows in chronological order, skipping malformed rows."""
         normalized_username = _require_username(username, phase="practice_progress")
@@ -1407,6 +1462,42 @@ def _require_sfx_mode(sfx_mode: str, *, phase: str) -> str:
     if normalized not in {"all", "on_answer", "ui_only", "off"}:
         raise StorageError(phase=phase, detail="SFX mode must be one of: all, on_answer, ui_only, off.", error="invalid_sfx_mode")
     return normalized
+
+
+def _practice_day_streak(day_values: list[str], *, today: datetime | None = None) -> dict[str, Any]:
+    days = set()
+    for value in day_values:
+        try:
+            days.add(datetime.fromisoformat(str(value)[:10]).date())
+        except Exception:
+            continue
+    if not days:
+        return {"current_days": 0, "best_days": 0, "trajectory": []}
+
+    current_date = (today or datetime.now(timezone.utc)).date()
+    latest_allowed = current_date if current_date in days else current_date - timedelta(days=1)
+    current_streak = 0
+    cursor = latest_allowed
+    while cursor in days:
+        current_streak += 1
+        cursor -= timedelta(days=1)
+
+    best_streak = 0
+    run = 0
+    previous = None
+    for day in sorted(days):
+        if previous is not None and (day - previous).days == 1:
+            run += 1
+        else:
+            run = 1
+        best_streak = max(best_streak, run)
+        previous = day
+
+    return {
+        "current_days": current_streak,
+        "best_days": best_streak,
+        "trajectory": [day.isoformat() for day in sorted(days)],
+    }
 
 
 def _utcnow_iso() -> str:

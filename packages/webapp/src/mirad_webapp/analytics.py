@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 
@@ -12,6 +12,38 @@ def _parse_iso(value: str | None) -> datetime | None:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except Exception:
         return None
+
+
+def _day_streak(days: set[str], now: datetime) -> dict[str, Any]:
+    parsed = set()
+    for value in days:
+        try:
+            parsed.add(datetime.fromisoformat(str(value)[:10]).date())
+        except Exception:
+            continue
+    if not parsed:
+        return {"current_days": 0, "best_days": 0, "trajectory": []}
+
+    today = now.date()
+    latest_allowed = today if today in parsed else today - timedelta(days=1)
+    current_days = 0
+    cursor = latest_allowed
+    while cursor in parsed:
+        current_days += 1
+        cursor -= timedelta(days=1)
+
+    best_days = 0
+    run = 0
+    previous = None
+    for day in sorted(parsed):
+        if previous is not None and (day - previous).days == 1:
+            run += 1
+        else:
+            run = 1
+        best_days = max(best_days, run)
+        previous = day
+
+    return {"current_days": current_days, "best_days": best_days, "trajectory": [day.isoformat() for day in sorted(parsed)]}
 
 
 def build_practice_analytics(
@@ -102,11 +134,7 @@ def build_practice_analytics(
     lifecycle_count = len(lifecycle_rows)
     session_count = len(sessions)
 
-    streak = {
-        "current_days": 1 if latest_ts and latest_ts.date().isoformat() in streak_days else 0,
-        "best_days": len(streak_days),
-        "trajectory": sorted(streak_days),
-    }
+    streak = _day_streak(streak_days, now)
 
     sparse = {
         "is_sparse": total == 0 and session_count == 0 and lifecycle_count == 0,

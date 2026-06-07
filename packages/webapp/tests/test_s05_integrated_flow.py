@@ -219,7 +219,7 @@ def test_s05_browser_visible_source_affordances_exist() -> None:
 
     for expected_label in [
         "MiraLingo",
-        "Practice Mirad pronunciation and translation.",
+        "MiraLingo helps you practice Mirad",
         "Create account",
         "Log in",
         "Continue Practice",

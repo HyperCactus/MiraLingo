@@ -29,7 +29,10 @@ def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> No
     frontend_source = _frontend_source()
 
     assert health.status_code == 200
-    assert health.json() == {"status": "ok", "service": "mirad-webapp"}
+    payload = health.json()
+    assert payload["status"] == "ok"
+    assert payload["service"] == "mirad-webapp"
+    assert "semantic_warmup" in payload
     assert current_user.status_code == 401
     assert current_user.json() == {
         "authenticated": False,
@@ -37,7 +40,7 @@ def test_s01_logged_out_welcome_surface_is_backed_by_explicit_auth_state() -> No
         "detail": "No active user session.",
     }
     assert "MiraLingo" in frontend_source
-    assert "Practice Mirad pronunciation and translation." in frontend_source
+    assert "MiraLingo helps you practice Mirad" in frontend_source
     assert "authState={$authState}" in frontend_source
 
 

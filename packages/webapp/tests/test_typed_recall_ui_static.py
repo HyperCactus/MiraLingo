@@ -31,14 +31,14 @@ def test_typed_recall_blocks_blank_answers_and_uses_backend_inference_payload() 
     assert "answer.trim()" in source
     assert "!answer" in source
     assert "Enter an answer before submitting." in source
-    assert "await recordAnswer({ card_id: currentCard.id, answer });" in source
+    assert "void recordAnswer({ card_id: currentCard.id, answer }, { optimistic: true });" in source
     assert "correct:true" not in source
 
 
 def test_reveal_uses_explicit_incorrect_payload_without_self_assessment_buttons() -> None:
     source = _source()
 
-    assert "await recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false });" in source
+    assert "void recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false, optimistic: true });" in source
     assert "I knew it" not in source
     assert "I missed it" not in source
 
@@ -68,7 +68,8 @@ def test_typed_recall_surfaces_practice_achievements_from_answer_payload() -> No
 def test_typed_recall_refreshes_next_card_without_progress_panel_or_old_function_names() -> None:
     source = _source()
 
-    assert 'await loadPracticeQueue(practiceQueueMode ?? "mixed");' in source
+    assert "prefetchedPracticeQueues.get(mode)" in source
+    assert "await loadPracticeQueue(mode);" in source
     assert "Practice stats" not in source
     assert "Session progress" not in source
     assert "loadPracticeProgress" not in source

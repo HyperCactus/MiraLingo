@@ -77,9 +77,9 @@ def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:
 def test_audio_state_resets_on_queue_refresh_card_change_and_logout() -> None:
     source = _source()
 
-    load_queue_body = source.split("async function loadPracticeQueue", maxsplit=1)[1].split("async function", maxsplit=1)[0]
-    assert "resetAnswer();" in load_queue_body
-    assert "resetAudio();" in load_queue_body
+    apply_queue_body = source.split("function applyPracticeQueue", maxsplit=1)[1].split("async function", maxsplit=1)[0]
+    assert "resetAnswer();" in apply_queue_body
+    assert "resetAudio();" in apply_queue_body
     assert "resetPracticeSurface" in source
     assert "lastAudioCardId" in source
 

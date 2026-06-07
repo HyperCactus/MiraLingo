@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { getPracticeAnalytics, getPracticeProgress, type PracticeAnalyticsResponse, type PracticeProgressResponse } from '../api/practice';
+  import { getPracticeSummary, type PracticeSummaryResponse } from '../api/practice';
   import AppShell from '../components/layout/AppShell.svelte';
   import AppButton from '../components/ui/AppButton.svelte';
   import AppCard from '../components/ui/AppCard.svelte';
@@ -22,8 +22,7 @@
 
   let state: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   let error = '';
-  let progress: PracticeProgressResponse | null = null;
-  let analytics: PracticeAnalyticsResponse | null = null;
+  let summary: PracticeSummaryResponse | null = null;
 
   const navItems = [
     { id: 'dashboard', label: 'Today', href: '#dashboard', active: activeSection === 'dashboard' },
@@ -33,37 +32,30 @@
   ];
 
   const safeCount = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
-  const hasFiniteCount = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 
-  $: masteredCountUnified = hasFiniteCount(progress?.mastered_count) ? progress.mastered_count : safeCount(analytics?.mastered_count);
-  $: progressAccuracy = typeof analytics?.accuracy === 'number' && Number.isFinite(analytics.accuracy)
-    ? Math.round(analytics.accuracy * 100)
-    : typeof progress?.accuracy === 'number' && Number.isFinite(progress.accuracy)
-      ? Math.round(progress.accuracy * 100)
-      : safeCount(progress?.total) > 0
-        ? Math.round((safeCount(progress?.correct) / safeCount(progress?.total)) * 100)
-        : 0;
+  $: streak = summary?.streak && typeof summary.streak === 'object' ? summary.streak as Record<string, unknown> : {};
+  $: currentStreak = safeCount(streak.current_days);
+  $: masteredCountUnified = safeCount(summary?.mastered_count);
+  $: progressAccuracy = typeof summary?.accuracy === 'number' && Number.isFinite(summary.accuracy)
+    ? Math.round(summary.accuracy * 100)
+    : 0;
 
   async function loadProgress() {
-    state = progress ? 'ready' : 'loading';
+    state = summary ? 'ready' : 'loading';
     error = '';
     try {
-      const [{ response, payload }, { response: analyticsResponse, payload: analyticsPayload }] = await Promise.all([
-        getPracticeProgress(),
-        getPracticeAnalytics(),
-      ]);
-      if (response.status === 401 || analyticsResponse.status === 401) {
+      const { response, payload } = await getPracticeSummary();
+      if (response.status === 401) {
         dispatch('logout');
         return;
       }
       if (!response.ok || payload.ok === false) {
         state = 'error';
         error = payload.detail ?? 'Could not load today\'s progress.';
-        if (!progress) progress = payload;
+        if (!summary) summary = payload;
         return;
       }
-      progress = payload;
-      analytics = analyticsResponse.ok && analyticsPayload.ok !== false ? analyticsPayload : null;
+      summary = payload;
       state = 'ready';
     } catch (_error) {
       state = 'error';
@@ -133,7 +125,7 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <div class="rounded-2xl border border-violet-100 bg-violet-50/70 p-4 dark:border-violet-900/60 dark:bg-violet-950/40">
             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Practice volume</p>
-            <p class="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.event_count)}</p>
+            <p class="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-50">{safeCount(summary?.event_count)}</p>
             <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Cards answered in the tracked progress history.</p>
           </div>
 
@@ -150,13 +142,13 @@
               <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Momentum</p>
               <p class="text-sm text-slate-500 dark:text-slate-400">Current distribution of your practice state.</p>
             </div>
-            <span class="text-sm font-semibold text-violet-700 dark:text-violet-300">{safeCount(progress?.weak_count)} weak</span>
+            <span class="text-sm font-semibold text-violet-700 dark:text-violet-300">{currentStreak} day streak</span>
           </div>
-          <AppProgressBar value={masteredCountUnified} max={Math.max(1, masteredCountUnified + safeCount(progress?.new_count) + safeCount(progress?.stale_count) + safeCount(progress?.weak_count))} showLabel={true} />
+          <AppProgressBar value={masteredCountUnified} max={Math.max(1, masteredCountUnified + safeCount(summary?.active_count))} showLabel={true} />
           <div class="grid gap-3 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-3">
             <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Mastered</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{masteredCountUnified}</strong></div>
-            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Stale</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(progress?.stale_count)}</strong></div>
-            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">New</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(progress?.new_count)}</strong></div>
+            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Active</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(summary?.active_count)}</strong></div>
+            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Streak</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{currentStreak} days</strong></div>
           </div>
         </div>
       {/if}
@@ -193,10 +185,10 @@
 
   <svelte:fragment slot="sidebar">
     <AppCard className="space-y-3">
-      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Progress endpoint fields</p>
+      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Summary endpoint fields</p>
       <dl class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-        <div class="flex items-center justify-between gap-4"><dt>Total events</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.event_count)}</dd></div>
-        <div class="flex items-center justify-between gap-4"><dt>Weak cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(progress?.weak_count)}</dd></div>
+        <div class="flex items-center justify-between gap-4"><dt>Total events</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(summary?.event_count)}</dd></div>
+        <div class="flex items-center justify-between gap-4"><dt>Current streak</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{currentStreak}</dd></div>
         <div class="flex items-center justify-between gap-4"><dt>Mastered cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{masteredCountUnified}</dd></div>
       </dl>
     </AppCard>

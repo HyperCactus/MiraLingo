@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 import re
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from statistics import median
 from typing import Any
 
@@ -312,13 +312,21 @@ def build_practice_progress(
 def build_practice_achievements(
     *, cards: list[dict[str, Any]], before_events: list[dict[str, Any]] | None, after_events: list[dict[str, Any]] | None, username: str, latest_card_id: str | None = None, now: datetime | None = None
 ) -> list[dict[str, Any]]:
-    """Return newly unlocked achievement payloads for practice mastery milestones."""
+    """Return newly unlocked achievement payloads for mastery and streak milestones."""
     before_progress = build_practice_progress(cards=cards, events=before_events or [], now=now)
     after_progress = build_practice_progress(cards=cards, events=after_events or [], now=now)
     before_mastered = _mastered_item_ids(before_progress)
     after_mastered = _mastered_item_ids(after_progress)
+
+    unlocked: list[dict[str, Any]] = []
+    before_day_streak = _practice_day_streak(before_events or [], now=now)
+    after_day_streak = _practice_day_streak(after_events or [], now=now)
+    for threshold in _streak_milestones_up_to(after_day_streak):
+        if before_day_streak < threshold <= after_day_streak:
+            unlocked.append(_streak_achievement_payload(username=username, threshold=threshold))
+
     if not after_mastered or len(after_mastered) <= len(before_mastered):
-        return []
+        return unlocked
 
     latest_base_card_id = None
     latest_item_id = None
@@ -1308,6 +1316,45 @@ def _achievement_milestones_up_to(count: int) -> list[int]:
         milestones.append(next_threshold)
         next_threshold += _ACHIEVEMENT_REPEAT_STEP
     return milestones
+
+
+def _streak_milestones_up_to(count: int) -> list[int]:
+    if count < 5:
+        return []
+    return list(range(5, count + 1, 5))
+
+
+def _practice_day_streak(events: list[dict[str, Any]], *, now: datetime | None = None) -> int:
+    days = set()
+    for event in events:
+        answered_at = _parse_datetime(event.get("answered_at") if isinstance(event, dict) else None)
+        if answered_at is not None:
+            days.add(answered_at.date())
+    if not days:
+        return 0
+    today = _as_aware_datetime(now).date()
+    latest_allowed = today if today in days else today - timedelta(days=1)
+    streak = 0
+    cursor = latest_allowed
+    while cursor in days:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+
+def _streak_achievement_payload(*, username: str, threshold: int) -> dict[str, Any]:
+    return {
+        "id": f"practice-streak-{threshold}",
+        "kind": "practice_streak",
+        "threshold": threshold,
+        "title": f"🔥 {threshold}-day streak!",
+        "message": (
+            f"Congratulations {username}! ✨\n"
+            f"You practiced {threshold} days in a row.\n"
+            "Keep the streak alive with one small session tomorrow! 🚀"
+        ),
+        "sound": "achievement",
+    }
 
 
 def _achievement_payload(cards: list[dict[str, Any]], *, username: str, threshold: int, highlighted_base_card_id: str) -> dict[str, Any]:
