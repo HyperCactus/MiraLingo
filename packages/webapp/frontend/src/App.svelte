@@ -95,6 +95,8 @@
   let activeAchievement = $state(null);
   let miradAudioUnlocked = $state(false);
   let activeCardId = $state(null);
+  /** Prevents a resolved recordAnswer from overwriting state after the user moved to a new card. */
+  let currentSubmissionCardId = $state(null);
 
   let audioState = $state("idle");
   let audioMsg = $state("");
@@ -555,7 +557,7 @@
     }, delay);
   }
 
-  async function recordAnswer(body, options = {}) {
+  async function recordAnswer(body, submissionCardId, options = {}) {
     if (!options.optimistic) {
       answerSubmitting = true;
     }
@@ -564,6 +566,8 @@
 
     try {
       const { response, payload } = await submitPracticeAnswer(body);
+      // Discard response if user already moved to a different card.
+      if (submissionCardId !== currentCard?.id) return;
       if (!response.ok || payload.ok === false) {
         practiceErr = payload?.detail ?? "Could not record answer.";
         return;
@@ -598,7 +602,9 @@
     answerResult = optimisticResult;
     miradAudioUnlocked = true;
     playFeedbackSound(Boolean(optimisticResult.correct));
-    void recordAnswer({ card_id: currentCard.id, answer }, { optimistic: true, playSfx: false });
+    const submittedCardId = currentCard.id;
+    currentSubmissionCardId = submittedCardId;
+    void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { optimistic: true, playSfx: false });
   }
 
   async function submitGiveUp() {
@@ -607,7 +613,9 @@
     playShowAnswerSound();
     answerResult = optimisticAnswerResult(currentCard, "", false);
     miradAudioUnlocked = true;
-    void recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false, optimistic: true });
+    const submittedCardId = currentCard.id;
+    currentSubmissionCardId = submittedCardId;
+    void recordAnswer({ card_id: currentCard.id, correct: false }, submittedCardId, { playSfx: false, optimistic: true });
   }
 
   async function playCardAudio() {
@@ -782,6 +790,7 @@
   $effect(() => {
     if (currentCard?.id !== activeCardId) {
       activeCardId = currentCard?.id ?? null;
+      currentSubmissionCardId = null;
       resetAnswer();
     }
   });
