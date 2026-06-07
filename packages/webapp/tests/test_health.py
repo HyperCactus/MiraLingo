@@ -17,8 +17,10 @@ def test_health_reports_ok() -> None:
 
     response = client.get("/health")
 
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "mirad-webapp"}
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["service"] == "mirad-webapp"
+    assert "semantic_warmup" in payload
 
 
 def test_current_user_reports_logged_out_without_session() -> None:
@@ -40,7 +42,7 @@ def test_frontend_welcome_text_is_present() -> None:
 
     assert "MiraLingo" in app
     assert "Build confidence in Mirad with focused daily practice." in welcome
-    assert "MiraLingo introduces the Mirad language" in welcome
+    assert "MiraLingo helps you practice Mirad" in welcome
     assert "Create Account" in welcome
     assert "Log In" in welcome
 

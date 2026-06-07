@@ -54,6 +54,24 @@
   };
 
   const displayName = (user) => user?.name || user?.email || "Learner";
+  const normalizeAnswer = (value) => String(value ?? "").trim().toLowerCase().replace(/[\s.,!?;:"'’‘“”()[\]{}-]+/g, " ").trim();
+  const answerMatchesCard = (card, answer) => {
+    const submitted = normalizeAnswer(answer);
+    const expected = normalizeAnswer(card?.answer);
+    if (!submitted || !expected) return false;
+    const alternatives = String(card?.answer ?? "")
+      .split(/[,;|/]+/)
+      .map(normalizeAnswer)
+      .filter(Boolean);
+    return submitted === expected || alternatives.includes(submitted);
+  };
+  const optimisticAnswerResult = (card, answer, correct = null) => ({
+    ok: true,
+    expected_answer: card?.answer ?? "",
+    submitted_answer: answer ?? "",
+    correct: correct === null ? answerMatchesCard(card, answer) : Boolean(correct),
+    pending: true,
+  });
 
   let loginEmail = $state("");
   let password = $state("");
@@ -67,6 +85,8 @@
   let practiceQueueCards = $state([]);
   let practiceQueueIndex = $state(0);
   let practiceQueueMode = $state(null);
+  let prefetchedPracticeQueues = new Map();
+  let practicePreloadPromises = new Map();
   let currentCard = $state(null);
   let typedAnswer = $state("");
   let answerErr = $state("");
@@ -156,6 +176,8 @@
     practiceQueueCards = [];
     practiceQueueIndex = 0;
     practiceQueueMode = null;
+    prefetchedPracticeQueues.clear();
+    practicePreloadPromises.clear();
     currentCard = null;
     activeCardId = null;
     lastAudioCardId = null;
@@ -359,6 +381,28 @@
     void saveSettings();
   }
 
+  function applyPracticeQueue(mode, cards) {
+    practiceQueueCards = cards;
+    practiceQueueIndex = 0;
+    practiceQueueMode = mode;
+    currentCard = cards[0] ?? null;
+    practiceState = cards.length ? "ready" : "empty";
+    practiceErr = cards.length ? "" : emptyPracticeMessage(mode);
+    resetAnswer();
+    resetAudio();
+    warmNextPracticeQueue(mode);
+  }
+
+  async function fetchPracticeQueueCards(mode = "mixed") {
+    const { response, payload } = await getPracticeQueue(mode, mode === "revision" ? 30 : mode === "build_vocabulary" ? 12 : 8);
+    if (!response.ok || payload.ok === false) {
+      const error = new Error(payload?.detail ?? "Could not load practice cards.");
+      error.payload = payload;
+      throw error;
+    }
+    return Array.isArray(payload.cards) ? payload.cards : [];
+  }
+
   async function loadPracticeQueue(mode = "mixed", options = {}) {
     const silent = options.silent === true;
     if (!silent) {
@@ -367,36 +411,54 @@
     }
 
     try {
-      const { response, payload } = await getPracticeQueue(mode, mode === "revision" ? 30 : mode === "build_vocabulary" ? 12 : 8);
-      if (!response.ok || payload.ok === false) {
-        practiceState = "error";
-        practiceErr = payload?.detail ?? "Could not load practice cards.";
-        return;
+      const cards = await fetchPracticeQueueCards(mode);
+      if (silent) {
+        prefetchedPracticeQueues.set(mode, cards);
+        return cards;
       }
-
-      const cards = Array.isArray(payload.cards) ? payload.cards : [];
-      practiceQueueCards = cards;
-      practiceQueueIndex = 0;
-      practiceQueueMode = mode;
-      currentCard = cards[0] ?? null;
-      practiceState = cards.length ? "ready" : "empty";
-      practiceErr = cards.length ? "" : emptyPracticeMessage(mode);
-      resetAnswer();
-      resetAudio();
-    } catch (_) {
+      applyPracticeQueue(mode, cards);
+      return cards;
+    } catch (error) {
+      if (silent) return [];
       practiceState = "error";
-      practiceErr = "Could not load practice cards.";
+      practiceErr = error?.payload?.detail ?? error?.message ?? "Could not load practice cards.";
+      return [];
     }
   }
 
+  function warmNextPracticeQueue(mode = "mixed") {
+    if (!$currentUser?.id || practicePreloadPromises.has(mode)) return;
+    const promise = loadPracticeQueue(mode, { silent: true })
+      .catch(() => [])
+      .finally(() => practicePreloadPromises.delete(mode));
+    practicePreloadPromises.set(mode, promise);
+  }
+
   async function preloadPracticeQueue(mode = "mixed") {
-    if (practiceQueueMode === mode && practiceQueueCards.length > 0) return;
-    await loadPracticeQueue(mode, { silent: true });
+    if (prefetchedPracticeQueues.has(mode) || (practiceQueueMode === mode && practiceQueueCards.length > 0)) return;
+    if (practicePreloadPromises.has(mode)) return practicePreloadPromises.get(mode);
+    warmNextPracticeQueue(mode);
+    return practicePreloadPromises.get(mode);
   }
 
   async function openPracticeMode(mode) {
     setPracticeMode(mode);
     replaceHash(mode === "mixed" ? "practice" : mode);
+
+    const prefetched = prefetchedPracticeQueues.get(mode);
+    if (prefetched) {
+      prefetchedPracticeQueues.delete(mode);
+      applyPracticeQueue(mode, prefetched);
+      return;
+    }
+
+    if (practiceQueueMode === mode && practiceQueueCards.length > 0) {
+      practiceState = "ready";
+      currentCard = practiceQueueCards[practiceQueueIndex] ?? practiceQueueCards[0] ?? null;
+      warmNextPracticeQueue(mode);
+      return;
+    }
+
     await loadPracticeQueue(mode);
   }
 
@@ -413,9 +475,20 @@
     if (practiceQueueIndex + 1 < practiceQueueCards.length) {
       practiceQueueIndex += 1;
       currentCard = practiceQueueCards[practiceQueueIndex] ?? null;
+      if (practiceQueueCards.length - practiceQueueIndex <= 2) {
+        warmNextPracticeQueue(practiceQueueMode ?? "mixed");
+      }
       return;
     }
-    await loadPracticeQueue(practiceQueueMode ?? "mixed");
+
+    const mode = practiceQueueMode ?? "mixed";
+    const prefetched = prefetchedPracticeQueues.get(mode);
+    if (prefetched) {
+      prefetchedPracticeQueues.delete(mode);
+      applyPracticeQueue(mode, prefetched);
+      return;
+    }
+    await loadPracticeQueue(mode);
   }
 
   function playShowAnswerSound() {
@@ -470,7 +543,9 @@
   }
 
   async function recordAnswer(body, options = {}) {
-    answerSubmitting = true;
+    if (!options.optimistic) {
+      answerSubmitting = true;
+    }
     answerErr = "";
     practiceErr = "";
 
@@ -491,6 +566,7 @@
       if (options.playSfx !== false) {
         void playFeedbackSound(Boolean(payload?.correct));
       }
+      warmNextPracticeQueue(practiceQueueMode ?? "mixed");
     } catch (_) {
       practiceErr = "Could not record answer.";
     } finally {
@@ -505,14 +581,18 @@
       answerErr = "Enter an answer before submitting.";
       return;
     }
-    await recordAnswer({ card_id: currentCard.id, answer });
+    answerResult = optimisticAnswerResult(currentCard, answer);
+    miradAudioUnlocked = true;
+    void recordAnswer({ card_id: currentCard.id, answer }, { optimistic: true });
   }
 
   async function submitGiveUp() {
     if (!currentCard?.id) return;
     answerErr = "";
     playShowAnswerSound();
-    await recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false });
+    answerResult = optimisticAnswerResult(currentCard, "", false);
+    miradAudioUnlocked = true;
+    void recordAnswer({ card_id: currentCard.id, correct: false }, { playSfx: false, optimistic: true });
   }
 
   async function playCardAudio() {

@@ -17,6 +17,7 @@ Architecture:
 """
 
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Any, Optional
 
@@ -30,6 +31,7 @@ CHROMA_DIR = str(_PROJECT_ROOT / "data" / "chroma_db")
 
 _COLLECTION = None
 _INDEXED = False
+_INDEX_LOCK = threading.Lock()
 
 
 def _get_lexicon_collection():
@@ -40,19 +42,23 @@ def _get_lexicon_collection():
     if _COLLECTION is not None and _INDEXED:
         return _COLLECTION
 
-    import chromadb
-    client = chromadb.PersistentClient(path=CHROMA_DIR)
+    with _INDEX_LOCK:
+        if _COLLECTION is not None and _INDEXED:
+            return _COLLECTION
 
-    _COLLECTION = client.get_or_create_collection(
-        name="lexicon",
-        metadata={"doc_type": "lexicon"},
-    )
+        import chromadb
+        client = chromadb.PersistentClient(path=CHROMA_DIR)
 
-    if _COLLECTION.count() == 0:
-        _index_lexicon(_COLLECTION)
+        _COLLECTION = client.get_or_create_collection(
+            name="lexicon",
+            metadata={"doc_type": "lexicon"},
+        )
 
-    _INDEXED = True
-    return _COLLECTION
+        if _COLLECTION.count() == 0:
+            _index_lexicon(_COLLECTION)
+
+        _INDEXED = True
+        return _COLLECTION
 
 
 def _index_lexicon(collection):

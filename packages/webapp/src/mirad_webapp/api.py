@@ -125,25 +125,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        """Preload lexicon resources so first lookup is warm."""
+        """Warm lexicon resources without blocking Docker health startup."""
         import asyncio
 
+        app.state.semantic_warmup = {"status": "pending", "detail": "Semantic lexicon warmup queued."}
+
+        def _load() -> int:
+            from mirad_translator.semantic_lexicon import _get_embedder, _get_lexicon_collection
+
+            embedder = _get_embedder()
+            collection = _get_lexicon_collection()
+            embedder.encode(["test"], show_progress_bar=False)
+            return collection.count()
+
+        async def _warm() -> None:
+            app.state.semantic_warmup = {"status": "running", "detail": "Semantic lexicon warmup running."}
+            try:
+                loop = asyncio.get_running_loop()
+                count = await loop.run_in_executor(None, _load)
+                app.state.semantic_warmup = {"status": "ready", "detail": f"Semantic lexicon warm with {count} entries."}
+            except Exception as exc:
+                app.state.semantic_warmup = {"status": "error", "detail": f"{type(exc).__name__}: {exc}"[:300]}
+
+        warmup_task = asyncio.create_task(_warm())
         try:
-            loop = asyncio.get_running_loop()
-
-            def _load() -> int:
-                from mirad_translator.semantic_lexicon import _get_embedder, _get_lexicon_collection
-
-                embedder = _get_embedder()
-                collection = _get_lexicon_collection()
-                embedder.encode(["test"], show_progress_bar=False)
-                return collection.count()
-
-            await loop.run_in_executor(None, _load)
-        except Exception:
-            pass
-
-        yield
+            yield
+        finally:
+            warmup_task.cancel()
 
     app = FastAPI(title=f"{APP_NAME} API", lifespan=lifespan)
     app.state.storage = MiraLingoStorage(runtime_settings.database_path)
@@ -166,9 +174,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
     @app.get("/health", tags=["diagnostics"])
-    def health() -> dict[str, str]:
+    def health() -> dict[str, Any]:
         """Return process-local health for smoke tests and operators."""
-        return {"status": "ok", "service": "mirad-webapp"}
+        return {"status": "ok", "service": "mirad-webapp", "semantic_warmup": getattr(app.state, "semantic_warmup", {"status": "unknown"})}
 
     def storage_failure_response(exc: StorageError, status_code: int = status.HTTP_503_SERVICE_UNAVAILABLE) -> JSONResponse:
         """Return a stable storage diagnostic without secret-bearing request fields."""
@@ -281,6 +289,83 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         payload["source"] = source
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
+    def fallback_lexicon_search(q: str, direction: str, top_k: int) -> list[dict[str, Any]]:
+        """Return fast SQLite FTS/prefix matches when semantic embeddings are unavailable or warming."""
+        import sqlite3
+        from difflib import SequenceMatcher
+
+        from mirad_translator.lexicon_db import DB_PATH, build_lexicon_db, lookup_word_candidates, lookup_mirad_word_candidates
+
+        normalized = " ".join(str(q or "").strip().lower().split())
+        if not normalized:
+            return []
+
+        build_lexicon_db(db_path=DB_PATH)
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            if direction == "en_to_mir":
+                exact = lookup_word_candidates(db_path=DB_PATH, english_word=normalized)
+                rows = conn.execute(
+                    """
+                    SELECT english, mirad FROM lexicon
+                    WHERE english LIKE ? OR english LIKE ?
+                    ORDER BY CASE WHEN english = ? THEN 0 WHEN english LIKE ? THEN 1 ELSE 2 END, LENGTH(english), english
+                    LIMIT ?
+                    """,
+                    (f"%{normalized}%", f"{normalized[: max(1, min(5, len(normalized)))]}%", normalized, f"{normalized}%", max(top_k * 4, 12)),
+                ).fetchall()
+                if not rows:
+                    rows = conn.execute(
+                        "SELECT english, mirad FROM lexicon_fts JOIN lexicon ON lexicon_fts.rowid = lexicon.id WHERE lexicon_fts MATCH ? LIMIT ?",
+                        (f"{normalized}*", max(top_k * 4, 12)),
+                    ).fetchall()
+                candidates = [(normalized, ", ".join(exact), True)] if exact else []
+                candidates.extend((english, mirad, english == normalized) for english, mirad in rows)
+                seen = set()
+                payload = []
+                for english, mirad, is_exact in candidates:
+                    key = (english, mirad)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    similarity = 1.0 if is_exact else max(0.5, SequenceMatcher(None, normalized, english).ratio())
+                    payload.append({"english": english, "mirad": mirad, "cosine_similarity": round(similarity, 4), "is_exact": bool(is_exact)})
+                    if len(payload) >= top_k:
+                        break
+                return payload
+
+            exact = lookup_mirad_word_candidates(db_path=DB_PATH, mirad_word=normalized)
+            rows = conn.execute(
+                """
+                SELECT mirad, english FROM reverse_lexicon
+                WHERE mirad LIKE ? OR mirad LIKE ?
+                ORDER BY CASE WHEN mirad = ? THEN 0 WHEN mirad LIKE ? THEN 1 ELSE 2 END, LENGTH(mirad), mirad
+                LIMIT ?
+                """,
+                (f"%{normalized}%", f"{normalized[: max(1, min(5, len(normalized)))]}%", normalized, f"{normalized}%", max(top_k * 4, 12)),
+            ).fetchall()
+            if not rows:
+                rows = conn.execute(
+                    "SELECT mirad, english FROM reverse_lexicon_fts JOIN reverse_lexicon ON reverse_lexicon_fts.rowid = reverse_lexicon.id WHERE reverse_lexicon_fts MATCH ? LIMIT ?",
+                    (f"{normalized}*", max(top_k * 4, 12)),
+                ).fetchall()
+            candidates = [(normalized, ", ".join(exact), True)] if exact else []
+            candidates.extend((mirad, english, mirad == normalized) for mirad, english in rows)
+            seen = set()
+            payload = []
+            for mirad, english, is_exact in candidates:
+                key = (mirad, english)
+                if key in seen:
+                    continue
+                seen.add(key)
+                similarity = 1.0 if is_exact else max(0.5, SequenceMatcher(None, normalized, mirad).ratio())
+                payload.append({"mirad": mirad, "english": english, "cosine_similarity": round(similarity, 4), "is_exact": bool(is_exact)})
+                if len(payload) >= top_k:
+                    break
+            return payload
+        finally:
+            conn.close()
+
     @app.get("/lookup/exact", tags=["lexicon"])
     def lookup_exact(
         q: str = Query(..., min_length=1),
@@ -330,6 +415,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         top_k: int = Query(default=3, ge=1),
     ) -> JSONResponse:
         """Return open semantic lexicon results for English or Mirad queries."""
+        warmup = getattr(app.state, "semantic_warmup", {})
+        if isinstance(warmup, dict) and warmup.get("status") in {"pending", "running", "error"}:
+            return JSONResponse(status_code=status.HTTP_200_OK, content=fallback_lexicon_search(q, direction, top_k))
+
         try:
             from mirad_translator.semantic_lexicon import semantic_lookup, semantic_lookup_mirad
 
@@ -365,16 +454,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     }
                     for hit in hits
                 ]
-        except (ImportError, ModuleNotFoundError, RuntimeError) as exc:
-            return JSONResponse(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                content={"error": "semantic search unavailable", "detail": str(exc)[:200]},
-            )
-        except Exception as exc:
-            return JSONResponse(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                content={"error": "semantic search unavailable", "detail": f"{type(exc).__name__}: {exc}"[:300]},
-            )
+        except (ImportError, ModuleNotFoundError, RuntimeError):
+            payload = fallback_lexicon_search(q, direction, top_k)
+            return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
+        except Exception:
+            payload = fallback_lexicon_search(q, direction, top_k)
+            return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 

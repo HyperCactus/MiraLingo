@@ -241,7 +241,7 @@
         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-violet-100">Lexicon search</p>
         <h1 class="text-3xl font-semibold leading-tight sm:text-4xl">Find similar words in either direction.</h1>
         <p class="max-w-2xl text-sm leading-6 text-violet-50/90 sm:text-base">
-          Search from English into Mirad or reverse the lookup to inspect likely English matches, then skim exactness and cosine similarity without leaving AppShell.
+          Search English or Mirad words and find close matches while you study.
         </p>
       </div>
 
@@ -352,11 +352,11 @@
 
   <svelte:fragment slot="sidebar">
     <AppCard className="space-y-3">
-      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">How lookup works</p>
+      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Search tips</p>
       <ul class="space-y-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Search waits 300ms after typing before it calls <code>/lookup</code>.</li>
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Similarity badges show cosine distance ranking from the semantic search backend.</li>
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Audio preview uses authenticated MBROLA synthesis for the displayed Mirad text.</li>
+        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Type one word at a time for best results.</li>
+        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Switch direction to search from Mirad back to English.</li>
+        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Use audio preview to hear Mirad words.</li>
       </ul>
     </AppCard>
 

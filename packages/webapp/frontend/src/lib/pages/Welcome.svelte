@@ -25,19 +25,19 @@
 
   const previewCards = [
     {
-      eyebrow: 'Guided practice',
-      title: 'Switch between recall directions',
-      body: 'Move from English prompts into Mirad answers, then reinforce pronunciation with reveal-aware audio.',
+      eyebrow: 'Practice',
+      title: 'Learn with short cards',
+      body: 'Translate, listen, and check your answer one small step at a time.',
     },
     {
-      eyebrow: 'Today dashboard',
-      title: 'See the next best study action',
-      body: 'Continue practice, revisit weaker cards, or build vocabulary from one mobile-first home screen.',
+      eyebrow: 'Review',
+      title: 'Come back to tricky words',
+      body: 'MiraLingo helps you revisit words that need more practice.',
     },
     {
-      eyebrow: 'Honest progress',
-      title: 'Keep backend metrics intact',
-      body: 'The new landing experience stays UI-focused while preserving the current auth and practice API behavior.',
+      eyebrow: 'Vocabulary',
+      title: 'Build confidence daily',
+      body: 'Add new Mirad words gradually without feeling overwhelmed.',
     },
   ];
 </script>
@@ -50,7 +50,7 @@
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-violet-100">Welcome to Mirad</p>
           <h1 class="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">Build confidence in Mirad with focused daily practice.</h1>
           <p class="max-w-2xl text-sm leading-7 text-violet-50/90 sm:text-base">
-            Practice Mirad pronunciation and translation. MiraLingo introduces the Mirad language through short study sessions that pair translation recall, pronunciation support, and an honest today-first dashboard.
+            MiraLingo helps you practice Mirad with short, friendly cards for translation, listening, and review.
           </p>
         </div>
 
@@ -77,26 +77,25 @@
       <div class="space-y-4">
         <AppCard className="space-y-3">
           <div>
-            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Why Mirad works here</p>
+            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Start simply</p>
             <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Start with a calm intro, then move into lightweight account creation or sign-in without leaving the landing flow.
+              Create an account or log in, then choose a short practice session.
             </p>
           </div>
           <ul class="space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Short, mobile-friendly practice cards keep the next answer in focus.</li>
-            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Reveal-aware Mirad audio supports pronunciation without spoiling prompts early.</li>
-            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Today, Revision, and Build Vocabulary flows stay aligned with the existing backend data.</li>
+            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Practice with small cards you can finish quickly.</li>
+            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Listen to Mirad words after you reveal an answer.</li>
+            <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Review words and phrases as you build confidence.</li>
           </ul>
         </AppCard>
 
         <AppCard className="space-y-2">
           <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Mirad language intro</p>
           <p class="text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Mirad is a constructed language designed for international clarity. MiraLingo keeps the onboarding simple so new learners can hear, read, and recall vocabulary quickly.
+            Mirad is a constructed language designed to be regular and clear. MiraLingo gives you a gentle way to practice reading, hearing, and remembering it.
           </p>
           <div class="flex flex-wrap gap-3 text-sm font-semibold text-violet-700 dark:text-violet-300">
             <a href="https://en.wikibooks.org/wiki/Mirad_Grammar" target="_blank" rel="noopener">Mirad Grammar</a>
-            <a href="https://www.mirad.org/" target="_blank" rel="noopener">Mirad home</a>
           </div>
         </AppCard>
       </div>

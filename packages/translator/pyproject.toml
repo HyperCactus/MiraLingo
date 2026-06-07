@@ -34,6 +34,8 @@ Homepage = "https://github.com/Project_earthlingish/Mirad-phonemes-engine"
 rag = [
     "chromadb>=0.4.0",
     "sentence-transformers>=2.2.0",
+    "transformers<5",
+    "peft>=0.19.0",
 ]
 eval = [
     "chromadb>=0.4.0",
