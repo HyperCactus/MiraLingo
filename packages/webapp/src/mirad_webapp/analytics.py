@@ -67,6 +67,33 @@ def build_practice_analytics(
     direction_breakdown: dict[str, dict[str, int]] = defaultdict(lambda: {"attempts": 0, "correct": 0, "incorrect": 0})
     card_type_breakdown: dict[str, dict[str, int]] = defaultdict(lambda: {"attempts": 0, "correct": 0, "incorrect": 0})
     per_card: dict[str, dict[str, Any]] = {}
+
+    # Ensure lifecycle rows (cards promoted without events in this window) still
+    # appear in the per-card breakdown and mastery counts.
+    _lc_ts = now.isoformat()
+    for _row in lifecycle_rows:
+        _bid = str(_row.get("base_card_id") or "")
+        _dir = str(_row.get("direction") or "")
+        if not _bid or not _dir:
+            continue
+        _cid = f"{_bid}#{_dir.replace('_', '-')}"
+        if _cid not in per_card:
+            _lc = str(_row.get("lifecycle") or "active").lower()
+            per_card[_cid] = {
+                "card_id": _cid,
+                "base_card_id": _bid,
+                "direction": _dir,
+                "card_type": _row.get("card_type"),
+                "attempts": 0,
+                "correct": 0,
+                "incorrect": 0,
+                "consecutive_correct": 0,
+                "last_answered_at": None,
+                "lifecycle": _lc,
+                "is_mastered": _lc == "revision",
+                "mastered_by_criteria": _lc == "revision",
+            }
+
     recent_by_base_direction: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
 
     latest_event = None
@@ -173,18 +200,22 @@ def build_practice_analytics(
         lifecycle_by_card_id[card_id] = str(row.get("lifecycle") or "active")
 
     for card_id, card_row in per_card.items():
-        card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, "active")
-        # A card is mastered if lifecycle is revision OR if it meets
-        # the scheduler criteria: consecutive_correct >= 3 and accuracy >= 0.80.
-        card_lifecycle = card_row.get("lifecycle", "active")
-        if card_lifecycle == "revision":
-            card_row["is_mastered"] = True
-        else:
-            card_attempts = card_row.get("attempts", 0)
-            card_consecutive = card_row.get("consecutive_correct", 0)
-            card_accuracy = (card_row.get("correct", 0) / card_attempts) if card_attempts > 0 else 0.0
-            card_row["is_mastered"] = card_consecutive >= 3 and card_accuracy >= 0.80
-
+        card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, card_row.get("lifecycle", "active"))
+        # A card is mastered when lifecycle is revision, OR when it meets
+        # the scheduler criteria: consecutive_correct >= 3 AND accuracy >= 0.80.
+        card_lifecycle = str(card_row.get("lifecycle") or "active")
+        card_consecutive = int(card_row.get("consecutive_correct") or 0)
+        card_attempts = int(card_row.get("attempts") or 0)
+        card_correct = int(card_row.get("correct") or 0)
+        card_accuracy = (card_correct / card_attempts) if card_attempts > 0 else None
+        is_mastered_by_criteria = (
+            card_lifecycle != "revision"
+            and card_consecutive >= 3
+            and card_accuracy is not None
+            and card_accuracy >= 0.80
+        )
+        card_row["is_mastered"] = card_lifecycle == "revision" or is_mastered_by_criteria
+        card_row["mastered_by_criteria"] = is_mastered_by_criteria
     return {
         "ok": True,
         "phase": "practice_analytics",
@@ -207,8 +238,8 @@ def build_practice_analytics(
         "direction_breakdown": dict(direction_breakdown),
         "card_type_breakdown": dict(card_type_breakdown),
         "lifecycle": {"count": lifecycle_count, "active": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"), "revision": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision")},
-        "mastered_count": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision"),
-        "active_count": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"),
+        "mastered_count": sum(1 for r in per_card.values() if bool(r.get("is_mastered"))),
+        "active_count": sum(1 for r in per_card.values() if str(r.get("lifecycle") or "active") != "revision" and not bool(r.get("is_mastered"))),
         "per_card": per_card,
         "mastered_recent": mastered_recent,
         "filters": filters or {},
