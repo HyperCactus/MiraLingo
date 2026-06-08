@@ -156,6 +156,21 @@ def build_practice_analytics(
             "mastered": en_pass and mi_pass,
         }
 
+    # Build authoritative lifecycle lookup so per_card entries carry the
+    # exact lifecycle value used for mastered/active summary counts.
+    # per_card keys use the same card_id shape as lifecycle rows:
+    # "base_card_id#direction" (direction dashes normalized to underscores).
+    lifecycle_by_card_id: dict[str, str] = {}
+    for row in lifecycle_rows:
+        base_id = str(row.get("base_card_id") or "")
+        direction = str(row.get("direction") or "")
+        card_id = f"{base_id}#{direction.replace("_", "-")}"
+        lifecycle_by_card_id[card_id] = str(row.get("lifecycle") or "active")
+
+    for card_id, card_row in per_card.items():
+        card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, "active")
+        card_row["is_mastered"] = card_row["lifecycle"] == "revision"
+
     return {
         "ok": True,
         "phase": "practice_analytics",

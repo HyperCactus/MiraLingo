@@ -160,6 +160,7 @@
   $: progressPerCard = rows(progressPayload?.per_card);
   const isRowMastered = (row: unknown) => {
     const r = obj(row);
+    if (typeof r.is_mastered === 'boolean') return Boolean(r.is_mastered);
     const mastery = obj(r.mastery);
     if (typeof mastery.mastered === 'boolean') return Boolean(mastery.mastered);
     const state = String(r.state ?? r.lifecycle ?? '').toLowerCase();
