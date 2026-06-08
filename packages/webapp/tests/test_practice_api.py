@@ -42,8 +42,8 @@ def _login(client: TestClient) -> None:
     assert response.status_code == 200
 
 
-def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: str, submitted_answer: str, expected_answer: str, start: datetime) -> None:
-    for index in range(3):
+def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: str, submitted_answer: str, expected_answer: str, start: datetime, count: int = 3) -> None:
+    for index in range(count):
         app.state.storage.append_answer_event(
             username="admin",
             card_id=card_id,
@@ -140,6 +140,7 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
         expected_answer="the",
         start=STALE_AT,
     )
+    # Only 2 correct for "word:be" — below mastery threshold (3 consecutive + 80%).
     _append_correct_streak(
         app,
         card_id="word:be#english-to-mirad",
@@ -148,6 +149,7 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
         submitted_answer="bi",
         expected_answer="bi",
         start=NOW,
+        count=2,
     )
 
     response = client.get("/practice/queue?mode=revision&limit=10")
@@ -156,7 +158,7 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
     payload = response.json()
     assert payload["mode"] == "revision"
     assert payload["mode_detail"] == "seen_only"
-    assert payload["event_count"] == 9
+    assert payload["event_count"] == 8
     assert {card["base_card_id"] for card in payload["cards"]} == {"word:the"}
     assert {card["scheduler_reason"] for card in payload["cards"]}.issubset({"stale_mastered_review", "mastered_recent"})
     assert payload["repeat_gap"] == 3

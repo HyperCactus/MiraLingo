@@ -15,55 +15,69 @@ def _count(connection: sqlite3.Connection, table: str, where: str = "", args: tu
     return int(connection.execute(query, args).fetchone()[0])
 
 
-def test_lifecycle_contract_across_sessions_promotes_only_after_multi_session_streak(tmp_path: Path) -> None:
+def test_lifecycle_contract_promotes_after_three_correct_with_eighty_percent_accuracy(tmp_path: Path) -> None:
+    """Cards promote to revision when consecutive_correct >= 3 AND accuracy >= 0.80.
+
+    This replaces the old 5-consecutive threshold with the correct 3+80% rule.
+    """
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
-    session_one = storage.start_practice_session(username="mira")
+    session = storage.start_practice_session(username="mira")
+
+    # Two correct answers: consecutive=2, accuracy=100% → NOT promoted yet.
     for _ in range(2):
         storage.record_practice_lifecycle_answer(
             username="mira",
-            session_id=session_one["session_id"],
+            session_id=session["session_id"],
             base_card_id="word:hello",
             direction="english_to_mirad",
             correct=True,
         )
-
-    state_after_one = storage.get_practice_lifecycle(
+    state_after_two = storage.get_practice_lifecycle(
         username="mira",
         base_card_id="word:hello",
         direction="english_to_mirad",
     )
-    assert state_after_one["lifecycle"] == "active"
-    assert state_after_one["correct_streak"] == 2
-    assert state_after_one["session_streak"] == 1
+    assert state_after_two["lifecycle"] == "active"
+    assert state_after_two["correct_streak"] == 2
 
-    session_two = storage.start_practice_session(username="mira")
-    for _ in range(3):
-        storage.record_practice_lifecycle_answer(
-            username="mira",
-            session_id=session_two["session_id"],
-            base_card_id="word:hello",
-            direction="english_to_mirad",
-            correct=True,
-        )
-
+    # Third correct answer: consecutive=3, accuracy=100% → promoted to revision.
+    storage.record_practice_lifecycle_answer(
+        username="mira",
+        session_id=session["session_id"],
+        base_card_id="word:hello",
+        direction="english_to_mirad",
+        correct=True,
+    )
     promoted = storage.get_practice_lifecycle(
         username="mira",
         base_card_id="word:hello",
         direction="english_to_mirad",
     )
     assert promoted["lifecycle"] == "revision"
-    assert promoted["correct_streak"] == 5
-    assert promoted["session_streak"] == 2
+    assert promoted["correct_streak"] == 3
 
 
-def test_four_correct_in_single_session_does_not_promote(tmp_path: Path) -> None:
+def test_three_correct_with_low_accuracy_does_not_promote(tmp_path: Path) -> None:
+    """Cards with 3 consecutive correct but overall accuracy < 80% stay active."""
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
     session = storage.start_practice_session(username="mira")
-    for _ in range(4):
+
+    # Build a low-accuracy history: 2 wrong, then 3 correct.
+    # After 2 wrong: accuracy = 0%, consecutive = 0.
+    for _ in range(2):
+        storage.record_practice_lifecycle_answer(
+            username="mira",
+            session_id=session["session_id"],
+            base_card_id="word:tree",
+            direction="english_to_mirad",
+            correct=False,
+        )
+    # After 3 more correct: consecutive = 3, accuracy = 3/5 = 60% → NOT promoted.
+    for _ in range(3):
         storage.record_practice_lifecycle_answer(
             username="mira",
             session_id=session["session_id"],
@@ -71,32 +85,61 @@ def test_four_correct_in_single_session_does_not_promote(tmp_path: Path) -> None
             direction="english_to_mirad",
             correct=True,
         )
-
     state = storage.get_practice_lifecycle(
         username="mira",
         base_card_id="word:tree",
         direction="english_to_mirad",
     )
     assert state["lifecycle"] == "active"
-    assert state["correct_streak"] == 4
-    assert state["session_streak"] == 1
+    assert state["correct_streak"] == 3
+
+
+def test_three_correct_with_eighty_percent_accuracy_promotes(tmp_path: Path) -> None:
+    """Cards with 3 consecutive correct and accuracy >= 80% are promoted."""
+    storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
+    assert storage.register_account(username="mira", password="correct-password")[0] is not None
+
+    session = storage.start_practice_session(username="mira")
+
+    # Build a borderline accuracy: 1 wrong, then 4 correct.
+    # After 1 wrong + 4 correct: accuracy = 4/5 = 80%, consecutive = 4 → promoted.
+    storage.record_practice_lifecycle_answer(
+        username="mira",
+        session_id=session["session_id"],
+        base_card_id="word:leaf",
+        direction="english_to_mirad",
+        correct=False,
+    )
+    for _ in range(4):
+        storage.record_practice_lifecycle_answer(
+            username="mira",
+            session_id=session["session_id"],
+            base_card_id="word:leaf",
+            direction="english_to_mirad",
+            correct=True,
+        )
+    state = storage.get_practice_lifecycle(
+        username="mira",
+        base_card_id="word:leaf",
+        direction="english_to_mirad",
+    )
+    assert state["lifecycle"] == "revision"
 
 
 def test_wrong_answer_after_revision_demotes_and_resets_streaks(tmp_path: Path) -> None:
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
-    for session_index in range(2):
-        session = storage.start_practice_session(username="mira")
-        attempts = 2 if session_index == 0 else 3
-        for _ in range(attempts):
-            storage.record_practice_lifecycle_answer(
-                username="mira",
-                session_id=session["session_id"],
-                base_card_id="word:moon",
-                direction="english_to_mirad",
-                correct=True,
-            )
+    # Get to revision via 3 consecutive correct (100% accuracy).
+    session = storage.start_practice_session(username="mira")
+    for _ in range(3):
+        storage.record_practice_lifecycle_answer(
+            username="mira",
+            session_id=session["session_id"],
+            base_card_id="word:moon",
+            direction="english_to_mirad",
+            correct=True,
+        )
 
     before_wrong = storage.get_practice_lifecycle(
         username="mira",
@@ -105,10 +148,11 @@ def test_wrong_answer_after_revision_demotes_and_resets_streaks(tmp_path: Path) 
     )
     assert before_wrong["lifecycle"] == "revision"
 
-    session_three = storage.start_practice_session(username="mira")
+    # Wrong answer demotes back to active and resets streaks.
+    session_two = storage.start_practice_session(username="mira")
     storage.record_practice_lifecycle_answer(
         username="mira",
-        session_id=session_three["session_id"],
+        session_id=session_two["session_id"],
         base_card_id="word:moon",
         direction="english_to_mirad",
         correct=False,
@@ -128,17 +172,16 @@ def test_lifecycle_is_independent_by_direction(tmp_path: Path) -> None:
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
-    for session_index in range(2):
-        session = storage.start_practice_session(username="mira")
-        attempts = 2 if session_index == 0 else 3
-        for _ in range(attempts):
-            storage.record_practice_lifecycle_answer(
-                username="mira",
-                session_id=session["session_id"],
-                base_card_id="word:bird",
-                direction="english_to_mirad",
-                correct=True,
-            )
+    session = storage.start_practice_session(username="mira")
+    # Promote english_to_mirad with 3 consecutive correct.
+    for _ in range(3):
+        storage.record_practice_lifecycle_answer(
+            username="mira",
+            session_id=session["session_id"],
+            base_card_id="word:bird",
+            direction="english_to_mirad",
+            correct=True,
+        )
 
     en_to_mirad = storage.get_practice_lifecycle(
         username="mira",
@@ -150,7 +193,6 @@ def test_lifecycle_is_independent_by_direction(tmp_path: Path) -> None:
         base_card_id="word:bird",
         direction="mirad_to_english",
     )
-
     assert en_to_mirad["lifecycle"] == "revision"
     assert mirad_to_en["lifecycle"] == "active"
     assert mirad_to_en["correct_streak"] == 0
@@ -209,6 +251,7 @@ def test_session_and_lifecycle_errors_expose_stable_public_payloads(tmp_path: Pa
         return original_connect(phase)
 
     monkeypatch.setattr(storage, "_connect", broken_connect)
+
     with pytest.raises(StorageError) as broken:
         storage.start_practice_session(username="mira")
     payload = broken.value.public_payload()

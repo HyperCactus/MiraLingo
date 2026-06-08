@@ -118,8 +118,10 @@ def test_practice_queue_api_returns_weighted_policy_diagnostics_with_compatible_
     _login(client)
 
     app.state.storage.ensure_session_user(username="admin", role="admin", phase="practice_session")
+
+    # Card "word:alpha" gets 3+ consecutive correct with high accuracy -> mastered (revision).
     session_one = app.state.storage.start_practice_session(username="admin")
-    for _ in range(2):
+    for _ in range(3):
         app.state.storage.record_practice_lifecycle_answer(
             username="admin",
             session_id=session_one["session_id"],
@@ -127,12 +129,13 @@ def test_practice_queue_api_returns_weighted_policy_diagnostics_with_compatible_
             direction="english_to_mirad",
             correct=True,
         )
-    session_two = app.state.storage.start_practice_session(username="admin")
+
+    # Card "word:bravo" gets only 2 correct -> stays active.
     for _ in range(2):
         app.state.storage.record_practice_lifecycle_answer(
             username="admin",
-            session_id=session_two["session_id"],
-            base_card_id="word:alpha",
+            session_id=session_one["session_id"],
+            base_card_id="word:bravo",
             direction="english_to_mirad",
             correct=True,
         )

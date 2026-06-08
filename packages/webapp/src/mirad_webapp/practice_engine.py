@@ -1318,8 +1318,28 @@ def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycl
             elif lifecycle == "active":
                 # Active items can still be mastered by scheduler criteria.
                 consecutive = int(row_dict.get("correct_streak") or row_dict.get("consecutive_correct") or 0)
+                direction = str(row_dict.get("direction") or "")
                 if consecutive >= 3:
-                    active_mastery_bases.add(base_id)
+                    # Verify accuracy >= 0.80 from per_card data if available.
+                    card_accuracy = None
+                    per_card_data = progress_payload.get("per_card") or {}
+                    # per_card keys are "base_card_id#direction"
+                    dir_suffix = direction.replace("_", "-")
+                    card_key = f"{base_id}#{dir_suffix}"
+                    card_row = per_card_data.get(card_key) if isinstance(per_card_data, dict) else None
+                    if card_row is None:
+                        # Try list form
+                        for item in (per_card_data if isinstance(per_card_data, list) else []):
+                            item_dir = str(item.get("direction") or "").replace("_", "-")
+                            if str(item.get("base_card_id") or "") == base_id and item_dir == dir_suffix:
+                                card_row = item
+                                break
+                    if card_row:
+                        card_attempts = int(card_row.get("attempts") or 0)
+                        card_correct = int(card_row.get("correct") or 0)
+                        card_accuracy = (card_correct / card_attempts) if card_attempts > 0 else 0.0
+                    if card_accuracy is not None and card_accuracy >= 0.80:
+                        active_mastery_bases.add(base_id)
 
         mastered_bases = revision_bases | active_mastery_bases
         if not mastered_bases:

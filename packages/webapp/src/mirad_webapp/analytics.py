@@ -122,12 +122,17 @@ def build_practice_analytics(
                 "attempts": 0,
                 "correct": 0,
                 "incorrect": 0,
+                "consecutive_correct": 0,
                 "last_answered_at": None,
             },
         )
         row["attempts"] += 1
         row["correct"] += int(bool(event.get("correct")))
         row["incorrect"] += int(not bool(event.get("correct")))
+        if bool(event.get("correct")):
+            row["consecutive_correct"] = row.get("consecutive_correct", 0) + 1
+        else:
+            row["consecutive_correct"] = 0
         if row["last_answered_at"] is None or ts > _parse_iso(str(row["last_answered_at"])):
             row["last_answered_at"] = event.get("answered_at")
 
@@ -169,7 +174,16 @@ def build_practice_analytics(
 
     for card_id, card_row in per_card.items():
         card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, "active")
-        card_row["is_mastered"] = card_row["lifecycle"] == "revision"
+        # A card is mastered if lifecycle is revision OR if it meets
+        # the scheduler criteria: consecutive_correct >= 3 and accuracy >= 0.80.
+        card_lifecycle = card_row.get("lifecycle", "active")
+        if card_lifecycle == "revision":
+            card_row["is_mastered"] = True
+        else:
+            card_attempts = card_row.get("attempts", 0)
+            card_consecutive = card_row.get("consecutive_correct", 0)
+            card_accuracy = (card_row.get("correct", 0) / card_attempts) if card_attempts > 0 else 0.0
+            card_row["is_mastered"] = card_consecutive >= 3 and card_accuracy >= 0.80
 
     return {
         "ok": True,

@@ -638,9 +638,22 @@ class MiraLingoStorage:
                     if last_session_counted != normalized_session_id:
                         session_streak += 1
                         last_session_counted = normalized_session_id
-                    if lifecycle != "revision" and consecutive >= 5:
-                        lifecycle = "revision"
-                        promoted_at = timestamp
+                    if lifecycle != "revision" and consecutive >= 3:
+                        # Check accuracy: at least 80% across all attempts for this
+                        # (username, base_card_id, direction) triple.
+                        acc_row = connection.execute(
+                            """SELECT COUNT(*) AS total,
+                                      SUM(CASE WHEN correct = 1 THEN 1 ELSE 0 END) AS correct_count
+                               FROM answer_events
+                               WHERE username=? AND base_card_id=? AND direction=?""",
+                            (normalized_username, normalized_base_card_id, normalized_direction),
+                        ).fetchone()
+                        total_attempts = int(acc_row["total"]) if acc_row else 0
+                        correct_count = int(acc_row["correct_count"]) if acc_row else 0
+                        accuracy = (correct_count / total_attempts) if total_attempts > 0 else 0.0
+                        if accuracy >= 0.80:
+                            lifecycle = "revision"
+                            promoted_at = timestamp
                 else:
                     if lifecycle == "revision":
                         regression_count += 1
