@@ -178,6 +178,8 @@ def build_practice_analytics(
         "direction_breakdown": dict(direction_breakdown),
         "card_type_breakdown": dict(card_type_breakdown),
         "lifecycle": {"count": lifecycle_count, "active": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"), "revision": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision")},
+        "mastered_count": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision"),
+        "active_count": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"),
         "per_card": per_card,
         "mastered_recent": mastered_recent,
         "filters": filters or {},

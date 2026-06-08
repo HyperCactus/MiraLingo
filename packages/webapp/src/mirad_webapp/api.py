@@ -1064,12 +1064,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return storage_failure_response(exc)
         payload = answer_summary(result.cards, durable_events, submission.card_id)
         display_name = _achievement_display_name(user)
+        lifecycle_rows_for_achievements = [row.public_dict() for row in request.app.state.storage.list_practice_lifecycle(username=user.username)]
         payload["achievements"] = build_practice_achievements(
             cards=result.cards,
             before_events=prior_events,
             after_events=durable_events,
             username=display_name,
             latest_card_id=submission.card_id,
+            lifecycle_rows=lifecycle_rows_for_achievements,
         )
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 

@@ -90,6 +90,7 @@ export type PracticeAnalyticsResponse = {
   event_count?: number;
   accuracy?: number;
   mastered_count?: number;
+  active_count?: number;
   session_count?: number;
   lifecycle_count?: number;
   sparse_history?: boolean;

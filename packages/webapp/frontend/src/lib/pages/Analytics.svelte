@@ -163,7 +163,7 @@
     const mastery = obj(r.mastery);
     if (typeof mastery.mastered === 'boolean') return Boolean(mastery.mastered);
     const state = String(r.state ?? r.lifecycle ?? '').toLowerCase();
-    if (state === 'mastered' || state === 'revision') return true;
+    if (state === 'mastered' || state === 'revision' || state === 'stale') return true;
 
     const dir = String(r.direction ?? '').toLowerCase();
     const base = String(r.base_card_id ?? '');
@@ -255,7 +255,7 @@
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Answered</p><p class="mt-3 text-3xl font-semibold">{n(payload?.event_count)}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Accuracy</p><p class="mt-3 text-3xl font-semibold">{pct(payload?.accuracy)}</p></AppCard>
-    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Streak</p><p class="mt-3 text-3xl font-semibold">{n(streak.current_days)}</p></AppCard>
+    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Streak</p><p class="mt-3 text-3xl font-semibold">{n(streak.current_days)} {n(streak.current_days) === 1 ? 'day' : 'days'}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Lifecycles</p><p class="mt-3 text-3xl font-semibold">{n(payload?.lifecycle_count)}</p></AppCard>
   </div>
 

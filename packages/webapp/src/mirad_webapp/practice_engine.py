@@ -310,13 +310,20 @@ def build_practice_progress(
 
 
 def build_practice_achievements(
-    *, cards: list[dict[str, Any]], before_events: list[dict[str, Any]] | None, after_events: list[dict[str, Any]] | None, username: str, latest_card_id: str | None = None, now: datetime | None = None
+    *, cards: list[dict[str, Any]], before_events: list[dict[str, Any]] | None, after_events: list[dict[str, Any]] | None, username: str, latest_card_id: str | None = None, now: datetime | None = None, lifecycle_rows: list[dict[str, Any]] | None = None
 ) -> list[dict[str, Any]]:
-    """Return newly unlocked achievement payloads for mastery and streak milestones."""
+    """Return newly unlocked achievement payloads for mastery and streak milestones.
+
+    Mastery detection for the after-state uses ``practice_lifecycle`` rows when
+    available so that cards promoted to ``revision`` or that have a correct streak
+    of 3+ are reliably counted as mastered.  The before-state always uses the
+    event-window approach so that threshold crossings are correctly detected even
+    when lifecycle state has already been updated by the current answer.
+    """
     before_progress = build_practice_progress(cards=cards, events=before_events or [], now=now)
     after_progress = build_practice_progress(cards=cards, events=after_events or [], now=now)
     before_mastered = _mastered_item_ids(before_progress)
-    after_mastered = _mastered_item_ids(after_progress)
+    after_mastered = _mastered_item_ids_from_lifecycle(after_progress, lifecycle_rows)
 
     unlocked: list[dict[str, Any]] = []
     before_day_streak = _practice_day_streak(before_events or [], now=now)
@@ -339,7 +346,6 @@ def build_practice_achievements(
         elif str(latest_card_id) in {str(card.get("id")) for card in _normalize_base_cards(cards)}:
             latest_base_card_id = str(latest_card_id)
 
-    unlocked: list[dict[str, Any]] = []
     for threshold in _achievement_milestones_up_to(len(after_mastered)):
         if len(before_mastered) < threshold <= len(after_mastered):
             if latest_item_id in after_mastered and latest_base_card_id:
@@ -1286,6 +1292,56 @@ def _mastered_item_ids(progress_payload: dict[str, Any]) -> set[str]:
         for card_id in (progress_payload.get("mastered_cards") or [])
         if isinstance(card_id, str) and card_id
     }
+
+
+def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycle_rows: list[dict[str, Any]] | None) -> set[str]:
+    """Return mastered item IDs using lifecycle status and scheduler mastery.
+
+    Cards in lifecycle ``revision`` are always mastered.  Cards in
+    ``active`` that meet the scheduler mastery threshold
+    (consecutive_correct >= 3, accuracy >= 0.80) are also mastered
+    so that milestones are detected at the same threshold as the
+    practice scheduler.
+
+    When lifecycle data is unavailable, falls back to the progress
+    payload's ``mastered_cards`` list.
+    """
+    if lifecycle_rows:
+        revision_bases: set[str] = set()
+        active_mastery_bases: set[str] = set()
+        for row in lifecycle_rows:
+            row_dict = row if isinstance(row, dict) else (row.public_dict() if hasattr(row, "public_dict") else {})
+            base_id = str(row_dict.get("base_card_id") or "")
+            lifecycle = str(row_dict.get("lifecycle") or "").lower()
+            if lifecycle == "revision":
+                revision_bases.add(base_id)
+            elif lifecycle == "active":
+                # Active items can still be mastered by scheduler criteria.
+                consecutive = int(row_dict.get("correct_streak") or row_dict.get("consecutive_correct") or 0)
+                if consecutive >= 3:
+                    active_mastery_bases.add(base_id)
+
+        mastered_bases = revision_bases | active_mastery_bases
+        if not mastered_bases:
+            return _mastered_item_ids(progress_payload)
+
+        per_card: list[dict[str, Any]] = progress_payload.get("per_card") or []
+        if per_card:
+            mastered_ids: set[str] = set()
+            for item in per_card:
+                base_id = str(item.get("base_card_id") or "")
+                if base_id in mastered_bases:
+                    mastered_ids.add(str(item.get("id") or ""))
+            return mastered_ids
+
+        # Fallback: construct direction-aware item IDs from base card IDs
+        result: set[str] = set()
+        for base_id in mastered_bases:
+            for suffix in _DIRECTION_SUFFIXES.values():
+                result.add(f"{base_id}#{suffix}")
+        return result
+
+    return _mastered_item_ids(progress_payload)
 
 
 def _mastered_base_card_ids(progress_payload: dict[str, Any]) -> set[str]:

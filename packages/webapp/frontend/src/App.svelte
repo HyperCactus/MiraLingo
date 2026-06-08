@@ -160,6 +160,15 @@
     }
     audioState = "idle";
     audioMsg = "";
+    // Clear stale preloaded audio if it no longer matches the current card.
+    const currentAudioCardId = currentCard?.audio_card_id ?? currentCard?.base_card_id ?? currentCard?.id;
+    if (preloadedCardId && preloadedCardId !== currentAudioCardId) {
+      if (preloadedAudio) {
+        URL.revokeObjectURL(preloadedAudio.blobUrl);
+      }
+      preloadedAudio = null;
+      preloadedCardId = null;
+    }
   };
 
   const resetAnswer = () => {
@@ -618,6 +627,31 @@
     void recordAnswer({ card_id: currentCard.id, correct: false }, submittedCardId, { playSfx: false, optimistic: true });
   }
 
+  let preloadedAudio = $state(/** @type {{ blobUrl: string; audio: HTMLAudioElement } | null} */ (null));
+  let preloadedCardId = $state(/** @type {string | null} */ (null));
+
+  function preloadCardAudio() {
+    if (!currentCard) return;
+    const cardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
+    if (!cardId || cardId === preloadedCardId) return;
+    preloadedCardId = cardId;
+    preloadedAudio = null;
+    void (async () => {
+      try {
+        const response = await fetch(getPracticeAudioUrl(cardId), { headers: { Accept: "audio/wav,application/json" } });
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!response.ok || !contentType.includes("audio")) return;
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.playbackRate = Number.isFinite(Number($ttsSpeed)) ? Number($ttsSpeed) : 0.8;
+        preloadedAudio = { blobUrl: url, audio };
+      } catch (_) {
+        // Prefetch failure is non-fatal; playCardAudio will retry.
+      }
+    })();
+  }
+
   async function playCardAudio() {
     if (!currentCard) return;
     resetAudio();
@@ -625,6 +659,19 @@
 
     try {
       const cardId = currentCard.audio_card_id ?? currentCard.base_card_id ?? currentCard.id;
+
+      // Use preloaded audio if available for the current card.
+      if (preloadedAudio && preloadedCardId === cardId) {
+        const { blobUrl, audio } = preloadedAudio;
+        audioBlobUrl = blobUrl;
+        activeAudio = audio;
+        preloadedAudio = null;
+        await audio.play();
+        audioState = "ready";
+        audioMsg = "";
+        return;
+      }
+
       const response = await fetch(getPracticeAudioUrl(cardId), { headers: { Accept: "audio/wav,application/json" } });
       const contentType = response.headers.get("content-type") ?? "";
 
@@ -801,6 +848,17 @@
       resetAudio();
       lastAudioCardId = audioCardId;
     }
+  });
+
+  // Prefetch audio immediately when an answer is revealed, so it loads in parallel
+  // with the visual reveal animation. The play is triggered after a short delay.
+  $effect(() => {
+    if (!answerResult || !currentCard) {
+      preloadedCardId = null;
+      preloadedAudio = null;
+      return;
+    }
+    preloadCardAudio();
   });
 
   $effect(() => {
