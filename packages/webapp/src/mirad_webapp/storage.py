@@ -831,7 +831,13 @@ class MiraLingoStorage:
         return list(reversed([record for row in rows if (record := _answer_event_from_row(row)) is not None]))
 
     def practice_summary(self, *, username: str, phase: str = "practice_summary") -> dict[str, Any]:
-        """Return fast dashboard metrics without expanding all practice cards."""
+        """Return fast dashboard metrics without expanding all practice cards.
+
+        mastered_count reflects cards where is_mastered=True:
+          - lifecycle='revision', OR
+          - lifecycle='active' with consecutive_correct >= 3 AND accuracy >= 0.80
+        This is identical to build_practice_analytics() so both endpoints agree.
+        """
         normalized_username = _require_username(username, phase=phase)
         try:
             with self._connect(phase) as connection:
@@ -845,15 +851,6 @@ class MiraLingoStorage:
                     """,
                     (normalized_username,),
                 ).fetchone()
-                lifecycle = connection.execute(
-                    """
-                    SELECT lifecycle, COUNT(*) AS count
-                    FROM practice_lifecycle
-                    WHERE username = ?
-                    GROUP BY lifecycle
-                    """,
-                    (normalized_username,),
-                ).fetchall()
                 day_rows = connection.execute(
                     """
                     SELECT DISTINCT substr(answered_at, 1, 10) AS practiced_day
@@ -863,13 +860,68 @@ class MiraLingoStorage:
                     """,
                     (normalized_username,),
                 ).fetchall()
+                # Per-(base_card_id, direction) aggregates for accuracy + final streak.
+                # Only covers cards that have had at least one answer event.
+                agg_rows = connection.execute(
+                    """
+                    SELECT
+                        base_card_id,
+                        direction,
+                        COUNT(*) AS attempts,
+                        SUM(CASE WHEN correct THEN 1 ELSE 0 END) AS correct,
+                        MAX(id) AS last_id
+                    FROM answer_events
+                    WHERE username = ?
+                    GROUP BY base_card_id, direction
+                    """,
+                    (normalized_username,),
+                ).fetchall()
+                # Fetch full lifecycle rows to check consecutive_correct + lifecycle state
+                # for every card, including those with zero events.
+                lifecycle_rows = connection.execute(
+                    """
+                    SELECT base_card_id, direction, lifecycle, consecutive_correct
+                    FROM practice_lifecycle
+                    WHERE username = ?
+                    """,
+                    (normalized_username,),
+                ).fetchall()
         except sqlite3.Error as exc:
             raise StorageError(phase=phase, detail="Could not build practice summary.") from exc
 
         event_count = int(totals["event_count"] or 0) if totals else 0
         correct_count = int(totals["correct_count"] or 0) if totals else 0
-        lifecycle_counts = {str(row["lifecycle"] or "unknown"): int(row["count"] or 0) for row in lifecycle}
         streak = _practice_day_streak([str(row["practiced_day"] or "") for row in day_rows])
+
+        # Build per-card aggregate lookup keyed by (base_card_id, direction).
+        agg: dict[tuple[str, str], dict[str, int]] = {
+            (str(r["base_card_id"]), str(r["direction"])): {
+                "attempts": int(r["attempts"]),
+                "correct": int(r["correct"]),
+            }
+            for r in agg_rows
+        }
+
+        # Compute is_mastered for each lifecycle row, matching build_practice_analytics.
+        mastered_count = 0
+        active_count = 0
+        for row in lifecycle_rows:
+            lc = str(row["lifecycle"] or "active").lower()
+            consecutive = int(row["consecutive_correct"] or 0)
+            if lc == "revision":
+                mastered_count += 1
+            else:
+                # Check scheduler mastery criteria: consecutive_correct >= 3 AND accuracy >= 80%.
+                stats = agg.get((str(row["base_card_id"]), str(row["direction"])))
+                if stats and stats["attempts"] > 0:
+                    accuracy = stats["correct"] / stats["attempts"]
+                    if consecutive >= 3 and accuracy >= 0.80:
+                        mastered_count += 1
+                    else:
+                        active_count += 1
+                else:
+                    active_count += 1
+
         return {
             "ok": True,
             "phase": "practice_summary",
@@ -880,9 +932,9 @@ class MiraLingoStorage:
             "accuracy": None if event_count == 0 else round(correct_count / event_count, 4),
             "latest_event_at": str(totals["latest_answered_at"] or "") if totals else "",
             "streak": streak,
-            "mastered_count": int(lifecycle_counts.get("revision", 0)),
-            "active_count": int(lifecycle_counts.get("active", 0)),
-            "lifecycle_count": sum(lifecycle_counts.values()),
+            "mastered_count": mastered_count,
+            "active_count": active_count,
+            "lifecycle_count": len(lifecycle_rows),
         }
 
     def list_shown_cards(self, *, username: str, limit: int = MAX_EVENTS) -> list[ShownCardRecord]:
