@@ -164,7 +164,7 @@ def build_practice_analytics(
     for row in lifecycle_rows:
         base_id = str(row.get("base_card_id") or "")
         direction = str(row.get("direction") or "")
-        card_id = f"{base_id}#{direction.replace("_", "-")}"
+        card_id = f"{base_id}#{direction.replace('_', '-')}"
         lifecycle_by_card_id[card_id] = str(row.get("lifecycle") or "active")
 
     for card_id, card_row in per_card.items():
