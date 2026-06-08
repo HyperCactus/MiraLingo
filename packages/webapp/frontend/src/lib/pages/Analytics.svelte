@@ -257,6 +257,8 @@
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Accuracy</p><p class="mt-3 text-3xl font-semibold">{pct(payload?.accuracy)}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Streak</p><p class="mt-3 text-3xl font-semibold">{n(streak.current_days)} {n(streak.current_days) === 1 ? 'day' : 'days'}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Lifecycles</p><p class="mt-3 text-3xl font-semibold">{n(payload?.lifecycle_count)}</p></AppCard>
+    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Mastered</p><p class="mt-3 text-3xl font-semibold text-emerald-600 dark:text-emerald-300">{n(payload?.mastered_count)}</p></AppCard>
+    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Active</p><p class="mt-3 text-3xl font-semibold">{n(payload?.active_count)}</p></AppCard>
   </div>
 
   <AppCard className="mt-4 space-y-6 overflow-auto">
@@ -266,7 +268,7 @@
       <p class="text-sm text-slate-500 dark:text-slate-400">No analytics yet.</p>
     {:else}
       <section class="space-y-2">
-        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Mastered ({masteredCards.length})</h3>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Mastered ({n(payload?.mastered_count)})</h3>
         {#if masteredPaged.length === 0}
           {#if page === 1}
             <p class="text-sm text-slate-500 dark:text-slate-400">No mastered cards yet.</p>
@@ -301,7 +303,7 @@
       </section>
 
       <section class="space-y-2">
-        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">Seen — not yet mastered ({seenNotMasteredCards.length})</h3>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">Active ({n(payload?.active_count)})</h3>
         {#if seenPaged.length === 0}
           {#if page === 1}
             <p class="text-sm text-slate-500 dark:text-slate-400">No in-progress cards yet.</p>
