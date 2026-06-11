@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+import logging
 from pathlib import Path
 from urllib.parse import urlencode
 from typing import Any, Literal
@@ -26,11 +27,12 @@ from .auth import (
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
-from .email_delivery import EmailDeliveryError, EmailDeliveryResult, send_password_reset_email
+from .email_delivery import EmailDeliveryError, EmailDeliveryResult, email_delivery_configured, send_password_reset_email
 from .practice import MAX_EVENTS, answer_summary, build_practice_achievement_candidates, build_practice_progress, build_practice_queue, record_practice_answer
 from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
+logger = logging.getLogger(__name__)
 
 
 def _achievement_display_name(user: Any) -> str:
@@ -178,7 +180,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/health", tags=["diagnostics"])
     def health() -> dict[str, Any]:
         """Return process-local health for smoke tests and operators."""
-        return {"status": "ok", "service": "mirad-webapp", "semantic_warmup": getattr(app.state, "semantic_warmup", {"status": "unknown"})}
+        return {
+            "status": "ok",
+            "service": "mirad-webapp",
+            "semantic_warmup": getattr(app.state, "semantic_warmup", {"status": "unknown"}),
+            "email_delivery": {
+                "provider": runtime_settings.email_provider,
+                "configured": email_delivery_configured(runtime_settings),
+            },
+        }
 
     def storage_failure_response(exc: StorageError, status_code: int = status.HTTP_503_SERVICE_UNAVAILABLE) -> JSONResponse:
         """Return a stable storage diagnostic without secret-bearing request fields."""
@@ -209,9 +219,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def record_password_reset_email_delivery(*, to_email: str, reset_url: str) -> None:
         try:
-            app.state.last_password_reset_email = send_password_reset_email(settings=runtime_settings, to_email=to_email, reset_url=reset_url)
+            result = send_password_reset_email(settings=runtime_settings, to_email=to_email, reset_url=reset_url)
+            app.state.last_password_reset_email = result
+            logger.info("Password reset email delivery completed: provider=%s ok=%s skipped=%s reason=%s", result.provider, result.ok, result.skipped, result.reason)
         except EmailDeliveryError as exc:
             app.state.last_password_reset_email = EmailDeliveryResult(ok=False, provider=exc.provider, reason=exc.reason)
+            logger.warning("Password reset email delivery failed: provider=%s reason=%s", exc.provider, exc.reason)
 
     def authenticated_payload(user) -> dict[str, Any]:
         return {"authenticated": True, "user": user.public_dict()}

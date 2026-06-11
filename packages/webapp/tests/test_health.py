@@ -4,6 +4,7 @@ import warnings
 from fastapi.testclient import TestClient
 
 from mirad_webapp.api import create_app
+from mirad_webapp.config import Settings
 
 
 FRONTEND_SRC = Path(__file__).parents[1] / "frontend" / "src"
@@ -22,6 +23,28 @@ def test_health_reports_ok() -> None:
     assert payload["status"] == "ok"
     assert payload["service"] == "mirad-webapp"
     assert "semantic_warmup" in payload
+    assert payload["email_delivery"]["configured"] is False
+    assert "last_result" not in payload["email_delivery"]
+
+
+def test_health_reports_email_delivery_configuration(tmp_path: Path) -> None:
+    client = TestClient(
+        create_app(
+            Settings(
+                database_path=tmp_path / "miralingo.sqlite3",
+                email_provider="resend",
+                email_from="MiraLingo <noreply@example.com>",
+                resend_api_key="re_test_secret",
+            )
+        )
+    )
+
+    response = client.get("/health")
+
+    payload = response.json()["email_delivery"]
+    assert payload["provider"] == "resend"
+    assert payload["configured"] is True
+    assert "re_test_secret" not in response.text
 
 
 def test_lookup_fallback_handles_punctuation_without_500() -> None:
@@ -74,7 +97,9 @@ def test_frontend_auth_states_and_error_copy_are_wired() -> None:
     assert 'setAuthFailure("registration-failed"' in app
     assert "setAuthenticated(payload.user)" in app
     assert "Could not reach MiraLingo auth" in app
+    assert "authMessage.set(payload?.detail" in app
     assert 'role="alert"' in _source("lib", "pages", "Welcome.svelte")
+    assert 'role="status"' in _source("lib", "pages", "Welcome.svelte")
 
 
 def test_frontend_stylesheet_defines_responsive_app_home() -> None:

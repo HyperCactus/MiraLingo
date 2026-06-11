@@ -21,6 +21,7 @@
     submitting = false,
     authState = 'anonymous',
     authError = '',
+    authMessage = '',
   } = $props();
 
   const previewCards = [
@@ -138,6 +139,9 @@
           </div>
           {#if authError && authState !== 'registration-failed'}
             <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{authError}</div>
+          {/if}
+          {#if authMessage}
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200" role="status">{authMessage}</div>
           {/if}
           <form class="space-y-4" onsubmit={(event) => { event.preventDefault(); dispatch('logIn'); }}>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">

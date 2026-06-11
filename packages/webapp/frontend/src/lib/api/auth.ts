@@ -81,7 +81,7 @@ export async function requestPasswordReset(email: string) {
     credentials: 'include',
     body: JSON.stringify({ email }),
   });
-  const payload = await readJson<AuthFailureResponse & { ok?: boolean; dev_reset_url?: string }>(response);
+  const payload = await readJson<AuthFailureResponse & { ok?: boolean }>(response);
   return { response, payload };
 }
 

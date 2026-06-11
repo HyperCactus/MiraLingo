@@ -13,7 +13,7 @@
   import AppButton from "./lib/components/ui/AppButton.svelte";
   import AppCard from "./lib/components/ui/AppCard.svelte";
   import AppInput from "./lib/components/ui/AppInput.svelte";
-  import { authError, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
+  import { authError, authMessage, authState, currentUser, resetAuthStore, setAnonymous, setAuthenticated, setAuthFailure } from "./lib/stores/auth";
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
   import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, soundEffectsMode, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
@@ -276,15 +276,22 @@
     const email = loginEmail || registrationEmail;
     if (!email) {
       authError.set("Enter your email first, then request a password reset.");
+      authMessage.set("");
       return;
     }
     submitting = true;
     authError.set("");
+    authMessage.set("");
     try {
-      const { payload } = await requestPasswordReset(email);
-      authError.set(payload?.dev_reset_url ? `Development reset link: ${payload.dev_reset_url}` : (payload?.detail ?? "If an account exists, reset instructions have been sent."));
+      const { response, payload } = await requestPasswordReset(email);
+      if (!response.ok) {
+        authError.set(payload?.detail ?? "Could not request password reset.");
+        return;
+      }
+      authMessage.set(payload?.detail ?? "If an account exists, reset instructions have been sent.");
     } catch (_) {
       authError.set("Could not request password reset.");
+      authMessage.set("");
     } finally {
       submitting = false;
     }
@@ -1151,6 +1158,7 @@
     {submitting}
     authState={$authState}
     authError={$authError}
+    authMessage={$authMessage}
     on:createAccount={submitRegistration}
     on:logIn={submitLogin}
     on:googleLogin={() => { window.location.href = '/auth/google/login'; }}

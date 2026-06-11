@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from mirad_webapp.config import load_settings
@@ -30,3 +32,12 @@ def test_load_settings_requires_https_app_url_in_production(monkeypatch) -> None
 
     with pytest.raises(ValueError, match="https"):
         load_settings()
+
+
+def test_docker_compose_passes_email_env_to_backend() -> None:
+    compose = Path(__file__).parents[3].joinpath("docker-compose.yml").read_text(encoding="utf-8")
+
+    assert "APP_URL: ${APP_URL:-http://localhost:5173}" in compose
+    assert "EMAIL_PROVIDER: ${EMAIL_PROVIDER:-}" in compose
+    assert "EMAIL_FROM: ${EMAIL_FROM:-}" in compose
+    assert "RESEND_API_KEY: ${RESEND_API_KEY:-}" in compose

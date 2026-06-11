@@ -13,6 +13,10 @@ services:
       MIRALINGO_SESSION_TTL_SECONDS: ${MIRALINGO_SESSION_TTL_SECONDS:-1209600}
       MIRALINGO_PASSWORD_RESET_TTL_SECONDS: ${MIRALINGO_PASSWORD_RESET_TTL_SECONDS:-3600}
       MIRALINGO_FRONTEND_BASE_URL: ${MIRALINGO_FRONTEND_BASE_URL:-http://localhost:5173}
+      APP_URL: ${APP_URL:-http://localhost:5173}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
       MIRALINGO_DATABASE_PATH: /app/.miralingo/miralingo.sqlite3
       MIRALINGO_PHRASE_CSV_PATH: /app/data/phrases/english-mirad-sentence-pairs.csv
       MIRALINGO_BEGINNER_JSON_PATH: /app/data/miralingo_modules/beginner.json
