@@ -78,7 +78,7 @@ def build_practice_queue(
     current = _as_aware_datetime(now)
     base_cards = _normalize_base_cards(cards)
     practice_items = _expand_practice_items(cards)
-    valid_events = _normalize_events(events or [])
+    valid_events = _normalize_events(events or [], limit=None)
     stats = _stats_by_card(valid_events)
     base_stats = _stats_by_base_card(valid_events)
     recent_accuracy = _recent_accuracy(valid_events)
@@ -680,9 +680,12 @@ def _build_policy_queue(
         words_only=words_only,
         active_item_ids=active_item_ids,
     )
+    def new_card_weight(item: dict[str, Any]) -> float:
+        return _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases, related_item_ids)
+
     while len(active_deck) < active_deck_size and (unseen or numbers_unseen):
         pool = unseen
-        weight_fn = lambda item: _new_card_weight(item, card_by_base.get(item["base_card_id"], {}), related_bases, related_item_ids)
+        weight_fn = new_card_weight
         using_numbers_pool = False
         if numbers_unseen and (not unseen or rng.random() < _NUMBERS_NEW_CARD_PROBABILITY):
             pool = numbers_unseen
@@ -1493,9 +1496,13 @@ def _normalize_card(card: dict[str, Any]) -> dict[str, str]:
     return typed
 
 
-def _normalize_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _normalize_events(events: list[dict[str, Any]], *, limit: int | None = MAX_EVENTS) -> list[dict[str, Any]]:
     normalized: list[dict[str, Any]] = []
-    for event in events[-MAX_EVENTS:]:
+    if limit is None:
+        bounded_events = events
+    else:
+        bounded_events = events[-int(limit):] if int(limit) > 0 else []
+    for event in bounded_events:
         if not isinstance(event, dict) or not event.get("card_id") or "correct" not in event:
             continue
         answered_at = _parse_datetime(event.get("answered_at"))

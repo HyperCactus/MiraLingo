@@ -26,7 +26,7 @@ from .auth import (
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
-from .practice import answer_summary, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
+from .practice import MAX_EVENTS, answer_summary, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
 from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
@@ -225,9 +225,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def forbidden_response(phase: str, detail: str = "You do not have permission to perform this action.") -> JSONResponse:
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"ok": False, "error": "forbidden", "phase": phase, "detail": detail})
 
-    def answer_events_for_user(username: str, phase: str) -> list[dict[str, Any]]:
+    def answer_events_for_user(username: str, phase: str, *, limit: int | None = MAX_EVENTS) -> list[dict[str, Any]]:
         storage: MiraLingoStorage = app.state.storage
-        return [record.practice_event() for record in storage.list_answer_events(username=username, phase=phase)]
+        return [record.practice_event() for record in storage.list_answer_events(username=username, phase=phase, limit=limit)]
 
     def ensure_practice_storage_user(user_phase: str, username: str, role: str) -> None:
         storage: MiraLingoStorage = app.state.storage
@@ -740,7 +740,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         try:
             ensure_practice_storage_user("practice_queue", user.username, user.role)
-            events = answer_events_for_user(user.username, "practice_queue")
+            events = answer_events_for_user(user.username, "practice_queue", limit=None)
             lifecycle_rows = [row.public_dict() for row in request.app.state.storage.list_practice_lifecycle(username=user.username)]
             exposure_by_item = request.app.state.storage.exposure_summary(username=user.username)
             payload = build_practice_queue(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -113,6 +114,72 @@ def test_authenticated_practice_queue_returns_cards_and_scheduler_diagnostics(mo
     assert types == {"phrase", "word"}, f"expected mix of phrase+word, got {types}"
     assert all(card["scheduler_reason"] == "new_item" for card in payload["cards"])
     assert len({card["base_card_id"] for card in payload["cards"]}) == 3
+
+
+def test_practice_queue_uses_full_history_when_beginner_module_exhausted(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_word_candidates", lambda word_limit: [])
+    phrase_csv = tmp_path / "phrases.csv"
+    phrase_csv.write_text(
+        "english,mirad\n"
+        + "\n".join(f"general phrase {index},gen mir {index}" for index in range(8))
+        + "\n",
+        encoding="utf-8",
+    )
+    beginner_json = tmp_path / "beginner.json"
+    beginner_json.write_text(
+        json.dumps({"pairs": [{"english": f"beginner {index}", "mirad": f"beg {index}"} for index in range(105)]}),
+        encoding="utf-8",
+    )
+    numbers_json = tmp_path / "numbers.json"
+    numbers_json.write_text(
+        json.dumps({"pairs": [{"english": "zero", "mirad": "o"}, {"english": "one", "mirad": "a"}]}),
+        encoding="utf-8",
+    )
+    app = create_app(
+        Settings(
+            session_secret="test-secret",
+            database_path=tmp_path / "miralingo.sqlite3",
+            phrase_csv_path=phrase_csv,
+            beginner_json_path=beginner_json,
+            numbers_json_path=numbers_json,
+        )
+    )
+    client = TestClient(app)
+    _login(client)
+    app.state.storage.ensure_session_user(username="admin", role="admin", phase="practice_answer")
+
+    answered_at = NOW - timedelta(days=1)
+    for index in range(105):
+        for direction, suffix, expected in (
+            ("english_to_mirad", "english-to-mirad", f"beg {index}"),
+            ("mirad_to_english", "mirad-to-english", f"beginner {index}"),
+        ):
+            for attempt in range(3):
+                app.state.storage.append_answer_event(
+                    username="admin",
+                    card_id=f"phrase:beginner-{index}#{suffix}",
+                    base_card_id=f"phrase:beginner-{index}",
+                    direction=direction,
+                    card_type="phrase",
+                    submitted_answer=expected,
+                    expected_answer=expected,
+                    correct=True,
+                    answered_at=answered_at + timedelta(minutes=(index * 6) + (attempt * 2) + (0 if direction == "english_to_mirad" else 1)),
+                )
+
+    response = client.get("/practice/queue?mode=mixed&limit=8")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["event_count"] == 630
+    new_cards = [card for card in payload["cards"] if card["scheduler_reason"] == "new_item"]
+    assert new_cards
+    assert all(card.get("beginner_order") is None for card in new_cards)
+    assert any(card.get("numbers_order") is not None or card["base_card_id"].startswith("phrase:general-phrase") for card in new_cards)
+
+    summary = client.get("/practice/summary")
+    assert summary.status_code == 200
+    assert summary.json()["active_count"] >= len({(card["base_card_id"], card["direction"]) for card in new_cards})
 
 
 def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_path: Path) -> None:

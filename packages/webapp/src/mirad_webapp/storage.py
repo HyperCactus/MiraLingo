@@ -379,13 +379,20 @@ class MiraLingoStorage:
         normalized_username = _require_username(username, phase="practice_queue")
         timestamp = _utcnow_iso()
         rows: list[tuple[str, str, str, str, str, str, str, str]] = []
+        lifecycle_rows: list[tuple[str, str, str, str, str]] = []
+        active_reasons = {"new_item", "new_item_gated_by_weak_recent_performance", "weak_recent_performance"}
         for card in cards:
+            base_card_id = str(card.get("base_card_id") or "")
+            direction = str(card.get("direction") or "")
+            scheduler_reason = str(card.get("scheduler_reason") or "")
+            if base_card_id and direction and scheduler_reason in active_reasons:
+                lifecycle_rows.append((normalized_username, base_card_id, direction, timestamp, timestamp))
             rows.append(
                 (
                     normalized_username,
                     str(card.get("id") or ""),
-                    str(card.get("base_card_id") or ""),
-                    str(card.get("direction") or ""),
+                    base_card_id,
+                    direction,
                     str(card.get("type") or ""),
                     str(card.get("prompt_language") or ""),
                     str(card.get("answer_language") or ""),
@@ -402,6 +409,16 @@ class MiraLingoStorage:
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     rows,
+                )
+                connection.executemany(
+                    """
+                    INSERT OR IGNORE INTO practice_lifecycle
+                        (username, base_card_id, direction, lifecycle, first_seen_at, last_seen_at,
+                         consecutive_correct, correct_session_streak, promoted_at, regression_count,
+                         last_regressed_at, last_session_id_counted)
+                    VALUES (?, ?, ?, 'active', ?, ?, 0, 0, NULL, 0, NULL, NULL)
+                    """,
+                    lifecycle_rows,
                 )
         except sqlite3.Error as exc:
             raise StorageError(phase="practice_queue", detail="Could not record shown cards.") from exc
