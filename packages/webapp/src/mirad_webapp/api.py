@@ -634,6 +634,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             reset_url = f"{runtime_settings.app_url}/?reset_token={token}"
             to_email = normalize_email(payload.email) or payload.email
             background_tasks.add_task(record_password_reset_email_delivery, to_email=to_email, reset_url=reset_url)
+        else:
+            app.state.last_password_reset_email = EmailDeliveryResult(ok=False, provider=runtime_settings.email_provider, skipped=True, reason="no_resettable_account")
+            logger.info("Password reset email delivery skipped: reason=no_resettable_account")
         content: dict[str, Any] = {"ok": True, "phase": "password_forgot", "detail": "If an account exists, reset instructions have been sent."}
         return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content=content, background=background_tasks)
 

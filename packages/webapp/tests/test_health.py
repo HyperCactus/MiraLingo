@@ -98,6 +98,9 @@ def test_frontend_auth_states_and_error_copy_are_wired() -> None:
     assert "setAuthenticated(payload.user)" in app
     assert "Could not reach MiraLingo auth" in app
     assert "authMessage.set(payload?.detail" in app
+    forgot_body = app.split("async function submitPasswordResetRequest()", maxsplit=1)[1].split("async function", maxsplit=1)[0]
+    assert "const email = loginEmail.trim();" in forgot_body
+    assert "registrationEmail" not in forgot_body
     assert 'role="alert"' in _source("lib", "pages", "Welcome.svelte")
     assert 'role="status"' in _source("lib", "pages", "Welcome.svelte")
 

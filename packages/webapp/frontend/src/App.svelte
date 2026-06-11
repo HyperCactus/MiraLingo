@@ -273,7 +273,7 @@
   }
 
   async function submitPasswordResetRequest() {
-    const email = loginEmail || registrationEmail;
+    const email = loginEmail.trim();
     if (!email) {
       authError.set("Enter your email first, then request a password reset.");
       authMessage.set("");
@@ -1008,7 +1008,7 @@
     subtitle="Personalize theme and speech speed"
     showBackButton={true}
     backLabel="Back to today"
-    userLabel={settingsPhase || "Settings"}
+    userLabel="Settings"
     avatarLabel={displayName($currentUser)}
     navItems={navItemsFor($currentSection)}
     on:click={goToMenu}

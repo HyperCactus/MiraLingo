@@ -46,7 +46,13 @@ def test_settings_section_contains_user_facing_controls_and_labels() -> None:
     assert "Save settings" not in source
 
 
-def test_settings_status_and_alert_diagnostics_are_present() -> None:
+def test_settings_shell_uses_friendly_status_label() -> None:
+    source = _source()
+
+    assert 'userLabel="Settings"' in source
+    assert 'userLabel={settingsPhase || "Settings"}' not in source
+
+
     source = _source()
 
     assert 'role="alert"' in source

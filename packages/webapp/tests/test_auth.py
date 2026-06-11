@@ -249,12 +249,18 @@ def test_password_forgot_skips_provider_for_missing_account(monkeypatch, tmp_pat
         raise AssertionError("email provider should not be called for missing account")
 
     monkeypatch.setattr("mirad_webapp.api.send_password_reset_email", fail_if_called)
-    client = TestClient(create_app(_settings(tmp_path, email_provider="resend", email_from="Your App <noreply@yourdomain.com>", resend_api_key="re_test_secret")))
+    app = create_app(_settings(tmp_path, email_provider="resend", email_from="Your App <noreply@yourdomain.com>", resend_api_key="re_test_secret"))
+    client = TestClient(app)
 
     response = client.post("/auth/password/forgot", json={"email": "missing@example.com"})
 
     assert response.status_code == 202
     assert response.json()["detail"] == "If an account exists, reset instructions have been sent."
+    assert app.state.last_password_reset_email.ok is False
+    assert app.state.last_password_reset_email.provider == "resend"
+    assert app.state.last_password_reset_email.skipped is True
+    assert app.state.last_password_reset_email.reason == "no_resettable_account"
+    assert "missing@example.com" not in response.text
 
 
 def test_password_forgot_records_sanitized_provider_failure(monkeypatch, tmp_path: Path) -> None:
