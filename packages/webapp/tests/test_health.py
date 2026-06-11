@@ -15,7 +15,7 @@ def _source(*parts: str) -> str:
 
 
 def test_health_reports_ok() -> None:
-    client = TestClient(create_app())
+    client = TestClient(create_app(Settings()))
 
     response = client.get("/health")
 
@@ -24,7 +24,14 @@ def test_health_reports_ok() -> None:
     assert payload["service"] == "mirad-webapp"
     assert "semantic_warmup" in payload
     assert payload["email_delivery"]["configured"] is False
-    assert "last_result" not in payload["email_delivery"]
+    assert payload["email_delivery"]["sender_domain"] is None
+    assert payload["email_delivery"]["app_url_origin"] == "http://localhost:5173"
+    assert payload["email_delivery"]["last_result"] == {
+        "ok": False,
+        "provider": None,
+        "skipped": True,
+        "reason": "not_attempted",
+    }
 
 
 def test_health_reports_email_delivery_configuration(tmp_path: Path) -> None:
@@ -44,6 +51,9 @@ def test_health_reports_email_delivery_configuration(tmp_path: Path) -> None:
     payload = response.json()["email_delivery"]
     assert payload["provider"] == "resend"
     assert payload["configured"] is True
+    assert payload["sender_domain"] == "example.com"
+    assert payload["last_result"]["reason"] == "not_attempted"
+    assert "noreply@example.com" not in response.text
     assert "re_test_secret" not in response.text
 
 

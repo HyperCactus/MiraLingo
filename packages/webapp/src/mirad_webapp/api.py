@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from typing import Any, Literal
 
 from fastapi import BackgroundTasks, FastAPI, Query, Request, status
@@ -33,6 +33,31 @@ from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
 logger = logging.getLogger(__name__)
+
+
+def _sender_domain(sender: str | None) -> str | None:
+    value = (sender or "").strip()
+    if not value or "@" not in value:
+        return None
+    email_part = value.rsplit("<", 1)[-1].rstrip(">").strip()
+    domain = email_part.rsplit("@", 1)[-1].strip().lower()
+    return domain or None
+
+
+def _app_url_origin(app_url: str | None) -> str | None:
+    parsed = urlparse((app_url or "").strip())
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def _email_result_payload(result: EmailDeliveryResult) -> dict[str, Any]:
+    return {
+        "ok": result.ok,
+        "provider": result.provider,
+        "skipped": result.skipped,
+        "reason": result.reason,
+    }
 
 
 def _achievement_display_name(user: Any) -> str:
@@ -187,6 +212,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "email_delivery": {
                 "provider": runtime_settings.email_provider,
                 "configured": email_delivery_configured(runtime_settings),
+                "sender_domain": _sender_domain(runtime_settings.email_from),
+                "app_url_origin": _app_url_origin(runtime_settings.app_url),
+                "last_result": _email_result_payload(app.state.last_password_reset_email),
             },
         }
 
