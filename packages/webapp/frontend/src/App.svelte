@@ -357,7 +357,7 @@
       settingsLoadedForUser.set($currentUser?.id ?? null);
       applySettingsPayload({});
       settingsState = "error";
-      settingsPhase = "settings_get";
+      settingsPhase = "settings";
       settingsErr = "Could not reach saved settings.";
     }
   }
