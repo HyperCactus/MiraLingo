@@ -207,7 +207,7 @@ def test_practice_queue_revision_mode_returns_only_stale_items(monkeypatch, tmp_
         expected_answer="the",
         start=STALE_AT,
     )
-    # Only 2 correct for "word:be" — below mastery threshold (3 consecutive + 80%).
+    # Only 2 correct for "word:be" — below mastery threshold (3 consecutive + 60%).
     _append_correct_streak(
         app,
         card_id="word:be#english-to-mirad",

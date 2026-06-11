@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from mirad_webapp.practice import MAX_EVENTS
-from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, _new_card_weight, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
+from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, _mastered_card_probability_weights, _new_card_weight, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
 
 
 NOW = datetime(2026, 5, 23, 12, 0, tzinfo=timezone.utc)
@@ -308,7 +308,7 @@ def test_english_to_mirad_word_answers_require_exact_card_translation_not_lexico
     assert result[-1]["correct"] is False
 
 
-def test_scheduler_marks_card_mastered_after_three_streak_and_accuracy_at_threshold_despite_past_miss() -> None:
+def test_scheduler_marks_card_mastered_after_three_streak_and_accuracy_at_threshold_despite_past_misses() -> None:
     events = [
         {
             "card_id": "word:the#english-to-mirad",
@@ -325,9 +325,9 @@ def test_scheduler_marks_card_mastered_after_three_streak_and_accuracy_at_thresh
             "base_card_id": "word:the",
             "direction": "english_to_mirad",
             "card_type": "word",
-            "submitted_answer": "te",
+            "submitted_answer": "wrong",
             "expected_answer": "te",
-            "correct": True,
+            "correct": False,
             "answered_at": (NOW + timedelta(minutes=1)).isoformat(),
         },
         {
@@ -367,10 +367,10 @@ def test_scheduler_marks_card_mastered_after_three_streak_and_accuracy_at_thresh
 
     assert card["mastery"] == {
         "attempts": 5,
-        "correct": 4,
-        "incorrect": 1,
-        "accuracy": 0.8,
-        "consecutive_correct": 4,
+        "correct": 3,
+        "incorrect": 2,
+        "accuracy": 0.6,
+        "consecutive_correct": 3,
         "streak_required": 3,
         "mastered": True,
     }
@@ -461,7 +461,7 @@ def test_stale_mastered_item_resurfaces_before_new_cards() -> None:
         submitted_answer="te",
     )
 
-    queue = build_practice_queue(cards=CARDS, events=events, now=NOW, limit=2)
+    queue = build_practice_queue(cards=CARDS, events=events, now=NOW, limit=5)
 
     assert any(card["base_card_id"] == "word:the" and card["scheduler_reason"] == "stale_mastered_review" for card in queue["cards"])
     stale = next(card for card in queue["cards"] if card["base_card_id"] == "word:the")
@@ -780,12 +780,84 @@ def test_mixed_mode_caps_unmastered_active_rotation_without_backfilling_mastered
 
     queue = build_practice_queue(cards=cards, events=[], now=NOW, limit=10, mode="mixed")
 
-    assert queue["limit"] == 8
-    assert len(queue["cards"]) == 8
-    assert len({card["id"] for card in queue["cards"]}) == 8
+    assert queue["limit"] == 10
+    assert len(queue["cards"]) == 10
+    assert len({card["id"] for card in queue["cards"]}) == 10
     assert {card["scheduler_reason"] for card in queue["cards"]} == {"new_item"}
 
 
+def test_mixed_mode_uses_eighty_twenty_active_mastered_split_when_both_pools_exist() -> None:
+    cards = [
+        {"id": f"word:active-{index}", "type": "word", "english": f"active {index}", "mirad": f"aktiva {index}"}
+        for index in range(8)
+    ] + [
+        {"id": f"word:mastered-{index}", "type": "word", "english": f"mastered {index}", "mirad": f"mastra {index}"}
+        for index in range(5)
+    ]
+    events: list[dict[str, object]] = []
+    for index in range(8):
+        events.append(
+            _event(
+                f"word:active-{index}#english-to-mirad",
+                correct=True,
+                answered_at=NOW - timedelta(hours=2, minutes=index),
+                expected_answer=f"aktiva {index}",
+                submitted_answer=f"aktiva {index}",
+            )
+        )
+    for index in range(5):
+        events.extend(
+            _correct_streak(
+                f"word:mastered-{index}#english-to-mirad",
+                count=3,
+                start=NOW - timedelta(days=1, minutes=index * 6),
+                expected_answer=f"mastra {index}",
+                submitted_answer=f"mastra {index}",
+            )
+        )
+        events.extend(
+            _correct_streak(
+                f"word:mastered-{index}#mirad-to-english",
+                count=3,
+                start=NOW - timedelta(days=1, minutes=index * 6 + 3),
+                expected_answer=f"mastered {index}",
+                submitted_answer=f"mastered {index}",
+            )
+        )
+
+    queue = build_practice_queue(cards=cards, events=events, now=NOW, limit=10, mode="mixed")
+
+    active_cards = [card for card in queue["cards"] if card["scheduler_reason"] not in {"mastered_recent", "stale_mastered_review"}]
+    mastered_cards = [card for card in queue["cards"] if card["scheduler_reason"] in {"mastered_recent", "stale_mastered_review"}]
+    assert len(active_cards) == 8
+    assert len(mastered_cards) == 2
+
+
+def test_mastered_card_probability_weights_keep_floor_and_bias_low_accuracy_low_seen() -> None:
+    items = [
+        {"id": "word:low-accuracy#english-to-mirad", "base_card_id": "word:low-accuracy"},
+        {"id": "word:high-accuracy#english-to-mirad", "base_card_id": "word:high-accuracy"},
+        {"id": "word:few-seen#english-to-mirad", "base_card_id": "word:few-seen"},
+        {"id": "word:many-seen#english-to-mirad", "base_card_id": "word:many-seen"},
+    ]
+    weights = _mastered_card_probability_weights(
+        items,
+        {
+            "word:low-accuracy": {"attempts": 10, "correct": 6},
+            "word:high-accuracy": {"attempts": 10, "correct": 10},
+            "word:few-seen": {"attempts": 3, "correct": 3},
+            "word:many-seen": {"attempts": 20, "correct": 20},
+        },
+    )
+
+    minimum_probability = 1 / (2 * len(items))
+    assert abs(sum(weights.values()) - 1.0) < 1e-12
+    assert all(weight >= minimum_probability for weight in weights.values())
+    assert weights["word:low-accuracy#english-to-mirad"] > weights["word:high-accuracy#english-to-mirad"]
+    assert weights["word:few-seen#english-to-mirad"] > weights["word:many-seen#english-to-mirad"]
+
+
+def test_mixed_mode_finishes_unseen_beginner_direction_before_general_pool() -> None:
     cards = [
         {"id": "word:general", "type": "word", "english": "the", "mirad": "te"},
         {"id": "word:beginner", "type": "word", "english": "hello", "mirad": "hay", "beginner_order": "0"},

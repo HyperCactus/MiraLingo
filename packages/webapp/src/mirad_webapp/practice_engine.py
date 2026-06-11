@@ -15,15 +15,15 @@ MAX_EVENTS = 200
 STALE_AFTER_SECONDS = 14 * 24 * 60 * 60
 _WEAK_ACCURACY_THRESHOLD = 0.8
 _NEW_ITEM_ACCURACY_THRESHOLD = 0.6
+_MASTERY_ACCURACY_THRESHOLD = 0.60
 _REINFORCE_MIN_ATTEMPTS = 3
 _REPEAT_GAP = 3
-_MIXED_ACTIVE_DECK_SIZE = 8
+_MIXED_ACTIVE_DECK_SIZE = 10
 _BUILD_VOCABULARY_ACTIVE_DECK_SIZE = 12
-_MIXED_ACTIVE_RATIO = 0.70
+_MIXED_ACTIVE_RATIO = 0.80
 _BUILD_VOCABULARY_ACTIVE_RATIO = 0.80
 _NEW_CARD_RELATED_BONUS = 0.35
 _NEW_CARD_INVERSE_WEIGHT_MULTIPLIER = 3.0
-_MASTERED_MIN_WEIGHT = 0.05
 _NUMBERS_NEW_CARD_PROBABILITY = 0.30
 _DIRECTION_EXPOSURE_BALANCE_WEIGHT = 0.35
 _DIRECTION_EXPOSURE_BALANCE_CAP = 4.0
@@ -623,10 +623,11 @@ def _build_policy_queue(
     mastered = [item for item in ordered if _is_mastered_item(item)]
 
     if mode == REVISION_MODE:
+        mastered_weights = _mastered_card_probability_weights(mastered, base_stats)
         return _weighted_sequence(
             mastered,
             limit=limit,
-            weight_fn=lambda item: _mastered_card_weight(item, base_stats),
+            weight_fn=lambda item: mastered_weights.get(item["id"], 0.0),
             repeat_gap=_REPEAT_GAP,
             rng=rng,
         ), "seen_only"
@@ -728,10 +729,11 @@ def _build_policy_queue(
         repeat_gap=_REPEAT_GAP,
         rng=rng,
     )
+    mastered_weights = _mastered_card_probability_weights(mastered, base_stats)
     mastered_sequence = _weighted_sequence(
         mastered,
         limit=revision_slots,
-        weight_fn=lambda item: _mastered_card_weight(item, base_stats),
+        weight_fn=lambda item: mastered_weights.get(item["id"], 0.0),
         repeat_gap=_REPEAT_GAP,
         rng=rng,
     )
@@ -856,13 +858,36 @@ def _active_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, An
     return recency_weight * weakness_weight
 
 
-def _mastered_card_weight(item: dict[str, Any], base_stats: dict[str, dict[str, Any]]) -> float:
+def _mastered_card_probability_weights(items: list[dict[str, Any]], base_stats: dict[str, dict[str, Any]]) -> dict[str, float]:
+    """Return normalized mastered selection weights with a 1/(2n) probability floor.
+
+    Half of the probability mass is uniform across mastered cards. The other half
+    is distributed by weakness: lower accuracy and lower total attempts are more
+    likely to be reviewed.
+    """
+    if not items:
+        return {}
+    item_count = len(items)
+    floor_probability = 1.0 / (2.0 * item_count)
+    scores = {item["id"]: _mastered_card_score(item, base_stats) for item in items}
+    total_score = sum(scores.values())
+    if total_score <= 0:
+        return {item["id"]: 1.0 / item_count for item in items}
+    return {
+        item["id"]: floor_probability + 0.5 * (scores[item["id"]] / total_score)
+        for item in items
+    }
+
+
+def _mastered_card_score(item: dict[str, Any], base_stats: dict[str, dict[str, Any]]) -> float:
     stat = base_stats.get(item["base_card_id"], _empty_stats())
     attempts = int(stat.get("attempts") or 0)
     if attempts <= 0:
         return 1.0
     accuracy = float(stat.get("correct") or 0) / attempts
-    return _MASTERED_MIN_WEIGHT + max(0.0, 1.0 - accuracy)
+    accuracy_gap = max(0.0, 1.0 - accuracy)
+    exposure_gap = 1.0 / (attempts + 1.0)
+    return max(0.01, accuracy_gap + exposure_gap)
 
 
 def _new_card_weight(item: dict[str, Any], card: dict[str, str], related_bases: set[str], related_item_ids: set[str] | None = None) -> float:
@@ -1137,7 +1162,7 @@ def _build_mixed_mode_diagnostics(
     lifecycle_rows: list[dict[str, Any]],
     exposure_by_item: dict[str, int],
 ) -> dict[str, Any]:
-    requested_active_revision_ratio = {"active": 0.7, "revision": 0.3}
+    requested_active_revision_ratio = {"active": _MIXED_ACTIVE_RATIO, "revision": round(1.0 - _MIXED_ACTIVE_RATIO, 2)}
     requested_word_phrase_mix = {"word": 0.5, "phrase": 0.5}
 
     active_count = sum(1 for card in selected_cards if card.get("scheduler_reason") in {"new_item", "new_item_gated_by_weak_recent_performance", "weak_recent_performance"})
@@ -1168,9 +1193,9 @@ def _build_mixed_mode_diagnostics(
     actual_revision = revision_count / total
     actual_word = word_count / total
     actual_phrase = phrase_count / total
-    if abs(actual_active - requested_active_revision_ratio["active"]) > 0.2:
+    if round(abs(actual_active - requested_active_revision_ratio["active"]), 2) >= 0.2:
         fallback_reasons.append("ratio_drift")
-    if abs(actual_word - requested_word_phrase_mix["word"]) > 0.2:
+    if round(abs(actual_word - requested_word_phrase_mix["word"]), 2) > 0.2:
         fallback_reasons.append("mix_drift")
 
     lifecycle_counts = {
@@ -1302,7 +1327,7 @@ def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycl
 
     Cards in lifecycle ``revision`` are always mastered.  Cards in
     ``active`` that meet the scheduler mastery threshold
-    (consecutive_correct >= 3, accuracy >= 0.80) are also mastered
+    (consecutive_correct >= 3, accuracy >= 0.60) are also mastered
     so that milestones are detected at the same threshold as the
     practice scheduler.
 
@@ -1323,7 +1348,7 @@ def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycl
                 consecutive = int(row_dict.get("correct_streak") or row_dict.get("consecutive_correct") or 0)
                 direction = str(row_dict.get("direction") or "")
                 if consecutive >= 3:
-                    # Verify accuracy >= 0.80 from per_card data if available.
+                    # Verify accuracy >= 0.60 from per_card data if available.
                     card_accuracy = None
                     per_card_data = progress_payload.get("per_card") or {}
                     # per_card keys are "base_card_id#direction"
@@ -1341,7 +1366,7 @@ def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycl
                         card_attempts = int(card_row.get("attempts") or 0)
                         card_correct = int(card_row.get("correct") or 0)
                         card_accuracy = (card_correct / card_attempts) if card_attempts > 0 else 0.0
-                    if card_accuracy is not None and card_accuracy >= 0.80:
+                    if card_accuracy is not None and card_accuracy >= _MASTERY_ACCURACY_THRESHOLD:
                         active_mastery_bases.add(base_id)
 
         mastered_bases = revision_bases | active_mastery_bases
@@ -1573,7 +1598,7 @@ def _mastery_payload(stat: dict[str, Any]) -> dict[str, Any]:
     attempts = stat["attempts"]
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
     accuracy = None if attempts == 0 else stat["correct"] / attempts
-    mastered = consecutive_correct >= 3 and (accuracy is not None and accuracy >= 0.80)
+    mastered = consecutive_correct >= 3 and (accuracy is not None and accuracy >= _MASTERY_ACCURACY_THRESHOLD)
     return {
         "attempts": attempts,
         "correct": stat["correct"],
@@ -1598,7 +1623,7 @@ def _scheduler_reason(stat: dict[str, Any], now: datetime, weak_recent: bool) ->
         return "new_item_gated_by_weak_recent_performance" if weak_recent else "new_item"
     accuracy = stat["correct"] / attempts
     consecutive_correct = int(stat.get("consecutive_correct") or 0)
-    if consecutive_correct >= 3 and accuracy >= 0.80:
+    if consecutive_correct >= 3 and accuracy >= _MASTERY_ACCURACY_THRESHOLD:
         seen = _parse_datetime(stat["last_seen_at"])
         if seen and int((now - seen).total_seconds()) >= STALE_AFTER_SECONDS:
             return "stale_mastered_review"

@@ -51,7 +51,7 @@ def test_weighted_queue_reports_ratio_mix_weight_and_repeat_gap_diagnostics_cont
     # S02 contract: queue must expose requested/actual policy diagnostics.
     assert "diagnostics" in queue
     diagnostics = queue["diagnostics"]
-    assert diagnostics["requested_active_revision_ratio"] == {"active": 0.7, "revision": 0.3}
+    assert diagnostics["requested_active_revision_ratio"] == {"active": 0.8, "revision": 0.2}
     assert diagnostics["actual_active_revision_ratio"]["active"] + diagnostics["actual_active_revision_ratio"]["revision"] == 1.0
     assert diagnostics["requested_word_phrase_mix"] == {"word": 0.5, "phrase": 0.5}
     assert diagnostics["actual_word_phrase_mix"]["word"] + diagnostics["actual_word_phrase_mix"]["phrase"] == 1.0
