@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from typing import Any, Literal
 
-from fastapi import FastAPI, Query, Request, status
+from fastapi import BackgroundTasks, FastAPI, Query, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,6 +26,7 @@ from .auth import (
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
+from .email_delivery import EmailDeliveryError, EmailDeliveryResult, send_password_reset_email
 from .practice import MAX_EVENTS, answer_summary, build_practice_achievement_candidates, build_practice_progress, build_practice_queue, record_practice_answer
 from .storage import MiraLingoStorage, StorageError
 
@@ -156,6 +157,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title=f"{APP_NAME} API", lifespan=lifespan)
     app.state.storage = MiraLingoStorage(runtime_settings.database_path)
     app.state.card_content_cache = {"result": None, "phrase_mtime_ns": None}
+    app.state.last_password_reset_email = EmailDeliveryResult(ok=False, provider=None, skipped=True, reason="not_attempted")
 
 
     @app.exception_handler(RequestValidationError)
@@ -204,6 +206,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             samesite="lax",
             path="/",
         )
+
+    def record_password_reset_email_delivery(*, to_email: str, reset_url: str) -> None:
+        try:
+            app.state.last_password_reset_email = send_password_reset_email(settings=runtime_settings, to_email=to_email, reset_url=reset_url)
+        except EmailDeliveryError as exc:
+            app.state.last_password_reset_email = EmailDeliveryResult(ok=False, provider=exc.provider, reason=exc.reason)
 
     def authenticated_payload(user) -> dict[str, Any]:
         return {"authenticated": True, "user": user.public_dict()}
@@ -602,20 +610,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return response
 
     @app.post("/auth/password/forgot", tags=["auth"])
-    def password_forgot(request: Request, payload: PasswordForgotRequest) -> JSONResponse:
+    def password_forgot(request: Request, background_tasks: BackgroundTasks, payload: PasswordForgotRequest) -> JSONResponse:
         """Create a password reset token without revealing whether the email exists."""
         storage: MiraLingoStorage = request.app.state.storage
-        dev_reset_url = None
         try:
             token = storage.create_password_reset_token(email=payload.email, secret=runtime_settings.session_secret, ttl_seconds=runtime_settings.password_reset_ttl_seconds)
         except StorageError as exc:
             return storage_failure_response(exc)
-        if token and runtime_settings.environment == "development" and runtime_settings.enable_dev_password_reset_logging:
-            dev_reset_url = f"{runtime_settings.frontend_base_url}/?reset_token={token}"
+        if token:
+            reset_url = f"{runtime_settings.app_url}/?reset_token={token}"
+            to_email = normalize_email(payload.email) or payload.email
+            background_tasks.add_task(record_password_reset_email_delivery, to_email=to_email, reset_url=reset_url)
         content: dict[str, Any] = {"ok": True, "phase": "password_forgot", "detail": "If an account exists, reset instructions have been sent."}
-        if dev_reset_url:
-            content["dev_reset_url"] = dev_reset_url
-        return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content=content)
+        return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content=content, background=background_tasks)
 
     @app.post("/auth/password/reset", tags=["auth"])
     def password_reset(request: Request, payload: PasswordResetRequest) -> JSONResponse:

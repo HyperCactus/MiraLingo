@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -26,6 +27,10 @@ class Settings:
     session_ttl_seconds: int = 60 * 60 * 24 * 14
     password_reset_ttl_seconds: int = 60 * 60
     frontend_base_url: str = "http://localhost:5173"
+    email_provider: str | None = None
+    email_from: str | None = None
+    app_url: str = "http://localhost:5173"
+    resend_api_key: str | None = None
     google_client_id: str | None = None
     google_client_secret: str | None = None
     google_redirect_uri: str | None = None
@@ -69,6 +74,18 @@ def _optional_env(name: str) -> str | None:
     return stripped or None
 
 
+def _validated_app_url(raw: str, *, environment: str) -> str:
+    value = str(raw or "").strip().rstrip("/")
+    parsed = urlparse(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("APP_URL must be an absolute http(s) URL.")
+    if parsed.query or parsed.fragment:
+        raise ValueError("APP_URL must not include query parameters or fragments.")
+    if environment == "production" and parsed.scheme != "https":
+        raise ValueError("APP_URL must use https in production.")
+    return value
+
+
 def load_settings() -> Settings:
     """Load settings from environment variables.
 
@@ -84,6 +101,8 @@ def load_settings() -> Settings:
     numbers_json_raw = os.getenv("MIRALINGO_NUMBERS_JSON_PATH", "data/miralingo_modules/numbers.json").strip()
     numbers_json_path = Path(numbers_json_raw) if numbers_json_raw else None
     database_path = Path(os.getenv("MIRALINGO_DATABASE_PATH", ".miralingo/miralingo.sqlite3"))
+    frontend_base_url = os.getenv("MIRALINGO_FRONTEND_BASE_URL", "http://localhost:5173").rstrip("/")
+    app_url = _validated_app_url(os.getenv("APP_URL", frontend_base_url), environment=environment)
     return Settings(
         environment=environment,
         enable_local_admin=enable_local_admin,
@@ -91,7 +110,11 @@ def load_settings() -> Settings:
         session_cookie_name=os.getenv("MIRALINGO_SESSION_COOKIE_NAME", "miralingo_session"),
         session_ttl_seconds=_int_env("MIRALINGO_SESSION_TTL_SECONDS", 60 * 60 * 24 * 14),
         password_reset_ttl_seconds=_int_env("MIRALINGO_PASSWORD_RESET_TTL_SECONDS", 60 * 60),
-        frontend_base_url=os.getenv("MIRALINGO_FRONTEND_BASE_URL", "http://localhost:5173").rstrip("/"),
+        frontend_base_url=frontend_base_url,
+        email_provider=_optional_env("EMAIL_PROVIDER"),
+        email_from=_optional_env("EMAIL_FROM"),
+        app_url=app_url,
+        resend_api_key=_optional_env("RESEND_API_KEY"),
         google_client_id=_optional_env("MIRALINGO_GOOGLE_CLIENT_ID"),
         google_client_secret=_optional_env("MIRALINGO_GOOGLE_CLIENT_SECRET"),
         google_redirect_uri=_optional_env("MIRALINGO_GOOGLE_REDIRECT_URI"),

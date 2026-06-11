@@ -210,6 +210,74 @@ def test_password_forgot_does_not_reveal_email_existence(tmp_path: Path) -> None
     assert existing.json()["detail"] == missing.json()["detail"]
 
 
+def test_password_forgot_sends_reset_email_for_existing_account_without_public_status(monkeypatch, tmp_path: Path) -> None:
+    sent: list[dict[str, str]] = []
+
+    def fake_send_password_reset_email(*, settings, to_email: str, reset_url: str):
+        sent.append({"to_email": to_email, "reset_url": reset_url, "provider": str(settings.email_provider)})
+        from mirad_webapp.email_delivery import EmailDeliveryResult
+
+        return EmailDeliveryResult(ok=True, provider="resend")
+
+    monkeypatch.setattr("mirad_webapp.api.send_password_reset_email", fake_send_password_reset_email)
+    client = TestClient(
+        create_app(
+            _settings(
+                tmp_path,
+                app_url="https://yourapp.com",
+                email_provider="resend",
+                email_from="Your App <noreply@yourdomain.com>",
+                resend_api_key="re_test_secret",
+            )
+        )
+    )
+    assert client.post("/auth/register", json={"email": "mira@example.com", "password": "learner-password-1"}).status_code == 201
+
+    response = client.post("/auth/password/forgot", json={"email": "MIRA@example.com"})
+
+    assert response.status_code == 202
+    assert response.json() == {"ok": True, "phase": "password_forgot", "detail": "If an account exists, reset instructions have been sent."}
+    assert sent[0]["to_email"] == "mira@example.com"
+    assert sent[0]["provider"] == "resend"
+    assert sent[0]["reset_url"].startswith("https://yourapp.com/?reset_token=")
+    assert "reset_token" not in response.text
+    assert "re_test_secret" not in response.text
+
+
+def test_password_forgot_skips_provider_for_missing_account(monkeypatch, tmp_path: Path) -> None:
+    def fail_if_called(**_kwargs):
+        raise AssertionError("email provider should not be called for missing account")
+
+    monkeypatch.setattr("mirad_webapp.api.send_password_reset_email", fail_if_called)
+    client = TestClient(create_app(_settings(tmp_path, email_provider="resend", email_from="Your App <noreply@yourdomain.com>", resend_api_key="re_test_secret")))
+
+    response = client.post("/auth/password/forgot", json={"email": "missing@example.com"})
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "If an account exists, reset instructions have been sent."
+
+
+def test_password_forgot_records_sanitized_provider_failure(monkeypatch, tmp_path: Path) -> None:
+    from mirad_webapp.email_delivery import EmailDeliveryError
+
+    def fail_send(**_kwargs):
+        raise EmailDeliveryError(provider="resend", reason="resend_http_401")
+
+    monkeypatch.setattr("mirad_webapp.api.send_password_reset_email", fail_send)
+    app = create_app(_settings(tmp_path, email_provider="resend", email_from="Your App <noreply@yourdomain.com>", resend_api_key="re_test_secret"))
+    client = TestClient(app)
+    assert client.post("/auth/register", json={"email": "mira@example.com", "password": "learner-password-1"}).status_code == 201
+
+    response = client.post("/auth/password/forgot", json={"email": "mira@example.com"})
+
+    assert response.status_code == 202
+    assert response.json()["detail"] == "If an account exists, reset instructions have been sent."
+    assert app.state.last_password_reset_email.ok is False
+    assert app.state.last_password_reset_email.provider == "resend"
+    assert app.state.last_password_reset_email.reason == "resend_http_401"
+    assert "re_test_secret" not in response.text
+
+
 def test_google_login_reports_structured_unconfigured_error(tmp_path: Path) -> None:
     client = TestClient(create_app(_settings(tmp_path)))
     response = client.get("/auth/google/login")
