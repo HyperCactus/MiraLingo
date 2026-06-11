@@ -1317,11 +1317,14 @@ def _progress_state(reason: str) -> str:
 
 
 def _mastered_item_ids(progress_payload: dict[str, Any]) -> set[str]:
-    return {
-        str(card_id)
-        for card_id in (progress_payload.get("mastered_cards") or [])
-        if isinstance(card_id, str) and card_id
-    }
+    mastered: set[str] = set()
+    for key in ("mastered_cards", "stale_cards"):
+        mastered.update(
+            str(card_id)
+            for card_id in (progress_payload.get(key) or [])
+            if isinstance(card_id, str) and card_id
+        )
+    return mastered
 
 
 def _mastered_item_ids_from_lifecycle(progress_payload: dict[str, Any], lifecycle_rows: list[dict[str, Any]] | None) -> set[str]:
@@ -1386,6 +1389,43 @@ def _mastered_base_card_ids(progress_payload: dict[str, Any]) -> set[str]:
         for base_card_id, directions in per_direction.items()
         if ENGLISH_TO_MIRAD in directions and MIRAD_TO_ENGLISH in directions
     }
+
+
+def build_practice_achievement_candidates(
+    *,
+    cards: list[dict[str, Any]],
+    username: str,
+    mastered_count: int,
+    streak_days: int,
+    latest_card_id: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return all achievement payloads eligible for the given canonical snapshot.
+
+    This function does not decide whether a payload is newly unlocked. Durable
+    storage owns that decision via the ``practice_achievements`` table.
+    """
+    candidates: list[dict[str, Any]] = []
+    for threshold in _streak_milestones_up_to(max(0, int(streak_days))):
+        candidates.append(_streak_achievement_payload(username=username, threshold=threshold))
+
+    highlighted_base_card_id = _highlight_base_card_id(cards, latest_card_id)
+    for threshold in _achievement_milestones_up_to(max(0, int(mastered_count))):
+        candidates.append(_achievement_payload(cards, username=username, threshold=threshold, highlighted_base_card_id=highlighted_base_card_id))
+    return candidates
+
+
+def _highlight_base_card_id(cards: list[dict[str, Any]], latest_card_id: str | None) -> str:
+    base_cards = _normalize_base_cards(cards)
+    base_ids = {str(card.get("id")) for card in base_cards}
+    if latest_card_id:
+        items_by_id, legacy_aliases = _practice_item_maps(cards)
+        resolved_id = _resolve_practice_item_id(latest_card_id, items_by_id, legacy_aliases)
+        if resolved_id and resolved_id in items_by_id:
+            return str(items_by_id[resolved_id]["base_card_id"])
+        latest_base = _base_card_id_from_event(str(latest_card_id))
+        if latest_base in base_ids:
+            return latest_base
+    return sorted(base_ids)[0] if base_ids else ""
 
 
 def _achievement_milestones_up_to(count: int) -> list[int]:

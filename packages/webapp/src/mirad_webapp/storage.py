@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -847,13 +848,154 @@ class MiraLingoStorage:
             raise StorageError(phase=phase, detail="Could not list answer events.") from exc
         return list(reversed([record for row in rows if (record := _answer_event_from_row(row)) is not None]))
 
+    def practice_mastery_snapshot(self, *, username: str, phase: str = "practice_mastery") -> dict[str, Any]:
+        """Return canonical durable mastery counts for one learner.
+
+        ``mastered_count`` is intentionally an *ever mastered* count. Once a
+        direction-specific practice item has reached revision, it continues to
+        count toward mastery milestones even if later answers regress it back to
+        active practice.
+        """
+        normalized_username = _require_username(username, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                return self._practice_mastery_snapshot_from_connection(connection, normalized_username)
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not read practice mastery snapshot.") from exc
+
+    def practice_achievement_ids(self, *, username: str, phase: str = "practice_achievements") -> set[str]:
+        normalized_username = _require_username(username, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                rows = connection.execute(
+                    "SELECT achievement_id FROM practice_achievements WHERE username = ?",
+                    (normalized_username,),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not list practice achievements.") from exc
+        return {str(row["achievement_id"]) for row in rows}
+
+    def seed_practice_achievements(self, *, username: str, achievements: list[dict[str, Any]], phase: str = "practice_achievements") -> None:
+        """Persist already-earned achievements without returning toast payloads."""
+        normalized_username = _require_username(username, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                self._insert_practice_achievement_payloads(connection, normalized_username, achievements, only_new=False)
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not seed practice achievements.") from exc
+
+    def unlock_practice_achievements(self, *, username: str, achievements: list[dict[str, Any]], phase: str = "practice_achievements") -> list[dict[str, Any]]:
+        """Persist achievement payloads and return only the newly inserted ones."""
+        normalized_username = _require_username(username, phase=phase)
+        try:
+            with self._connect(phase) as connection:
+                return self._insert_practice_achievement_payloads(connection, normalized_username, achievements, only_new=True)
+        except sqlite3.Error as exc:
+            raise StorageError(phase=phase, detail="Could not unlock practice achievements.") from exc
+
+    def _insert_practice_achievement_payloads(self, connection: sqlite3.Connection, username: str, achievements: list[dict[str, Any]], *, only_new: bool) -> list[dict[str, Any]]:
+        now = _utcnow_iso()
+        inserted: list[dict[str, Any]] = []
+        for achievement in achievements:
+            achievement_id = str(achievement.get("id") or "").strip()
+            if not achievement_id:
+                continue
+            result = connection.execute(
+                """
+                INSERT OR IGNORE INTO practice_achievements (username, achievement_id, kind, threshold, unlocked_at, payload_json)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    username,
+                    achievement_id,
+                    str(achievement.get("kind") or "practice"),
+                    int(achievement.get("threshold") or 0),
+                    now,
+                    json.dumps(achievement, sort_keys=True),
+                ),
+            )
+            if only_new and result.rowcount == 1:
+                inserted.append(achievement)
+        return inserted
+
+    def _practice_mastery_snapshot_from_connection(self, connection: sqlite3.Connection, username: str) -> dict[str, Any]:
+        event_rows = connection.execute(
+            """
+            SELECT id, card_id, base_card_id, direction, correct
+            FROM answer_events
+            WHERE username = ?
+            ORDER BY id ASC
+            """,
+            (username,),
+        ).fetchall()
+        event_stats: dict[tuple[str, str], dict[str, int]] = {}
+        for row in event_rows:
+            base_id = str(row["base_card_id"] or _base_card_id_from_storage_card_id(str(row["card_id"] or "")))
+            direction = str(row["direction"] or "")
+            if not base_id or not direction:
+                continue
+            stats = event_stats.setdefault((base_id, direction), {"attempts": 0, "correct": 0, "consecutive": 0})
+            stats["attempts"] += 1
+            if bool(row["correct"]):
+                stats["correct"] += 1
+                stats["consecutive"] += 1
+            else:
+                stats["consecutive"] = 0
+
+        lifecycle_rows = connection.execute(
+            """
+            SELECT base_card_id, direction, lifecycle, consecutive_correct, promoted_at, regression_count
+            FROM practice_lifecycle
+            WHERE username = ?
+            """,
+            (username,),
+        ).fetchall()
+
+        mastered_item_ids: set[str] = set()
+        active_count = 0
+        seen_keys: set[tuple[str, str]] = set()
+        for row in lifecycle_rows:
+            base_id = str(row["base_card_id"] or "")
+            direction = str(row["direction"] or "")
+            if not base_id or not direction:
+                continue
+            key = (base_id, direction)
+            seen_keys.add(key)
+            lifecycle = str(row["lifecycle"] or "active").lower()
+            consecutive = int(row["consecutive_correct"] or 0)
+            promoted_at = str(row["promoted_at"] or "").strip()
+            regression_count = int(row["regression_count"] or 0)
+            stats = event_stats.get(key)
+            accuracy = (stats["correct"] / stats["attempts"]) if stats and stats["attempts"] > 0 else 0.0
+            currently_mastered = lifecycle == "revision" or (consecutive >= 3 and accuracy >= MASTERY_ACCURACY_THRESHOLD)
+            ever_mastered = currently_mastered or bool(promoted_at) or regression_count > 0
+            if ever_mastered:
+                mastered_item_ids.add(_direction_item_id_for_storage(base_id, direction))
+            if not currently_mastered:
+                active_count += 1
+
+        # Legacy safety: older databases may have answer_events but no lifecycle row.
+        for key, stats in event_stats.items():
+            if key in seen_keys:
+                continue
+            accuracy = (stats["correct"] / stats["attempts"]) if stats["attempts"] > 0 else 0.0
+            if stats["consecutive"] >= 3 and accuracy >= MASTERY_ACCURACY_THRESHOLD:
+                mastered_item_ids.add(_direction_item_id_for_storage(key[0], key[1]))
+
+        return {
+            "mastered_item_ids": sorted(mastered_item_ids),
+            "mastered_count": len(mastered_item_ids),
+            "active_count": active_count,
+            "active_deck_count": min(MIXED_ACTIVE_DECK_SIZE, active_count),
+            "lifecycle_count": len(lifecycle_rows),
+        }
+
     def practice_summary(self, *, username: str, phase: str = "practice_summary") -> dict[str, Any]:
         """Return fast dashboard metrics without expanding all practice cards.
 
-        mastered_count reflects cards where is_mastered=True:
-          - lifecycle='revision', OR
-          - lifecycle='active' with consecutive_correct >= 3 AND accuracy >= 0.60
-        This is identical to build_practice_analytics() so both endpoints agree.
+        ``mastered_count`` is the learner's ever-mastered total. A practice
+        item that reached revision remains counted even if later regressed back
+        into active practice.
         """
         normalized_username = _require_username(username, phase=phase)
         try:
@@ -877,67 +1019,13 @@ class MiraLingoStorage:
                     """,
                     (normalized_username,),
                 ).fetchall()
-                # Per-(base_card_id, direction) aggregates for accuracy + final streak.
-                # Only covers cards that have had at least one answer event.
-                agg_rows = connection.execute(
-                    """
-                    SELECT
-                        base_card_id,
-                        direction,
-                        COUNT(*) AS attempts,
-                        SUM(CASE WHEN correct THEN 1 ELSE 0 END) AS correct,
-                        MAX(id) AS last_id
-                    FROM answer_events
-                    WHERE username = ?
-                    GROUP BY base_card_id, direction
-                    """,
-                    (normalized_username,),
-                ).fetchall()
-                # Fetch full lifecycle rows to check consecutive_correct + lifecycle state
-                # for every card, including those with zero events.
-                lifecycle_rows = connection.execute(
-                    """
-                    SELECT base_card_id, direction, lifecycle, consecutive_correct
-                    FROM practice_lifecycle
-                    WHERE username = ?
-                    """,
-                    (normalized_username,),
-                ).fetchall()
+                mastery = self._practice_mastery_snapshot_from_connection(connection, normalized_username)
         except sqlite3.Error as exc:
             raise StorageError(phase=phase, detail="Could not build practice summary.") from exc
 
         event_count = int(totals["event_count"] or 0) if totals else 0
         correct_count = int(totals["correct_count"] or 0) if totals else 0
         streak = _practice_day_streak([str(row["practiced_day"] or "") for row in day_rows])
-
-        # Build per-card aggregate lookup keyed by (base_card_id, direction).
-        agg: dict[tuple[str, str], dict[str, int]] = {
-            (str(r["base_card_id"]), str(r["direction"])): {
-                "attempts": int(r["attempts"]),
-                "correct": int(r["correct"]),
-            }
-            for r in agg_rows
-        }
-
-        # Compute is_mastered for each lifecycle row, matching build_practice_analytics.
-        mastered_count = 0
-        active_count = 0
-        for row in lifecycle_rows:
-            lc = str(row["lifecycle"] or "active").lower()
-            consecutive = int(row["consecutive_correct"] or 0)
-            if lc == "revision":
-                mastered_count += 1
-            else:
-                # Check scheduler mastery criteria: consecutive_correct >= 3 AND accuracy >= threshold.
-                stats = agg.get((str(row["base_card_id"]), str(row["direction"])))
-                if stats and stats["attempts"] > 0:
-                    accuracy = stats["correct"] / stats["attempts"]
-                    if consecutive >= 3 and accuracy >= MASTERY_ACCURACY_THRESHOLD:
-                        mastered_count += 1
-                    else:
-                        active_count += 1
-                else:
-                    active_count += 1
 
         return {
             "ok": True,
@@ -949,10 +1037,10 @@ class MiraLingoStorage:
             "accuracy": None if event_count == 0 else round(correct_count / event_count, 4),
             "latest_event_at": str(totals["latest_answered_at"] or "") if totals else "",
             "streak": streak,
-            "mastered_count": mastered_count,
-            "active_count": active_count,
-            "active_deck_count": min(MIXED_ACTIVE_DECK_SIZE, active_count),
-            "lifecycle_count": len(lifecycle_rows),
+            "mastered_count": int(mastery["mastered_count"]),
+            "active_count": int(mastery["active_count"]),
+            "active_deck_count": int(mastery["active_deck_count"]),
+            "lifecycle_count": int(mastery["lifecycle_count"]),
         }
 
     def list_shown_cards(self, *, username: str, limit: int = MAX_EVENTS) -> list[ShownCardRecord]:
@@ -1305,6 +1393,19 @@ class MiraLingoStorage:
                     CREATE INDEX IF NOT EXISTS idx_practice_sessions_user_started ON practice_sessions(username, started_at);
                     CREATE INDEX IF NOT EXISTS idx_practice_lifecycle_lookup ON practice_lifecycle(username, base_card_id, direction);
 
+                    CREATE TABLE IF NOT EXISTS practice_achievements (
+                        username TEXT NOT NULL,
+                        achievement_id TEXT NOT NULL,
+                        kind TEXT NOT NULL,
+                        threshold INTEGER NOT NULL,
+                        unlocked_at TEXT NOT NULL,
+                        payload_json TEXT NOT NULL,
+                        PRIMARY KEY (username, achievement_id),
+                        FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE
+                    );
+
+                    CREATE INDEX IF NOT EXISTS idx_practice_achievements_user ON practice_achievements(username, unlocked_at);
+
                     CREATE TABLE IF NOT EXISTS auth_sessions (
                         id TEXT PRIMARY KEY,
                         token_hash TEXT NOT NULL UNIQUE,
@@ -1499,6 +1600,14 @@ def _username_unavailable_payload() -> dict[str, Any]:
         "phase": "auth_register",
         "detail": "Username is already registered.",
     }
+
+
+def _direction_item_id_for_storage(base_card_id: str, direction: str) -> str:
+    return f"{base_card_id}#{str(direction).replace('_', '-')}"
+
+
+def _base_card_id_from_storage_card_id(card_id: str) -> str:
+    return str(card_id).split("#", maxsplit=1)[0]
 
 
 def _require_username(username: str, *, phase: str) -> str:

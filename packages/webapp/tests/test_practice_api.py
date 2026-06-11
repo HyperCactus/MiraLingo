@@ -4,6 +4,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
@@ -56,6 +57,36 @@ def _append_correct_streak(app, *, card_id: str, base_card_id: str, direction: s
             correct=True,
             answered_at=start + timedelta(minutes=index),
         )
+
+
+def _cards(count: int) -> list[dict[str, str]]:
+    return [
+        {"id": f"word:w{i}", "type": "word", "english": f"word{i}", "mirad": f"mir{i}"}
+        for i in range(count)
+    ]
+
+
+def _patch_cards(monkeypatch, cards: list[dict[str, str]]) -> None:
+    monkeypatch.setattr("mirad_webapp.api.import_card_content", lambda **_kwargs: SimpleNamespace(cards=cards))
+
+
+def _master_lifecycle_items(app, *, count: int, start: datetime = NOW) -> None:
+    session = app.state.storage.get_or_start_active_practice_session(username="admin")
+    for index in range(count):
+        base_id = f"word:w{index}"
+        for attempt in range(3):
+            app.state.storage.record_practice_lifecycle_answer(
+                username="admin",
+                session_id=str(session["session_id"]),
+                base_card_id=base_id,
+                direction="english_to_mirad",
+                correct=True,
+                card_id=f"{base_id}#english-to-mirad",
+                card_type="word",
+                submitted_answer=f"mir{index}",
+                expected_answer=f"mir{index}",
+                answered_at=start + timedelta(seconds=index * 10 + attempt),
+            )
 
 
 def test_achievement_display_name_prefers_name_then_email_then_username() -> None:
@@ -429,6 +460,74 @@ def test_practice_answer_unlocks_achievement_when_first_direction_card_is_master
         assert second.status_code == 200
     assert second is not None
     assert second.json().get("achievements") == []
+
+
+def test_mastered_achievement_unlocks_twenty_at_exact_crossing(monkeypatch, tmp_path: Path) -> None:
+    cards = _cards(25)
+    _patch_cards(monkeypatch, cards)
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+    _master_lifecycle_items(app, count=19)
+
+    first = client.post("/practice/answers", json={"card_id": "word:w19#english-to-mirad", "answer": "mir19"})
+    second = client.post("/practice/answers", json={"card_id": "word:w19#english-to-mirad", "answer": "mir19"})
+    third = client.post("/practice/answers", json={"card_id": "word:w19#english-to-mirad", "answer": "mir19"})
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert third.status_code == 200
+    assert [achievement["id"] for achievement in first.json().get("achievements") or []] == []
+    assert [achievement["id"] for achievement in second.json().get("achievements") or []] == []
+    assert [achievement["id"] for achievement in third.json().get("achievements") or []] == ["mastered-cards-20"]
+    assert app.state.storage.practice_summary(username="admin")["mastered_count"] == 20
+
+
+def test_existing_mastered_milestones_seed_silently_without_late_toast(monkeypatch, tmp_path: Path) -> None:
+    cards = _cards(40)
+    _patch_cards(monkeypatch, cards)
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+    _master_lifecycle_items(app, count=35)
+
+    response = client.post("/practice/answers", json={"card_id": "word:w35#english-to-mirad", "answer": "mir35"})
+
+    assert response.status_code == 200
+    assert response.json().get("achievements") == []
+    assert app.state.storage.practice_summary(username="admin")["mastered_count"] == 35
+    assert {"mastered-cards-1", "mastered-cards-10", "mastered-cards-20"}.issubset(
+        app.state.storage.practice_achievement_ids(username="admin")
+    )
+
+
+def test_mastered_count_is_ever_mastered_after_regression(monkeypatch, tmp_path: Path) -> None:
+    cards = _cards(3)
+    _patch_cards(monkeypatch, cards)
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+    _master_lifecycle_items(app, count=1)
+    session = app.state.storage.get_or_start_active_practice_session(username="admin")
+
+    app.state.storage.record_practice_lifecycle_answer(
+        username="admin",
+        session_id=str(session["session_id"]),
+        base_card_id="word:w0",
+        direction="english_to_mirad",
+        correct=False,
+        card_id="word:w0#english-to-mirad",
+        card_type="word",
+        submitted_answer="wrong",
+        expected_answer="mir0",
+        answered_at=NOW + timedelta(minutes=5),
+    )
+
+    summary = app.state.storage.practice_summary(username="admin")
+    snapshot = app.state.storage.practice_mastery_snapshot(username="admin")
+    assert summary["mastered_count"] == 1
+    assert snapshot["mastered_item_ids"] == ["word:w0#english-to-mirad"]
+    assert summary["active_count"] == 1
 
 
 def test_practice_answer_unlocks_five_day_streak_with_full_history_over_200_events(monkeypatch, tmp_path: Path) -> None:

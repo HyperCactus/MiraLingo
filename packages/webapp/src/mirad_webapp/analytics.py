@@ -194,15 +194,16 @@ def build_practice_analytics(
     # exact lifecycle value used for mastered/active summary counts.
     # per_card keys use the same card_id shape as lifecycle rows:
     # "base_card_id#direction" (direction dashes normalized to underscores).
-    lifecycle_by_card_id: dict[str, str] = {}
+    lifecycle_by_card_id: dict[str, dict[str, Any]] = {}
     for row in lifecycle_rows:
         base_id = str(row.get("base_card_id") or "")
         direction = str(row.get("direction") or "")
         card_id = f"{base_id}#{direction.replace('_', '-')}"
-        lifecycle_by_card_id[card_id] = str(row.get("lifecycle") or "active")
+        lifecycle_by_card_id[card_id] = dict(row)
 
     for card_id, card_row in per_card.items():
-        card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, card_row.get("lifecycle", "active"))
+        lifecycle_row = lifecycle_by_card_id.get(card_id, {})
+        card_row["lifecycle"] = str(lifecycle_row.get("lifecycle") or card_row.get("lifecycle", "active"))
         # A card is mastered when lifecycle is revision, OR when it meets
         # the scheduler criteria: consecutive_correct >= 3 AND accuracy >= threshold.
         card_lifecycle = str(card_row.get("lifecycle") or "active")
@@ -217,8 +218,9 @@ def build_practice_analytics(
             and card_accuracy >= MASTERY_ACCURACY_THRESHOLD
         )
         card_row["is_mastered"] = card_lifecycle == "revision" or is_mastered_by_criteria
+        card_row["ever_mastered"] = bool(card_row["is_mastered"] or lifecycle_row.get("promoted_at") or int(lifecycle_row.get("regression_count") or 0) > 0)
         card_row["mastered_by_criteria"] = is_mastered_by_criteria
-    mastered_count = sum(1 for r in per_card.values() if bool(r.get("is_mastered")))
+    mastered_count = sum(1 for r in per_card.values() if bool(r.get("ever_mastered")))
     active_count = sum(1 for r in per_card.values() if str(r.get("lifecycle") or "active") != "revision" and not bool(r.get("is_mastered")))
     return {
         "ok": True,

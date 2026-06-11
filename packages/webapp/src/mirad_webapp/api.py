@@ -26,7 +26,7 @@ from .auth import (
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
 from .content_cli import error_to_payload, result_to_payload
-from .practice import MAX_EVENTS, answer_summary, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
+from .practice import MAX_EVENTS, answer_summary, build_practice_achievement_candidates, build_practice_progress, build_practice_queue, record_practice_answer
 from .storage import MiraLingoStorage, StorageError
 
 APP_NAME = "MiraLingo"
@@ -1034,7 +1034,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         try:
             ensure_practice_storage_user("practice_answer", user.username, user.role)
+            storage = request.app.state.storage
+            display_name = _achievement_display_name(user)
             prior_events = answer_events_for_user(user.username, "practice_answer", limit=None)
+            prior_mastery = storage.practice_mastery_snapshot(username=user.username, phase="practice_answer")
+            prior_summary = storage.practice_summary(username=user.username, phase="practice_answer")
+            storage.seed_practice_achievements(
+                username=user.username,
+                achievements=build_practice_achievement_candidates(
+                    cards=result.cards,
+                    username=display_name,
+                    mastered_count=int(prior_mastery["mastered_count"]),
+                    streak_days=int((prior_summary.get("streak") or {}).get("current_days") or 0),
+                    latest_card_id=submission.card_id,
+                ),
+                phase="practice_answer",
+            )
             updated_events = record_practice_answer(
                 cards=result.cards,
                 events=prior_events,
@@ -1046,8 +1061,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=updated_events)
 
             latest_event = updated_events[-1]
-            session = request.app.state.storage.get_or_start_active_practice_session(username=user.username)
-            request.app.state.storage.record_practice_lifecycle_answer(
+            session = storage.get_or_start_active_practice_session(username=user.username)
+            storage.record_practice_lifecycle_answer(
                 username=user.username,
                 session_id=str(session["session_id"]),
                 base_card_id=str(latest_event["base_card_id"]),
@@ -1063,16 +1078,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except StorageError as exc:
             return storage_failure_response(exc)
         payload = answer_summary(result.cards, durable_events, submission.card_id)
-        display_name = _achievement_display_name(user)
-        lifecycle_rows_for_achievements = [row.public_dict() for row in request.app.state.storage.list_practice_lifecycle(username=user.username)]
-        payload["achievements"] = build_practice_achievements(
-            cards=result.cards,
-            before_events=prior_events,
-            after_events=durable_events,
-            username=display_name,
-            latest_card_id=submission.card_id,
-            lifecycle_rows=lifecycle_rows_for_achievements,
-        )
+        try:
+            after_mastery = request.app.state.storage.practice_mastery_snapshot(username=user.username, phase="practice_answer")
+            after_summary = request.app.state.storage.practice_summary(username=user.username, phase="practice_answer")
+            payload["achievements"] = request.app.state.storage.unlock_practice_achievements(
+                username=user.username,
+                achievements=build_practice_achievement_candidates(
+                    cards=result.cards,
+                    username=_achievement_display_name(user),
+                    mastered_count=int(after_mastery["mastered_count"]),
+                    streak_days=int((after_summary.get("streak") or {}).get("current_days") or 0),
+                    latest_card_id=submission.card_id,
+                ),
+                phase="practice_answer",
+            )
+        except StorageError as exc:
+            return storage_failure_response(exc)
         return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
 
     return app
