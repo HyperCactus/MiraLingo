@@ -63,7 +63,7 @@ def test_lookup_does_not_block_submit_reveal_or_change_practice_contracts() -> N
     submit_chunk = source.split("async function submitAnswer", maxsplit=1)[1].split("async function submitGiveUp", maxsplit=1)[0]
     reveal_chunk = source.split("async function submitGiveUp", maxsplit=1)[1].split("async function playCardAudio", maxsplit=1)[0]
 
-    assert "void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { optimistic: true, playSfx: false });" in submit_chunk
+    assert "void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { playSfx: true });" in submit_chunk
     assert "lookup" not in submit_chunk.casefold()
     assert "void recordAnswer({ card_id: currentCard.id, correct: false }, submittedCardId, { playSfx: false, optimistic: true });" in reveal_chunk
     assert "lookup" not in reveal_chunk.casefold()

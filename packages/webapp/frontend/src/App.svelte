@@ -607,13 +607,10 @@
       answerErr = "Enter an answer before submitting.";
       return;
     }
-    const optimisticResult = optimisticAnswerResult(currentCard, answer);
-    answerResult = optimisticResult;
-    miradAudioUnlocked = true;
-    playFeedbackSound(Boolean(optimisticResult.correct));
+    answerSubmitting = true;
     const submittedCardId = currentCard.id;
     currentSubmissionCardId = submittedCardId;
-    void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { optimistic: true, playSfx: false });
+    void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { playSfx: true });
   }
 
   async function submitGiveUp() {

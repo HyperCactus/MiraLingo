@@ -63,6 +63,18 @@ def test_analytics_ui_contains_error_and_sparse_history_markers() -> None:
     assert "No analytics yet" in source
 
 
+def test_analytics_active_section_uses_active_deck_count() -> None:
+    source = _analytics_source()
+    dashboard_source = _dashboard_source()
+    api_source = _api_source()
+
+    assert "active_deck_count" in api_source
+    assert "activeDeckCount" in source
+    assert "Active ({activeDeckCount})" in source
+    assert "n(payload?.active_count)" not in source
+    assert "activeDeckCount" in dashboard_source
+
+
 def test_practice_answer_and_queue_blocks_do_not_fetch_detailed_analytics() -> None:
     source = _app_source()
 

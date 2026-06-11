@@ -63,15 +63,17 @@ def test_audio_playback_rate_uses_persisted_speed_with_safe_default() -> None:
     assert "$ttsSpeed" in source
 
 
-def test_answer_feedback_sound_plays_before_network_persistence() -> None:
+def test_answer_feedback_sound_plays_after_backend_persistence() -> None:
     source = _source()
     submit_answer_block = source.split("async function submitAnswer", maxsplit=1)[1].split("async function submitGiveUp", maxsplit=1)[0]
+    record_answer_block = source.split("async function recordAnswer", maxsplit=1)[1].split("async function submitAnswer", maxsplit=1)[0]
 
     assert "preloadPracticeSoundEffects" in source
     assert "soundEffectCache" in source
-    assert "playFeedbackSound(Boolean(optimisticResult.correct));" in submit_answer_block
-    assert "playSfx: false" in submit_answer_block
-    assert submit_answer_block.index("playFeedbackSound(Boolean(optimisticResult.correct));") < submit_answer_block.index("recordAnswer")
+    assert "optimisticAnswerResult(currentCard, answer)" not in submit_answer_block
+    assert "playFeedbackSound(Boolean(optimisticResult.correct));" not in submit_answer_block
+    assert "playSfx: true" in submit_answer_block
+    assert "void playFeedbackSound(Boolean(payload?.correct));" in record_answer_block
 
 
 def test_audio_json_unavailable_and_failure_messages_are_visible() -> None:

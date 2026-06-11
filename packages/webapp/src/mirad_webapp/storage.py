@@ -11,7 +11,7 @@ from typing import Any
 
 from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_USERNAME, hash_password, normalize_email, normalize_username, token_hash, validate_registration_inputs, verify_password
 from .practice import MAX_EVENTS
-from .practice_engine import ENGLISH_TO_MIRAD, MASTERY_ACCURACY_THRESHOLD, MIRAD_TO_ENGLISH
+from .practice_engine import ENGLISH_TO_MIRAD, MASTERY_ACCURACY_THRESHOLD, MIRAD_TO_ENGLISH, MIXED_ACTIVE_DECK_SIZE
 
 SUPPORTED_THEMES = ("light", "dark", "system")
 DEFAULT_THEME = "system"
@@ -951,6 +951,7 @@ class MiraLingoStorage:
             "streak": streak,
             "mastered_count": mastered_count,
             "active_count": active_count,
+            "active_deck_count": min(MIXED_ACTIVE_DECK_SIZE, active_count),
             "lifecycle_count": len(lifecycle_rows),
         }
 

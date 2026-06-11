@@ -77,6 +77,7 @@ export type PracticeSummaryResponse = {
   incorrect?: number;
   mastered_count?: number;
   active_count?: number;
+  active_deck_count?: number;
   lifecycle_count?: number;
   streak?: Record<string, unknown>;
   [key: string]: unknown;
@@ -91,6 +92,7 @@ export type PracticeAnalyticsResponse = {
   accuracy?: number;
   mastered_count?: number;
   active_count?: number;
+  active_deck_count?: number;
   session_count?: number;
   lifecycle_count?: number;
   sparse_history?: boolean;

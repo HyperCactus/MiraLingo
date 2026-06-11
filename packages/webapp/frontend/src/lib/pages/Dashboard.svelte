@@ -36,6 +36,7 @@
   $: streak = summary?.streak && typeof summary.streak === 'object' ? summary.streak as Record<string, unknown> : {};
   $: currentStreak = safeCount(streak.current_days);
   $: masteredCountUnified = safeCount(summary?.mastered_count);
+  $: activeDeckCount = safeCount(summary?.active_deck_count ?? summary?.active_count);
   $: progressAccuracy = typeof summary?.accuracy === 'number' && Number.isFinite(summary.accuracy)
     ? Math.round(summary.accuracy * 100)
     : 0;
@@ -144,10 +145,10 @@
             </div>
             <span class="text-sm font-semibold text-violet-700 dark:text-violet-300">{currentStreak} day streak</span>
           </div>
-          <AppProgressBar value={masteredCountUnified} max={Math.max(1, masteredCountUnified + safeCount(summary?.active_count))} showLabel={true} />
+          <AppProgressBar value={masteredCountUnified} max={Math.max(1, masteredCountUnified + activeDeckCount)} showLabel={true} />
           <div class="grid gap-3 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-3">
             <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Mastered</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{masteredCountUnified}</strong></div>
-            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Active</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{safeCount(summary?.active_count)}</strong></div>
+            <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Active</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{activeDeckCount}</strong></div>
             <div class="rounded-2xl bg-slate-50 px-3 py-3 dark:bg-slate-900/60"><span class="block text-xs uppercase tracking-[0.2em] text-slate-400">Streak</span><strong class="mt-1 block text-lg text-slate-900 dark:text-slate-50">{currentStreak} days</strong></div>
           </div>
         </div>

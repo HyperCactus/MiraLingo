@@ -154,6 +154,7 @@ def test_practice_analytics_reports_sessions_timing_streaks_and_breakdowns(monke
     assert payload["event_count"] == 3
     assert payload["session_count"] == 2
     assert payload["lifecycle_count"] >= 2
+    assert payload["active_deck_count"] == min(10, payload["active_count"])
     assert payload["timing"]["first_answered_at"] is not None
     assert payload["timing"]["last_answered_at"] is not None
     assert payload["streak"]["current_days"] >= 0
@@ -224,6 +225,7 @@ def test_practice_summary_is_fast_compact_and_reports_streak(monkeypatch, tmp_pa
     assert payload["correct"] == 1
     assert payload["accuracy"] == 0.5
     assert payload["streak"]["best_days"] >= 2
+    assert payload["active_deck_count"] == min(10, payload["active_count"])
     assert "per_card" not in payload
 
 

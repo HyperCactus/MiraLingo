@@ -24,6 +24,7 @@
   let progressPayload: PracticeProgressResponse | null = null;
   let page = 1;
   const pageSize = 40;
+  const activeDeckLimit = 10;
 
   const n = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
   const pct = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? `${Math.round(v * 100)}%` : '0%');
@@ -190,14 +191,16 @@
       return n(r.attempts) > 0 && !isRowMastered(row);
     })
     .sort((a, b) => accuracyValue(b) - accuracyValue(a));
-  $: allRows = [...masteredCards, ...seenNotMasteredCards];
+  $: activeDeckCount = Math.min(seenNotMasteredCards.length, n(payload?.active_deck_count ?? activeDeckLimit));
+  $: activeDeckCards = seenNotMasteredCards.slice(0, activeDeckCount);
+  $: allRows = [...masteredCards, ...activeDeckCards];
   $: totalRows = allRows.length;
   $: totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   $: page = Math.min(page, totalPages);
   $: start = (page - 1) * pageSize;
   $: end = start + pageSize;
   $: masteredPaged = masteredCards.slice(start, end);
-  $: seenPaged = seenNotMasteredCards.slice(Math.max(0, start - masteredCards.length), Math.max(0, end - masteredCards.length));
+  $: seenPaged = activeDeckCards.slice(Math.max(0, start - masteredCards.length), Math.max(0, end - masteredCards.length));
   $: sparseFlag = obj(payload?.sparse_history).is_sparse;
   $: sparseHistory = Boolean(sparseFlag) || (n(payload?.event_count) === 0 && n(payload?.session_count) === 0 && n(payload?.lifecycle_count) === 0);
 
@@ -259,7 +262,7 @@
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Streak</p><p class="mt-3 text-3xl font-semibold">{n(streak.current_days)} {n(streak.current_days) === 1 ? 'day' : 'days'}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Lifecycles</p><p class="mt-3 text-3xl font-semibold">{n(payload?.lifecycle_count)}</p></AppCard>
     <AppCard><p class="text-xs uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Mastered</p><p class="mt-3 text-3xl font-semibold text-emerald-600 dark:text-emerald-300">{n(payload?.mastered_count)}</p></AppCard>
-    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Active</p><p class="mt-3 text-3xl font-semibold">{n(payload?.active_count)}</p></AppCard>
+    <AppCard><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Active</p><p class="mt-3 text-3xl font-semibold">{activeDeckCount}</p></AppCard>
   </div>
 
   <AppCard className="mt-4 space-y-6 overflow-auto">
@@ -304,7 +307,7 @@
       </section>
 
       <section class="space-y-2">
-        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">Active ({n(payload?.active_count)})</h3>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400">Active ({activeDeckCount})</h3>
         {#if seenPaged.length === 0}
           {#if page === 1}
             <p class="text-sm text-slate-500 dark:text-slate-400">No in-progress cards yet.</p>

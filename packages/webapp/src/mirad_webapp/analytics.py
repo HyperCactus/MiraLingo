@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from .practice_engine import MASTERY_ACCURACY_THRESHOLD
+from .practice_engine import MASTERY_ACCURACY_THRESHOLD, MIXED_ACTIVE_DECK_SIZE
 
 
 def _parse_iso(value: str | None) -> datetime | None:
@@ -218,6 +218,8 @@ def build_practice_analytics(
         )
         card_row["is_mastered"] = card_lifecycle == "revision" or is_mastered_by_criteria
         card_row["mastered_by_criteria"] = is_mastered_by_criteria
+    mastered_count = sum(1 for r in per_card.values() if bool(r.get("is_mastered")))
+    active_count = sum(1 for r in per_card.values() if str(r.get("lifecycle") or "active") != "revision" and not bool(r.get("is_mastered")))
     return {
         "ok": True,
         "phase": "practice_analytics",
@@ -240,8 +242,9 @@ def build_practice_analytics(
         "direction_breakdown": dict(direction_breakdown),
         "card_type_breakdown": dict(card_type_breakdown),
         "lifecycle": {"count": lifecycle_count, "active": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "active"), "revision": sum(1 for r in lifecycle_rows if r.get("lifecycle") == "revision")},
-        "mastered_count": sum(1 for r in per_card.values() if bool(r.get("is_mastered"))),
-        "active_count": sum(1 for r in per_card.values() if str(r.get("lifecycle") or "active") != "revision" and not bool(r.get("is_mastered"))),
+        "mastered_count": mastered_count,
+        "active_count": active_count,
+        "active_deck_count": min(MIXED_ACTIVE_DECK_SIZE, active_count),
         "per_card": per_card,
         "mastered_recent": mastered_recent,
         "filters": filters or {},

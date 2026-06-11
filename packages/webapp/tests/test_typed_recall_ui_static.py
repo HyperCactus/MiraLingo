@@ -31,7 +31,9 @@ def test_typed_recall_blocks_blank_answers_and_uses_backend_inference_payload() 
     assert "answer.trim()" in source
     assert "!answer" in source
     assert "Enter an answer before submitting." in source
-    assert "void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { optimistic: true, playSfx: false });" in source
+    assert "answerSubmitting = true" in source
+    assert "void recordAnswer({ card_id: currentCard.id, answer }, submittedCardId, { playSfx: true });" in source
+    assert "optimisticAnswerResult(currentCard, answer)" not in source
     assert "correct:true" not in source
 
 
