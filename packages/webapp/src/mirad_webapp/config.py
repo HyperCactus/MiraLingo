@@ -71,6 +71,8 @@ def _optional_env(name: str) -> str | None:
     if value is None:
         return None
     stripped = value.strip()
+    if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {"'", '"'}:
+        stripped = stripped[1:-1].strip()
     return stripped or None
 
 

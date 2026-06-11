@@ -74,6 +74,8 @@ def _send_resend_password_reset(*, settings: Settings, to_email: str, reset_url:
         headers={
             "Authorization": f"Bearer {settings.resend_api_key}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "MiraLingo/1.0 (+https://miralingo.app)",
         },
         method="POST",
     )
@@ -83,12 +85,36 @@ def _send_resend_password_reset(*, settings: Settings, to_email: str, reset_url:
                 return EmailDeliveryResult(ok=True, provider="resend")
             raise EmailDeliveryError(provider="resend", reason=f"resend_http_{int(response.status)}")
     except HTTPError as exc:
+        detail = _provider_error_detail(exc)
+        if detail:
+            logger.warning("Password reset email provider rejected request: provider=resend status=%s detail=%s", exc.code, detail)
         raise EmailDeliveryError(provider="resend", reason=f"resend_http_{exc.code}") from exc
     except URLError as exc:
         logger.info("Password reset email provider request failed: provider=resend reason=url_error")
         raise EmailDeliveryError(provider="resend", reason="resend_url_error") from exc
     except TimeoutError as exc:
         raise EmailDeliveryError(provider="resend", reason="resend_timeout") from exc
+
+
+def _provider_error_detail(exc: HTTPError) -> str | None:
+    try:
+        body = exc.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
+    body = body.strip()
+    if not body:
+        return None
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return body[:300]
+    message = payload.get("message") if isinstance(payload, dict) else None
+    name = payload.get("name") if isinstance(payload, dict) else None
+    if message and name:
+        return f"{name}: {message}"[:300]
+    if message:
+        return str(message)[:300]
+    return body[:300]
 
 
 def _password_reset_text(reset_url: str) -> str:
