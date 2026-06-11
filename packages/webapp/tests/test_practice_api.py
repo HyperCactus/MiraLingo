@@ -431,6 +431,45 @@ def test_practice_answer_unlocks_achievement_when_first_direction_card_is_master
     assert second.json().get("achievements") == []
 
 
+def test_practice_answer_unlocks_five_day_streak_with_full_history_over_200_events(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
+    app = _app(tmp_path)
+    client = TestClient(app)
+    _login(client)
+    now = datetime.now(timezone.utc)
+
+    for days_ago in range(1, 5):
+        app.state.storage.append_answer_event(
+            username="admin",
+            card_id="word:be#english-to-mirad",
+            base_card_id="word:be",
+            direction="english_to_mirad",
+            card_type="word",
+            submitted_answer="bi",
+            expected_answer="bi",
+            correct=True,
+            answered_at=now - timedelta(days=days_ago),
+        )
+    for index in range(200):
+        app.state.storage.append_answer_event(
+            username="admin",
+            card_id="word:be#mirad-to-english",
+            base_card_id="word:be",
+            direction="mirad_to_english",
+            card_type="word",
+            submitted_answer="be",
+            expected_answer="be",
+            correct=True,
+            answered_at=now - timedelta(days=1, seconds=index + 1),
+        )
+
+    response = client.post("/practice/answers", json={"card_id": "word:the#english-to-mirad", "answer": "te"})
+
+    assert response.status_code == 200
+    achievements = response.json().get("achievements") or []
+    assert any(achievement["id"] == "practice-streak-5" for achievement in achievements)
+
+
 def test_practice_answer_typed_submission_records_wrong_answer_without_correct_flag(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("mirad_webapp.card_content._default_lexicon_lookup", lambda english_word: {"the": "te", "be": "bi"}.get(english_word))
     app = _app(tmp_path)

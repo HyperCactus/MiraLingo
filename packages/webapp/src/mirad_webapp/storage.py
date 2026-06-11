@@ -11,7 +11,7 @@ from typing import Any
 
 from .auth import AuthUser, LEARNER_ROLE, LOCAL_ADMIN_EMAIL, LOCAL_ADMIN_USERNAME, hash_password, normalize_email, normalize_username, token_hash, validate_registration_inputs, verify_password
 from .practice import MAX_EVENTS
-from .practice_engine import ENGLISH_TO_MIRAD, MIRAD_TO_ENGLISH
+from .practice_engine import ENGLISH_TO_MIRAD, MASTERY_ACCURACY_THRESHOLD, MIRAD_TO_ENGLISH
 
 SUPPORTED_THEMES = ("light", "dark", "system")
 DEFAULT_THEME = "system"
@@ -656,7 +656,7 @@ class MiraLingoStorage:
                         session_streak += 1
                         last_session_counted = normalized_session_id
                     if lifecycle != "revision" and consecutive >= 3:
-                        # Check accuracy: at least 80% across all attempts for this
+                        # Check accuracy: at least the scheduler mastery threshold across all attempts for this
                         # (username, base_card_id, direction) triple.
                         acc_row = connection.execute(
                             """SELECT COUNT(*) AS total,
@@ -668,7 +668,7 @@ class MiraLingoStorage:
                         total_attempts = int(acc_row["total"]) if acc_row else 0
                         correct_count = int(acc_row["correct_count"]) if acc_row else 0
                         accuracy = (correct_count / total_attempts) if total_attempts > 0 else 0.0
-                        if accuracy >= 0.80:
+                        if accuracy >= MASTERY_ACCURACY_THRESHOLD:
                             lifecycle = "revision"
                             promoted_at = timestamp
                 else:
@@ -852,7 +852,7 @@ class MiraLingoStorage:
 
         mastered_count reflects cards where is_mastered=True:
           - lifecycle='revision', OR
-          - lifecycle='active' with consecutive_correct >= 3 AND accuracy >= 0.80
+          - lifecycle='active' with consecutive_correct >= 3 AND accuracy >= 0.60
         This is identical to build_practice_analytics() so both endpoints agree.
         """
         normalized_username = _require_username(username, phase=phase)
@@ -928,11 +928,11 @@ class MiraLingoStorage:
             if lc == "revision":
                 mastered_count += 1
             else:
-                # Check scheduler mastery criteria: consecutive_correct >= 3 AND accuracy >= 80%.
+                # Check scheduler mastery criteria: consecutive_correct >= 3 AND accuracy >= threshold.
                 stats = agg.get((str(row["base_card_id"]), str(row["direction"])))
                 if stats and stats["attempts"] > 0:
                     accuracy = stats["correct"] / stats["attempts"]
-                    if consecutive >= 3 and accuracy >= 0.80:
+                    if consecutive >= 3 and accuracy >= MASTERY_ACCURACY_THRESHOLD:
                         mastered_count += 1
                     else:
                         active_count += 1

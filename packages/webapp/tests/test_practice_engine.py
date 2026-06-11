@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from mirad_webapp.practice import MAX_EVENTS
-from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, _mastered_card_probability_weights, _new_card_weight, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
+from mirad_webapp.practice_engine import _achievement_milestones_up_to, _expected_answer_alternatives, _mastered_card_probability_weights, _mastered_item_ids_from_lifecycle, _new_card_weight, build_practice_achievements, build_practice_progress, build_practice_queue, record_practice_answer
 
 
 NOW = datetime(2026, 5, 23, 12, 0, tzinfo=timezone.utc)
@@ -1153,11 +1153,110 @@ def test_build_practice_achievements_unlocks_ten_mastered_direction_cards() -> N
         username="mira",
         latest_card_id="word:w9#english-to-mirad",
         now=NOW,
+        lifecycle_rows=[
+            {
+                "base_card_id": "word:w9",
+                "direction": "english_to_mirad",
+                "lifecycle": "revision",
+                "correct_streak": 3,
+            }
+        ],
     )
 
     assert [achievement["threshold"] for achievement in achievements] == [10]
     assert achievements[0]["id"] == "mastered-cards-10"
     assert achievements[0]["highlighted_base_card_id"] == "word:w9"
+
+
+def test_build_practice_achievements_unlocks_twenty_mastered_direction_cards_with_lifecycle_rows() -> None:
+    cards = [
+        {"id": f"word:w{i}", "type": "word", "english": f"w{i}", "mirad": f"m{i}"}
+        for i in range(20)
+    ]
+    before_events: list[dict[str, object]] = []
+    for i in range(19):
+        before_events.extend(
+            _correct_streak(
+                f"word:w{i}#english-to-mirad",
+                start=NOW + timedelta(minutes=i * 10),
+                expected_answer=f"m{i}",
+                submitted_answer=f"m{i}",
+            )
+        )
+    after_events = [
+        *before_events,
+        *_correct_streak(
+            "word:w19#english-to-mirad",
+            start=NOW + timedelta(minutes=200),
+            expected_answer="m19",
+            submitted_answer="m19",
+        ),
+    ]
+
+    achievements = build_practice_achievements(
+        cards=cards,
+        before_events=before_events,
+        after_events=after_events,
+        username="mira",
+        latest_card_id="word:w19#english-to-mirad",
+        now=NOW,
+        lifecycle_rows=[
+            {
+                "base_card_id": "word:w19",
+                "direction": "english_to_mirad",
+                "lifecycle": "revision",
+                "correct_streak": 3,
+            }
+        ],
+    )
+
+    assert [achievement["threshold"] for achievement in achievements] == [20]
+    assert achievements[0]["id"] == "mastered-cards-20"
+    assert achievements[0]["highlighted_base_card_id"] == "word:w19"
+
+
+def test_lifecycle_mastery_counts_only_exact_direction_not_entire_base() -> None:
+    cards = [{"id": "word:one", "type": "word", "english": "one", "mirad": "un"}]
+    after_events = _correct_streak(
+        "word:one#english-to-mirad",
+        start=NOW,
+        expected_answer="un",
+        submitted_answer="un",
+    )
+
+    progress = build_practice_progress(cards=cards, events=after_events, now=NOW)
+    achievements = build_practice_achievements(
+        cards=cards,
+        before_events=[],
+        after_events=after_events,
+        username="mira",
+        latest_card_id="word:one#english-to-mirad",
+        now=NOW,
+        lifecycle_rows=[
+            {
+                "base_card_id": "word:one",
+                "direction": "english_to_mirad",
+                "lifecycle": "revision",
+                "correct_streak": 3,
+            }
+        ],
+    )
+
+    mastered = _mastered_item_ids_from_lifecycle(
+        progress,
+        [
+            {
+                "base_card_id": "word:one",
+                "direction": "english_to_mirad",
+                "lifecycle": "revision",
+                "correct_streak": 3,
+            }
+        ],
+    )
+
+    assert mastered == {"word:one#english-to-mirad"}
+    assert progress["mastered_cards"] == ["word:one#english-to-mirad"]
+    assert achievements[0]["threshold"] == 1
 
 
 def test_build_practice_achievements_unlocks_repeating_milestones_after_100() -> None:

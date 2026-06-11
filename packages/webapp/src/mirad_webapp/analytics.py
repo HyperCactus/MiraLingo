@@ -4,6 +4,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from .practice_engine import MASTERY_ACCURACY_THRESHOLD
+
 
 def _parse_iso(value: str | None) -> datetime | None:
     if not value:
@@ -202,7 +204,7 @@ def build_practice_analytics(
     for card_id, card_row in per_card.items():
         card_row["lifecycle"] = lifecycle_by_card_id.get(card_id, card_row.get("lifecycle", "active"))
         # A card is mastered when lifecycle is revision, OR when it meets
-        # the scheduler criteria: consecutive_correct >= 3 AND accuracy >= 0.80.
+        # the scheduler criteria: consecutive_correct >= 3 AND accuracy >= threshold.
         card_lifecycle = str(card_row.get("lifecycle") or "active")
         card_consecutive = int(card_row.get("consecutive_correct") or 0)
         card_attempts = int(card_row.get("attempts") or 0)
@@ -212,7 +214,7 @@ def build_practice_analytics(
             card_lifecycle != "revision"
             and card_consecutive >= 3
             and card_accuracy is not None
-            and card_accuracy >= 0.80
+            and card_accuracy >= MASTERY_ACCURACY_THRESHOLD
         )
         card_row["is_mastered"] = card_lifecycle == "revision" or is_mastered_by_criteria
         card_row["mastered_by_criteria"] = is_mastered_by_criteria

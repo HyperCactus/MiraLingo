@@ -1034,7 +1034,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         try:
             ensure_practice_storage_user("practice_answer", user.username, user.role)
-            prior_events = answer_events_for_user(user.username, "practice_answer")
+            prior_events = answer_events_for_user(user.username, "practice_answer", limit=None)
             updated_events = record_practice_answer(
                 cards=result.cards,
                 events=prior_events,
@@ -1059,7 +1059,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 expected_answer=str(latest_event["expected_answer"]),
                 answered_at=latest_event.get("answered_at"),
             )
-            durable_events = answer_events_for_user(user.username, "practice_answer")
+            durable_events = answer_events_for_user(user.username, "practice_answer", limit=None)
         except StorageError as exc:
             return storage_failure_response(exc)
         payload = answer_summary(result.cards, durable_events, submission.card_id)

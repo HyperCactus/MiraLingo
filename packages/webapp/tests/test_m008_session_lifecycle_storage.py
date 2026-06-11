@@ -15,10 +15,10 @@ def _count(connection: sqlite3.Connection, table: str, where: str = "", args: tu
     return int(connection.execute(query, args).fetchone()[0])
 
 
-def test_lifecycle_contract_promotes_after_three_correct_with_eighty_percent_accuracy(tmp_path: Path) -> None:
-    """Cards promote to revision when consecutive_correct >= 3 AND accuracy >= 0.80.
+def test_lifecycle_contract_promotes_after_three_correct_with_sixty_percent_accuracy(tmp_path: Path) -> None:
+    """Cards promote to revision when consecutive_correct >= 3 AND accuracy >= 0.60.
 
-    This replaces the old 5-consecutive threshold with the correct 3+80% rule.
+    This uses the same mastery threshold as the practice scheduler and achievements.
     """
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
@@ -60,15 +60,15 @@ def test_lifecycle_contract_promotes_after_three_correct_with_eighty_percent_acc
 
 
 def test_three_correct_with_low_accuracy_does_not_promote(tmp_path: Path) -> None:
-    """Cards with 3 consecutive correct but overall accuracy < 80% stay active."""
+    """Cards with 3 consecutive correct but overall accuracy < 60% stay active."""
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
     session = storage.start_practice_session(username="mira")
 
-    # Build a low-accuracy history: 2 wrong, then 3 correct.
-    # After 2 wrong: accuracy = 0%, consecutive = 0.
-    for _ in range(2):
+    # Build a low-accuracy history: 3 wrong, then 3 correct.
+    # After 3 wrong: accuracy = 0%, consecutive = 0.
+    for _ in range(3):
         storage.record_practice_lifecycle_answer(
             username="mira",
             session_id=session["session_id"],
@@ -76,7 +76,7 @@ def test_three_correct_with_low_accuracy_does_not_promote(tmp_path: Path) -> Non
             direction="english_to_mirad",
             correct=False,
         )
-    # After 3 more correct: consecutive = 3, accuracy = 3/5 = 60% → NOT promoted.
+    # After 3 more correct: consecutive = 3, accuracy = 3/6 = 50% → NOT promoted.
     for _ in range(3):
         storage.record_practice_lifecycle_answer(
             username="mira",
@@ -94,23 +94,24 @@ def test_three_correct_with_low_accuracy_does_not_promote(tmp_path: Path) -> Non
     assert state["correct_streak"] == 3
 
 
-def test_three_correct_with_eighty_percent_accuracy_promotes(tmp_path: Path) -> None:
-    """Cards with 3 consecutive correct and accuracy >= 80% are promoted."""
+def test_three_correct_with_sixty_percent_accuracy_promotes(tmp_path: Path) -> None:
+    """Cards with 3 consecutive correct and accuracy >= 60% are promoted."""
     storage = MiraLingoStorage(tmp_path / "m008.sqlite3")
     assert storage.register_account(username="mira", password="correct-password")[0] is not None
 
     session = storage.start_practice_session(username="mira")
 
-    # Build a borderline accuracy: 1 wrong, then 4 correct.
-    # After 1 wrong + 4 correct: accuracy = 4/5 = 80%, consecutive = 4 → promoted.
-    storage.record_practice_lifecycle_answer(
-        username="mira",
-        session_id=session["session_id"],
-        base_card_id="word:leaf",
-        direction="english_to_mirad",
-        correct=False,
-    )
-    for _ in range(4):
+    # Build a borderline accuracy: 2 wrong, then 3 correct.
+    # After 2 wrong + 3 correct: accuracy = 3/5 = 60%, consecutive = 3 → promoted.
+    for _ in range(2):
+        storage.record_practice_lifecycle_answer(
+            username="mira",
+            session_id=session["session_id"],
+            base_card_id="word:leaf",
+            direction="english_to_mirad",
+            correct=False,
+        )
+    for _ in range(3):
         storage.record_practice_lifecycle_answer(
             username="mira",
             session_id=session["session_id"],
