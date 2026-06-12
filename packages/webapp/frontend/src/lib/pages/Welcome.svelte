@@ -126,6 +126,10 @@
               <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} minlength="8" maxlength="128" required type="password" />
               <span class="text-xs font-normal text-slate-500 dark:text-slate-400">Password must be 8 to 128 characters.</span>
             </label>
+            <p class="text-xs leading-5 text-slate-500 dark:text-slate-400">
+              By creating an account, you agree to the
+              <a class="font-semibold text-violet-700 underline decoration-violet-300 underline-offset-4 hover:text-violet-900 dark:text-violet-300 dark:hover:text-violet-100" href="#privacy">Privacy Policy</a>.
+            </p>
             <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Creating…' : 'Create Account'}</AppButton>
             <AppButton type="button" variant="secondary" className="min-h-12 w-full justify-center" on:click={() => dispatch('googleLogin')}>Sign in with Google</AppButton>
           </form>

@@ -8,13 +8,15 @@ APP_FILE = FRONTEND_ROOT / "App.svelte"
 DASHBOARD_PAGE = PAGES_ROOT / "Dashboard.svelte"
 LEXICON_PAGE = PAGES_ROOT / "Lexicon.svelte"
 WELCOME_PAGE = PAGES_ROOT / "Welcome.svelte"
+PRIVACY_PAGE = PAGES_ROOT / "PrivacyPolicy.svelte"
+PRIVACY_MARKDOWN = FRONTEND_ROOT / "lib" / "content" / "privacy-policy.md"
 EXERCISE_CARD = LEARNING_ROOT / "ExerciseCard.svelte"
 APP_SHELL = LAYOUT_ROOT / "AppShell.svelte"
 STUDY_SHELL = LAYOUT_ROOT / "StudyShell.svelte"
 
 
 def test_slice_components_exist() -> None:
-    for path in [APP_FILE, DASHBOARD_PAGE, LEXICON_PAGE, WELCOME_PAGE, EXERCISE_CARD, APP_SHELL, STUDY_SHELL]:
+    for path in [APP_FILE, DASHBOARD_PAGE, LEXICON_PAGE, WELCOME_PAGE, PRIVACY_PAGE, PRIVACY_MARKDOWN, EXERCISE_CARD, APP_SHELL, STUDY_SHELL]:
         assert path.exists(), f"expected {path} to exist"
 
 
@@ -32,6 +34,23 @@ def test_welcome_copy_matches_logged_out_surface() -> None:
     assert "Welcome to Mirad" in source
     assert "Create Account" in source
     assert "Log In" in source
+    assert "By creating an account, you agree to the" in source
+    assert 'href="#privacy"' in source
+
+
+def test_privacy_policy_page_and_markdown_contract() -> None:
+    app_source = APP_FILE.read_text()
+    page_source = PRIVACY_PAGE.read_text()
+    markdown_source = PRIVACY_MARKDOWN.read_text()
+
+    assert "What we do not do" in markdown_source
+    assert "MiraLingo does not sell your personal information" in markdown_source
+    assert "Account information" in markdown_source
+    assert "Practice activity" in markdown_source
+    assert "import PrivacyPolicy from \"./lib/pages/PrivacyPolicy.svelte\";" in app_source
+    assert 'routeHash === "privacy"' in app_source
+    assert "privacy-policy.md?raw" in page_source
+    assert "Clear notes on account data" in page_source
 
 
 def test_lexicon_tts_preserves_full_comma_separated_translation() -> None:

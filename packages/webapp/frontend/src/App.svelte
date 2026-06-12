@@ -20,6 +20,7 @@
   import AdminDashboard from "./lib/pages/AdminDashboard.svelte";
   import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
+  import PrivacyPolicy from "./lib/pages/PrivacyPolicy.svelte";
   import ResetPassword from "./lib/pages/ResetPassword.svelte";
   import Welcome from "./lib/pages/Welcome.svelte";
 
@@ -98,6 +99,7 @@
   let resetMessage = $state("");
   let resetSubmitting = $state(false);
   let submitting = $state(false);
+  let routeHash = $state(typeof window === "undefined" ? "" : window.location.hash.replace(/^#/, ""));
 
   let practiceState = $state("idle");
   let practiceErr = $state("");
@@ -953,6 +955,8 @@
     const hash = window.location.hash.replace(/^#/, "");
     const target = hash || fallback;
 
+    if (target === "privacy") return;
+
     if (target === "practice") {
       void navigateToSection("practice");
       return;
@@ -975,6 +979,17 @@
     }
 
     void navigateToSection("dashboard");
+  }
+
+  function handleHashChange() {
+    if (typeof window === "undefined") return;
+    routeHash = window.location.hash.replace(/^#/, "");
+    syncRouteFromHash();
+  }
+
+  function leavePrivacyPolicy() {
+    if (typeof window === "undefined") return;
+    window.location.hash = $authState === "authenticated" ? "dashboard" : "welcome";
   }
 
   $effect(() => {
@@ -1036,6 +1051,7 @@
 
     media?.addEventListener?.("change", handleSystemThemeChange);
     resetToken = readResetTokenFromUrl();
+    routeHash = typeof window === "undefined" ? "" : window.location.hash.replace(/^#/, "");
     void loadCurrentUser();
 
     return () => {
@@ -1049,9 +1065,11 @@
   <meta name="description" content="Practice Mirad." />
 </svelte:head>
 
-<svelte:window on:hashchange={() => syncRouteFromHash()} />
+<svelte:window on:hashchange={() => handleHashChange()} />
 
-{#if resetToken}
+{#if routeHash === "privacy"}
+  <PrivacyPolicy on:back={leavePrivacyPolicy} />
+{:else if resetToken}
   <ResetPassword
     bind:newPassword={resetNewPassword}
     bind:confirmPassword={resetConfirmPassword}
