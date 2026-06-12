@@ -760,6 +760,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             reset_user = storage.reset_password_with_token(raw_token=payload.token, new_password=payload.password, secret=runtime_settings.session_secret)
         except StorageError as exc:
             return storage_failure_response(exc)
+        except Exception as exc:
+            logger.exception("password_reset: unexpected error")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"ok": False, "error": "internal_error", "phase": "password_reset", "detail": "An unexpected error occurred. Please try again."},
+            )
         if reset_user is None:
             return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_reset_token", "phase": "password_reset", "detail": "Password reset token is invalid, expired, or already used."})
         response = JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "password_reset", "authenticated": False})
