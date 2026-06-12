@@ -22,7 +22,8 @@ TEST_USER_ROLE = "test_user"
 USER_ROLE = "user"
 LEARNER_ROLE = USER_ROLE
 SUPPORTED_ROLES = {ADMIN_ROLE, TEST_USER_ROLE, USER_ROLE}
-_MIN_PASSWORD_LENGTH = 8
+MIN_PASSWORD_LENGTH = 8
+MAX_PASSWORD_LENGTH = 128
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -109,19 +110,27 @@ def validate_registration_inputs(
             },
             400,
         )
-    if len(password) < _MIN_PASSWORD_LENGTH:
+    password_error, password_status = validate_password(password=password, phase="auth_register")
+    if password_error is not None:
+        return None, password_error, password_status
+    display_name = str(name or "").strip() or None
+    return {"email": normalized_email, "name": display_name}, None, None
+
+
+def validate_password(*, password: str, phase: str) -> tuple[dict[str, Any] | None, int | None]:
+    """Validate password length without echoing credential material."""
+    length = len(password or "")
+    if length < MIN_PASSWORD_LENGTH or length > MAX_PASSWORD_LENGTH:
         return (
-            None,
             {
                 "authenticated": False,
                 "error": "invalid_password",
-                "phase": "auth_register",
-                "detail": f"Password must be at least {_MIN_PASSWORD_LENGTH} characters.",
+                "phase": phase,
+                "detail": f"Password must be {MIN_PASSWORD_LENGTH} to {MAX_PASSWORD_LENGTH} characters.",
             },
             400,
         )
-    display_name = str(name or "").strip() or None
-    return {"email": normalized_email, "name": display_name}, None, None
+    return None, None
 
 
 def registered_login_error() -> tuple[dict[str, Any], int]:

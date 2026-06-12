@@ -107,7 +107,7 @@ def test_registration_validation_keeps_existing_public_auth_shapes(tmp_path: Pat
         "authenticated": False,
         "error": "invalid_password",
         "phase": "auth_register",
-        "detail": "Password must be at least 8 characters.",
+        "detail": "Password must be 8 to 128 characters.",
     }
     assert admin_user is None
     assert admin_status == 400

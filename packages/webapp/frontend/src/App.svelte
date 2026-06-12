@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import "./app.css";
   import { getPracticeAudioUrl } from "./lib/api/audio";
-  import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register, requestPasswordReset } from "./lib/api/auth";
+  import { deleteAccount, fetchCurrentUser, login, logout as logoutRequest, readJson, register, requestPasswordReset, resetPassword } from "./lib/api/auth";
   import { getPracticeQueue, submitPracticeAnswer } from "./lib/api/practice";
   import { getSettings, updateSettings } from "./lib/api/settings";
   import AppShell from "./lib/components/layout/AppShell.svelte";
@@ -19,8 +19,12 @@
   import Dashboard from "./lib/pages/Dashboard.svelte";
   import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
+  import ResetPassword from "./lib/pages/ResetPassword.svelte";
   import Welcome from "./lib/pages/Welcome.svelte";
 
+  const PASSWORD_MIN_LENGTH = 8;
+  const PASSWORD_MAX_LENGTH = 128;
+  const PASSWORD_RULE_MESSAGE = `Password must be ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters.`;
   const fmtPct = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
   const fmtN = (value) => (typeof value === "number" ? value : "—");
   const spd = (value) => `${Number(value).toFixed(1)}×`;
@@ -78,6 +82,12 @@
   let registrationEmail = $state("");
   let registrationName = $state("");
   let regP = $state("");
+  let resetToken = $state("");
+  let resetNewPassword = $state("");
+  let resetConfirmPassword = $state("");
+  let resetError = $state("");
+  let resetMessage = $state("");
+  let resetSubmitting = $state(false);
   let submitting = $state(false);
 
   let practiceState = $state("idle");
@@ -147,6 +157,26 @@
     const resolvedTheme = resolveTheme(coerceTheme(themeValue));
     document.documentElement.setAttribute("data-theme", resolvedTheme);
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+  }
+
+  function readResetTokenFromUrl() {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("reset_token")?.trim() ?? "";
+  }
+
+  function clearResetUrl() {
+    if (typeof window === "undefined") return;
+    window.history.replaceState(null, "", `${window.location.pathname}#welcome`);
+  }
+
+  function resetPasswordFormState() {
+    resetNewPassword = "";
+    resetConfirmPassword = "";
+    resetError = "";
+  }
+
+  function passwordLengthValid(value) {
+    return value.length >= PASSWORD_MIN_LENGTH && value.length <= PASSWORD_MAX_LENGTH;
   }
 
   const resetAudio = () => {
@@ -298,6 +328,10 @@
   }
 
   async function submitRegistration() {
+    if (!passwordLengthValid(regP)) {
+      setAuthFailure("registration-failed", PASSWORD_RULE_MESSAGE);
+      return;
+    }
     submitting = true;
     authError.set("");
     try {
@@ -319,6 +353,51 @@
     } finally {
       submitting = false;
     }
+  }
+
+  async function submitPasswordReset() {
+    if (!resetToken) {
+      resetError = "Password reset link is missing or invalid. Request a new reset email.";
+      resetMessage = "";
+      return;
+    }
+    if (!passwordLengthValid(resetNewPassword)) {
+      resetError = PASSWORD_RULE_MESSAGE;
+      resetMessage = "";
+      return;
+    }
+    if (resetNewPassword !== resetConfirmPassword) {
+      resetError = "Passwords do not match.";
+      resetMessage = "";
+      return;
+    }
+
+    resetSubmitting = true;
+    resetError = "";
+    resetMessage = "";
+    try {
+      const { response, payload } = await resetPassword(resetToken, resetNewPassword);
+      if (!response.ok || payload.ok === false) {
+        resetError = payload?.detail ?? "Could not reset password.";
+        return;
+      }
+      resetToken = "";
+      resetPasswordFormState();
+      clearResetUrl();
+      resetAuthStore("Password reset. Log in with your new password.");
+    } catch (_) {
+      resetError = "Could not reset password.";
+    } finally {
+      resetSubmitting = false;
+    }
+  }
+
+  function cancelPasswordReset() {
+    resetToken = "";
+    resetMessage = "";
+    resetPasswordFormState();
+    clearResetUrl();
+    resetAuthStore();
   }
 
   function clearAuthAppState(message = "") {
@@ -896,6 +975,7 @@
     };
 
     media?.addEventListener?.("change", handleSystemThemeChange);
+    resetToken = readResetTokenFromUrl();
     void loadCurrentUser();
 
     return () => {
@@ -911,7 +991,17 @@
 
 <svelte:window on:hashchange={() => syncRouteFromHash()} />
 
-{#if $authState === "authenticated" && practiceSection($currentSection)}
+{#if resetToken}
+  <ResetPassword
+    bind:newPassword={resetNewPassword}
+    bind:confirmPassword={resetConfirmPassword}
+    submitting={resetSubmitting}
+    error={resetError}
+    message={resetMessage}
+    on:submit={submitPasswordReset}
+    on:cancel={cancelPasswordReset}
+  />
+{:else if $authState === "authenticated" && practiceSection($currentSection)}
   <StudyShell
     title={practiceTitle($currentSection)}
     subtitle=""

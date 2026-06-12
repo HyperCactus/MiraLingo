@@ -1193,7 +1193,7 @@ class MiraLingoStorage:
                 connection.execute("UPDATE auth_sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL", (now, user_id))
         except sqlite3.Error as exc:
             raise StorageError(phase="password_reset_confirm", detail="Could not reset password in storage.") from exc
-        return self.get_user_by_id(user_id=user_id, phase="password_reset_confirm")
+        return _auth_user_from_row(row)
 
     def create_oauth_state(self, *, state: str, secret: str, ttl_seconds: int, next_path: str = "/") -> None:
         """Persist a single-use OAuth state token hash."""

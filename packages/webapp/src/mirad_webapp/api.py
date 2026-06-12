@@ -23,6 +23,7 @@ from .auth import (
     new_public_token,
     normalize_email,
     registered_login_error,
+    validate_password,
 )
 from .card_content import CardContentImportError, CardContentSourceMissingError, import_card_content
 from .config import Settings, load_settings
@@ -672,14 +673,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def password_reset(request: Request, payload: PasswordResetRequest) -> JSONResponse:
         """Consume a single-use password reset token."""
         storage: MiraLingoStorage = request.app.state.storage
-        try:
-            user, error_payload, error_status = storage.register_account(email="reset-probe@example.invalid", password=payload.password)
-            if user is not None:
-                storage.delete_user_account(user_id=user.id)
-        except StorageError:
-            error_payload, error_status = None, None
-        if error_payload and error_payload.get("error") == "invalid_password":
-            return JSONResponse(status_code=error_status or 400, content={**error_payload, "phase": "password_reset"})
+        password_error, password_status = validate_password(password=payload.password, phase="password_reset")
+        if password_error is not None:
+            return JSONResponse(status_code=password_status or 400, content=password_error)
         try:
             reset_user = storage.reset_password_with_token(raw_token=payload.token, new_password=payload.password, secret=runtime_settings.session_secret)
         except StorageError as exc:

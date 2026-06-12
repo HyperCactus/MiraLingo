@@ -123,7 +123,8 @@
             </label>
             <label class="block space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
               <span>Password</span>
-              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} required type="password" />
+              <input class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-violet-500 dark:focus:ring-violet-900" autocomplete="new-password" bind:value={registrationPassword} minlength="8" maxlength="128" required type="password" />
+              <span class="text-xs font-normal text-slate-500 dark:text-slate-400">Password must be 8 to 128 characters.</span>
             </label>
             <AppButton type="submit" className="min-h-12 w-full justify-center">{submitting ? 'Creating…' : 'Create Account'}</AppButton>
             <AppButton type="button" variant="secondary" className="min-h-12 w-full justify-center" on:click={() => dispatch('googleLogin')}>Sign in with Google</AppButton>

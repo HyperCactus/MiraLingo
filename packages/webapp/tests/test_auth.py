@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from fastapi.testclient import TestClient
 
@@ -105,7 +106,15 @@ def test_registration_validation_errors_do_not_create_sessions_or_accounts(tmp_p
     short_password = client.post("/auth/register", json={"email": "mira@example.com", "password": "short"})
     assert short_password.status_code == 400
     assert short_password.json()["error"] == "invalid_password"
+    assert short_password.json()["detail"] == "Password must be 8 to 128 characters."
     assert_no_secret_material(short_password.text, "short")
+
+    long_password = "p" * 129
+    too_long_password = client.post("/auth/register", json={"email": "mira@example.com", "password": long_password})
+    assert too_long_password.status_code == 400
+    assert too_long_password.json()["error"] == "invalid_password"
+    assert too_long_password.json()["detail"] == "Password must be 8 to 128 characters."
+    assert_no_secret_material(too_long_password.text, long_password)
 
     failed_login = client.post("/auth/login", json={"email": "mira@example.com", "password": "valid-pass"})
     assert failed_login.status_code == 401
@@ -242,6 +251,47 @@ def test_password_forgot_sends_reset_email_for_existing_account_without_public_s
     assert sent[0]["reset_url"].startswith("https://yourapp.com/?reset_token=")
     assert "reset_token" not in response.text
     assert "re_test_secret" not in response.text
+
+
+def test_password_reset_consumes_token_and_enforces_password_bounds(monkeypatch, tmp_path: Path) -> None:
+    sent: list[dict[str, str]] = []
+
+    def fake_send_password_reset_email(*, settings, to_email: str, reset_url: str):
+        sent.append({"to_email": to_email, "reset_url": reset_url})
+        from mirad_webapp.email_delivery import EmailDeliveryResult
+
+        return EmailDeliveryResult(ok=True, provider="resend")
+
+    monkeypatch.setattr("mirad_webapp.api.send_password_reset_email", fake_send_password_reset_email)
+    client = TestClient(create_app(_settings(tmp_path, app_url="https://yourapp.com", email_provider="resend", email_from="Your App <noreply@yourdomain.com>", resend_api_key="re_test_secret")))
+    old_password = "learner-password-1"
+    new_password = "new-password-123"
+    assert client.post("/auth/register", json={"email": "mira@example.com", "password": old_password}).status_code == 201
+    assert client.post("/auth/password/forgot", json={"email": "mira@example.com"}).status_code == 202
+    token = parse_qs(urlparse(sent[0]["reset_url"]).query)["reset_token"][0]
+
+    short_reset = client.post("/auth/password/reset", json={"token": token, "password": "short"})
+    assert short_reset.status_code == 400
+    assert short_reset.json() == {
+        "authenticated": False,
+        "error": "invalid_password",
+        "phase": "password_reset",
+        "detail": "Password must be 8 to 128 characters.",
+    }
+    assert_no_secret_material(short_reset.text, "short", token)
+
+    successful_reset = client.post("/auth/password/reset", json={"token": token, "password": new_password})
+    assert successful_reset.status_code == 200
+    assert successful_reset.json() == {"ok": True, "phase": "password_reset", "authenticated": False}
+    assert_no_secret_material(successful_reset.text, new_password, token)
+
+    old_login = client.post("/auth/login", json={"email": "mira@example.com", "password": old_password})
+    new_login = client.post("/auth/login", json={"email": "mira@example.com", "password": new_password})
+    reused_token = client.post("/auth/password/reset", json={"token": token, "password": "another-password"})
+    assert old_login.status_code == 401
+    assert new_login.status_code == 200
+    assert reused_token.status_code == 400
+    assert reused_token.json()["error"] == "invalid_reset_token"
 
 
 def test_password_forgot_skips_provider_for_missing_account(monkeypatch, tmp_path: Path) -> None:
