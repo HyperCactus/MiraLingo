@@ -517,8 +517,15 @@ def _queue_item_for_base_card(
 
 def _practice_item_maps(cards: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
     items = _expand_practice_items(cards)
-    by_id = {item["id"]: item for item in items}
-    legacy_aliases = {item["base_card_id"]: item["id"] for item in items if item["direction"] == ENGLISH_TO_MIRAD}
+    by_id: dict[str, dict[str, Any]] = {}
+    legacy_aliases: dict[str, str] = {}
+    for item in items:
+        # Import order is intentional: curated beginner/numbers content is loaded before
+        # stochastic wordfreq cards. If two sources produce the same stable ID, keep the
+        # curated item instead of silently letting a later generated card narrow scoring.
+        by_id.setdefault(item["id"], item)
+        if item["direction"] == ENGLISH_TO_MIRAD:
+            legacy_aliases.setdefault(item["base_card_id"], item["id"])
     return by_id, legacy_aliases
 
 

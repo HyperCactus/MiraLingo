@@ -288,6 +288,42 @@ def test_module_expanded_comma_english_cards_have_two_forward_prompts_and_one_re
         assert result[-1]["correct"] is True
 
 
+def test_english_to_mirad_word_accepts_comma_separated_mirad_alternatives_from_beginner_module() -> None:
+    cards = [
+        {
+            "id": "word:come",
+            "type": "word",
+            "english": "come",
+            "mirad": "uper,upu,upya",
+            "beginner_order": "35",
+        },
+        {
+            "id": "word:come",
+            "type": "word",
+            "english": "come",
+            "mirad": "upya",
+        },
+    ]
+
+    progress = build_practice_progress(cards=cards, events=[], now=NOW)
+    english_to_mirad = next(card for card in progress["per_card"] if card["direction"] == "english_to_mirad")
+    assert english_to_mirad["prompt"] == "come"
+    assert english_to_mirad["answer"] == "uper,upu,upya"
+
+    for submitted in ["uper", "upu", "upya"]:
+        result = record_practice_answer(
+            cards=cards,
+            events=[],
+            card_id="word:come#english-to-mirad",
+            submitted_answer=submitted,
+            now=NOW,
+        )
+
+        assert isinstance(result, list)
+        assert result[-1]["expected_answer"] == "uper,upu,upya"
+        assert result[-1]["correct"] is True
+
+
 def test_english_to_mirad_word_answers_require_exact_card_translation_not_lexicon_union(monkeypatch) -> None:
     monkeypatch.setitem(
         record_practice_answer.__globals__,
