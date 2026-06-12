@@ -121,6 +121,7 @@
   let audioMsg = $state("");
   let audioBlobUrl = $state("");
   let activeAudio = $state(null);
+  let audioPlaybackToken = $state(0);
   let lastAudioCardId = $state(null);
   let lastAutoplayRevealCardId = $state(null);
 
@@ -189,7 +190,10 @@
   }
 
   const resetAudio = () => {
+    audioPlaybackToken += 1;
     if (activeAudio) {
+      activeAudio.onended = null;
+      activeAudio.onerror = null;
       activeAudio.pause();
       activeAudio = null;
     }
@@ -744,9 +748,31 @@
     })();
   }
 
+  function finishCardAudio(audio, token, nextState = "idle", nextMessage = "") {
+    if (token !== audioPlaybackToken || activeAudio !== audio) return;
+    activeAudio = null;
+    if (audioBlobUrl) {
+      URL.revokeObjectURL(audioBlobUrl);
+      audioBlobUrl = "";
+    }
+    audioState = nextState;
+    audioMsg = nextMessage;
+  }
+
+  function attachCardAudioHandlers(audio, token) {
+    audio.onended = () => finishCardAudio(audio, token);
+    audio.onerror = () => finishCardAudio(audio, token, "error", "Could not play audio.");
+  }
+
   async function playCardAudio() {
     if (!currentCard) return;
+    if (audioState === "playing" && activeAudio) {
+      resetAudio();
+      return;
+    }
+
     resetAudio();
+    const playbackToken = ++audioPlaybackToken;
     audioState = "loading";
 
     try {
@@ -758,32 +784,47 @@
         audioBlobUrl = blobUrl;
         activeAudio = audio;
         preloadedAudio = null;
+        attachCardAudioHandlers(audio, playbackToken);
         await audio.play();
-        audioState = "ready";
+        if (playbackToken !== audioPlaybackToken || activeAudio !== audio) {
+          audio.pause();
+          return;
+        }
+        audioState = "playing";
         audioMsg = "";
         return;
       }
 
       const response = await fetch(getPracticeAudioUrl(cardId), { headers: { Accept: "audio/wav,application/json" } });
+      if (playbackToken !== audioPlaybackToken) return;
       const contentType = response.headers.get("content-type") ?? "";
 
       if (!response.ok || !contentType.includes("audio")) {
         const payload = await readJson(response);
+        if (playbackToken !== audioPlaybackToken) return;
         audioState = response.status === 404 ? "unavailable" : "error";
         audioMsg = payload?.detail ?? "Audio unavailable.";
         return;
       }
 
       const blob = await response.blob();
+      if (playbackToken !== audioPlaybackToken) return;
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audioBlobUrl = url;
       activeAudio = audio;
       audio.playbackRate = Number.isFinite(Number($ttsSpeed)) ? Number($ttsSpeed) : 0.8;
+      attachCardAudioHandlers(audio, playbackToken);
       await audio.play();
-      audioState = "ready";
+      if (playbackToken !== audioPlaybackToken || activeAudio !== audio) {
+        audio.pause();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      audioState = "playing";
       audioMsg = "";
     } catch (_) {
+      if (playbackToken !== audioPlaybackToken) return;
       audioState = "error";
       audioMsg = "Could not play audio.";
     }
@@ -1068,6 +1109,7 @@
         submitting={answerSubmitting}
         {answerResult}
         audioLoading={audioState === "loading"}
+        audioPlaying={audioState === "playing"}
         audioMessage={audioState === "error" || audioState === "unavailable" ? audioMsg : ""}
         audioEnabled={canPlayAudio()}
         on:submit={submitAnswer}

@@ -14,6 +14,7 @@
   export let language: 'english' | 'mirad' = 'english';
   export let canPlayAudio = false;
   export let audioLoading = false;
+  export let audioPlaying = false;
 </script>
 
 <div class="space-y-3 text-center sm:text-left">
@@ -29,7 +30,7 @@
     </h2>
     {#if canPlayAudio}
       <div class="shrink-0 pt-1">
-        <AudioButton disabled={audioLoading} loading={audioLoading} label="Play Mirad audio" on:click={() => dispatch('audio')} />
+        <AudioButton disabled={audioLoading} loading={audioLoading} playing={audioPlaying} label={audioPlaying ? 'Stop Mirad audio' : 'Play Mirad audio'} on:click={() => dispatch('audio')} />
       </div>
     {/if}
   </div>

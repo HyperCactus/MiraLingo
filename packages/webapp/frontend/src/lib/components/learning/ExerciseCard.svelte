@@ -22,6 +22,7 @@
   export let submitting = false;
   export let answerResult: PracticeAnswerResponse | null = null;
   export let audioLoading = false;
+  export let audioPlaying = false;
   export let audioMessage = '';
   export let audioEnabled = false;
 
@@ -73,6 +74,7 @@
       supportingText=""
       canPlayAudio={showPromptAudio(card, audioEnabled)}
       {audioLoading}
+      {audioPlaying}
       on:audio={() => dispatch('audio')}
       on:lookup={(event) => dispatch('lookup', event.detail)}
     />
@@ -110,7 +112,8 @@
     {:else}
       <FeedbackPanel
         audioLoading={audioLoading}
-        audioLabel={'Play Mirad audio'}
+        audioPlaying={audioPlaying}
+        audioLabel={audioPlaying ? 'Stop Mirad audio' : 'Play Mirad audio'}
         audioMessage={audioMessage}
         canPlayAudio={audioEnabled}
         correct={Boolean(answerResult.correct)}

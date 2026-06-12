@@ -13,6 +13,7 @@
   export let correct = false;
   export let canPlayAudio = false;
   export let audioLoading = false;
+  export let audioPlaying = false;
   export let audioLabel = 'Play Mirad audio';
   export let audioMessage = '';
   export let answerLanguage: 'english' | 'mirad' = 'mirad';
@@ -38,7 +39,7 @@
         on:lookup={(event) => dispatch('lookup', event.detail)}
       />
       {#if canPlayAudio && answerLanguage === 'mirad'}
-        <AudioButton disabled={audioLoading} loading={audioLoading} label={audioLabel} on:click={() => dispatch('audio')} />
+        <AudioButton disabled={audioLoading} loading={audioLoading} playing={audioPlaying} label={audioPlaying ? 'Stop Mirad audio' : audioLabel} on:click={() => dispatch('audio')} />
       {/if}
     </div>
   </div>

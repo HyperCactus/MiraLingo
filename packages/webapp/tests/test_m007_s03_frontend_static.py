@@ -39,7 +39,25 @@ def test_lexicon_tts_preserves_full_comma_separated_translation() -> None:
     assert 'function getPreviewMiradText(result: LookupResult): string {' in source
     assert ".replace(/\\s*,\\s*/g, ', ')" in source
     assert '.split(/[;,|/]/g)' not in source
-    assert 'await playMbrolaPreview(previewText, speakingWord);' in source
+    assert 'await playMbrolaPreview(previewText, speakingWord, token);' in source
+
+
+def test_tts_buttons_show_playing_state_and_toggle_stop() -> None:
+    app_source = APP_FILE.read_text()
+    audio_button_source = (LEARNING_ROOT / "AudioButton.svelte").read_text()
+    lexicon_source = LEXICON_PAGE.read_text()
+
+    assert 'playing={audioPlaying}' in (LEARNING_ROOT / "ExercisePrompt.svelte").read_text()
+    assert 'playing={audioPlaying}' in (LEARNING_ROOT / "FeedbackPanel.svelte").read_text()
+    assert 'audioPlaying={audioState === "playing"}' in app_source
+    assert 'if (audioState === "playing" && activeAudio)' in app_source
+    assert 'audioState = "playing";' in app_source
+    assert "aria-pressed={playing}" in audio_button_source
+    assert "playing ? '■' : '🔊'" in audio_button_source
+    assert "audio-button-playing" in audio_button_source
+    assert "background: #7c3aed !important;" in audio_button_source
+    assert 'if (speakingWord === activeWord)' in lexicon_source
+    assert 'resetPreviewAudio();' in lexicon_source
 
 
 def test_app_routes_through_pages_and_shells() -> None:

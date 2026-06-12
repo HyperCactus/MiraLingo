@@ -40,6 +40,7 @@
   let audioFeedback = '';
   let activePreviewAudio: HTMLAudioElement | null = null;
   let activePreviewAudioUrl = '';
+  let previewAudioToken = 0;
 
   const debounceMs = 300;
 
@@ -70,7 +71,10 @@
   }
 
   function resetPreviewAudio() {
+    previewAudioToken += 1;
     if (activePreviewAudio) {
+      activePreviewAudio.onended = null;
+      activePreviewAudio.onerror = null;
       activePreviewAudio.pause();
       activePreviewAudio = null;
     }
@@ -157,8 +161,24 @@
       .trim();
   }
 
-  async function playMbrolaPreview(text: string, spokenWord: string) {
+  function finishPreviewAudio(audio: HTMLAudioElement, url: string, token: number, spokenWord: string, message = '') {
+    if (token !== previewAudioToken || activePreviewAudio !== audio) return;
+    activePreviewAudio = null;
+    if (activePreviewAudioUrl === url) {
+      URL.revokeObjectURL(activePreviewAudioUrl);
+      activePreviewAudioUrl = '';
+    }
+    if (speakingWord === spokenWord) {
+      speakingWord = '';
+    }
+    if (message) {
+      audioFeedback = message;
+    }
+  }
+
+  async function playMbrolaPreview(text: string, spokenWord: string, token: number) {
     const response = await fetchMbrolaTextAudio(text);
+    if (token !== previewAudioToken) return;
     const contentType = response.headers.get('content-type') ?? '';
 
     if (!response.ok || !contentType.includes('audio')) {
@@ -168,43 +188,47 @@
     }
 
     const blob = await response.blob();
+    if (token !== previewAudioToken) return;
     const nextUrl = URL.createObjectURL(blob);
     const nextAudio = new Audio(nextUrl);
     const configuredSpeed = Number(get(ttsSpeed));
     nextAudio.playbackRate = Number.isFinite(configuredSpeed) && configuredSpeed > 0 ? configuredSpeed : 0.8;
-    nextAudio.onended = () => {
-      if (speakingWord === spokenWord) {
-        speakingWord = '';
-      }
-    };
-    nextAudio.onerror = () => {
-      if (speakingWord === spokenWord) {
-        speakingWord = '';
-      }
-      audioFeedback = 'Speech preview could not play right now.';
-    };
+    nextAudio.onended = () => finishPreviewAudio(nextAudio, nextUrl, token, spokenWord);
+    nextAudio.onerror = () => finishPreviewAudio(nextAudio, nextUrl, token, spokenWord, 'Speech preview could not play right now.');
 
-    resetPreviewAudio();
     activePreviewAudio = nextAudio;
     activePreviewAudioUrl = nextUrl;
     await nextAudio.play();
+    if (token !== previewAudioToken || activePreviewAudio !== nextAudio) {
+      nextAudio.pause();
+      URL.revokeObjectURL(nextUrl);
+    }
   }
 
   async function speakResult(result: LookupResult) {
     audioFeedback = '';
     const miradWord = getMiradWord(result).trim();
     const previewText = getPreviewMiradText(result);
+    const activeWord = miradWord || previewText;
+
+    if (speakingWord === activeWord) {
+      resetPreviewAudio();
+      return;
+    }
 
     if (!previewText) {
       audioFeedback = 'Speech preview is unavailable for this result.';
       return;
     }
 
-    speakingWord = miradWord || previewText;
+    resetPreviewAudio();
+    const token = previewAudioToken;
+    speakingWord = activeWord;
 
     try {
-      await playMbrolaPreview(previewText, speakingWord);
+      await playMbrolaPreview(previewText, speakingWord, token);
     } catch (error) {
+      if (token !== previewAudioToken) return;
       speakingWord = '';
       const detail = error instanceof Error ? error.message.trim() : '';
       audioFeedback = detail || 'Speech preview could not play right now.';

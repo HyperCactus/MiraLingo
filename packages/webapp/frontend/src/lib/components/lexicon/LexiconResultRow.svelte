@@ -45,8 +45,8 @@
 
       <AudioButton
         disabled={!audioAvailable || !translationWord}
-        loading={speaking}
-        label={speaking ? 'Speaking…' : 'Hear translation'}
+        playing={speaking}
+        label={speaking ? 'Stop audio' : 'Hear translation'}
         on:click={() => dispatch('speak', { text: translationWord })}
       />
     </div>
