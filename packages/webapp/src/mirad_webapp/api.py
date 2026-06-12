@@ -733,7 +733,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except StorageError as exc:
             return storage_failure_response(exc)
         if token:
-            reset_url = f"{runtime_settings.app_url}/?reset_token={token}"
+            base_url = runtime_settings.app_url.rstrip("/")
+            # Fall back to the request origin when app_url is a dev default override.
+            if any(h in base_url for h in ("localhost", "127.0.0.1")):
+                forwarded = request.headers.get("X-Forwarded-Host") or request.headers.get("Host") or ""
+                if forwarded and "localhost" not in forwarded and "127.0.0.1" not in forwarded:
+                    origin = f"https://{forwarded.split(',')[0].strip()}"
+                    base_url = origin.rstrip("/")
+            reset_url = f"{base_url}/?reset_token={token}"
             to_email = normalize_email(payload.email) or payload.email
             background_tasks.add_task(record_password_reset_email_delivery, to_email=to_email, reset_url=reset_url)
         else:
