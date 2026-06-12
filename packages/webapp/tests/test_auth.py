@@ -3,6 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 from fastapi.testclient import TestClient
 
+from mirad_webapp import auth
 from mirad_webapp.api import create_app
 from mirad_webapp.config import Settings
 
@@ -119,6 +120,58 @@ def test_registration_validation_errors_do_not_create_sessions_or_accounts(tmp_p
     failed_login = client.post("/auth/login", json={"email": "mira@example.com", "password": "valid-pass"})
     assert failed_login.status_code == 401
     assert failed_login.json()["detail"] == "Invalid email or password."
+
+
+def test_registration_accepts_128_character_password_without_bcrypt_long_input(monkeypatch, tmp_path: Path) -> None:
+    original_hashpw = auth.bcrypt.hashpw
+    observed_lengths: list[int] = []
+
+    def fail_on_long_bcrypt_input(password: bytes, salt: bytes) -> bytes:
+        observed_lengths.append(len(password))
+        if len(password) > 72:
+            raise ValueError("password cannot be longer than 72 bytes")
+        return original_hashpw(password, salt)
+
+    monkeypatch.setattr(auth.bcrypt, "hashpw", fail_on_long_bcrypt_input)
+    client = TestClient(create_app(_settings(tmp_path)))
+    password = "p" * 128
+
+    register = client.post("/auth/register", json={"email": "mira@example.com", "password": password})
+    client.post("/auth/logout")
+    login = client.post("/auth/login", json={"email": "mira@example.com", "password": password})
+
+    assert register.status_code == 201
+    assert login.status_code == 200
+    assert observed_lengths
+    assert max(observed_lengths) <= 72
+
+
+def test_password_reset_accepts_128_character_password_without_bcrypt_long_input(monkeypatch, tmp_path: Path) -> None:
+    original_hashpw = auth.bcrypt.hashpw
+    observed_lengths: list[int] = []
+
+    def fail_on_long_bcrypt_input(password: bytes, salt: bytes) -> bytes:
+        observed_lengths.append(len(password))
+        if len(password) > 72:
+            raise ValueError("password cannot be longer than 72 bytes")
+        return original_hashpw(password, salt)
+
+    monkeypatch.setattr(auth.bcrypt, "hashpw", fail_on_long_bcrypt_input)
+    app = create_app(_settings(tmp_path))
+    client = TestClient(app)
+    old_password = "learner-password-1"
+    new_password = "r" * 128
+    assert client.post("/auth/register", json={"email": "mira@example.com", "password": old_password}).status_code == 201
+    token = app.state.storage.create_password_reset_token(email="mira@example.com", secret="miralingo-dev-session-secret", ttl_seconds=3600)
+
+    reset = client.post("/auth/password/reset", json={"token": token, "password": new_password})
+    login = client.post("/auth/login", json={"email": "mira@example.com", "password": new_password})
+
+    assert reset.status_code == 200
+    assert reset.json() == {"ok": True, "phase": "password_reset", "authenticated": False}
+    assert login.status_code == 200
+    assert observed_lengths
+    assert max(observed_lengths) <= 72
 
 
 def test_duplicate_registration_is_rejected_without_replacing_password(tmp_path: Path) -> None:

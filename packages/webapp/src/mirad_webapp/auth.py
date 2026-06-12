@@ -7,7 +7,7 @@ import hashlib
 import hmac
 import re
 from dataclasses import dataclass
-from secrets import compare_digest, token_bytes, token_urlsafe
+from secrets import compare_digest, token_urlsafe
 from typing import Any
 
 import bcrypt
@@ -147,16 +147,31 @@ def registered_login_error() -> tuple[dict[str, Any], int]:
     )
 
 
+def _bcrypt_password_input(password: str) -> bytes:
+    """Return fixed-size password material for bcrypt.
+
+    bcrypt only processes the first 72 bytes of input, and newer bcrypt releases
+    reject longer inputs instead of truncating them. Prehashing lets the app keep
+    its 8-128 character password contract without 500s or silent truncation.
+    """
+    return base64.b64encode(hashlib.sha256(password.encode("utf-8")).digest())
+
+
 def hash_password(password: str) -> str:
     """Hash one password with bcrypt. The encoded hash includes salt and cost."""
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
+    return bcrypt.hashpw(_bcrypt_password_input(password), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str | bytes | None) -> bool:
-    """Verify a password against a bcrypt hash without exposing secret material."""
+    """Verify a password against current prehashed bcrypt and legacy raw bcrypt."""
     if not password_hash:
         return False
     encoded_hash = password_hash if isinstance(password_hash, bytes) else str(password_hash).encode("utf-8")
+    try:
+        if bcrypt.checkpw(_bcrypt_password_input(password), encoded_hash):
+            return True
+    except ValueError:
+        return False
     try:
         return bcrypt.checkpw(password.encode("utf-8"), encoded_hash)
     except ValueError:

@@ -365,7 +365,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         import sqlite3
         from difflib import SequenceMatcher
 
-        from mirad_translator.lexicon_db import DB_PATH, build_lexicon_db, lookup_word_candidates, lookup_mirad_word_candidates
+        try:
+            from mirad_translator.lexicon_db import DB_PATH, build_lexicon_db, lookup_word_candidates, lookup_mirad_word_candidates
+        except ImportError:
+            logger.info("lookup fallback unavailable: mirad_translator.lexicon_db is not importable")
+            return []
 
         normalized = " ".join(str(q or "").strip().lower().split())
         if not normalized:
@@ -760,7 +764,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             reset_user = storage.reset_password_with_token(raw_token=payload.token, new_password=payload.password, secret=runtime_settings.session_secret)
         except StorageError as exc:
             return storage_failure_response(exc)
-        except Exception as exc:
+        except Exception:
             logger.exception("password_reset: unexpected error")
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
