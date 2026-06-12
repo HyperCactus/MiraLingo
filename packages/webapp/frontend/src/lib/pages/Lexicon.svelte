@@ -234,6 +234,7 @@
   avatarLabel={userName}
   {navItems}
   {showAdmin}
+  showSidebar={false}
   on:click={() => dispatch('back')}
   on:settings={() => dispatch('settings')}
   on:admin={() => dispatch('admin')}
@@ -353,22 +354,4 @@
       </AppCard>
     {/if}
   </div>
-
-  <svelte:fragment slot="sidebar">
-    <AppCard className="space-y-3">
-      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Search tips</p>
-      <ul class="space-y-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Type one word at a time for best results.</li>
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Switch direction to search from Mirad back to English.</li>
-        <li class="rounded-2xl bg-violet-50/70 px-4 py-3 dark:bg-violet-950/40">Use audio preview to hear Mirad words.</li>
-      </ul>
-    </AppCard>
-
-    <AppCard className="space-y-2">
-      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Current direction</p>
-      <p class="text-sm text-slate-500 dark:text-slate-400">
-        {direction === 'en_to_mir' ? 'English source → Mirad translation' : 'Mirad source → English translation'}
-      </p>
-    </AppCard>
-  </svelte:fragment>
 </AppShell>

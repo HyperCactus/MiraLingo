@@ -10,6 +10,7 @@
   export let userLabel = '';
   export let avatarLabel = 'Guest';
   export let showAdmin = false;
+  export let showSidebar = true;
   export let navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', href: '#dashboard', active: true },
     { id: 'practice', label: 'Practice', href: '#practice' },
@@ -23,7 +24,7 @@
     <TopBar {title} {subtitle} {showBackButton} {backLabel} {userLabel} {avatarLabel} {showAdmin} on:click on:settings on:admin on:logout />
 
     <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-      <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+      <div class={showSidebar ? 'grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]' : 'grid gap-6'}>
         <section class="min-w-0">
           <slot name="hero" />
           <div class="mt-6">
@@ -31,18 +32,20 @@
           </div>
         </section>
 
-        <aside class="space-y-4">
-          <slot name="sidebar">
-            <AppCard className="space-y-3">
-              <div>
-                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Study snapshot</p>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  AppShell reserves a secondary column for analytics, shortcuts, or account controls.
-                </p>
-              </div>
-            </AppCard>
-          </slot>
-        </aside>
+        {#if showSidebar}
+          <aside class="space-y-4">
+            <slot name="sidebar">
+              <AppCard className="space-y-3">
+                <div>
+                  <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Study snapshot</p>
+                  <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    AppShell reserves a secondary column for analytics, shortcuts, or account controls.
+                  </p>
+                </div>
+              </AppCard>
+            </slot>
+          </aside>
+        {/if}
       </div>
     </main>
 

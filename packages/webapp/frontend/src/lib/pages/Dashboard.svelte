@@ -89,6 +89,7 @@
   avatarLabel={userName}
   {navItems}
   {showAdmin}
+  showSidebar={false}
   on:click
   on:settings={() => dispatch('settings')}
   on:admin={() => dispatch('admin')}
@@ -188,15 +189,4 @@
       <p class="text-xs leading-5 text-slate-400 dark:text-slate-500">Practice regularly to improve accuracy and move more cards into mastered.</p>
     </AppCard>
   </div>
-
-  <svelte:fragment slot="sidebar">
-    <AppCard className="space-y-3">
-      <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Summary endpoint fields</p>
-      <dl class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-        <div class="flex items-center justify-between gap-4"><dt>Total events</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{safeCount(summary?.event_count)}</dd></div>
-        <div class="flex items-center justify-between gap-4"><dt>Current streak</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{currentStreak}</dd></div>
-        <div class="flex items-center justify-between gap-4"><dt>Mastered cards</dt><dd class="font-semibold text-slate-900 dark:text-slate-50">{masteredCountUnified}</dd></div>
-      </dl>
-    </AppCard>
-  </svelte:fragment>
 </AppShell>
