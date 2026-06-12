@@ -219,6 +219,66 @@ def test_password_forgot_does_not_reveal_email_existence(tmp_path: Path) -> None
     assert existing.json()["detail"] == missing.json()["detail"]
 
 
+def test_admin_dashboard_is_email_gated_and_can_delete_non_admin_users(tmp_path: Path) -> None:
+    client = TestClient(create_app(_settings(tmp_path)))
+    admin_password = "admin-password-1"
+    learner_password = "learner-password-1"
+
+    unauthenticated = client.get("/admin/dashboard")
+    assert unauthenticated.status_code == 401
+    assert unauthenticated.json()["error"] == "unauthenticated"
+
+    admin_registration = client.post("/auth/register", json={"email": "sampollard888@gmail.com", "password": admin_password, "name": "Sam"})
+    assert admin_registration.status_code == 201
+    admin_id = admin_registration.json()["user"]["id"]
+    client.post("/auth/logout")
+
+    learner_registration = client.post("/auth/register", json={"email": "learner@example.com", "password": learner_password, "name": "Learner"})
+    assert learner_registration.status_code == 201
+    learner_id = learner_registration.json()["user"]["id"]
+
+    forbidden_dashboard = client.get("/admin/dashboard")
+    forbidden_delete = client.request("DELETE", f"/admin/users/{learner_id}", json={"confirmation_email": "learner@example.com"})
+    assert forbidden_dashboard.status_code == 403
+    assert forbidden_dashboard.json()["error"] == "forbidden"
+    assert forbidden_delete.status_code == 403
+
+    client.post("/auth/logout")
+    admin_login = client.post("/auth/login", json={"email": "sampollard888@gmail.com", "password": admin_password})
+    assert admin_login.status_code == 200
+
+    dashboard = client.get("/admin/dashboard")
+    assert dashboard.status_code == 200
+    payload = dashboard.json()
+    assert payload["ok"] is True
+    assert payload["summary"]["total_users"] == 2
+    assert payload["summary"]["active_7_days"] == 2
+    assert payload["summary"]["active_30_days"] == 2
+    emails = {user["email"] for user in payload["users"]}
+    assert emails == {"sampollard888@gmail.com", "learner@example.com"}
+    assert all("password_hash" not in user and "token_hash" not in user and "google_sub" not in user for user in payload["users"])
+
+    wrong_confirmation = client.request("DELETE", f"/admin/users/{learner_id}", json={"confirmation_email": "wrong@example.com"})
+    protected_admin = client.request("DELETE", f"/admin/users/{admin_id}", json={"confirmation_email": "sampollard888@gmail.com"})
+    assert wrong_confirmation.status_code == 400
+    assert wrong_confirmation.json()["error"] == "invalid_confirmation"
+    assert protected_admin.status_code == 403
+    assert protected_admin.json()["error"] == "protected_account"
+
+    deleted = client.request("DELETE", f"/admin/users/{learner_id}", json={"confirmation_email": "learner@example.com"})
+    assert deleted.status_code == 200
+    assert deleted.json()["deleted_email"] == "learner@example.com"
+
+    after_delete = client.get("/admin/dashboard")
+    assert after_delete.status_code == 200
+    assert after_delete.json()["summary"]["total_users"] == 1
+    assert {user["email"] for user in after_delete.json()["users"]} == {"sampollard888@gmail.com"}
+
+    client.post("/auth/logout")
+    learner_login = client.post("/auth/login", json={"email": "learner@example.com", "password": learner_password})
+    assert learner_login.status_code == 401
+
+
 def test_password_forgot_sends_reset_email_for_existing_account_without_public_status(monkeypatch, tmp_path: Path) -> None:
     sent: list[dict[str, str]] = []
 

@@ -15,7 +15,7 @@
 </script>
 
 <nav aria-label="Primary" class="border-t border-violet-100 bg-white/95 px-2 py-2 backdrop-blur dark:border-violet-900/60 dark:bg-slate-950/95">
-  <ul class="grid grid-cols-4 gap-2">
+  <ul class="grid gap-2" style={`grid-template-columns: repeat(${Math.max(1, items.length)}, minmax(0, 1fr));`}>
     {#each items as item (item.id)}
       <li>
         <a

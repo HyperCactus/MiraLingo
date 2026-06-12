@@ -9,6 +9,7 @@
   export let backLabel = 'Back';
   export let userLabel = '';
   export let avatarLabel = 'Guest';
+  export let showAdmin = false;
   export let navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', href: '#dashboard', active: true },
     { id: 'practice', label: 'Practice', href: '#practice' },
@@ -19,7 +20,7 @@
 
 <div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
   <div class="mx-auto flex min-h-screen max-w-6xl flex-col">
-    <TopBar {title} {subtitle} {showBackButton} {backLabel} {userLabel} {avatarLabel} on:click on:settings on:logout />
+    <TopBar {title} {subtitle} {showBackButton} {backLabel} {userLabel} {avatarLabel} {showAdmin} on:click on:settings on:admin on:logout />
 
     <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
       <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">

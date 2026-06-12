@@ -3,7 +3,7 @@
   import AppBadge from '../ui/AppBadge.svelte';
   import AppButton from '../ui/AppButton.svelte';
 
-  const dispatch = createEventDispatcher<{ settings: void; logout: void }>();
+  const dispatch = createEventDispatcher<{ settings: void; admin: void; logout: void }>();
 
   export let title = 'MiraLingo';
   export let subtitle = '';
@@ -11,6 +11,7 @@
   export let showBackButton = false;
   export let backLabel = 'Back';
   export let avatarLabel = 'Guest';
+  export let showAdmin = false;
 
   let menuOpen = false;
 
@@ -67,7 +68,12 @@
       {#if menuOpen}
         <!-- svelte-ignore a11y-interactive-supports-focus -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div class="absolute right-0 z-20 mt-2 w-40 rounded-2xl border border-violet-100 bg-white p-2 shadow-lg dark:border-violet-900/60 dark:bg-slate-950" role="menu" tabindex="-1" on:click={() => (menuOpen = false)} on:keydown={(e) => e.key === 'Escape' && (menuOpen = false)}>
+        <div class="absolute right-0 z-20 mt-2 w-44 rounded-2xl border border-violet-100 bg-white p-2 shadow-lg dark:border-violet-900/60 dark:bg-slate-950" role="menu" tabindex="-1" on:click={() => (menuOpen = false)} on:keydown={(e) => e.key === 'Escape' && (menuOpen = false)}>
+          {#if showAdmin}
+            <button type="button" class="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-violet-50 dark:hover:bg-violet-950/40" role="menuitem" on:click={() => { menuOpen = false; dispatch('admin'); }}>
+              Admin dashboard
+            </button>
+          {/if}
           <button type="button" class="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-violet-50 dark:hover:bg-violet-950/40" role="menuitem" on:click={() => { menuOpen = false; dispatch('settings'); }}>
             Settings
           </button>

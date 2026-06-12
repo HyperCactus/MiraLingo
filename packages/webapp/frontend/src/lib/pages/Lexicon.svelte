@@ -15,10 +15,12 @@
   const dispatch = createEventDispatcher<{
     back: void;
     settings: void;
+    admin: void;
     logout: void;
   }>();
 
   export let userName = 'Learner';
+  export let showAdmin = false;
   export let navItems: NavItem[] = [
     { id: 'dashboard', label: 'Today', href: '#dashboard' },
     { id: 'practice', label: 'Practice', href: '#practice' },
@@ -231,8 +233,10 @@
   userLabel={state === 'loading' ? 'Searching' : 'Lookup'}
   avatarLabel={userName}
   {navItems}
+  {showAdmin}
   on:click={() => dispatch('back')}
   on:settings={() => dispatch('settings')}
+  on:admin={() => dispatch('admin')}
   on:logout={() => dispatch('logout')}
 >
   <svelte:fragment slot="hero">

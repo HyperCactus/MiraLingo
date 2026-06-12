@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from .analytics import build_practice_analytics
 from .audio import AudioFailure, synthesize_card_audio, synthesize_text_audio
 from .auth import (
+    ADMIN_ACCOUNT_EMAIL,
     ADMIN_ROLE,
     LOCAL_ADMIN_EMAIL,
     LOCAL_ADMIN_USERNAME,
@@ -138,6 +139,14 @@ class DeleteAccountRequest(BaseModel):
     email: str | None = None
     username: str | None = None
     confirmation: str
+
+
+class AdminDeleteUserRequest(BaseModel):
+    """Admin user deletion confirmation payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    confirmation_email: str
 
 
 class TextToSpeechRequest(BaseModel):
@@ -274,6 +283,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def forbidden_response(phase: str, detail: str = "You do not have permission to perform this action.") -> JSONResponse:
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"ok": False, "error": "forbidden", "phase": phase, "detail": detail})
+
+    def is_designated_admin(user: Any) -> bool:
+        return normalize_email(str(getattr(user, "email", "") or "")) == ADMIN_ACCOUNT_EMAIL
+
+    def require_designated_admin(request: Request, phase: str):
+        user = resolve_current_user(request, phase)
+        if user is None:
+            return None, unauthenticated_response(phase, "Login is required to view the admin dashboard.")
+        if not is_designated_admin(user):
+            return None, forbidden_response(phase, "Only the configured admin account can access this resource.")
+        return user, None
 
     def answer_events_for_user(username: str, phase: str, *, limit: int | None = MAX_EVENTS) -> list[dict[str, Any]]:
         storage: MiraLingoStorage = app.state.storage
@@ -532,6 +552,59 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if user is None:
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"authenticated": False, "user": None, "detail": "No active user session."})
         return JSONResponse(status_code=status.HTTP_200_OK, content=authenticated_payload(user))
+
+    @app.get("/admin/dashboard", tags=["admin"])
+    def admin_dashboard(request: Request) -> JSONResponse:
+        """Return secret-free user activity metrics for the configured admin account."""
+        _admin_user, auth_response = require_designated_admin(request, "admin_dashboard")
+        if auth_response is not None:
+            return auth_response
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            dashboard = storage.list_admin_user_activity()
+        except StorageError as exc:
+            return storage_failure_response(exc)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "ok": True,
+                "phase": "admin_dashboard",
+                "summary": {
+                    "total_users": dashboard["total_users"],
+                    "active_7_days": dashboard["active_7_days"],
+                    "active_30_days": dashboard["active_30_days"],
+                },
+                "users": dashboard["users"],
+            },
+        )
+
+    @app.delete("/admin/users/{user_id}", tags=["admin"])
+    def admin_delete_user(request: Request, user_id: str, payload: AdminDeleteUserRequest) -> JSONResponse:
+        """Delete a user after admin authorization and exact email confirmation."""
+        _admin_user, auth_response = require_designated_admin(request, "admin_user_delete")
+        if auth_response is not None:
+            return auth_response
+        storage: MiraLingoStorage = request.app.state.storage
+        try:
+            target = storage.get_user_admin_record(user_id=user_id)
+        except StorageError as exc:
+            return storage_failure_response(exc, status_code=status.HTTP_400_BAD_REQUEST)
+        if target is None:
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"ok": False, "error": "user_not_found", "phase": "admin_user_delete", "detail": "User does not exist."})
+        target_email = normalize_email(target["email"])
+        confirmation_email = normalize_email(payload.confirmation_email)
+        if target_email == ADMIN_ACCOUNT_EMAIL:
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"ok": False, "error": "protected_account", "phase": "admin_user_delete", "detail": "The configured admin account cannot be deleted from the admin dashboard."})
+        if confirmation_email != target_email:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"ok": False, "error": "invalid_confirmation", "phase": "admin_user_delete", "detail": "Enter the user's exact email address to confirm deletion."})
+        try:
+            deleted = storage.delete_user_account(user_id=target["id"])
+        except StorageError as exc:
+            status_code = status.HTTP_403_FORBIDDEN if exc.error == "protected_account" else status.HTTP_503_SERVICE_UNAVAILABLE
+            return storage_failure_response(exc, status_code=status_code)
+        if not deleted:
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"ok": False, "error": "user_not_found", "phase": "admin_user_delete", "detail": "User does not exist."})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"ok": True, "phase": "admin_user_delete", "deleted_user_id": target["id"], "deleted_email": target["email"]})
 
     @app.get("/settings", tags=["settings"])
     def get_settings(request: Request) -> JSONResponse:

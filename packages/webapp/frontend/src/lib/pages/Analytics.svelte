@@ -16,7 +16,9 @@
   ];
   export let onBack: () => void = () => {};
   export let onSettings: () => void = () => {};
+  export let onAdmin: () => void = () => {};
   export let onLogout: () => void = () => {};
+  export let showAdmin = false;
 
   let state: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   let error = '';
@@ -242,8 +244,10 @@
   userLabel="Progress"
   avatarLabel={userName}
   navItems={effectiveNavItems}
+  {showAdmin}
   on:click={onBack}
   on:settings={onSettings}
+  on:admin={onAdmin}
   on:logout={onLogout}
 >
   {#if state === 'error'}

@@ -17,6 +17,7 @@
   import { currentSection, goToDashboard, resetPracticeNavigation, setCurrentSection, setPracticeMode } from "./lib/stores/practice";
   import { applySettingsPayload, resetSettingsStore, settingsLoadedForUser, soundEffectsMode, theme, ttsSpeed } from "./lib/stores/settings";
   import Dashboard from "./lib/pages/Dashboard.svelte";
+  import AdminDashboard from "./lib/pages/AdminDashboard.svelte";
   import Analytics from "./lib/pages/Analytics.svelte";
   import Lexicon from "./lib/pages/Lexicon.svelte";
   import ResetPassword from "./lib/pages/ResetPassword.svelte";
@@ -25,6 +26,7 @@
   const PASSWORD_MIN_LENGTH = 8;
   const PASSWORD_MAX_LENGTH = 128;
   const PASSWORD_RULE_MESSAGE = `Password must be ${PASSWORD_MIN_LENGTH} to ${PASSWORD_MAX_LENGTH} characters.`;
+  const ADMIN_ACCOUNT_EMAIL = "sampollard888@gmail.com";
   const fmtPct = (value) => (typeof value === "number" ? `${Math.round(value * 100)}%` : "—");
   const fmtN = (value) => (typeof value === "number" ? value : "—");
   const spd = (value) => `${Number(value).toFixed(1)}×`;
@@ -42,12 +44,18 @@
     if (mode === "build_vocabulary") return "No new vocabulary is ready right now. Try Practice or Revision instead.";
     return "No practice cards are ready right now.";
   };
-  const navItemsFor = (section) => [
-    { id: "dashboard", label: "Today", href: "#dashboard", active: section === "dashboard" },
-    { id: "practice", label: "Practice", href: "#practice", active: practiceSection(section) },
-    { id: "lexicon", label: "Lexicon", href: "#lexicon", active: section === "lexicon" },
-    { id: "settings", label: "Settings", href: "#settings", active: section === "settings" },
-  ];
+  const navItemsFor = (section) => {
+    const items = [
+      { id: "dashboard", label: "Today", href: "#dashboard", active: section === "dashboard" },
+      { id: "practice", label: "Practice", href: "#practice", active: practiceSection(section) },
+      { id: "lexicon", label: "Lexicon", href: "#lexicon", active: section === "lexicon" },
+      { id: "settings", label: "Settings", href: "#settings", active: section === "settings" },
+    ];
+    if (isAdminUser($currentUser)) {
+      items.push({ id: "admin", label: "Admin", href: "#admin", active: section === "admin" });
+    }
+    return items;
+  };
   const soundEffectsEnabledFromMode = (mode) => mode === "all" || mode === "on_answer";
   const uiButtonSoundsEnabledFromMode = (mode) => mode === "all" || mode === "ui_only";
   const sfxModeFromToggles = (uiButtonsEnabled, effectsEnabled) => {
@@ -58,6 +66,7 @@
   };
 
   const displayName = (user) => user?.name || user?.email || "Learner";
+  const isAdminUser = (user) => String(user?.email ?? "").trim().toLowerCase() === ADMIN_ACCOUNT_EMAIL;
   const normalizeAnswer = (value) => String(value ?? "").trim().toLowerCase().replace(/[\s.,!?;:"'’‘“”()[\]{}-]+/g, " ").trim();
   const answerMatchesCard = (card, answer) => {
     const submitted = normalizeAnswer(answer);
@@ -865,6 +874,12 @@
       return;
     }
 
+    if (section === "admin" && !isAdminUser($currentUser)) {
+      goToDashboard();
+      replaceHash("dashboard");
+      return;
+    }
+
     resetAudio();
     resetAnswer();
     setCurrentSection(section);
@@ -911,6 +926,10 @@
     }
     if (target === "lexicon") {
       void navigateToSection("lexicon");
+      return;
+    }
+    if (target === "admin") {
+      void navigateToSection("admin");
       return;
     }
 
@@ -1007,9 +1026,11 @@
     subtitle=""
     userLabel=""
     avatarLabel={displayName($currentUser)}
+    showAdmin={isAdminUser($currentUser)}
     backLabel="Back to today"
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:admin={() => navigateToSection("admin")}
     on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   >
@@ -1075,12 +1096,14 @@
     userName={displayName($currentUser)}
     activeSection={$currentSection}
     refreshSignal={dashboardRefreshSignal}
+    showAdmin={isAdminUser($currentUser)}
     on:continuePractice={() => navigateToSection("practice")}
     on:revision={() => navigateToSection("revision")}
     on:buildVocabulary={() => navigateToSection("build_vocabulary")}
     on:lexicon={() => navigateToSection("lexicon")}
     on:settings={() => navigateToSection("settings")}
     on:analytics={() => navigateToSection("analytics")}
+    on:admin={() => navigateToSection("admin")}
     on:logout={logout}
   />
 {:else if $authState === "authenticated" && $currentSection === "analytics"}
@@ -1088,8 +1111,10 @@
     userName={displayName($currentUser)}
     activeSection={$currentSection}
     navItems={navItemsFor($currentSection)}
+    showAdmin={isAdminUser($currentUser)}
     onBack={goToMenu}
     onSettings={() => navigateToSection("settings")}
+    onAdmin={() => navigateToSection("admin")}
     onLogout={logout}
   />
 {:else if $authState === "authenticated" && $currentSection === "settings"}
@@ -1101,8 +1126,10 @@
     userLabel="Settings"
     avatarLabel={displayName($currentUser)}
     navItems={navItemsFor($currentSection)}
+    showAdmin={isAdminUser($currentUser)}
     on:click={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:admin={() => navigateToSection("admin")}
     on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   >
@@ -1229,12 +1256,21 @@
       </AppCard>
     </svelte:fragment>
   </AppShell>
+{:else if $authState === "authenticated" && $currentSection === "admin" && isAdminUser($currentUser)}
+  <AdminDashboard
+    userName={displayName($currentUser)}
+    navItems={navItemsFor($currentSection)}
+    on:settings={() => navigateToSection("settings")}
+    on:logout={logout}
+  />
 {:else if $authState === "authenticated" && $currentSection === "lexicon"}
   <Lexicon
     userName={displayName($currentUser)}
     navItems={navItemsFor($currentSection)}
+    showAdmin={isAdminUser($currentUser)}
     on:back={goToMenu}
     on:settings={() => navigateToSection("settings")}
+    on:admin={() => navigateToSection("admin")}
     on:analytics={() => navigateToSection("analytics")}
     on:logout={logout}
   />

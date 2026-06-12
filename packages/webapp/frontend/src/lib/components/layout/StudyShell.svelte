@@ -8,11 +8,12 @@
   export let backLabel = 'Back to dashboard';
   export let userLabel = 'Study mode';
   export let avatarLabel = 'Guest';
+  export let showAdmin = false;
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-violet-50 via-white to-white text-slate-900 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-slate-50">
   <div class="mx-auto flex min-h-screen max-w-4xl flex-col">
-    <TopBar {title} {subtitle} {showBackButton} {backLabel} {userLabel} {avatarLabel} on:click on:settings on:logout />
+    <TopBar {title} {subtitle} {showBackButton} {backLabel} {userLabel} {avatarLabel} {showAdmin} on:click on:settings on:admin on:logout />
 
     <main class="flex flex-1 items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
       <div class="w-full max-w-2xl">

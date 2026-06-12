@@ -17,6 +17,7 @@ from .config import Settings
 LOCAL_ADMIN_EMAIL = "admin@local.miralingo"
 LOCAL_ADMIN_USERNAME = "admin"
 LOCAL_ADMIN_PASSWORD = "admin"
+ADMIN_ACCOUNT_EMAIL = "sampollard888@gmail.com"
 ADMIN_ROLE = "admin"
 TEST_USER_ROLE = "test_user"
 USER_ROLE = "user"

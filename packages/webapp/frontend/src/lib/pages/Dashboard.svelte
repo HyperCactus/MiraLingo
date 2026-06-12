@@ -13,22 +13,25 @@
     lexicon: void;
     settings: void;
     analytics: void;
+    admin: void;
     logout: void;
   }>();
 
   export let userName = 'Learner';
   export let activeSection = 'dashboard';
   export let refreshSignal = 0;
+  export let showAdmin = false;
 
   let state: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
   let error = '';
   let summary: PracticeSummaryResponse | null = null;
 
-  const navItems = [
+  $: navItems = [
     { id: 'dashboard', label: 'Today', href: '#dashboard', active: activeSection === 'dashboard' },
     { id: 'practice', label: 'Practice', href: '#practice', active: activeSection === 'practice' },
     { id: 'lexicon', label: 'Lexicon', href: '#lexicon', active: activeSection === 'lexicon' },
     { id: 'settings', label: 'Settings', href: '#settings', active: activeSection === 'settings' },
+    ...(showAdmin ? [{ id: 'admin', label: 'Admin', href: '#admin', active: activeSection === 'admin' }] : []),
   ];
 
   const safeCount = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
@@ -85,8 +88,10 @@
   userLabel="Logged in"
   avatarLabel={userName}
   {navItems}
+  {showAdmin}
   on:click
   on:settings={() => dispatch('settings')}
+  on:admin={() => dispatch('admin')}
   on:logout={() => dispatch('logout')}
 >
   <svelte:fragment slot="hero">

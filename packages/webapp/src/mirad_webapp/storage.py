@@ -1268,10 +1268,112 @@ class MiraLingoStorage:
             raise StorageError(phase="auth_google_callback", detail="Google account is disabled.", error="disabled_user")
         return _auth_user_from_row(row)
 
+    def list_admin_user_activity(self) -> dict[str, Any]:
+        """Return secret-free user activity data for the admin dashboard."""
+        now = datetime.now(timezone.utc)
+        active_7_cutoff = now - timedelta(days=7)
+        active_30_cutoff = now - timedelta(days=30)
+        try:
+            with self._connect("admin_dashboard") as connection:
+                rows = connection.execute(
+                    """
+                    SELECT
+                        u.id,
+                        u.username,
+                        u.email,
+                        u.name,
+                        u.role,
+                        u.created_at,
+                        u.updated_at,
+                        MAX(
+                            COALESCE(u.updated_at, ''),
+                            COALESCE(u.created_at, ''),
+                            COALESCE(ps.last_session_at, ''),
+                            COALESCE(sc.last_shown_at, ''),
+                            COALESCE(ae.last_answered_at, '')
+                        ) AS last_active_at
+                    FROM users u
+                    LEFT JOIN (
+                        SELECT username, MAX(COALESCE(ended_at, started_at)) AS last_session_at
+                        FROM practice_sessions
+                        GROUP BY username
+                    ) ps ON ps.username = u.username OR ps.username = u.id
+                    LEFT JOIN (
+                        SELECT username, MAX(shown_at) AS last_shown_at
+                        FROM shown_cards
+                        GROUP BY username
+                    ) sc ON sc.username = u.username OR sc.username = u.id
+                    LEFT JOIN (
+                        SELECT username, MAX(answered_at) AS last_answered_at
+                        FROM answer_events
+                        GROUP BY username
+                    ) ae ON ae.username = u.username OR ae.username = u.id
+                    WHERE u.disabled = 0
+                    GROUP BY u.id, u.username, u.email, u.name, u.role, u.created_at, u.updated_at
+                    ORDER BY lower(u.email) ASC
+                    """
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="admin_dashboard", detail="Could not read admin dashboard data from storage.") from exc
+
+        users: list[dict[str, Any]] = []
+        active_7_days = 0
+        active_30_days = 0
+        for row in rows:
+            last_active_at = str(row["last_active_at"] or "").strip() or None
+            last_active_dt = _parse_iso_datetime(last_active_at)
+            days_since_last_active = (now - last_active_dt).days if last_active_dt is not None else None
+            if last_active_dt is not None and last_active_dt >= active_7_cutoff:
+                active_7_days += 1
+            if last_active_dt is not None and last_active_dt >= active_30_cutoff:
+                active_30_days += 1
+            users.append(
+                {
+                    "id": str(row["id"] or row["username"]),
+                    "email": str(row["email"] or ""),
+                    "name": str(row["name"]) if row["name"] is not None else None,
+                    "role": str(row["role"] or LEARNER_ROLE),
+                    "last_active_at": last_active_at,
+                    "days_since_last_active": days_since_last_active,
+                }
+            )
+        return {
+            "total_users": len(users),
+            "active_7_days": active_7_days,
+            "active_30_days": active_30_days,
+            "users": users,
+        }
+
+    def get_user_admin_record(self, *, user_id: str) -> dict[str, Any] | None:
+        """Return one secret-free user record by exact immutable id."""
+        raw_user_id = str(user_id or "").strip()
+        if not raw_user_id:
+            raise StorageError(phase="admin_user_delete", detail="A non-blank user id is required.", error="invalid_user_id")
+        try:
+            with self._connect("admin_user_delete") as connection:
+                row = connection.execute(
+                    "SELECT id, username, email, name, role, disabled FROM users WHERE id = ? OR username = ?",
+                    (raw_user_id, raw_user_id),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise StorageError(phase="admin_user_delete", detail="Could not read user from storage.") from exc
+        if row is None or bool(row["disabled"]):
+            return None
+        return {
+            "id": str(row["id"] or row["username"]),
+            "username": str(row["username"]),
+            "email": str(row["email"] or ""),
+            "name": str(row["name"]) if row["name"] is not None else None,
+            "role": str(row["role"] or LEARNER_ROLE),
+        }
+
     def delete_user_account(self, *, username: str | None = None, user_id: str | None = None) -> bool:
         """Delete a learner account and owned rows via foreign-key cascades."""
-        normalized_username = _require_username(user_id or username or "", phase="account_delete")
-        if normalized_username in {LOCAL_ADMIN_USERNAME, "local-admin"}:
+        raw_identifier = str(user_id or username or "").strip()
+        if not raw_identifier:
+            raise StorageError(phase="account_delete", detail="A non-blank username is required.", error="invalid_username")
+        normalized_identifier = normalize_username(raw_identifier) or raw_identifier
+        if normalized_identifier in {LOCAL_ADMIN_USERNAME, "local-admin"}:
             raise StorageError(
                 phase="account_delete",
                 detail="The local admin account cannot be deleted.",
@@ -1279,13 +1381,28 @@ class MiraLingoStorage:
             )
         try:
             with self._connect("account_delete") as connection:
+                row = connection.execute(
+                    "SELECT id, username, email FROM users WHERE id = ? OR username = ? OR id = ? OR username = ?",
+                    (raw_identifier, raw_identifier, normalized_identifier, normalized_identifier),
+                ).fetchone()
+                if row is None:
+                    return False
+                user_id_value = str(row["id"] or row["username"])
+                username_value = str(row["username"])
+                if username_value in {LOCAL_ADMIN_USERNAME, "local-admin"} or normalize_email(str(row["email"] or "")) == LOCAL_ADMIN_EMAIL:
+                    raise StorageError(
+                        phase="account_delete",
+                        detail="The local admin account cannot be deleted.",
+                        error="protected_account",
+                    )
+                now = _utcnow_iso()
                 connection.execute(
-                    "UPDATE auth_sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
-                    (_utcnow_iso(), normalized_username),
+                    "UPDATE auth_sessions SET revoked_at = ? WHERE (user_id = ? OR user_id = ?) AND revoked_at IS NULL",
+                    (now, user_id_value, username_value),
                 )
                 deleted = connection.execute(
-                    "DELETE FROM users WHERE username = ? OR id = ?",
-                    (normalized_username, normalized_username),
+                    "DELETE FROM users WHERE username = ?",
+                    (username_value,),
                 ).rowcount
         except sqlite3.Error as exc:
             raise StorageError(phase="account_delete", detail="Could not delete account.") from exc
@@ -1694,6 +1811,16 @@ def _practice_day_streak(day_values: list[str], *, today: datetime | None = None
 
 def _utcnow_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _parse_iso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
 
 
 def _coerce_timestamp(value: datetime | str | None) -> str:
