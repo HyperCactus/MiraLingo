@@ -21,6 +21,7 @@ export default defineConfig({
           });
         },
       },
+      "/admin": backendUrl,
       "/content": backendUrl,
       "/health": backendUrl,
       "/lookup": backendUrl,
